@@ -1,0 +1,1746 @@
+{
+  "meta": {
+    "version": "0.2.3",
+    "notes": "Ipsative tie-breakers added; Balanced display redefined as uniformity; Confidence penalty relaxed; Lite/Full split. | v0.2.1: Directionality added to Preferences (receiver/deliver A/B), with POWER_TOP/BOTTOM adjustments. | v0.2.2: B24→B24a/B24b; B18/B27 clarified; B28 observation-only; B30→B30a/B30b; C6 not gating MVP; D6 excluded from MVP scoring. | v0.2.3: B28 weights shifted to ENM_OPEN 0.50 / VOYEUR 0.50; B27 RISK weight reduced by ~20%; matching helper adds Power complement and strict boundary gates."
+  },
+  "traits": [
+    {
+      "id": "SE",
+      "name": "Sexual Excitation",
+      "desc": "How readily arousal turns on."
+    },
+    {
+      "id": "SIS_P",
+      "name": "Sexual Inhibition (Performance)",
+      "desc": "Inhibition due to self-consciousness/pressure."
+    },
+    {
+      "id": "SIS_C",
+      "name": "Sexual Inhibition (Consequences)",
+      "desc": "Inhibition due to risk of consequences (privacy, fallout)."
+    },
+    {
+      "id": "NOVELTY",
+      "name": "Novelty Drive",
+      "desc": "Appetite for newness, roleplay, variety."
+    },
+    {
+      "id": "RISK",
+      "name": "Risk Appetite",
+      "desc": "Comfort with edge play / being seen (within legal/consensual limits)."
+    },
+    {
+      "id": "POWER_TOP",
+      "name": "Power—Top",
+      "desc": "Preference for directing/leading."
+    },
+    {
+      "id": "POWER_BOTTOM",
+      "name": "Power—Bottom",
+      "desc": "Preference for following/receiving direction."
+    },
+    {
+      "id": "BONDAGE",
+      "name": "Bondage/Control",
+      "desc": "Interest in restraint, rope, protocol."
+    },
+    {
+      "id": "IMPACT",
+      "name": "Impact Play",
+      "desc": "Interest in spanking, paddles, sensation intensity."
+    },
+    {
+      "id": "EXHIBITION",
+      "name": "Exhibitionism",
+      "desc": "Comfort being watched or recorded (consensual)."
+    },
+    {
+      "id": "VOYEUR",
+      "name": "Voyeurism",
+      "desc": "Arousal from watching others ethically."
+    },
+    {
+      "id": "SENSUAL",
+      "name": "Sensual Focus",
+      "desc": "Slow touch, massage, temperature, scent."
+    },
+    {
+      "id": "ROMANTIC",
+      "name": "Romantic/Emotional",
+      "desc": "Desire for closeness, aftercare, meaning."
+    },
+    {
+      "id": "ENM_OPEN",
+      "name": "ENM Openness",
+      "desc": "Openness to ethical non-monogamy concepts."
+    },
+    {
+      "id": "CONTROL_PREF",
+      "name": "Structure/Control Pref",
+      "desc": "Preference for rules, protocol, planning."
+    },
+    {
+      "id": "VARIETY_BREADTH",
+      "name": "Variety Breadth",
+      "desc": "Breadth across categories; willingness to try many things."
+    }
+  ],
+  "dimensions": {
+    "Adventure": {
+      "formula": {
+        "NOVELTY": 0.35,
+        "VARIETY_BREADTH": 0.2,
+        "RISK": 0.2,
+        "SE": 0.15,
+        "SIS_C": -0.1
+      },
+      "desc": "How much you lean toward exploration and trying new scenarios."
+    },
+    "Connection": {
+      "formula": {
+        "ROMANTIC": 0.5,
+        "SENSUAL": 0.25,
+        "CONTROL_PREF": 0.15,
+        "SE": 0.1,
+        "SIS_P": -0.1
+      },
+      "desc": "Your drive for closeness, emotional attunement, and ritual."
+    },
+    "Intensity": {
+      "formula": {
+        "IMPACT": 0.35,
+        "BONDAGE": 0.2,
+        "POWER_TOP": 0.15,
+        "POWER_BOTTOM": 0.15,
+        "SE": 0.15
+      },
+      "desc": "How much you enjoy strong sensations and power dynamics."
+    },
+    "Confidence": {
+      "formula": {
+        "SIS_P": -0.35,
+        "SE": 0.2,
+        "CONTROL_PREF": 0.15,
+        "SIS_C": -0.15
+      },
+      "desc": "How steady and relaxed you feel in intimate moments."
+    }
+  },
+  "archetypes": [
+    {
+      "id": "SLOW_BURN_SENSUALIST",
+      "name": "Slow-Burn Sensualist",
+      "formula": {
+        "SENSUAL": 0.35,
+        "ROMANTIC": 0.2,
+        "RISK": -0.1,
+        "NOVELTY": -0.15,
+        "SIS_P": -0.1,
+        "SE": 0.1,
+        "SIS_C": -0.1
+      },
+      "desc": "Savorer of touch, atmosphere, and connection; prefers safety and depth over dares."
+    },
+    {
+      "id": "PLAYFUL_ROMANTIC",
+      "name": "Playful Romantic",
+      "formula": {
+        "ROMANTIC": 0.3,
+        "SENSUAL": 0.2,
+        "SE": 0.2,
+        "NOVELTY": 0.15,
+        "SIS_P": -0.15
+      },
+      "desc": "Warm, flirty, and affectionate with a taste for light exploration."
+    },
+    {
+      "id": "ADVENTUROUS_EXPLORER",
+      "name": "Adventurous Explorer",
+      "formula": {
+        "SE": 0.3,
+        "NOVELTY": 0.25,
+        "SIS_C": -0.15,
+        "RISK": 0.2,
+        "VARIETY_BREADTH": 0.1
+      },
+      "desc": "Energized by new scenarios and guided risk when consent and safety are clear."
+    },
+    {
+      "id": "POWER_PLAYER_TOP",
+      "name": "Power Player — Top",
+      "formula": {
+        "POWER_TOP": 0.35,
+        "SE": 0.2,
+        "BONDAGE": 0.15,
+        "IMPACT": 0.15,
+        "SIS_P": -0.15
+      },
+      "desc": "Enjoys leading, directing, and crafting structured scenes."
+    },
+    {
+      "id": "POWER_PLAYER_BOTTOM",
+      "name": "Power Player — Bottom",
+      "formula": {
+        "POWER_BOTTOM": 0.35,
+        "SE": 0.2,
+        "BONDAGE": 0.15,
+        "IMPACT": 0.15,
+        "SIS_P": -0.15
+      },
+      "desc": "Loves surrendering into guidance and sensation."
+    },
+    {
+      "id": "PRECISION_RIGGER",
+      "name": "Precision Rigger",
+      "formula": {
+        "BONDAGE": 0.4,
+        "POWER_TOP": 0.2,
+        "CONTROL_PREF": 0.15,
+        "SE": 0.15,
+        "SIS_P": -0.1
+      },
+      "desc": "Finds flow in rope, restraint, and intentional structure."
+    },
+    {
+      "id": "RISKY_TEASER",
+      "name": "Risky Teaser",
+      "formula": {
+        "EXHIBITION": 0.3,
+        "VOYEUR": 0.2,
+        "RISK": 0.2,
+        "SIS_C": -0.15,
+        "NOVELTY": 0.15
+      },
+      "desc": "Aroused by the charge of being seen and playful edge scenarios."
+    },
+    {
+      "id": "EXPERIMENTALIST_TINKERER",
+      "name": "Experimentalist Tinkerer",
+      "formula": {
+        "NOVELTY": 0.35,
+        "VARIETY_BREADTH": 0.25,
+        "SE": 0.15,
+        "SIS_P": -0.15,
+        "SIS_C": -0.1
+      },
+      "desc": "Loves trying many things once and iterating."
+    },
+    {
+      "id": "VISUAL_ENTHUSIAST",
+      "name": "Visual Enthusiast",
+      "formula": {
+        "EXHIBITION": 0.35,
+        "VOYEUR": 0.25,
+        "NOVELTY": 0.15,
+        "RISK": 0.15,
+        "SIS_C": -0.1
+      },
+      "desc": "Aesthetics, watching, and being seen (safely) heighten excitement."
+    },
+    {
+      "id": "COMMUNICATOR",
+      "name": "Communicator",
+      "formula": {
+        "ROMANTIC": 0.25,
+        "CONTROL_PREF": 0.25,
+        "SE": 0.2,
+        "SIS_P": -0.2,
+        "POWER_TOP": 0.1
+      },
+      "desc": "Verbal play, feedback, and clear structure amplify arousal."
+    },
+    {
+      "id": "CONNECTOR_ENM",
+      "name": "Connector (ENM-friendly)",
+      "formula": {
+        "ENM_OPEN": 0.45,
+        "VOYEUR": 0.15,
+        "EXHIBITION": 0.15,
+        "NOVELTY": 0.15,
+        "ROMANTIC": 0.1
+      },
+      "desc": "Open to ethical non-monogamy concepts with care and consent."
+    },
+    {
+      "id": "BALANCED",
+      "name": "Balanced",
+      "formula": {
+        "SE": 0.15,
+        "SENSUAL": 0.15,
+        "ROMANTIC": 0.15,
+        "NOVELTY": 0.15,
+        "CONTROL_PREF": 0.15,
+        "RISK": 0.1,
+        "IMPACT": 0.1,
+        "BONDAGE": 0.05
+      },
+      "desc": "Well-rounded across exploration, connection, confidence, and intensity (displayed as 'uniformity')."
+    }
+  ],
+  "items": {
+    "lite": [],
+    "full": [
+      {
+        "id": "A1",
+        "text": "I get turned on quickly with the right vibe.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A2",
+        "text": "New experiences boost my arousal.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.6
+          },
+          {
+            "trait": "NOVELTY",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A3",
+        "text": "If I feel judged, desire fades.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_P",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A4",
+        "text": "Worry about lasting/performing shuts me down.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_P",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A5",
+        "text": "If there’s a chance of being seen, I get excited.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_C",
+            "weight": -0.6
+          },
+          {
+            "trait": "RISK",
+            "weight": 0.4
+          },
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "A6",
+        "text": "If privacy isn’t guaranteed, I can’t relax.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_C",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A7",
+        "text": "Compliments/affirmation keep me in the mood.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.7
+          },
+          {
+            "trait": "SIS_P",
+            "weight": -0.3
+          }
+        ]
+      },
+      {
+        "id": "A8",
+        "text": "If plans change suddenly, I can’t stay aroused.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_P",
+            "weight": 0.7
+          },
+          {
+            "trait": "NOVELTY",
+            "weight": -0.3
+          }
+        ]
+      },
+      {
+        "id": "A9",
+        "text": "I’m turned on by anticipation/build-up.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.6
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A10",
+        "text": "I can bounce back quickly if interrupted.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.7
+          },
+          {
+            "trait": "SIS_P",
+            "weight": -0.3
+          }
+        ]
+      },
+      {
+        "id": "A11",
+        "text": "If contraception/STD risk feels unclear, I disengage.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_C",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A12",
+        "text": "I’m energized by playful risk.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "RISK",
+            "weight": 0.6
+          },
+          {
+            "trait": "SE",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A13",
+        "text": "Self-image in the moment affects me a lot.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_P",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A14",
+        "text": "I tune into partner feedback and adapt.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.6
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A15",
+        "text": "If the environment is messy/noisy, I lose focus.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SIS_P",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "A16",
+        "text": "A firm lead from my partner turns me on.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.7
+          },
+          {
+            "trait": "SE",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "A17",
+        "text": "Being the one in charge turns me on.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.7
+          },
+          {
+            "trait": "SE",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "A18",
+        "text": "I enjoy setting rules and structure for play.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "A19",
+        "text": "I relax more when my partner sets structure.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "A20",
+        "text": "I like testing edges (safely).",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "RISK",
+            "weight": 0.6
+          },
+          {
+            "trait": "NOVELTY",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A21",
+        "text": "Routine sex bores me.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "NOVELTY",
+            "weight": 0.7
+          },
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "A22",
+        "text": "Familiar rituals are my comfort zone.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "NOVELTY",
+            "weight": -0.6
+          },
+          {
+            "trait": "SENSUAL",
+            "weight": 0.6
+          }
+        ]
+      },
+      {
+        "id": "A23",
+        "text": "Emotional closeness intensifies my arousal.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.6
+          },
+          {
+            "trait": "SE",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "A24",
+        "text": "I need decompression/aftercare to feel good.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B1",
+        "text": "Sensual massage/oils/lotions",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "SENSUAL",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B2",
+        "text": "Temperature play (warm/cool)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "SENSUAL",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B3",
+        "text": "Eye contact/affirmations",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B4",
+        "text": "Kissing games/tease",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.6
+          },
+          {
+            "trait": "SENSUAL",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "B5a",
+        "text": "Blindfolds / light control (on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B5b",
+        "text": "Blindfolds / light control (on partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B6a",
+        "text": "Rope/knots/shibari (tie on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 1.0
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B6b",
+        "text": "Rope/knots/shibari (I tie partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 1.0
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B7a",
+        "text": "Cuffs/collars/leashes (I wear)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B7b",
+        "text": "Cuffs/collars/leashes (partner wears)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "BONDAGE",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B8a",
+        "text": "Impact — hand spanking (on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 1.0
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B8b",
+        "text": "Impact — hand spanking (I give)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 1.0
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B9a",
+        "text": "Impact — paddles/floggers (on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 1.0
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B9b",
+        "text": "Impact — paddles/floggers (I give)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 1.0
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B10a",
+        "text": "Hair pulling / roughhousing (on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 0.7
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B10b",
+        "text": "Hair pulling / roughhousing (I do to partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 0.7
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B11",
+        "text": "Roleplay—teacher/student/office/etc.",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "NOVELTY",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B12",
+        "text": "Roleplay—primal chase/hunt",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "NOVELTY",
+            "weight": 0.7
+          },
+          {
+            "trait": "RISK",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B13a",
+        "text": "Dirty talk / voice control (to me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B13b",
+        "text": "Dirty talk / voice control (from me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B14a",
+        "text": "Protocol / titles (I follow)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.7
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B14b",
+        "text": "Protocol / titles (I enforce)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.7
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B15",
+        "text": "Service dynamics (acts done for partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.5
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "B16",
+        "text": "Giving service (directing partner’s acts)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "B17",
+        "text": "Exhibition—being watched (private)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "EXHIBITION",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B18",
+        "text": "Exhibition—semi-public with people nearby (legal/safe; non-private spaces where others might notice)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.7
+          },
+          {
+            "trait": "RISK",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "B19",
+        "text": "Voyeur—watching others (ethical)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "VOYEUR",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B20",
+        "text": "Recording ourselves (private)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "EXHIBITION",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B21a",
+        "text": "Toys — vibrators/wands (used on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B21b",
+        "text": "Toys — vibrators/wands (I use on partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B22a",
+        "text": "Toys — plugs/insertables (used on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B22b",
+        "text": "Toys — plugs/insertables (I use on partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.8
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B23a",
+        "text": "Edging/denial timers (partner controls me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.6
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.4
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "B23b",
+        "text": "Edging/denial timers (I control partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.6
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.4
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "B25a",
+        "text": "Sensory deprivation (on me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "SENSUAL",
+            "weight": 0.4
+          },
+          {
+            "trait": "BONDAGE",
+            "weight": 0.6
+          },
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B25b",
+        "text": "Sensory deprivation (on partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "SENSUAL",
+            "weight": 0.4
+          },
+          {
+            "trait": "BONDAGE",
+            "weight": 0.6
+          },
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B26",
+        "text": "Costumes/lingerie/dress-up",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "NOVELTY",
+            "weight": 0.8
+          },
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B27",
+        "text": "Public-but-private—secluded/private spots with low chance of being seen (e.g., covered balcony, parked car with privacy)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "RISK",
+            "weight": 0.48
+          },
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "B28",
+        "text": "Group environments (observation-only)—ethical club/party to watch, not participate",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ENM_OPEN",
+            "weight": 0.5
+          },
+          {
+            "trait": "VOYEUR",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "B29",
+        "text": "Threesomes (soft-swap, defined roles)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ENM_OPEN",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B31",
+        "text": "Aftercare rituals (snacks, water, cuddles)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "B32",
+        "text": "Debrief/feedback ritual",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.5
+          }
+        ]
+      },
+      {
+        "id": "B24a",
+        "text": "Orgasm control (partner controls me)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B24b",
+        "text": "Orgasm control (I control partner)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B30a",
+        "text": "Swinging/ENM: soft-swap openness (no intercourse; boundaries defined)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ENM_OPEN",
+            "weight": 0.6
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.2
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "B30b",
+        "text": "Swinging/ENM: full-swap openness (intercourse allowed with consent/boundaries)",
+        "type": "ymn",
+        "traits": [
+          {
+            "trait": "ENM_OPEN",
+            "weight": 0.8
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.1
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.1
+          }
+        ]
+      },
+      {
+        "id": "C1",
+        "text": "Preferred impact intensity cap (0-100)",
+        "type": "slider",
+        "min": 0,
+        "max": 100,
+        "traits": [
+          {
+            "trait": "IMPACT",
+            "weight": 0.0
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "text": "Mark HARD NO categories (never suggest): Impact, Bondage, Exhibition, Voyeur, Roleplay, Recording, Group/ENM, Public-edge, Toys",
+        "type": "boundary",
+        "boundary_category": "HARD_NO_MULTI"
+      },
+      {
+        "id": "C3",
+        "text": "No alcohol/altered-state suggestions",
+        "type": "boundary",
+        "boundary_category": "NO_ALTERED_STATE"
+      },
+      {
+        "id": "C4",
+        "text": "No recording/photos rules",
+        "type": "boundary",
+        "boundary_category": "NO_RECORDING"
+      },
+      {
+        "id": "C5",
+        "text": "Protection rules (always required)",
+        "type": "boundary",
+        "boundary_category": "SAFER_SEX_REQUIRED"
+      },
+      {
+        "id": "C6",
+        "text": "Venue comfort (home/hotel/private club only)",
+        "type": "boundary",
+        "boundary_category": "VENUE_LIMITS"
+      },
+      {
+        "id": "C7",
+        "text": "Aftercare required",
+        "type": "boundary",
+        "boundary_category": "AFTERCARE_REQUIRED"
+      },
+      {
+        "id": "C8",
+        "text": "Safeword preference confirmed",
+        "type": "boundary",
+        "boundary_category": "SAFEWORD_CONFIRMED"
+      },
+      {
+        "id": "C9",
+        "text": "Check-in cadence (before/during/after)",
+        "type": "boundary",
+        "boundary_category": "CHECKINS_REQUIRED"
+      },
+      {
+        "id": "C10",
+        "text": "Custom red-lines (free text log)",
+        "type": "boundary",
+        "boundary_category": "REDLINES_TEXT"
+      },
+      {
+        "id": "D1",
+        "text": "I prefer leading most sessions.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "D2",
+        "text": "I prefer following most sessions.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "POWER_BOTTOM",
+            "weight": 1.0
+          }
+        ]
+      },
+      {
+        "id": "D3",
+        "text": "I like switching roles sometimes.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.7
+          }
+        ]
+      },
+      {
+        "id": "D4",
+        "text": "I like planning scenes over spontaneity.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.7
+          },
+          {
+            "trait": "NOVELTY",
+            "weight": -0.3
+          }
+        ]
+      },
+      {
+        "id": "D5",
+        "text": "Ideal session length: longer, immersive scenes.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.4
+          },
+          {
+            "trait": "IMPACT",
+            "weight": 0.3
+          },
+          {
+            "trait": "BONDAGE",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "D6",
+        "text": "I want more frequent intimacy in my week.",
+        "type": "likert7",
+        "traits": [
+          {
+            "trait": "SE",
+            "weight": 0.6
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.4
+          }
+        ]
+      },
+      {
+        "id": "IA1",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "A private, slow sensual setup",
+        "optionB_text": "A structured, playful scene where I direct",
+        "traitsA": [
+          {
+            "trait": "SENSUAL",
+            "weight": 0.6
+          },
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.4
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.5
+          },
+          {
+            "trait": "BONDAGE",
+            "weight": 0.3
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.2
+          }
+        ]
+      },
+      {
+        "id": "IA2",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "Being watched a little / capturing a moment",
+        "optionB_text": "Trying a brand-new roleplay we’ve never done",
+        "traitsA": [
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.7
+          },
+          {
+            "trait": "RISK",
+            "weight": 0.3
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "NOVELTY",
+            "weight": 0.7
+          },
+          {
+            "trait": "VARIETY_BREADTH",
+            "weight": 0.3
+          }
+        ]
+      },
+      {
+        "id": "IA3",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "More intensity/sensation variety",
+        "optionB_text": "More emotional closeness/aftercare rituals",
+        "traitsA": [
+          {
+            "trait": "IMPACT",
+            "weight": 0.5
+          },
+          {
+            "trait": "BONDAGE",
+            "weight": 0.3
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.8
+          }
+        ]
+      },
+      {
+        "id": "IA4",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "A quick risk-tinged tease",
+        "optionB_text": "A slow-burn bath + massage",
+        "traitsA": [
+          {
+            "trait": "RISK",
+            "weight": 0.4
+          },
+          {
+            "trait": "EXHIBITION",
+            "weight": 0.3
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "SENSUAL",
+            "weight": 0.7
+          }
+        ]
+      },
+      {
+        "id": "IA5",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "Take charge and steer",
+        "optionB_text": "Pause and reconnect",
+        "traitsA": [
+          {
+            "trait": "POWER_TOP",
+            "weight": 0.5
+          },
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.3
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "ROMANTIC",
+            "weight": 0.8
+          }
+        ]
+      },
+      {
+        "id": "IA6",
+        "type": "choose2",
+        "text": "Choose the option you’d prefer right now (A or B).",
+        "optionA_text": "Edges and novelty",
+        "optionB_text": "Ritual and refinement",
+        "traitsA": [
+          {
+            "trait": "RISK",
+            "weight": 0.3
+          },
+          {
+            "trait": "NOVELTY",
+            "weight": 0.5
+          }
+        ],
+        "traitsB": [
+          {
+            "trait": "CONTROL_PREF",
+            "weight": 0.3
+          },
+          {
+            "trait": "SENSUAL",
+            "weight": 0.5
+          }
+        ]
+      }
+    ],
+    "chapters": {
+      "Arousal (SES/SIS)": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "A15",
+        "A16",
+        "A17",
+        "A18",
+        "A19",
+        "A20",
+        "A21",
+        "A22",
+        "A23",
+        "A24"
+      ],
+      "Preferences": [
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5a",
+        "B5b",
+        "B6a",
+        "B6b",
+        "B7a",
+        "B7b",
+        "B8a",
+        "B8b",
+        "B9a",
+        "B9b",
+        "B10a",
+        "B10b",
+        "B11",
+        "B12",
+        "B13a",
+        "B13b",
+        "B14a",
+        "B14b",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21a",
+        "B21b",
+        "B22a",
+        "B22b",
+        "B23a",
+        "B23b",
+        "B25a",
+        "B25b",
+        "B26",
+        "B27",
+        "B28",
+        "B29",
+        "B31",
+        "B32",
+        "B24a",
+        "B24b",
+        "B30a",
+        "B30b"
+      ],
+      "Boundaries & Context": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "C7",
+        "C8",
+        "C9",
+        "C10"
+      ],
+      "Role & Logistics": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6"
+      ],
+      "Ipsative (Current Tilt)": [
+        "IA1",
+        "IA2",
+        "IA3",
+        "IA4",
+        "IA5",
+        "IA6"
+      ]
+    }
+  }
+}

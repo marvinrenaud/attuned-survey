@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Alice Test",
+    "answers": {
+      "A1": 5,
+      "A2": 6,
+      "A3": 4,
+      "B1": "Y",
+      "B2": "M",
+      "C1": 50,
+      "C2": "",
+      "C3": "Y",
+      "D1": 5,
+      "D2": 3,
+      "IA1": "A",
+      "IA2": "B"
+    },
+    "derived": {
+      "traits": {
+        "SENSUAL": 0.7,
+        "ROMANTIC": 0.5
+      },
+      "dials": {
+        "adventure": 60,
+        "connection": 70,
+        "intensity": 50,
+        "confidence": 65
+      },
+      "archetypes": [
+        {
+          "name": "The Romantic",
+          "score": 0.75
+        },
+        {
+          "name": "The Explorer",
+          "score": 0.6
+        }
+      ],
+      "boundaryFlags": {},
+      "warnings": []
+    },
+    "createdAt": "2025-10-09T22:58:31.944381",
+    "id": "1760065111944"
+  },
+  {
+    "name": "Bob Test",
+    "answers": {
+      "A1": 3,
+      "A2": 4,
+      "A3": 6,
+      "B1": "N",
+      "B2": "Y",
+      "C1": 30,
+      "C2": "impact",
+      "C3": "N",
+      "D1": 2,
+      "D2": 6,
+      "IA1": "B",
+      "IA2": "A"
+    },
+    "derived": {
+      "traits": {
+        "POWER_TOP": 0.6,
+        "CONTROL_PREF": 0.7
+      },
+      "dials": {
+        "adventure": 45,
+        "connection": 55,
+        "intensity": 70,
+        "confidence": 50
+      },
+      "archetypes": [
+        {
+          "name": "The Director",
+          "score": 0.7
+        },
+        {
+          "name": "The Sensualist",
+          "score": 0.55
+        }
+      ],
+      "boundaryFlags": {
+        "impact": true
+      },
+      "warnings": []
+    },
+    "createdAt": "2025-10-09T22:58:31.947187",
+    "id": "1760065111947"
+  }
+]
