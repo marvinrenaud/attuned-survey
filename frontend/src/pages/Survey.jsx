@@ -279,7 +279,7 @@ export default function Survey() {
       </div>
 
       <footer className="text-center py-8 text-sm text-text-secondary">
-        <p>Made with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-primary font-medium">Manus</a></p>
+        <p>Made with ♥️ in BK</p>
       </footer>
     </div>
   );

@@ -116,7 +116,7 @@ export default function Admin() {
       </div>
 
       <footer className="text-center py-8 text-sm text-gray-500">
-        <p>Made with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-700 font-medium">Manus</a></p>
+        <p>Made with ♥️ in BK</p>
       </footer>
     </div>
   );

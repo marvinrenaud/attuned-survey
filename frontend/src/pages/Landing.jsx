@@ -95,7 +95,7 @@ export default function Landing() {
               Admin Panel
             </button>
           </p>
-          <p>Made with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-primary font-medium">Manus</a></p>
+          <p>Made with ♥️ in BK</p>
         </footer>
       </div>
     </div>
