@@ -2,12 +2,27 @@ from flask import Blueprint, request, jsonify
 import json
 import os
 from datetime import datetime
+import math
 
 survey_bp = Blueprint('survey', __name__, url_prefix='/api/survey')
 
 # Data file path
 DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'database', 'submissions.json')
 BASELINE_FILE = os.path.join(os.path.dirname(__file__), '..', 'database', 'baseline.json')
+
+
+def sanitize_for_json(value):
+    """Recursively replace NaN/Infinity so Flask can JSON encode data."""
+    if isinstance(value, dict):
+        return {key: sanitize_for_json(val) for key, val in value.items()}
+    if isinstance(value, list):
+        return [sanitize_for_json(item) for item in value]
+    if isinstance(value, (tuple, set)):
+        return [sanitize_for_json(item) for item in value]
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return 0
+    return value
 
 def ensure_data_files():
     """Ensure data files exist"""
@@ -28,8 +43,9 @@ def load_submissions():
 def save_submissions(submissions):
     """Save all submissions to file"""
     ensure_data_files()
+    sanitized = sanitize_for_json(submissions)
     with open(DATA_FILE, 'w') as f:
-        json.dump(submissions, f, indent=2)
+        json.dump(sanitized, f, indent=2)
 
 def load_baseline():
     """Load baseline submission ID"""
@@ -47,7 +63,7 @@ def save_baseline(baseline_id):
 def get_submissions():
     """Get all submissions"""
     try:
-        submissions = load_submissions()
+        submissions = sanitize_for_json(load_submissions())
         baseline = load_baseline()
         return jsonify({
             'submissions': submissions,
@@ -71,10 +87,11 @@ def create_submission():
         if 'id' not in data:
             data['id'] = str(int(datetime.now().timestamp() * 1000))
         
-        submissions.append(data)
+        sanitized_submission = sanitize_for_json(data)
+        submissions.append(sanitized_submission)
         save_submissions(submissions)
-        
-        return jsonify(data), 201
+
+        return jsonify(sanitized_submission), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -88,7 +105,7 @@ def get_submission(submission_id):
         if not submission:
             return jsonify({'error': 'Submission not found'}), 404
         
-        return jsonify(submission)
+        return jsonify(sanitize_for_json(submission))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -134,9 +151,9 @@ def clear_baseline():
 def export_data():
     """Export all data as JSON"""
     try:
-        submissions = load_submissions()
+        submissions = sanitize_for_json(load_submissions())
         baseline = load_baseline()
-        
+
         export_data = {
             'exportedAt': datetime.now().isoformat(),
             'baseline': baseline,
