@@ -1,93 +1,61 @@
 id,chapter,text,type,traits_json,boundary_category,instruction
-A1,Arousal (SES/SIS),I get turned on quickly with the right vibe.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A2,Arousal (SES/SIS),New experiences boost my arousal.,likert7,"[{""trait"": ""SE"", ""weight"": 0.6}, {""trait"": ""NOVELTY"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A3,Arousal (SES/SIS),"If I feel judged, desire fades.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A4,Arousal (SES/SIS),Worry about lasting/performing shuts me down.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A5,Arousal (SES/SIS),"If there’s a chance of being seen, I get excited.",likert7,"[{""trait"": ""SIS_C"", ""weight"": -0.6}, {""trait"": ""RISK"", ""weight"": 0.4}, {""trait"": ""EXHIBITION"", ""weight"": 0.2}]",,How much do you agree? (Likert 1–7)
-A6,Arousal (SES/SIS),"If privacy isn’t guaranteed, I can’t relax.",likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A7,Arousal (SES/SIS),Compliments/affirmation keep me in the mood.,likert7,"[{""trait"": ""SE"", ""weight"": 0.7}, {""trait"": ""SIS_P"", ""weight"": -0.3}]",,How much do you agree? (Likert 1–7)
-A8,Arousal (SES/SIS),"If plans change suddenly, I can’t stay aroused.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 0.7}, {""trait"": ""NOVELTY"", ""weight"": -0.3}]",,How much do you agree? (Likert 1–7)
-A9,Arousal (SES/SIS),I’m turned on by anticipation/build-up.,likert7,"[{""trait"": ""SE"", ""weight"": 0.6}, {""trait"": ""ROMANTIC"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A10,Arousal (SES/SIS),I can bounce back quickly if interrupted.,likert7,"[{""trait"": ""SE"", ""weight"": 0.7}, {""trait"": ""SIS_P"", ""weight"": -0.3}]",,How much do you agree? (Likert 1–7)
-A11,Arousal (SES/SIS),"If contraception/STD risk feels unclear, I disengage.",likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A12,Arousal (SES/SIS),I’m energized by playful risk.,likert7,"[{""trait"": ""RISK"", ""weight"": 0.6}, {""trait"": ""SE"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A13,Arousal (SES/SIS),Self-image in the moment affects me a lot.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A14,Arousal (SES/SIS),I tune into partner feedback and adapt.,likert7,"[{""trait"": ""SE"", ""weight"": 0.6}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A15,Arousal (SES/SIS),"If the environment is messy/noisy, I lose focus.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-A16,Arousal (SES/SIS),A firm lead from my partner turns me on.,likert7,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.7}, {""trait"": ""SE"", ""weight"": 0.3}]",,How much do you agree? (Likert 1–7)
-A17,Arousal (SES/SIS),Being the one in charge turns me on.,likert7,"[{""trait"": ""POWER_TOP"", ""weight"": 0.7}, {""trait"": ""SE"", ""weight"": 0.3}]",,How much do you agree? (Likert 1–7)
-A18,Arousal (SES/SIS),I enjoy setting rules and structure for play.,likert7,"[{""trait"": ""POWER_TOP"", ""weight"": 0.5}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.5}]",,How much do you agree? (Likert 1–7)
-A19,Arousal (SES/SIS),I relax more when my partner sets structure.,likert7,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.5}]",,How much do you agree? (Likert 1–7)
-A20,Arousal (SES/SIS),I like testing edges (safely).,likert7,"[{""trait"": ""RISK"", ""weight"": 0.6}, {""trait"": ""NOVELTY"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A21,Arousal (SES/SIS),Routine sex bores me.,likert7,"[{""trait"": ""NOVELTY"", ""weight"": 0.7}, {""trait"": ""VARIETY_BREADTH"", ""weight"": 0.3}]",,How much do you agree? (Likert 1–7)
-A22,Arousal (SES/SIS),Familiar rituals are my comfort zone.,likert7,"[{""trait"": ""NOVELTY"", ""weight"": -0.6}, {""trait"": ""SENSUAL"", ""weight"": 0.6}]",,How much do you agree? (Likert 1–7)
-A23,Arousal (SES/SIS),Emotional closeness intensifies my arousal.,likert7,"[{""trait"": ""ROMANTIC"", ""weight"": 0.6}, {""trait"": ""SE"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-A24,Arousal (SES/SIS),I need decompression/aftercare to feel good.,likert7,"[{""trait"": ""ROMANTIC"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-B1,Preferences,Sensual massage/oils/lotions,ymn,"[{""trait"": ""SENSUAL"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B2,Preferences,Temperature play (warm/cool),ymn,"[{""trait"": ""SENSUAL"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B3,Preferences,Eye contact/affirmations,ymn,"[{""trait"": ""ROMANTIC"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B4,Preferences,Kissing games/tease,ymn,"[{""trait"": ""ROMANTIC"", ""weight"": 0.6}, {""trait"": ""SENSUAL"", ""weight"": 0.4}]",,Would you do this with your partner? (Y/M/N)
-B5a,Preferences,Blindfolds / light control (on me),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B5b,Preferences,Blindfolds / light control (on partner),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B6a,Preferences,Rope/knots/shibari (tie on me),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.4}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B6b,Preferences,Rope/knots/shibari (I tie partner),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.4}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B7a,Preferences,Cuffs/collars/leashes (I wear),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B7b,Preferences,Cuffs/collars/leashes (partner wears),ymn,"[{""trait"": ""BONDAGE"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B8a,Preferences,Impact — hand spanking (on me),ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B8b,Preferences,Impact — hand spanking (I give),ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B9a,Preferences,Impact — paddles/floggers (on me),ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B9b,Preferences,Impact — paddles/floggers (I give),ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B10a,Preferences,Hair pulling / roughhousing (on me),ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B10b,Preferences,Hair pulling / roughhousing (I do to partner),ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B11,Preferences,Roleplay—teacher/student/office/etc.,ymn,"[{""trait"": ""NOVELTY"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B12,Preferences,Roleplay—primal chase/hunt,ymn,"[{""trait"": ""NOVELTY"", ""weight"": 0.7}, {""trait"": ""RISK"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B13a,Preferences,Dirty talk / voice control (to me),ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.4}, {""trait"": ""ROMANTIC"", ""weight"": 0.3}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B13b,Preferences,Dirty talk / voice control (from me),ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.4}, {""trait"": ""ROMANTIC"", ""weight"": 0.3}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B14a,Preferences,Protocol / titles (I follow),ymn,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B14b,Preferences,Protocol / titles (I enforce),ymn,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}, {""trait"": ""POWER_TOP"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B15,Preferences,Service dynamics (acts done for partner),ymn,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}, {""trait"": ""ROMANTIC"", ""weight"": 0.5}]",,Would you do this with your partner? (Y/M/N)
-B16,Preferences,Giving service (directing partner’s acts),ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.5}]",,Would you do this with your partner? (Y/M/N)
-B17,Preferences,Exhibition—being watched (private),ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B18,Preferences,Exhibition—semi-public with people nearby (legal/safe; non-private spaces where others might notice),ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 0.7}, {""trait"": ""RISK"", ""weight"": 0.3}]",,Would you do this with your partner? (Y/M/N)
-B19,Preferences,Voyeur—watching others (ethical),ymn,"[{""trait"": ""VOYEUR"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B20,Preferences,Recording ourselves (private),ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B21a,Preferences,Toys — vibrators/wands (used on me),ymn,"[{""trait"": ""VARIETY_BREADTH"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B21b,Preferences,Toys — vibrators/wands (I use on partner),ymn,"[{""trait"": ""VARIETY_BREADTH"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B22a,Preferences,Toys — plugs/insertables (used on me),ymn,"[{""trait"": ""VARIETY_BREADTH"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B22b,Preferences,Toys — plugs/insertables (I use on partner),ymn,"[{""trait"": ""VARIETY_BREADTH"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B23a,Preferences,Edging/denial timers (partner controls me),ymn,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.6}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.4}]",,Would you do this with your partner? (Y/M/N)
-B23b,Preferences,Edging/denial timers (I control partner),ymn,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.6}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}]",,Would you do this with your partner? (Y/M/N)
-B25a,Preferences,Sensory deprivation (on me),ymn,"[{""trait"": ""SENSUAL"", ""weight"": 0.4}, {""trait"": ""BONDAGE"", ""weight"": 0.6}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B25b,Preferences,Sensory deprivation (on partner),ymn,"[{""trait"": ""SENSUAL"", ""weight"": 0.4}, {""trait"": ""BONDAGE"", ""weight"": 0.6}, {""trait"": ""POWER_TOP"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B26,Preferences,Costumes/lingerie/dress-up,ymn,"[{""trait"": ""NOVELTY"", ""weight"": 0.8}, {""trait"": ""EXHIBITION"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B27,Preferences,"Public-but-private—secluded/private spots with low chance of being seen (e.g., covered balcony, parked car with privacy)",ymn,"[{""trait"": ""RISK"", ""weight"": 0.48}, {""trait"": ""EXHIBITION"", ""weight"": 0.4}]",,Would you do this with your partner? (Y/M/N)
-B28,Preferences,"Group environments (observation-only)—ethical club/party to watch, not participate",ymn,"[{""trait"": ""ENM_OPEN"", ""weight"": 0.5}, {""trait"": ""VOYEUR"", ""weight"": 0.5}]",,Would you do this with your partner? (Y/M/N)
-B29,Preferences,"Threesomes (soft-swap, defined roles)",ymn,"[{""trait"": ""ENM_OPEN"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B31,Preferences,"Aftercare rituals (snacks, water, cuddles)",ymn,"[{""trait"": ""ROMANTIC"", ""weight"": 1.0}]",,Would you do this with your partner? (Y/M/N)
-B32,Preferences,Debrief/feedback ritual,ymn,"[{""trait"": ""ROMANTIC"", ""weight"": 0.5}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.5}]",,Would you do this with your partner? (Y/M/N)
-B24a,Preferences,Orgasm control (partner controls me),ymn,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B24b,Preferences,Orgasm control (I control partner),ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.5}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B30a,Preferences,Swinging/ENM: soft-swap openness (no intercourse; boundaries defined),ymn,"[{""trait"": ""ENM_OPEN"", ""weight"": 0.6}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.2}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,Would you do this with your partner? (Y/M/N)
-B30b,Preferences,Swinging/ENM: full-swap openness (intercourse allowed with consent/boundaries),ymn,"[{""trait"": ""ENM_OPEN"", ""weight"": 0.8}, {""trait"": ""CONTROL_PREF"", ""weight"": 0.1}, {""trait"": ""ROMANTIC"", ""weight"": 0.1}]",,Would you do this with your partner? (Y/M/N)
-C1,Boundaries & Context,Preferred impact intensity cap (0-100),slider,"[{""trait"": ""IMPACT"", ""weight"": 0.0}]",,"Set limits (Hard NOs, safety, caps)"
-C2,Boundaries & Context,"Mark HARD NO categories (never suggest): Impact, Bondage, Exhibition, Voyeur, Roleplay, Recording, Group/ENM, Public-edge, Toys",boundary,[],HARD_NO_MULTI,"Set limits (Hard NOs, safety, caps)"
-C3,Boundaries & Context,No alcohol/altered-state suggestions,boundary,[],NO_ALTERED_STATE,"Set limits (Hard NOs, safety, caps)"
-C4,Boundaries & Context,No recording/photos rules,boundary,[],NO_RECORDING,"Set limits (Hard NOs, safety, caps)"
-C5,Boundaries & Context,Protection rules (always required),boundary,[],SAFER_SEX_REQUIRED,"Set limits (Hard NOs, safety, caps)"
-C6,Boundaries & Context,Venue comfort (home/hotel/private club only),boundary,[],VENUE_LIMITS,"Set limits (Hard NOs, safety, caps)"
-C7,Boundaries & Context,Aftercare required,boundary,[],AFTERCARE_REQUIRED,"Set limits (Hard NOs, safety, caps)"
-C8,Boundaries & Context,Safeword preference confirmed,boundary,[],SAFEWORD_CONFIRMED,"Set limits (Hard NOs, safety, caps)"
-C9,Boundaries & Context,Check-in cadence (before/during/after),boundary,[],CHECKINS_REQUIRED,"Set limits (Hard NOs, safety, caps)"
-C10,Boundaries & Context,Custom red-lines (free text log),boundary,[],REDLINES_TEXT,"Set limits (Hard NOs, safety, caps)"
-D1,Role & Logistics,I prefer leading most sessions.,likert7,"[{""trait"": ""POWER_TOP"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-D2,Role & Logistics,I prefer following most sessions.,likert7,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 1.0}]",,How much do you agree? (Likert 1–7)
-D3,Role & Logistics,I like switching roles sometimes.,likert7,"[{""trait"": ""VARIETY_BREADTH"", ""weight"": 0.7}]",,How much do you agree? (Likert 1–7)
-D4,Role & Logistics,I like planning scenes over spontaneity.,likert7,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.7}, {""trait"": ""NOVELTY"", ""weight"": -0.3}]",,How much do you agree? (Likert 1–7)
-D5,Role & Logistics,"Ideal session length: longer, immersive scenes.",likert7,"[{""trait"": ""CONTROL_PREF"", ""weight"": 0.4}, {""trait"": ""IMPACT"", ""weight"": 0.3}, {""trait"": ""BONDAGE"", ""weight"": 0.3}]",,How much do you agree? (Likert 1–7)
-D6,Role & Logistics,I want more frequent intimacy in my week.,likert7,"[{""trait"": ""SE"", ""weight"": 0.6}, {""trait"": ""ROMANTIC"", ""weight"": 0.4}]",,How much do you agree? (Likert 1–7)
-IA1,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
-IA2,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
-IA3,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
-IA4,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
-IA5,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
-IA6,Ipsative (Current Tilt),Choose the option you’d prefer right now (A or B).,choose2,[],,Choose your current preference (A or B)
+A1,Arousal (SES/SIS),I get turned on easily in response to erotic cues.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A2,Arousal (SES/SIS),Physical affection can quickly lead me to strong arousal.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A3,Arousal (SES/SIS),New or novel situations tend to heighten my arousal.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A4,Arousal (SES/SIS),Erotic fantasies or images readily arouse me.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A5,Arousal (SES/SIS),Flirting or teasing builds my desire quickly.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A6,Arousal (SES/SIS),"My partner’s body, scent, or sounds easily excite me.",likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A7,Arousal (SES/SIS),Anticipation before intimacy turns me on.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A8,Arousal (SES/SIS),"Erotic media (texts, pictures, videos) often arouse me.",likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
+A9,Arousal (SES/SIS),"If I worry I won’t perform well, my arousal drops.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A10,Arousal (SES/SIS),Fears about erection/lubrication/orgasm reduce my desire.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A11,Arousal (SES/SIS),Feeling judged about my technique turns me off.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A12,Arousal (SES/SIS),Pressure to climax or meet expectations dampens my arousal.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A13,Arousal (SES/SIS),Anxiety about how my body looks during sex inhibits me.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A14,Arousal (SES/SIS),"If I think I might ‘do it wrong,’ I lose interest.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A15,Arousal (SES/SIS),Being compared (explicitly or implicitly) to others shuts me down.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A16,Arousal (SES/SIS),Sensing my partner’s disappointment makes my arousal fade.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
+A17,Arousal (SES/SIS),Worry about being interrupted kills my mood.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A18,Arousal (SES/SIS),Concerns about pregnancy or STIs shut down my arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A19,Arousal (SES/SIS),Fear of being overheard or seen reduces my desire.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A20,Arousal (SES/SIS),Worry about relationship fallout or conflict reduces arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A21,Arousal (SES/SIS),Concerns about pain or injury inhibit my arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A22,Arousal (SES/SIS),Fear of rumors or digital leaks (photos/texts) lowers my desire.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A23,Arousal (SES/SIS),Thinking about next-day obligations (fatigue/time) inhibits me.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+A24,Arousal (SES/SIS),"If the setting feels unsafe or illegal, I can’t get aroused.",likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
+B1a,Preferences,Light bondage on me (I am restrained).,ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
+B1b,Preferences,Light bondage I do (I restrain my partner).,ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
+B2a,Preferences,Hair pulling on me (my hair pulled).,ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
+B2b,Preferences,Hair pulling I do (I pull my partner’s hair).,ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
+B3a,Preferences,"Sensory play on me (blindfolds, earplugs, etc.).",ymn,"[{""trait"": ""TOYS"", ""weight"": 0.6}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.4}]",,
+B3b,Preferences,Sensory play I do (I blindfold/control partner’s senses).,ymn,"[{""trait"": ""TOYS"", ""weight"": 0.6}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}]",,
+B4a,Preferences,Spanking on me.,ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}]",,
+B4b,Preferences,Spanking I do.,ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.5}]",,
+B5a,Preferences,Roleplay where I follow clear direction.,ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
+B5b,Preferences,Roleplay where I give clear direction.,ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
+B6a,Preferences,"Protocol/titles I follow (rules, honorifics directed at me).",ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.7}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
+B6b,Preferences,"Protocol/titles I lead (I set rules, receive honorifics).",ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
+B7a,Preferences,Edging on me (my orgasm controlled).,ymn,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}, {""trait"": ""IMPACT"", ""weight"": 0.4}]",,
+B7b,Preferences,Edging I control (I control partner’s orgasm).,ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.6}, {""trait"": ""IMPACT"", ""weight"": 0.4}]",,
+B8a,Preferences,Toys on me (partner uses toys on me).,ymn,"[{""trait"": ""TOYS"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.4}]",,
+B8b,Preferences,Toys I use on partner.,ymn,"[{""trait"": ""TOYS"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}]",,
+B9a,Preferences,Exhibition on me/us (others might see us).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 1.0}, {""trait"": ""PUBLIC_EDGE"", ""weight"": 0.5}]",,
+B9b,Preferences,I perform/show for my partner (private display).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 0.7}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
+B10a,Preferences,"Voyeur: watching others (ethical, consenting).",ymn,"[{""trait"": ""VOYEUR"", ""weight"": 1.0}]",,
+B10b,Preferences,Being watched together (observation only).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 0.8}, {""trait"": ""PUBLIC_EDGE"", ""weight"": 0.4}]",,
+C1,Boundaries & Context,Max intensity for impact (0–100):,slider,[],IMPACT_CAP,
+C2,Boundaries & Context,Hard NOs (we will never suggest these):,boundary,[],HARD_NO_MULTI,
+C3,Boundaries & Context,I require barriers for genital contact.,boundary,[],SAFER_SEX_REQUIRED,
+C4,Boundaries & Context,Recording/photos allowed for private use.,boundary,[],NO_RECORDING,
+C5,Boundaries & Context,I want aftercare after intense scenes.,boundary,[],AFTERCARE_REQUIRED,
+C7,Boundaries & Context,I want to use a safeword system.,boundary,[],SAFEWORD_CONFIRMED,
+C9,Boundaries & Context,We want in-scene check-ins.,boundary,[],CHECKINS_REQUIRED,
+C10,Boundaries & Context,Red lines (anything we should never do):,boundary,[],REDLINES_TEXT,
+D1,Role & Logistics,I enjoy giving clear verbal direction during intimacy.,likert7,"[{""trait"": ""POWER_TOP"", ""weight"": 0.6}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
+D2,Role & Logistics,I enjoy following a partner’s clear direction.,likert7,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}, {""trait"": ""SENSUAL"", ""weight"": 0.2}]",,
+D3,Role & Logistics,"I prefer scenes with some structure (agreements, signals).",likert7,"[{""trait"": ""ROMANTIC"", ""weight"": 0.2}, {""trait"": ""ROLEPLAY"", ""weight"": 0.2}]",,
+D4,Role & Logistics,I’m comfortable improvising in the moment.,likert7,"[{""trait"": ""NOVELTY"", ""weight"": 0.3}, {""trait"": ""RISK"", ""weight"": 0.2}]",,
+IA1,Ipsative (Current Tilt),,choose2,"[{""trait"": ""EXHIBITION"", ""weight"": 0.3}, {""trait"": ""VOYEUR"", ""weight"": 0.2}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}, {""trait"": ""SENSUAL"", ""weight"": 0.3}]",,
+IA2,Ipsative (Current Tilt),,choose2,"[{""trait"": ""POWER_TOP"", ""weight"": 0.5}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}]",,
+IA3,Ipsative (Current Tilt),,choose2,"[{""trait"": ""TOYS"", ""weight"": 0.5}, {""trait"": ""SENSUAL"", ""weight"": 0.3}]",,
+IA4,Ipsative (Current Tilt),,choose2,"[{""trait"": ""PUBLIC_EDGE"", ""weight"": 0.5}, {""trait"": ""RISK"", ""weight"": 0.3}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
