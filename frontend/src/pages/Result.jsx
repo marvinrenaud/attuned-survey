@@ -72,9 +72,7 @@ export default function Result() {
                 answersA: sub.answers,
                 answersB: baseline.answers,
                 traitsA: sub.derived.traits,
-                traitsB: baseline.derived.traits,
-                boundariesA: sub.derived.boundaryFlags,
-                boundariesB: baseline.derived.boundaryFlags
+                traitsB: baseline.derived.traits
               });
               setBaselineMatch({ baseline, match });
               console.log('✅ Match calculated:', match);
@@ -189,25 +187,27 @@ export default function Result() {
           </CardContent>
         </Card>
 
-        {/* Dials */}
-        <Card className="mb-6" data-testid="result-dials">
-          <CardHeader>
-            <CardTitle className="text-2xl">Your Four Dimensions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {Object.entries(derived.dials).map(([dimension, score]) => (
-                <div key={dimension}>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium capitalize">{dimension}</span>
-                    <span className="text-gray-600">{Math.round(score)}/100</span>
+        {/* Traits - if available */}
+        {derived.traits && Object.keys(derived.traits).length > 0 && (
+          <Card className="mb-6" data-testid="result-traits">
+            <CardHeader>
+              <CardTitle className="text-2xl">Your Traits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(derived.traits).map(([trait, score]) => (
+                  <div key={trait}>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium capitalize">{trait}</span>
+                      <span className="text-gray-600">{Math.round(score * 100)}/100</span>
+                    </div>
+                    <Progress value={score * 100} />
                   </div>
-                  <Progress value={score} />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Baseline Match */}
         {baselineMatch && (
