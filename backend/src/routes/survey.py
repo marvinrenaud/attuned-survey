@@ -28,7 +28,7 @@ def list_submissions():
         ]
     }), 200
 
-@bp.post("/submit")
+@bp.post("/submissions")
 def submit_survey():
     submission = request.get_json(force=True) or {}
     respondent_id = submission.get("respondent_id")
