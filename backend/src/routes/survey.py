@@ -28,8 +28,8 @@ def list_submissions():
         ]
     }), 200
 
-@bp.post("/submissions")
-def submit_survey():
+def _create_submission():
+    """Private handler for creating survey submissions."""
     submission = request.get_json(force=True) or {}
     respondent_id = submission.get("respondent_id")
     entry = SurveySubmission(
@@ -39,3 +39,13 @@ def submit_survey():
     db.session.add(entry)
     db.session.commit()
     return jsonify({"ok": True, "id": entry.id}), 201
+
+@bp.post("/submissions")
+def post_submissions():
+    """POST /api/survey/submissions - legacy endpoint."""
+    return _create_submission()
+
+@bp.post("/submit")
+def post_submit():
+    """POST /api/survey/submit - alias for backward compatibility."""
+    return _create_submission()
