@@ -6,10 +6,11 @@ from typing import Optional
 from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
-from ..main import db, SurveyBaseline, SurveySubmission
+from ..extensions import db
+from ..models.survey import SurveyBaseline, SurveySubmission
 
 
-survey_bp = Blueprint("survey", __name__, url_prefix="/api/survey")
+bp = Blueprint("survey", __name__, url_prefix="/api/survey")
 
 
 def sanitize_for_json(value):
@@ -42,7 +43,7 @@ def get_baseline_record(create: bool = False) -> Optional[SurveyBaseline]:
     return baseline
 
 
-@survey_bp.route("/submissions", methods=["GET"])
+@bp.route("/submissions", methods=["GET"])
 def get_submissions():
     try:
         submissions = (
@@ -61,7 +62,7 @@ def get_submissions():
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/submissions", methods=["POST"])
+@bp.route("/submissions", methods=["POST"])
 def create_submission():
     try:
         data = request.get_json(silent=True) or {}
@@ -98,7 +99,7 @@ def create_submission():
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/submissions/<submission_id>", methods=["GET"])
+@bp.route("/submissions/<submission_id>", methods=["GET"])
 def get_submission(submission_id):
     try:
         submission = SurveySubmission.query.filter_by(
@@ -114,7 +115,7 @@ def get_submission(submission_id):
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/baseline", methods=["GET"])
+@bp.route("/baseline", methods=["GET"])
 def get_baseline():
     try:
         baseline_row = get_baseline_record()
@@ -125,7 +126,7 @@ def get_baseline():
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/baseline", methods=["POST"])
+@bp.route("/baseline", methods=["POST"])
 def set_baseline():
     try:
         data = request.get_json(silent=True) or {}
@@ -149,7 +150,7 @@ def set_baseline():
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/baseline", methods=["DELETE"])
+@bp.route("/baseline", methods=["DELETE"])
 def clear_baseline():
     try:
         baseline_row = get_baseline_record()
@@ -162,7 +163,7 @@ def clear_baseline():
         return jsonify({"error": str(exc)}), 500
 
 
-@survey_bp.route("/export", methods=["GET"])
+@bp.route("/export", methods=["GET"])
 def export_data():
     try:
         submissions = (
