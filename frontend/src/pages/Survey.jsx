@@ -7,9 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getSurveyChapters, validateChapter, getSchema } from '../lib/surveyData';
-import { calculateTraits, extractBoundaries } from '../lib/scoring/traitCalculator';
-import { calculateDials, isBalanced } from '../lib/scoring/dialCalculator';
-import { calculateArchetypes, getTopArchetypes } from '../lib/scoring/archetypeCalculator';
+import { computeTraits, scoreArchetypes, getTopArchetypes } from '../lib/scoring/calculator';
 import { saveSubmission, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../lib/storage/apiStore';
 
 export default function Survey() {
@@ -108,18 +106,12 @@ export default function Survey() {
       const schema = getSchema();
       console.log('Schema loaded, calculating traits...');
       
-      const traits = calculateTraits(answers, schema.items.full);
+      const traits = computeTraits(schema, answers);
       console.log('Traits calculated:', Object.keys(traits).length);
       
-      const dials = calculateDials(traits, schema.dimensions);
-      console.log('Dials calculated:', dials);
-      
-      const archetypes = calculateArchetypes(traits, schema.archetypes);
-      const topArchetypes = getTopArchetypes(archetypes);
+      const archetypeScores = scoreArchetypes(schema, traits);
+      const topArchetypes = getTopArchetypes(archetypeScores, schema, 3);
       console.log('Archetypes calculated:', topArchetypes.map(a => a.name));
-      
-      const balanced = isBalanced(dials);
-      const boundaries = extractBoundaries(answers);
 
       // Generate unique ID with timestamp + random component to avoid collisions
       const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -131,10 +123,7 @@ export default function Survey() {
         answers,
         derived: {
           traits,
-          dials,
-          archetypes: topArchetypes,
-          boundaryFlags: boundaries,
-          warnings: []
+          archetypes: topArchetypes
         }
       };
 
@@ -279,7 +268,7 @@ export default function Survey() {
       </div>
 
       <footer className="text-center py-8 text-sm text-text-secondary">
-        <p>Made with <a href="https://manus.im" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-primary font-medium">Manus</a></p>
+        <p>Made with ♥️ in BK</p>
       </footer>
     </div>
   );
