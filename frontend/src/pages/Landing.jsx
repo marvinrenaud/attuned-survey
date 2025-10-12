@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
+import { clearCurrentSession } from '../lib/storage/apiStore';
 import logo from '../assets/AttunedLogo.png';
 
 export default function Landing() {
   const navigate = useNavigate();
+
+  const handleStartSurvey = () => {
+    clearCurrentSession();
+    navigate('/survey');
+  };
 
   return (
     <div className="min-h-screen bg-background-primary">
@@ -71,7 +77,7 @@ export default function Landing() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              onClick={() => navigate('/survey')}
+              onClick={handleStartSurvey}
               className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white px-8 py-6 text-lg"
             >
               Start Your Survey
