@@ -3,8 +3,8 @@
  * Replaces localStorage with server-side persistence
  */
 
-const API_BASE = 'https://attuned-backend.onrender.com/api/survey';
-
+const API_BASE =
+  `${(import.meta.env?.VITE_API_URL ?? 'https://attuned-backend.onrender.com')}/api/survey`;
 /**
  * Get all submissions from server
  */
