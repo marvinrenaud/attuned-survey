@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 import json
+import math
 import os
+import shutil
 from datetime import datetime
 
 survey_bp = Blueprint('survey', __name__, url_prefix='/api/survey')
@@ -8,6 +10,24 @@ survey_bp = Blueprint('survey', __name__, url_prefix='/api/survey')
 # Data file path
 DATA_FILE = os.path.join(os.path.dirname(__file__), '..', 'database', 'submissions.json')
 BASELINE_FILE = os.path.join(os.path.dirname(__file__), '..', 'database', 'baseline.json')
+BACKUP_FILE = f"{DATA_FILE}.bak"
+
+
+def sanitize_for_json(value):
+    """Recursively replace values that can't be serialized as valid JSON."""
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return None
+        return value
+
+    if isinstance(value, dict):
+        return {k: sanitize_for_json(v) for k, v in value.items()}
+
+    if isinstance(value, list):
+        return [sanitize_for_json(v) for v in value]
+
+    return value
+
 
 def ensure_data_files():
     """Ensure data files exist"""
@@ -20,16 +40,50 @@ def ensure_data_files():
             json.dump(None, f)
 
 def load_submissions():
-    """Load all submissions from file"""
+    """Load all submissions from file."""
     ensure_data_files()
-    with open(DATA_FILE, 'r') as f:
-        return json.load(f)
+
+    try:
+        with open(DATA_FILE, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        if os.path.exists(BACKUP_FILE):
+            with open(BACKUP_FILE, 'r') as backup:
+                data = json.load(backup)
+            shutil.copy2(BACKUP_FILE, DATA_FILE)
+        else:
+            raise
+
+    if not isinstance(data, list):
+        raise ValueError('Submissions data is corrupted')
+
+    return data
 
 def save_submissions(submissions):
-    """Save all submissions to file"""
+    """Save all submissions to file."""
     ensure_data_files()
-    with open(DATA_FILE, 'w') as f:
-        json.dump(submissions, f, indent=2)
+    sanitized = sanitize_for_json(submissions)
+    temp_file = f"{DATA_FILE}.tmp"
+
+    if os.path.exists(DATA_FILE):
+        shutil.copy2(DATA_FILE, BACKUP_FILE)
+
+    try:
+        with open(temp_file, 'w') as f:
+            json.dump(sanitized, f, indent=2)
+
+        os.replace(temp_file, DATA_FILE)
+
+        if os.path.exists(BACKUP_FILE):
+            os.remove(BACKUP_FILE)
+    except Exception:
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+
+        if os.path.exists(BACKUP_FILE) and not os.path.exists(DATA_FILE):
+            os.replace(BACKUP_FILE, DATA_FILE)
+
+        raise
 
 def load_baseline():
     """Load baseline submission ID"""
@@ -47,7 +101,7 @@ def save_baseline(baseline_id):
 def get_submissions():
     """Get all submissions"""
     try:
-        submissions = load_submissions()
+        submissions = sanitize_for_json(load_submissions())
         baseline = load_baseline()
         return jsonify({
             'submissions': submissions,
@@ -73,8 +127,8 @@ def create_submission():
         
         submissions.append(data)
         save_submissions(submissions)
-        
-        return jsonify(data), 201
+
+        return jsonify(sanitize_for_json(data)), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -84,11 +138,11 @@ def get_submission(submission_id):
     try:
         submissions = load_submissions()
         submission = next((s for s in submissions if s['id'] == submission_id), None)
-        
+
         if not submission:
             return jsonify({'error': 'Submission not found'}), 404
-        
-        return jsonify(submission)
+
+        return jsonify(sanitize_for_json(submission))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -134,9 +188,9 @@ def clear_baseline():
 def export_data():
     """Export all data as JSON"""
     try:
-        submissions = load_submissions()
+        submissions = sanitize_for_json(load_submissions())
         baseline = load_baseline()
-        
+
         export_data = {
             'exportedAt': datetime.now().isoformat(),
             'baseline': baseline,
