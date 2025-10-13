@@ -66,6 +66,29 @@ def create_app() -> Flask:
             db.session.execute(text("SELECT 1"))
             db.session.commit()
             app.logger.info("✅ Database connection successful")
+
+            # Ensure expected columns exist on existing deployments
+            # Some older databases may be missing these nullable columns
+            db.session.execute(text(
+                """
+                ALTER TABLE survey_submissions
+                ADD COLUMN IF NOT EXISTS name VARCHAR(256);
+                """
+            ))
+            db.session.execute(text(
+                """
+                ALTER TABLE survey_submissions
+                ADD COLUMN IF NOT EXISTS sex VARCHAR(32);
+                """
+            ))
+            db.session.execute(text(
+                """
+                ALTER TABLE survey_submissions
+                ADD COLUMN IF NOT EXISTS sexual_orientation VARCHAR(64);
+                """
+            ))
+            db.session.commit()
+            app.logger.info("✅ Verified survey_submissions columns (name, sex, sexual_orientation)")
         except Exception as e:
             app.logger.error(f"❌ Database connection failed: {e}")
             raise

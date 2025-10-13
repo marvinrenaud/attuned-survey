@@ -3,7 +3,7 @@ from datetime import datetime
 import math
 from typing import Optional
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
@@ -30,8 +30,16 @@ def sanitize_for_json(value):
 
 def serialize_submission(submission: SurveySubmission) -> dict:
     payload = dict(submission.payload_json or {})
+    if "sexual_orientation" in payload and "sexualOrientation" not in payload:
+        payload["sexualOrientation"] = payload.get("sexual_orientation")
     payload.setdefault("id", submission.submission_id)
     payload.setdefault("createdAt", submission.created_at.isoformat())
+    if submission.name is not None:
+        payload.setdefault("name", submission.name)
+    if submission.sex is not None:
+        payload.setdefault("sex", submission.sex)
+    if submission.sexual_orientation is not None:
+        payload.setdefault("sexualOrientation", submission.sexual_orientation)
     return sanitize_for_json(payload)
 
 
@@ -66,6 +74,17 @@ def get_submissions():
 def create_submission():
     try:
         data = request.get_json(silent=True) or {}
+        # Log minimal context for troubleshooting payload mismatches
+        try:
+            current_app.logger.info(
+                "create_submission payload keys=%s name=%s sex=%s sexualOrientation=%s",
+                list(data.keys()),
+                data.get("name"),
+                data.get("sex"),
+                data.get("sexualOrientation") or data.get("sexual_orientation"),
+            )
+        except Exception:
+            pass
         sanitized_submission = sanitize_for_json(data)
 
         submission_id = sanitized_submission.get("id")
@@ -76,10 +95,24 @@ def create_submission():
         respondent_id = sanitized_submission.get("respondentId") or sanitized_submission.get(
             "respondent_id"
         )
+        name = sanitized_submission.get("name")
+        sex = sanitized_submission.get("sex")
+        sexual_orientation = sanitized_submission.get("sexualOrientation") or sanitized_submission.get(
+            "sexual_orientation"
+        )
+
+        if sex is not None:
+            sanitized_submission["sex"] = sex
+        if sexual_orientation is not None:
+            sanitized_submission["sexualOrientation"] = sexual_orientation
+        sanitized_submission.pop("sexual_orientation", None)
 
         submission = SurveySubmission(
             submission_id=submission_id,
             respondent_id=respondent_id,
+            name=name,
+            sex=sex,
+            sexual_orientation=sexual_orientation,
             payload_json=sanitized_submission,
         )
 
@@ -95,6 +128,10 @@ def create_submission():
         db.session.rollback()
         return jsonify({"error": "Submission with this ID already exists"}), 409
     except Exception as exc:  # pragma: no cover - defensive logging path
+        try:
+            current_app.logger.exception("create_submission failed: %s", exc)
+        except Exception:
+            pass
         db.session.rollback()
         return jsonify({"error": str(exc)}), 500
 

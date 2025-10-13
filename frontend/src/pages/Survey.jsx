@@ -9,6 +9,19 @@ import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getSurveyChapters, validateChapter, getSchema } from '../lib/surveyData';
 import { computeTraits, scoreArchetypes, getTopArchetypes } from '../lib/scoring/calculator';
 import { saveSubmission, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../lib/storage/apiStore';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const SEX_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'intersex', label: 'Intersex' }
+];
+
+const ORIENTATION_OPTIONS = [
+  { value: 'heterosexual', label: 'Heterosexual' },
+  { value: 'homosexual', label: 'Homosexual' },
+  { value: 'bisexual', label: 'Bisexual' }
+];
 
 export default function Survey() {
   const navigate = useNavigate();
@@ -16,6 +29,8 @@ export default function Survey() {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [name, setName] = useState('');
+  const [sex, setSex] = useState('');
+  const [sexualOrientation, setSexualOrientation] = useState('');
   const [errors, setErrors] = useState([]);
   const [showNameInput, setShowNameInput] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,20 +47,27 @@ export default function Survey() {
       setAnswers(session.answers || {});
       setCurrentChapterIndex(session.currentChapter || 0);
       setName(session.name || '');
-      if (session.name) setShowNameInput(false);
+      setSex(session.sex || '');
+      setSexualOrientation(session.sexualOrientation || '');
+      const hasDemographics = Boolean(
+        (session.name && session.name.trim()) && session.sex && session.sexualOrientation
+      );
+      setShowNameInput(!hasDemographics);
     }
   }, []);
 
   // Save session on changes
   useEffect(() => {
-    if (name || Object.keys(answers).length > 0) {
+    if (name || sex || sexualOrientation || Object.keys(answers).length > 0) {
       saveCurrentSession({
         answers,
         currentChapter: currentChapterIndex,
-        name
+        name,
+        sex,
+        sexualOrientation
       });
     }
-  }, [answers, currentChapterIndex, name]);
+  }, [answers, currentChapterIndex, name, sex, sexualOrientation]);
 
   const handleAnswer = (itemId, value) => {
     setAnswers(prev => ({
@@ -56,10 +78,22 @@ export default function Survey() {
   };
 
   const handleNameSubmit = () => {
+    const validationErrors = [];
     if (!name.trim()) {
-      setErrors(['Please enter your name to continue']);
+      validationErrors.push('Please enter your name to continue');
+    }
+    if (!sex) {
+      validationErrors.push('Please select your sex to continue');
+    }
+    if (!sexualOrientation) {
+      validationErrors.push('Please select your sexual orientation to continue');
+    }
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
       return;
     }
+    setErrors([]);
     setShowNameInput(false);
   };
 
@@ -119,6 +153,8 @@ export default function Survey() {
       const submission = {
         id: uniqueId,
         name,
+        sex,
+        sexualOrientation,
         createdAt: new Date().toISOString(),
         answers,
         derived: {
@@ -157,19 +193,70 @@ export default function Survey() {
                 id="name"
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setErrors([]);
+                }}
                 placeholder="Enter your name"
                 className="mt-1"
                 onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
               />
             </div>
+            <div>
+              <Label htmlFor="sex">Sex</Label>
+              <Select
+                value={sex}
+                onValueChange={(value) => {
+                  setSex(value);
+                  setErrors([]);
+                }}
+              >
+                <SelectTrigger id="sex" className="mt-1 w-full">
+                  <SelectValue placeholder="Select your sex" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEX_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="sexualOrientation">Sexual Orientation</Label>
+              <Select
+                value={sexualOrientation}
+                onValueChange={(value) => {
+                  setSexualOrientation(value);
+                  setErrors([]);
+                }}
+              >
+                <SelectTrigger id="sexualOrientation" className="mt-1 w-full">
+                  <SelectValue placeholder="Select your sexual orientation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORIENTATION_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {errors.length > 0 && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{errors[0]}</AlertDescription>
+                <AlertDescription>
+                  <ul className="list-disc list-inside space-y-1">
+                    {errors.map((error, idx) => (
+                      <li key={idx}>{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
               </Alert>
             )}
-            <Button 
+            <Button
               onClick={handleNameSubmit}
               className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white"
             >
