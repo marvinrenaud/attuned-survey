@@ -171,6 +171,8 @@ function ResponsesList() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Sex</TableHead>
+                  <TableHead>Orientation</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Adventure</TableHead>
                   <TableHead>Connection</TableHead>
@@ -184,6 +186,8 @@ function ResponsesList() {
                 {submissions.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell className="font-medium">{sub.name}</TableCell>
+                    <TableCell className="capitalize">{sub.sex || '-'}</TableCell>
+                    <TableCell className="capitalize">{sub.sexualOrientation || '-'}</TableCell>
                     <TableCell>{new Date(sub.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>{sub.derived?.dials?.Adventure?.toFixed(0) || '-'}</TableCell>
                     <TableCell>{sub.derived?.dials?.Connection?.toFixed(0) || '-'}</TableCell>
@@ -235,9 +239,11 @@ function ExportTools() {
       const submissions = data.submissions || [];
       
       // Create CSV header
-      const headers = ['Name', 'Created', 'Adventure', 'Connection', 'Intensity', 'Confidence', 'Top Archetype'];
+      const headers = ['Name', 'Sex', 'Sexual Orientation', 'Created', 'Adventure', 'Connection', 'Intensity', 'Confidence', 'Top Archetype'];
       const rows = submissions.map(sub => [
         sub.name,
+        sub.sex || '',
+        sub.sexualOrientation || '',
         new Date(sub.createdAt).toISOString(),
         sub.derived?.dials?.Adventure?.toFixed(0) || '',
         sub.derived?.dials?.Connection?.toFixed(0) || '',
