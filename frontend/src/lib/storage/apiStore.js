@@ -3,8 +3,13 @@
  * Replaces localStorage with server-side persistence
  */
 
+const DEFAULT_API =
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost')
+    ? 'http://localhost:5001'
+    : 'https://attuned-backend.onrender.com';
+
 const API_BASE =
-  `${(import.meta.env?.VITE_API_URL ?? 'https://attuned-backend.onrender.com')}/api/survey`;
+  `${(import.meta.env?.VITE_API_URL || DEFAULT_API)}/api/survey`;
 /**
  * Get all submissions from server
  */
@@ -58,7 +63,12 @@ export async function saveSubmission(submission) {
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let message = `HTTP error! status: ${response.status}`;
+      try {
+        const text = await response.text();
+        if (text) message += ` - ${text}`;
+      } catch {}
+      throw new Error(message);
     }
     
     return await response.json();

@@ -3,7 +3,7 @@ from datetime import datetime
 import math
 from typing import Optional
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
@@ -74,6 +74,17 @@ def get_submissions():
 def create_submission():
     try:
         data = request.get_json(silent=True) or {}
+        # Log minimal context for troubleshooting payload mismatches
+        try:
+            current_app.logger.info(
+                "create_submission payload keys=%s name=%s sex=%s sexualOrientation=%s",
+                list(data.keys()),
+                data.get("name"),
+                data.get("sex"),
+                data.get("sexualOrientation") or data.get("sexual_orientation"),
+            )
+        except Exception:
+            pass
         sanitized_submission = sanitize_for_json(data)
 
         submission_id = sanitized_submission.get("id")
@@ -117,6 +128,10 @@ def create_submission():
         db.session.rollback()
         return jsonify({"error": "Submission with this ID already exists"}), 409
     except Exception as exc:  # pragma: no cover - defensive logging path
+        try:
+            current_app.logger.exception("create_submission failed: %s", exc)
+        except Exception:
+            pass
         db.session.rollback()
         return jsonify({"error": str(exc)}), 500
 
