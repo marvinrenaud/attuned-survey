@@ -2,7 +2,7 @@
   "version": "0.3.1",
   "meta": {
     "version": "0.2.4.2",
-    "notes": "Audit v0.2.4.2: restored full 24-item SES/SIS; retained A/B directionality; unified boundary copy; tight Balanced criterion; ipsative IA1–IA4; overlap gating by impact cap; decoupled confidence from Power-Top; ENM excluded from archetype math.",
+    "notes": "Audit v0.2.4.2: restored full 24-item SES/SIS; retained A/B directionality; unified boundary copy; tight Balanced criterion; ipsative IA1–IA4; overlap gating by impact cap; decoupled confidence from Power-Top; ENM excluded from archetype math. v0.3.1: Removed Ipsative tie-breakers (IA1–IA4); not needed with domain-first matching.",
     "date": "2025-10-11"
   },
   "traits": [
@@ -200,12 +200,6 @@
         "D2",
         "D3",
         "D4"
-      ],
-      "Ipsative (Current Tilt)": [
-        "IA1",
-        "IA2",
-        "IA3",
-        "IA4"
       ]
     },
     "full": [
@@ -963,82 +957,6 @@
           },
           {
             "trait": "RISK",
-            "weight": 0.2
-          }
-        ]
-      },
-      {
-        "id": "IA1",
-        "type": "choose2",
-        "optionA_text": "A visually showy scene (lights, mirrors, outfits)",
-        "optionB_text": "A cozy, low-light scene with deep touch",
-        "traits": [
-          {
-            "trait": "EXHIBITION",
-            "weight": 0.3
-          },
-          {
-            "trait": "VOYEUR",
-            "weight": 0.2
-          },
-          {
-            "trait": "ROMANTIC",
-            "weight": 0.2
-          },
-          {
-            "trait": "SENSUAL",
-            "weight": 0.3
-          }
-        ]
-      },
-      {
-        "id": "IA2",
-        "type": "choose2",
-        "optionA_text": "I direct; you follow",
-        "optionB_text": "You direct; I follow",
-        "traits": [
-          {
-            "trait": "POWER_TOP",
-            "weight": 0.5
-          },
-          {
-            "trait": "POWER_BOTTOM",
-            "weight": 0.5
-          }
-        ]
-      },
-      {
-        "id": "IA3",
-        "type": "choose2",
-        "optionA_text": "Play with toys and gadgets",
-        "optionB_text": "Just us, hands and bodies",
-        "traits": [
-          {
-            "trait": "TOYS",
-            "weight": 0.5
-          },
-          {
-            "trait": "SENSUAL",
-            "weight": 0.3
-          }
-        ]
-      },
-      {
-        "id": "IA4",
-        "type": "choose2",
-        "optionA_text": "A little risk and public thrill",
-        "optionB_text": "Private, relaxed, unrushed",
-        "traits": [
-          {
-            "trait": "PUBLIC_EDGE",
-            "weight": 0.5
-          },
-          {
-            "trait": "RISK",
-            "weight": 0.3
-          },
-          {
-            "trait": "ROMANTIC",
             "weight": 0.2
           }
         ]

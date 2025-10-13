@@ -11,7 +11,7 @@ Attuned helps users understand their unique intimacy profile through a 92-questi
 - **Preferences** (Activities and dynamics)
 - **Boundaries** (Limits and rules)
 - **Role & Logistics** (Communication and planning)
-- **Ipsative choices** (A/B preference tie-breakers)
+ 
 
 Results include:
 - **Intimacy Archetypes** (e.g., The Romantic, The Director, The Explorer)
@@ -287,6 +287,9 @@ For issues, questions, or feedback:
 - Contact: [your-email@example.com]
 
 ## Changelog
+
+### v0.3.1
+- Ipsative (IA1–IA4) removed; domain scores + direction-aware matching make them unnecessary.
 
 ### v1.0.0 (October 10, 2025)
 - ✅ Initial release
