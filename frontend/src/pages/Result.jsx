@@ -220,18 +220,18 @@ export default function Result() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="font-medium">Overall Match</span>
-                    <span className="text-gray-600">{Math.round(baselineMatch.match.overallScore)}%</span>
+                    <span className="text-gray-600">{Math.round(baselineMatch.match.overall * 1)}%</span>
                   </div>
-                  <Progress value={baselineMatch.match.overallScore} />
+                  <Progress value={baselineMatch.match.overall * 1} />
                 </div>
-                {baselineMatch.match.categoryScores && (
+                {baselineMatch.match.catScores && (
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Category Breakdown</h4>
                     <div className="space-y-2">
-                      {Object.entries(baselineMatch.match.categoryScores).map(([category, score]) => (
+                      {Object.entries(baselineMatch.match.catScores).map(([category, score]) => (
                         <div key={category} className="flex justify-between text-sm">
                           <span className="capitalize">{category}</span>
-                          <span>{Math.round(score)}%</span>
+                          <span>{Math.round(score * 100)}%</span>
                         </div>
                       ))}
                     </div>
