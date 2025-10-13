@@ -59,3 +59,7 @@ Thumbs.db
 # Manus
 .manus/
 
+# Local dev artifacts (ignore)
+backend/flask_output.txt
+backend/run_backend.py
+
