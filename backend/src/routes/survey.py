@@ -100,6 +100,7 @@ def create_submission():
         sexual_orientation = sanitized_submission.get("sexualOrientation") or sanitized_submission.get(
             "sexual_orientation"
         )
+        version = sanitized_submission.get("version")
 
         if sex is not None:
             sanitized_submission["sex"] = sex
@@ -113,6 +114,7 @@ def create_submission():
             name=name,
             sex=sex,
             sexual_orientation=sexual_orientation,
+            version=version,
             payload_json=sanitized_submission,
         )
 
@@ -120,6 +122,8 @@ def create_submission():
         db.session.flush()
 
         response_payload = serialize_submission(submission)
+        if version is not None:
+            response_payload["version"] = version
         submission.payload_json = response_payload
 
         db.session.commit()
