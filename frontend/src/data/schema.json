@@ -1,4 +1,5 @@
 {
+  "version": "0.3.1",
   "meta": {
     "version": "0.2.4.2",
     "notes": "Audit v0.2.4.2: restored full 24-item SES/SIS; retained A/B directionality; unified boundary copy; tight Balanced criterion; ipsative IA1–IA4; overlap gating by impact cap; decoupled confidence from Power-Top; ENM excluded from archetype math.",
@@ -172,7 +173,17 @@
         "B9a",
         "B9b",
         "B10a",
-        "B10b"
+        "B10b",
+        "B13a",
+        "B13b",
+        "B14a",
+        "B14b",
+        "B15a",
+        "B15b",
+        "B16a",
+        "B16b",
+        "B17a",
+        "B17b"
       ],
       "Boundaries & Context": [
         "C1",
@@ -756,6 +767,96 @@
             "trait": "PUBLIC_EDGE",
             "weight": 0.4
           }
+        ]
+      },
+      {
+        "id": "B13a",
+        "type": "ymn",
+        "text": "Watersports on me (on me).",
+        "traits": [
+          { "trait": "NOVELTY", "weight": 0.5 },
+          { "trait": "POWER_BOTTOM", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B13b",
+        "type": "ymn",
+        "text": "Watersports I do (I do).",
+        "traits": [
+          { "trait": "NOVELTY", "weight": 0.5 },
+          { "trait": "POWER_TOP", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B14a",
+        "type": "ymn",
+        "text": "Anal stimulation on me (on me).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_BOTTOM", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B14b",
+        "type": "ymn",
+        "text": "Anal stimulation I do (I do).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_TOP", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B15a",
+        "type": "ymn",
+        "text": "Rimming on me (on me).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_BOTTOM", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B15b",
+        "type": "ymn",
+        "text": "Rimming I do (I do).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_TOP", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B16a",
+        "type": "ymn",
+        "text": "Pegging on me (on me).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_BOTTOM", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B16b",
+        "type": "ymn",
+        "text": "Pegging I do (I do).",
+        "traits": [
+          { "trait": "TOYS", "weight": 1.0 },
+          { "trait": "POWER_TOP", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B17a",
+        "type": "ymn",
+        "text": "Foot worship on me (on me).",
+        "traits": [
+          { "trait": "SENSUAL", "weight": 0.6 },
+          { "trait": "POWER_BOTTOM", "weight": 0.6 }
+        ]
+      },
+      {
+        "id": "B17b",
+        "type": "ymn",
+        "text": "Foot worship I do (I do).",
+        "traits": [
+          { "trait": "SENSUAL", "weight": 0.6 },
+          { "trait": "POWER_TOP", "weight": 0.6 }
         ]
       },
       {

@@ -59,7 +59,10 @@ export async function saveSubmission(submission) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(submission),
+      body: JSON.stringify({
+        version: '0.3.1',
+        ...submission,
+      }),
     });
     
     if (!response.ok) {
