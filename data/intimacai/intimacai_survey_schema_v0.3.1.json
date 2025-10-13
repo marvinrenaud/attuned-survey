@@ -1,0 +1,18 @@
+{
+  "version": "0.3.1",
+  "modules": [
+    {"id": "A", "name": "Arousal (SES/SIS)", "type": "likert7", "count": 24},
+    {"id": "B", "name": "Preferences (Directional Pairs)", "type": "chooseYMN", "note": "a = on me / b = I do"},
+    {"id": "C", "name": "Boundaries & Safety", "type": "mixed"},
+    {"id": "D", "name": "Structure & Logistics", "type": "likert7"}
+  ],
+  "domains": ["POWER", "CONNECTION", "SENSORY", "EXPLORATION", "STRUCTURE"],
+  "subfacets_exploration": ["visual", "novelty", "toys", "bondage", "impact", "public_edge"],
+  "arousal_modulators": ["SE", "SIS_P", "SIS_C"],
+  "power_params": {"theta_floor": 0.33, "delta_switch": 0.10, "gamma_ambivalence": 0.15},
+  "exploration_weights": {
+    "visual": 0.30, "novelty": 0.15, "toys": 0.15,
+    "bondage": 0.15, "impact": 0.15, "public_edge": 0.10
+  },
+  "tags_note": "Items may emit tags (e.g., EXPLICIT_FLUIDS, ANAL_STIM, RIMMING, PEGGING, FOOT) used by the generator for content gating."
+}
