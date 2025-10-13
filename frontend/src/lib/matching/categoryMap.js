@@ -15,24 +15,44 @@ export const CATEGORIES = [
   "PUBLIC_EDGE",
   "TOYS",
   "SENSUAL",
-  "ROMANTIC",
-  "POWER_DYNAMICS"
+  "ROMANTIC"
 ];
 
-// Map of category -> array of question IDs contributing to it
+// Map of category -> array of question IDs contributing to it (single-category assignment)
 export const CATEGORY_MAP = {
-  IMPACT: ["B2a", "B2b", "B4a", "B4b"],
-  BONDAGE: ["B1a", "B1b"],
-  EXHIBITION: ["B9a", "B9b", "B10b"],
+  // Striking/force sensations
+  IMPACT: ["B2a","B2b","B4a","B4b"],
+
+  // Rope/restraints/immobilization (B3 moved here; remove from any other category)
+  BONDAGE: ["B1a","B1b","B3a","B3b"],
+
+  // Being seen / performing; public-ish display
+  EXHIBITION: ["B9a","B10b"],
+
+  // Watching others
   VOYEUR: ["B10a"],
-  ROLEPLAY: ["B5a", "B5b", "B6a", "B6b"],
-  RECORDING: ["C4"], // boundary gate
-  GROUP_ENM: [], // reserve for future explicit ENM items
-  PUBLIC_EDGE: ["B9a", "B10b", "B13a", "B13b"],
-  TOYS: ["B3a", "B3b", "B8a", "B8b", "B14a", "B14b", "B15a", "B15b", "B16a", "B16b"],
-  SENSUAL: ["B3a", "B3b", "B17a", "B17b"],
+
+  // Scenes/characters/commands (non-implement)
+  ROLEPLAY: ["B5a","B5b","B6a","B6b"],
+
+  // Gates (no direct items here; overlap will be 0 if gated off)
+  RECORDING: ["C4"],
+  GROUP_ENM: [],
+
+  // Risk/fluids edge conditions (keep watersports only to avoid duplication with EXHIBITION)
+  PUBLIC_EDGE: ["B13a","B13b"],
+
+  // Implements/devices/insertables
+  TOYS: ["B8a","B8b","B14a","B14b","B15a","B15b","B16a","B16b"],
+
+  // Pure sensual touch/massage/feet (not restraints)
+  SENSUAL: ["B17a","B17b"],
+
+  // Affection/aftercare rituals (legacy single item)
   ROMANTIC: ["B9b"],
-  POWER_DYNAMICS: ["B5a", "B5b", "B6a", "B6b", "B7a", "B7b"]
+
+  // Not used for Jaccard; power complement is computed from traits in overlapHelper
+  POWER_DYNAMICS: []
 };
 
 // Optional item tags for gating/analytics
