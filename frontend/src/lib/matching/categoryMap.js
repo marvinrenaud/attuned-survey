@@ -1,34 +1,52 @@
 /**
- * Category Map for couple overlap matching (v0.2.2)
+ * Category Map for couple overlap matching (v0.3.1)
+ * Includes directional A/B items and new B13–B17 items.
  */
 
+// Active categories used by breakdowns
+export const CATEGORIES = [
+  "IMPACT",
+  "BONDAGE",
+  "EXHIBITION",
+  "VOYEUR",
+  "ROLEPLAY",
+  "RECORDING",
+  "GROUP_ENM",
+  "PUBLIC_EDGE",
+  "TOYS",
+  "SENSUAL",
+  "ROMANTIC",
+  "POWER_DYNAMICS"
+];
+
+// Map of category -> array of question IDs contributing to it
 export const CATEGORY_MAP = {
-  IMPACT: ["B8a", "B8b", "B9a", "B9b", "B10a", "B10b"],
-  BONDAGE: ["B5a", "B5b", "B6a", "B6b", "B7a", "B7b", "B25a", "B25b"],
-  EXHIBITION: ["B17", "B18", "B27"],
-  VOYEUR: ["B19", "B28"],
-  ROLEPLAY: ["B11", "B12", "B26"],
-  RECORDING: ["B20"],
-  GROUP_ENM: ["B28", "B29", "B30a", "B30b"],
-  PUBLIC_EDGE: ["B18", "B27", "B12"],
-  TOYS: ["B21a", "B21b", "B22a", "B22b"],
-  SENSUAL: ["B1", "B2", "B4"],
-  ROMANTIC: ["B3", "B4", "B31", "B32"],
-  POWER_DYNAMICS: ["B13a", "B13b", "B14a", "B14b", "B23a", "B23b", "B24a", "B24b"]
+  IMPACT: ["B2a", "B2b", "B4a", "B4b"],
+  BONDAGE: ["B1a", "B1b"],
+  EXHIBITION: ["B9a", "B9b", "B10b"],
+  VOYEUR: ["B10a"],
+  ROLEPLAY: ["B5a", "B5b", "B6a", "B6b"],
+  RECORDING: ["C4"], // boundary gate
+  GROUP_ENM: [], // reserve for future explicit ENM items
+  PUBLIC_EDGE: ["B9a", "B10b", "B13a", "B13b"],
+  TOYS: ["B3a", "B3b", "B8a", "B8b", "B14a", "B14b", "B15a", "B15b", "B16a", "B16b"],
+  SENSUAL: ["B3a", "B3b", "B17a", "B17b"],
+  ROMANTIC: ["B9b"],
+  POWER_DYNAMICS: ["B5a", "B5b", "B6a", "B6b", "B7a", "B7b"]
 };
 
-export const CATEGORY_TOKENS = {
-  IMPACT: ["impact"],
-  BONDAGE: ["bondage"],
-  EXHIBITION: ["exhibition"],
-  VOYEUR: ["voyeur"],
-  ROLEPLAY: ["roleplay"],
-  RECORDING: ["recording"],
-  GROUP_ENM: ["group/enm", "enm", "group"],
-  PUBLIC_EDGE: ["public-edge", "public"],
-  TOYS: ["toys"],
-  SENSUAL: ["sensual"],
-  ROMANTIC: ["romantic"],
-  POWER_DYNAMICS: ["power"]
+// Optional item tags for gating/analytics
+export const ITEM_TAGS = {
+  B13a: ["EXPLICIT_FLUIDS"], B13b: ["EXPLICIT_FLUIDS"],
+  B14a: ["ANAL_STIM"], B14b: ["ANAL_STIM"],
+  B15a: ["RIMMING"], B15b: ["RIMMING"],
+  B16a: ["PEGGING"], B16b: ["PEGGING"],
+  B17a: ["FOOT"], B17b: ["FOOT"]
+};
+
+// Direction map: a = on_me, b = i_do
+export const DIRECTION_MAP = {
+  a: "on_me",
+  b: "i_do"
 };
 

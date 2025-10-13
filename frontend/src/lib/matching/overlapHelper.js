@@ -1,9 +1,9 @@
 /**
- * Overlap Helper - Matching algorithm (v0.2.3)
- * Computes compatibility between two respondents
+ * Overlap Helper - Matching algorithm (v0.3.1)
+ * Direction-aware matching with boundary gates and trait complement.
  */
 
-import { CATEGORY_MAP, CATEGORY_TOKENS } from './categoryMap.js';
+import { CATEGORY_MAP, CATEGORIES } from './categoryMap.js';
 
 /**
  * Convert YMN answer to numeric value
@@ -18,17 +18,66 @@ function ynm01(value) {
 /**
  * Calculate weighted Jaccard similarity for a set of items
  */
-function jaccardWeighted(itemIds, answersA, answersB) {
+// Direction-aware Jaccard:
+// - For bases with A/B variants (e.g., B14a/B14b), compute cross-direction overlap
+//   mean(min(A[b], B[a]), min(A[a], B[b])) with union as mean of corresponding maxima.
+// - For non-directional items, compare same IDs.
+function jaccardWeightedDirectional(itemIds, answersA, answersB) {
   let intersection = 0;
   let union = 0;
 
+  // Group by base (e.g., B14)
+  const baseToVariants = new Map();
+  const nonDirectional = [];
+
   for (const id of itemIds) {
+    const m = /^([A-Za-z]+\d+)([ab])$/i.exec(id);
+    if (m) {
+      const base = m[1];
+      const variant = m[2].toLowerCase();
+      if (!baseToVariants.has(base)) baseToVariants.set(base, new Set());
+      baseToVariants.get(base).add(variant);
+    } else {
+      nonDirectional.push(id);
+    }
+  }
+
+  // Handle directional bases
+  for (const [base, variants] of baseToVariants.entries()) {
+    const hasA = variants.has('a');
+    const hasB = variants.has('b');
+
+    // Cross-direction terms
+    const Ab = ynm01(answersA[`${base}b`]);
+    const Ba = ynm01(answersB[`${base}a`]);
+    const Aa = ynm01(answersA[`${base}a`]);
+    const Bb = ynm01(answersB[`${base}b`]);
+
+    // Only form terms if at least one side of that term is represented in the map
+    // and at least one respondent answered (non-zero).
+    if (hasA || hasB) {
+      // Term 1: A does (b) with B receives (a)
+      if (hasB || hasA) {
+        if (!(Ab === 0 && Ba === 0)) {
+          intersection += Math.min(Ab, Ba);
+          union += Math.max(Ab, Ba);
+        }
+      }
+      // Term 2: A receives (a) with B does (b)
+      if (hasA || hasB) {
+        if (!(Aa === 0 && Bb === 0)) {
+          intersection += Math.min(Aa, Bb);
+          union += Math.max(Aa, Bb);
+        }
+      }
+    }
+  }
+
+  // Handle non-directional items as standard Jaccard
+  for (const id of nonDirectional) {
     const a = ynm01(answersA[id]);
     const b = ynm01(answersB[id]);
-
-    // Skip if both blank
     if (a === 0 && b === 0) continue;
-
     intersection += Math.min(a, b);
     union += Math.max(a, b);
   }
@@ -45,29 +94,19 @@ function gateCategoryScore(category, score, boundariesA, boundariesB) {
   const hardNosA = new Set((boundariesA?.hardNos || []).map(x => x.toLowerCase()));
   const hardNosB = new Set((boundariesB?.hardNos || []).map(x => x.toLowerCase()));
 
-  // Hard NO gate - if either person has a hard NO, score = 0
-  const tokens = CATEGORY_TOKENS[category] || [];
-  for (const token of tokens) {
-    if (hardNosA.has(token) || hardNosB.has(token)) {
-      return 0;
-    }
-  }
+  // Hard NO gates by simple token matching against category key
+  const catToken = category.toLowerCase().replace(/_/g, '-');
+  if (hardNosA.has(catToken) || hardNosB.has(catToken)) return 0;
 
   // Recording gate
   if (category === 'RECORDING') {
-    if (boundariesA?.noRecording || boundariesB?.noRecording) {
-      return 0;
-    }
+    if (boundariesA?.noRecording || boundariesB?.noRecording) return 0;
   }
 
-  // Impact cap scaling
+  // Impact cap scaling (exclude excess by scaling overlap)
   if (category === 'IMPACT') {
-    const capA = typeof boundariesA?.impactCap === 'number' 
-      ? Math.max(0, Math.min(100, boundariesA.impactCap)) 
-      : 100;
-    const capB = typeof boundariesB?.impactCap === 'number' 
-      ? Math.max(0, Math.min(100, boundariesB.impactCap)) 
-      : 100;
+    const capA = typeof boundariesA?.impactCap === 'number' ? Math.max(0, Math.min(100, boundariesA.impactCap)) : 100;
+    const capB = typeof boundariesB?.impactCap === 'number' ? Math.max(0, Math.min(100, boundariesB.impactCap)) : 100;
     const scale = Math.min(capA, capB) / 100;
     gatedScore *= scale;
   }
@@ -113,18 +152,19 @@ export function computeOverallMatch(options) {
     traitsB,
     boundariesA,
     boundariesB,
-    jaccardWeight = 0.85,
-    powerWeight = 0.15
+    jaccardWeight = 0.20,
+    powerWeight = 0.20,
+    domainWeight = 0.60
   } = options;
 
   // Calculate category similarities
   const catScores = {};
   let sum = 0;
-  const categories = Object.keys(CATEGORY_MAP);
+  const categories = CATEGORIES;
 
   for (const category of categories) {
-    const itemIds = CATEGORY_MAP[category];
-    const rawScore = jaccardWeighted(itemIds, answersA, answersB);
+    const itemIds = CATEGORY_MAP[category] || [];
+    const rawScore = jaccardWeightedDirectional(itemIds, answersA, answersB);
     const gatedScore = gateCategoryScore(category, rawScore, boundariesA, boundariesB);
     catScores[category] = gatedScore;
     sum += gatedScore;
@@ -135,8 +175,26 @@ export function computeOverallMatch(options) {
   // Calculate power complement
   const powerComplement = powerComplementFromTraits(traitsA, traitsB);
 
+  // Domain similarity placeholder: if domain vectors exist, compute here.
+  // Fallback to trait similarity via cosine-like average.
+  let domainSim = 0;
+  if (traitsA && traitsB) {
+    const keys = Array.from(new Set([...Object.keys(traitsA), ...Object.keys(traitsB)]));
+    if (keys.length > 0) {
+      let num = 0, den = 0;
+      for (const k of keys) {
+        const a = typeof traitsA[k] === 'number' ? traitsA[k] : 0;
+        const b = typeof traitsB[k] === 'number' ? traitsB[k] : 0;
+        // traits are 0..1 in this app
+        num += 1 - Math.abs(a - b);
+        den += 1;
+      }
+      domainSim = den > 0 ? Math.max(0, Math.min(1, num / den)) : 0;
+    }
+  }
+
   // Overall score
-  const overall = Math.max(0, Math.min(1, jaccardWeight * meanJ + powerWeight * powerComplement));
+  const overall = Math.max(0, Math.min(1, jaccardWeight * meanJ + powerWeight * powerComplement + domainWeight * domainSim));
 
   return {
     overall: overall * 100, // Scale to 0-100

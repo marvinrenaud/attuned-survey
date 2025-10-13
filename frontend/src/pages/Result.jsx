@@ -7,6 +7,7 @@ import { Edit, Home, Heart, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getSubmission, getBaseline } from '../lib/storage/apiStore';
 import { computeOverallMatch } from '../lib/matching/overlapHelper';
+import { extractBoundaries } from '../lib/scoring/traitCalculator';
 
 export default function Result() {
   const location = useLocation();
@@ -68,11 +69,15 @@ export default function Result() {
           if (baseline) {
             console.log('✅ Baseline loaded, calculating match...');
             try {
+              const boundariesA = extractBoundaries(sub.answers || {});
+              const boundariesB = extractBoundaries(baseline.answers || {});
               const match = computeOverallMatch({
                 answersA: sub.answers,
                 answersB: baseline.answers,
-                traitsA: sub.derived.traits,
-                traitsB: baseline.derived.traits
+                traitsA: sub.derived?.traits,
+                traitsB: baseline.derived?.traits,
+                boundariesA,
+                boundariesB
               });
               setBaselineMatch({ baseline, match });
               console.log('✅ Match calculated:', match);
