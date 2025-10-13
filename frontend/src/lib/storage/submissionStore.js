@@ -136,6 +136,8 @@ export function exportSubmissionsCSV() {
   const headers = [
     'ID',
     'Name',
+    'Sex',
+    'Sexual Orientation',
     'Created At',
     'Adventure',
     'Connection',
@@ -150,6 +152,8 @@ export function exportSubmissionsCSV() {
     return [
       sub.id,
       sub.name,
+      sub.sex || '',
+      sub.sexualOrientation || '',
       sub.createdAt,
       sub.derived?.dials?.Adventure?.toFixed(1) || '',
       sub.derived?.dials?.Connection?.toFixed(1) || '',

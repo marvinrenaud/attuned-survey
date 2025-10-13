@@ -169,6 +169,24 @@ export default function Result() {
           <p className="text-gray-600">Here's what we discovered about you</p>
         </div>
 
+        <Card className="mb-6" data-testid="result-demographics">
+          <CardHeader>
+            <CardTitle className="text-2xl">About You</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+              <div>
+                <p className="text-sm uppercase tracking-wide text-gray-500">Sex</p>
+                <p className="text-lg font-semibold capitalize">{submission.sex || 'Not specified'}</p>
+              </div>
+              <div>
+                <p className="text-sm uppercase tracking-wide text-gray-500">Sexual Orientation</p>
+                <p className="text-lg font-semibold capitalize">{submission.sexualOrientation || 'Not specified'}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Archetype */}
         <Card className="mb-6" data-testid="result-archetype">
           <CardHeader>

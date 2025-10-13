@@ -43,6 +43,8 @@
  * @typedef {Object} Submission
  * @property {string} id
  * @property {string} name
+ * @property {string} sex
+ * @property {string} sexualOrientation
  * @property {string} createdAt
  * @property {Record<string, string | number>} answers
  * @property {DerivedData} derived

@@ -30,8 +30,16 @@ def sanitize_for_json(value):
 
 def serialize_submission(submission: SurveySubmission) -> dict:
     payload = dict(submission.payload_json or {})
+    if "sexual_orientation" in payload and "sexualOrientation" not in payload:
+        payload["sexualOrientation"] = payload.get("sexual_orientation")
     payload.setdefault("id", submission.submission_id)
     payload.setdefault("createdAt", submission.created_at.isoformat())
+    if submission.name is not None:
+        payload.setdefault("name", submission.name)
+    if submission.sex is not None:
+        payload.setdefault("sex", submission.sex)
+    if submission.sexual_orientation is not None:
+        payload.setdefault("sexualOrientation", submission.sexual_orientation)
     return sanitize_for_json(payload)
 
 
@@ -76,10 +84,24 @@ def create_submission():
         respondent_id = sanitized_submission.get("respondentId") or sanitized_submission.get(
             "respondent_id"
         )
+        name = sanitized_submission.get("name")
+        sex = sanitized_submission.get("sex")
+        sexual_orientation = sanitized_submission.get("sexualOrientation") or sanitized_submission.get(
+            "sexual_orientation"
+        )
+
+        if sex is not None:
+            sanitized_submission["sex"] = sex
+        if sexual_orientation is not None:
+            sanitized_submission["sexualOrientation"] = sexual_orientation
+        sanitized_submission.pop("sexual_orientation", None)
 
         submission = SurveySubmission(
             submission_id=submission_id,
             respondent_id=respondent_id,
+            name=name,
+            sex=sex,
+            sexual_orientation=sexual_orientation,
             payload_json=sanitized_submission,
         )
 
