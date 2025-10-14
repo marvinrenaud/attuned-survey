@@ -11,6 +11,11 @@ import { computeTraits, scoreArchetypes, getTopArchetypes } from '../lib/scoring
 import { saveSubmission, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../lib/storage/apiStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+const DEBUG_SURVEY = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+function sdbg(...args) {
+  if (DEBUG_SURVEY) console.log('[SURVEY DEBUG]', ...args);
+}
+
 const SEX_OPTIONS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
@@ -26,6 +31,19 @@ const ORIENTATION_OPTIONS = [
 export default function Survey() {
   const navigate = useNavigate();
   const [chapters] = useState(getSurveyChapters());
+  try {
+    const chaptersForLog = getSurveyChapters();
+    const flat = [];
+    for (const ch of chaptersForLog) {
+      for (const it of (ch?.items || [])) {
+        flat.push({ chapter: ch?.title || ch?.name, id: it?.id, type: it?.type, text: it?.text });
+      }
+    }
+    sdbg('RENDER_ORDER', flat.length, 'items');
+    console.table(flat.slice(0, 200));
+  } catch (e) {
+    sdbg('Failed to log render order', e);
+  }
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [name, setName] = useState('');

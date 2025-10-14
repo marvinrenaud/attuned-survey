@@ -4,6 +4,8 @@
  */
 
 import { CATEGORY_MAP, CATEGORIES } from './categoryMap.js';
+export const EXCLUDED_FROM_MEAN = new Set(['RECORDING', 'GROUP_ENM']);
+const DOMAIN_KEYS = ['CONNECTION', 'SENSORY', 'EXPLORATION', 'STRUCTURE']; // Power handled via complement
 
 /**
  * Convert YMN answer to numeric value
@@ -47,28 +49,32 @@ function jaccardWeightedDirectional(itemIds, answersA, answersB) {
     const hasA = variants.has('a');
     const hasB = variants.has('b');
 
-    // Cross-direction terms
     const Ab = ynm01(answersA[`${base}b`]);
     const Ba = ynm01(answersB[`${base}a`]);
     const Aa = ynm01(answersA[`${base}a`]);
     const Bb = ynm01(answersB[`${base}b`]);
 
-    // Only form terms if at least one side of that term is represented in the map
-    // and at least one respondent answered (non-zero).
-    if (hasA || hasB) {
-      // Term 1: A does (b) with B receives (a)
-      if (hasB || hasA) {
-        if (!(Ab === 0 && Ba === 0)) {
-          intersection += Math.min(Ab, Ba);
-          union += Math.max(Ab, Ba);
-        }
+    if (hasA && hasB) {
+      // Both variants present: cross-direction complement (two terms)
+      if (!(Ab === 0 && Ba === 0)) {
+        intersection += Math.min(Ab, Ba);
+        union += Math.max(Ab, Ba);
       }
-      // Term 2: A receives (a) with B does (b)
-      if (hasA || hasB) {
-        if (!(Aa === 0 && Bb === 0)) {
-          intersection += Math.min(Aa, Bb);
-          union += Math.max(Aa, Bb);
-        }
+      if (!(Aa === 0 && Bb === 0)) {
+        intersection += Math.min(Aa, Bb);
+        union += Math.max(Aa, Bb);
+      }
+    } else if (hasA && !hasB) {
+      // Only 'a' present: compare same-variant 'a' with 'a'
+      if (!(Aa === 0 && Ba === 0)) {
+        intersection += Math.min(Aa, Ba);
+        union += Math.max(Aa, Ba);
+      }
+    } else if (hasB && !hasA) {
+      // Only 'b' present: compare same-variant 'b' with 'b'
+      if (!(Ab === 0 && Bb === 0)) {
+        intersection += Math.min(Ab, Bb);
+        union += Math.max(Ab, Bb);
       }
     }
   }
@@ -154,38 +160,64 @@ export function computeOverallMatch(options) {
     boundariesB,
     jaccardWeight = 0.20,
     powerWeight = 0.20,
-    domainWeight = 0.60
+    domainWeight = 0.60,
+    domainsA,
+    domainsB
   } = options;
 
   // Calculate category similarities
   const catScores = {};
-  let sum = 0;
+  let sumIncluded = 0;
   const categories = CATEGORIES;
+  const categoriesForMean = categories.filter(c => !EXCLUDED_FROM_MEAN.has(c));
 
   for (const category of categories) {
     const itemIds = CATEGORY_MAP[category] || [];
     const rawScore = jaccardWeightedDirectional(itemIds, answersA, answersB);
     const gatedScore = gateCategoryScore(category, rawScore, boundariesA, boundariesB);
     catScores[category] = gatedScore;
-    sum += gatedScore;
+    if (!EXCLUDED_FROM_MEAN.has(category)) sumIncluded += gatedScore;
   }
 
-  const meanJ = categories.length > 0 ? sum / categories.length : 0;
+  const meanJ = categoriesForMean.length > 0 ? sumIncluded / categoriesForMean.length : 0;
 
   // Calculate power complement
   const powerComplement = powerComplementFromTraits(traitsA, traitsB);
 
-  // Domain similarity placeholder: if domain vectors exist, compute here.
-  // Fallback to trait similarity via cosine-like average.
+  // Domain similarity using domains if provided; fallback to trait similarity
   let domainSim = 0;
-  if (traitsA && traitsB) {
+  if (domainsA && domainsB) {
+    const pairs = DOMAIN_KEYS.filter(k => Number.isFinite(domainsA?.[k.toLowerCase()]) && Number.isFinite(domainsB?.[k.toLowerCase()]));
+    if (pairs.length) {
+      let acc = 0;
+      for (const k of pairs) {
+        const kk = k.toLowerCase();
+        acc += 1 - Math.abs(domainsA[kk] - domainsB[kk]) / 100;
+      }
+      domainSim = Math.max(0, Math.min(1, acc / pairs.length));
+    } else {
+      // fallback to trait similarity
+      if (traitsA && traitsB) {
+        const keys = Array.from(new Set([...Object.keys(traitsA), ...Object.keys(traitsB)]));
+        if (keys.length > 0) {
+          let num = 0, den = 0;
+          for (const k of keys) {
+            const a = typeof traitsA[k] === 'number' ? traitsA[k] : 0;
+            const b = typeof traitsB[k] === 'number' ? traitsB[k] : 0;
+            num += 1 - Math.abs(a - b);
+            den += 1;
+          }
+          domainSim = den > 0 ? Math.max(0, Math.min(1, num / den)) : 0;
+        }
+      }
+    }
+  } else if (traitsA && traitsB) {
     const keys = Array.from(new Set([...Object.keys(traitsA), ...Object.keys(traitsB)]));
     if (keys.length > 0) {
       let num = 0, den = 0;
       for (const k of keys) {
         const a = typeof traitsA[k] === 'number' ? traitsA[k] : 0;
         const b = typeof traitsB[k] === 'number' ? traitsB[k] : 0;
-        // traits are 0..1 in this app
         num += 1 - Math.abs(a - b);
         den += 1;
       }

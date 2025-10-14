@@ -99,34 +99,64 @@ export function calculateTraits(answers, items) {
 }
 
 /**
- * Extract boundary flags from answers
- * @param {Record<string, string | number>} answers
- * @returns {Object}
+ * Extract boundary flags from answers (v0.3.x with legacy compatibility)
+ * Assumptions (v0.3.x):
+ * - C1: numeric 0..100 impact cap (default 100 if blank)
+ * - C2: comma-separated "hard no" tokens (normalized to kebab-case)
+ * - C4: "Recording is OK" (Y/N). noRecording = true when C4 is N/NO/FALSE/0.
+ *
+ * Legacy shims:
+ * - If hardNos include "recording"/"no-recording", force noRecording = true.
+ * - If C5 existed as legacy "No recording (Y/N)" and is 'N', force noRecording = true.
  */
-export function extractBoundaries(answers) {
-  const boundaries = {
-    hardNos: [],
-    impactCap: undefined,
-    noRecording: false
-  };
+export function extractBoundaries(answers = {}) {
+  // ---- Impact cap (C1) ----
+  let impactCap = Number(answers.C1);
+  if (!Number.isFinite(impactCap)) impactCap = 100;
+  impactCap = Math.max(0, Math.min(100, impactCap));
 
-  // C1: Impact cap
-  if (answers.C1 !== undefined && answers.C1 !== '') {
-    boundaries.impactCap = Number(answers.C1);
+  // ---- Hard NOs (C2) ----
+  let hardNos = [];
+  if (answers.C2 != null && String(answers.C2).trim() !== '') {
+    hardNos = String(answers.C2)
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(s =>
+        String(s)
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+      );
   }
 
-  // C2: Hard NOs (comma-separated string)
-  if (answers.C2) {
-    const hardNoStr = String(answers.C2).toLowerCase();
-    boundaries.hardNos = hardNoStr.split(',').map(s => s.trim()).filter(Boolean);
+  // ---- Recording gate (C4 = "Recording is OK") ----
+  const c4raw = String(answers.C4 ?? '').trim().toUpperCase();
+  const recordingOk =
+    c4raw === 'Y' || c4raw === 'YES' || c4raw === 'TRUE' || c4raw === '1';
+  const recordingNo =
+    c4raw === 'N' || c4raw === 'NO' || c4raw === 'FALSE' || c4raw === '0';
+
+  let noRecording = false;
+  if (recordingNo) noRecording = true;          // v0.3.x normal path
+  else if (recordingOk) noRecording = false;    // explicit OK
+  else noRecording = false;                      // default if missing/blank
+
+  // ---- Legacy shims ----
+  // 1) Hard NO token implies "no recording"
+  const hardNoSet = new Set(hardNos);
+  if (hardNoSet.has('recording') || hardNoSet.has('no-recording')) {
+    noRecording = true;
   }
 
-  // C4: No recording
-  if (answers.C4) {
-    const c4 = String(answers.C4).trim().toUpperCase();
-    boundaries.noRecording = (c4 === 'Y' || c4 === 'YES' || c4 === 'TRUE');
+  // 2) Legacy C5: "No recording (Y/N)" -> treat 'N' as noRecording
+  if (typeof answers.C5 === 'string') {
+    const c5 = answers.C5.trim().toUpperCase();
+    if (c5 === 'N' || c5 === 'NO' || c5 === 'FALSE' || c5 === '0') {
+      noRecording = true;
+    }
   }
 
-  return boundaries;
+  return { hardNos, impactCap, noRecording };
 }
 

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Database, History, AlertCircle, Home } from 'lucide-react';
+import { computeDomainsFromTraits } from '@/lib/scoring/domainCalculator';
 import {
   getAllSubmissions,
   getBaseline,
@@ -175,39 +176,44 @@ function ResponsesList() {
                   <TableHead>Orientation</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Version</TableHead>
-                  <TableHead>Adventure</TableHead>
+                  <TableHead>PowerTop</TableHead>
+                  <TableHead>PowerBottom</TableHead>
                   <TableHead>Connection</TableHead>
-                  <TableHead>Intensity</TableHead>
-                  <TableHead>Confidence</TableHead>
-                  <TableHead>Archetype</TableHead>
+                  <TableHead>Sensory</TableHead>
+                  <TableHead>Exploration</TableHead>
+                  <TableHead>Structure</TableHead>
                   <TableHead>Baseline</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {submissions.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell className="font-medium">{sub.name}</TableCell>
-                    <TableCell className="capitalize">{sub.sex || '-'}</TableCell>
-                    <TableCell className="capitalize">{sub.sexualOrientation || '-'}</TableCell>
-                    <TableCell>{new Date(sub.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{sub.version || '—'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Adventure?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Connection?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Intensity?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Confidence?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.archetypes?.[0]?.name || '-'}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant={baselineId === sub.id ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleSetBaseline(sub.id)}
-                        data-testid="set-baseline"
-                      >
-                        {baselineId === sub.id ? 'Baseline' : 'Set'}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {submissions.map((sub) => {
+                  const d = computeDomainsFromTraits(sub.derived?.traits || {});
+                  return (
+                    <TableRow key={sub.id}>
+                      <TableCell className="font-medium">{sub.name}</TableCell>
+                      <TableCell className="capitalize">{sub.sex || '-'}</TableCell>
+                      <TableCell className="capitalize">{sub.sexualOrientation || '-'}</TableCell>
+                      <TableCell>{new Date(sub.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{sub.version || '—'}</TableCell>
+                      <TableCell>{Math.round(d.powerTop)}</TableCell>
+                      <TableCell>{Math.round(d.powerBottom)}</TableCell>
+                      <TableCell>{Math.round(d.connection)}</TableCell>
+                      <TableCell>{Math.round(d.sensory)}</TableCell>
+                      <TableCell>{Math.round(d.exploration)}</TableCell>
+                      <TableCell>{Math.round(d.structure)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant={baselineId === sub.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleSetBaseline(sub.id)}
+                          data-testid="set-baseline"
+                        >
+                          {baselineId === sub.id ? 'Baseline' : 'Set'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -241,19 +247,23 @@ function ExportTools() {
       const submissions = data.submissions || [];
       
       // Create CSV header
-      const headers = ['Name', 'Sex', 'Sexual Orientation', 'Created', 'Version', 'Adventure', 'Connection', 'Intensity', 'Confidence', 'Top Archetype'];
-      const rows = submissions.map(sub => [
-        sub.name,
-        sub.sex || '',
-        sub.sexualOrientation || '',
-        new Date(sub.createdAt).toISOString(),
-        sub.version || '',
-        sub.derived?.dials?.Adventure?.toFixed(0) || '',
-        sub.derived?.dials?.Connection?.toFixed(0) || '',
-        sub.derived?.dials?.Intensity?.toFixed(0) || '',
-        sub.derived?.dials?.Confidence?.toFixed(0) || '',
-        sub.derived?.archetypes?.[0]?.name || ''
-      ]);
+      const headers = ['Name', 'Sex', 'Sexual Orientation', 'Created', 'Version', 'PowerTop', 'PowerBottom', 'Connection', 'Sensory', 'Exploration', 'Structure'];
+      const rows = submissions.map(sub => {
+        const d = computeDomainsFromTraits(sub.derived?.traits || {});
+        return [
+          sub.name,
+          sub.sex || '',
+          sub.sexualOrientation || '',
+          new Date(sub.createdAt).toISOString(),
+          sub.version || '',
+          Math.round(d.powerTop),
+          Math.round(d.powerBottom),
+          Math.round(d.connection),
+          Math.round(d.sensory),
+          Math.round(d.exploration),
+          Math.round(d.structure)
+        ];
+      });
       
       const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });

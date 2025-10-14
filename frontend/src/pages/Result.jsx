@@ -7,7 +7,15 @@ import { Edit, Home, Heart, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getSubmission, getBaseline } from '../lib/storage/apiStore';
 import { computeOverallMatch } from '../lib/matching/overlapHelper';
+import { EXCLUDED_FROM_MEAN } from '@/lib/matching/overlapHelper';
+import { CATEGORY_MAP } from '@/lib/matching/categoryMap';
+import { computeDomainsFromTraits } from '@/lib/scoring/domainCalculator';
 import { extractBoundaries } from '../lib/scoring/traitCalculator';
+
+const DEBUG_RESULTS = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+function dbg(...args) {
+  if (DEBUG_RESULTS) console.log('[RESULT DEBUG]', ...args);
+}
 
 export default function Result() {
   const location = useLocation();
@@ -71,14 +79,61 @@ export default function Result() {
             try {
               const boundariesA = extractBoundaries(sub.answers || {});
               const boundariesB = extractBoundaries(baseline.answers || {});
+              const domainsA = computeDomainsFromTraits(sub?.derived?.traits || {});
+              const domainsB = computeDomainsFromTraits(baseline?.derived?.traits || {});
               const match = computeOverallMatch({
                 answersA: sub.answers,
                 answersB: baseline.answers,
                 traitsA: sub.derived?.traits,
                 traitsB: baseline.derived?.traits,
                 boundariesA,
-                boundariesB
+                boundariesB,
+                domainsA,
+                domainsB
               });
+              // Debug dump
+              dbg('submission.id', sub?.id);
+              dbg('baseline.id', baseline?.id);
+              dbg('EXCLUDED_FROM_MEAN', Array.from(EXCLUDED_FROM_MEAN || []));
+              dbg('CATEGORY_MAP', CATEGORY_MAP);
+              dbg('ANSWERS_A', sub?.answers);
+              dbg('ANSWERS_B', baseline?.answers);
+              dbg('BOUNDARIES_A', boundariesA);
+              dbg('BOUNDARIES_B', boundariesB);
+              dbg('TRAITS_A', sub?.derived?.traits);
+              dbg('TRAITS_B', baseline?.derived?.traits);
+              dbg('DOMAINS_A', domainsA);
+              dbg('DOMAINS_B', domainsB);
+              // Second run for introspection (re-using same inputs)
+              const match2 = computeOverallMatch({
+                answersA: sub.answers,
+                answersB: baseline.answers,
+                traitsA: sub.derived?.traits,
+                traitsB: baseline.derived?.traits,
+                boundariesA,
+                boundariesB,
+                domainsA,
+                domainsB
+              });
+              dbg('MATCH_OUT', match2);
+              if (match2?.catScores) {
+                const rows = Object.entries(match2.catScores).map(([k, v]) => ({ category: k, percent: Math.round((v ?? 0) * 100) }));
+                console.table(rows);
+              }
+              // Directional EXHIBITION inputs quick view
+              try {
+                const A_B9a = sub?.answers?.['B9a'];
+                const B_B9a = baseline?.answers?.['B9a'];
+                const A_B10b = sub?.answers?.['B10b'];
+                const B_B10b = baseline?.answers?.['B10b'];
+                console.table([
+                  { key: 'A.B9a', value: A_B9a },
+                  { key: 'B.B9a', value: B_B9a },
+                  { key: 'A.B10b', value: A_B10b },
+                  { key: 'B.B10b', value: B_B10b },
+                  { key: 'catScores.EXHIBITION', value: Math.round((match2?.catScores?.EXHIBITION ?? 0) * 100) + '%' },
+                ]);
+              } catch {}
               setBaselineMatch({ baseline, match });
               console.log('✅ Match calculated:', match);
             } catch (matchError) {
@@ -159,6 +214,9 @@ export default function Result() {
   }
 
   const { derived } = submission;
+  const HIDE_TRAITS = new Set(['RECORDING','GROUP_ENM']);
+  const visibleTraits = Object.entries(derived?.traits || {}).filter(([k]) => !HIDE_TRAITS.has(k));
+  const gates = extractBoundaries(submission?.answers || {});
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
@@ -192,33 +250,96 @@ export default function Result() {
           </CardContent>
         </Card>
 
-        {/* Archetype */}
-        <Card className="mb-6" data-testid="result-archetype">
+        {/* Domains */}
+        <Card className="mb-6" data-testid="result-domains">
           <CardHeader>
-            <CardTitle className="text-2xl">Your Archetype{derived.archetypes.length > 1 ? 's' : ''}</CardTitle>
+            <CardTitle className="text-2xl">Your Domains</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {derived.archetypes.map((archetype, idx) => (
-                <div key={idx} className="p-4 bg-rose-50 rounded-lg">
-                  <h3 className="text-xl font-semibold text-rose-900 mb-2">{archetype.name}</h3>
-                  <Progress value={archetype.score * 100} className="mb-2" />
-                  <p className="text-sm text-gray-700">{archetype.score > 0.7 ? 'Strong match' : 'Moderate match'}</p>
+            {(() => {
+              const domains = computeDomainsFromTraits(derived?.traits || {});
+              return (
+                <div className="space-y-4">
+                  {/* Power Top & Bottom */}
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Power (Top)</span><span>{Math.round(domains.powerTop)}</span></div>
+                    <Progress value={domains.powerTop} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Power (Bottom)</span><span>{Math.round(domains.powerBottom)}</span></div>
+                    <Progress value={domains.powerBottom} />
+                  </div>
+
+                  {/* Connection, Sensory, Exploration, Structure */}
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Connection</span><span>{Math.round(domains.connection)}</span></div>
+                    <Progress value={domains.connection} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Sensory</span><span>{Math.round(domains.sensory)}</span></div>
+                    <Progress value={domains.sensory} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Exploration</span><span>{Math.round(domains.exploration)}</span></div>
+                    <Progress value={domains.exploration} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1"><span className="font-medium">Structure</span><span>{Math.round(domains.structure)}</span></div>
+                    <Progress value={domains.structure} />
+                  </div>
+
+                  {/* Baseline comparison small badges (if baseline present) */}
+                  {baselineMatch && baselineMatch.baseline?.derived?.traits && (
+                    (() => {
+                      const bd = computeDomainsFromTraits(baselineMatch.baseline.derived.traits || {});
+                      const Row = ({ label, a, b }) => (
+                        <div className="flex justify-between text-sm text-gray-700">
+                          <span>{label}</span>
+                          <span>{Math.round(a)} vs {Math.round(b)}</span>
+                        </div>
+                      );
+                      return (
+                        <div className="mt-4 space-y-1">
+                          <Row label="Power (Top)" a={domains.powerTop} b={bd.powerTop} />
+                          <Row label="Power (Bottom)" a={domains.powerBottom} b={bd.powerBottom} />
+                          <Row label="Connection" a={domains.connection} b={bd.connection} />
+                          <Row label="Sensory" a={domains.sensory} b={bd.sensory} />
+                          <Row label="Exploration" a={domains.exploration} b={bd.exploration} />
+                          <Row label="Structure" a={domains.structure} b={bd.structure} />
+                        </div>
+                      );
+                    })()
+                  )}
                 </div>
-              ))}
+              );
+            })()}
+          </CardContent>
+        </Card>
+
+        {/* Gates */}
+        <Card className="mt-4" data-testid="result-gates">
+          <CardHeader>
+            <CardTitle>Gates</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-gray-700">
+            <div><strong>Recording OK:</strong> {gates.noRecording ? 'No' : 'Yes'}</div>
+            <div><strong>Impact Cap:</strong> {Number.isFinite(gates.impactCap) ? `${gates.impactCap}/100` : '—'}</div>
+            <div>
+              <strong>Hard NOs:</strong>{' '}
+              {gates.hardNos?.length ? gates.hardNos.join(', ') : 'None'}
             </div>
           </CardContent>
         </Card>
 
-        {/* Traits - if available */}
-        {derived.traits && Object.keys(derived.traits).length > 0 && (
+        {/* Traits - if available (hide gate traits) */}
+        {visibleTraits.length > 0 && (
           <Card className="mb-6" data-testid="result-traits">
             <CardHeader>
               <CardTitle className="text-2xl">Your Traits</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(derived.traits).map(([trait, score]) => (
+                {visibleTraits.map(([trait, score]) => (
                   <div key={trait}>
                     <div className="flex justify-between mb-2">
                       <span className="font-medium capitalize">{trait}</span>
@@ -251,12 +372,17 @@ export default function Result() {
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Category Breakdown</h4>
                     <div className="space-y-2">
-                      {Object.entries(baselineMatch.match.catScores).map(([category, score]) => (
+                      {Object.entries(baselineMatch.match.catScores)
+                        .filter(([category]) => !EXCLUDED_FROM_MEAN.has(category))
+                        .map(([category, score]) => (
                         <div key={category} className="flex justify-between text-sm">
                           <span className="capitalize">{category}</span>
                           <span>{Math.round(score * 100)}%</span>
                         </div>
                       ))}
+                      <p className="text-xs text-gray-500 mt-2">
+                        Compatibility excludes gate categories: {Array.from(EXCLUDED_FROM_MEAN).join(', ')}. See “Gates” for details.
+                      </p>
                     </div>
                   </div>
                 )}

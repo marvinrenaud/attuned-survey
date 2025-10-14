@@ -24,7 +24,7 @@ export const CATEGORY_MAP = {
   IMPACT: ["B2a","B2b","B4a","B4b"],
 
   // Rope/restraints/immobilization (B3 moved here; remove from any other category)
-  BONDAGE: ["B1a","B1b","B3a","B3b"],
+  BONDAGE: ["B1a","B1b"],
 
   // Being seen / performing; public-ish display
   EXHIBITION: ["B9a","B10b"],
@@ -46,7 +46,7 @@ export const CATEGORY_MAP = {
   TOYS: ["B8a","B8b","B14a","B14b","B15a","B15b","B16a","B16b"],
 
   // Pure sensual touch/massage/feet (not restraints)
-  SENSUAL: ["B17a","B17b"],
+  SENSUAL: ["B3a","B3b","B17a","B17b"],
 
   // Affection/aftercare rituals (legacy single item)
   ROMANTIC: ["B9b"],
@@ -69,4 +69,7 @@ export const DIRECTION_MAP = {
   a: "on_me",
   b: "i_do"
 };
+
+// Categories included in mean (sanity echo for debug UIs)
+export const CATEGORIES_FOR_MEAN = CATEGORIES.filter(c => c !== 'RECORDING' && c !== 'GROUP_ENM');
 
