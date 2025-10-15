@@ -81,29 +81,29 @@ export function runComprehensiveTests() {
       }
     },
     {
-      name: 'Test 2: Top/Top (Incompatible)',
+      name: 'Test 2: Top/Top (Same-Pole Incompatible)',
       profileA: profileTopA,
       profileB: profileTopB,
       expectedMin: 35,
-      expectedMax: 45,
+      expectedMax: 50,
       expectedBreakdown: {
         power: 40,
-        domain: 80,
-        activity: 60,
-        truth: 85
+        domain: 85,
+        activity: 25,  // FIXED: Was ~60-75%, now ~25% due to same-pole Jaccard
+        truth: 100
       }
     },
     {
-      name: 'Test 3: Bottom/Bottom (Incompatible)',
+      name: 'Test 3: Bottom/Bottom (Same-Pole Incompatible)',
       profileA: profileBottomA,
       profileB: profileBottomB,
       expectedMin: 35,
-      expectedMax: 45,
+      expectedMax: 50,
       expectedBreakdown: {
         power: 40,
-        domain: 80,
-        activity: 60,
-        truth: 85
+        domain: 85,
+        activity: 25,  // FIXED: Was ~60-75%, now ~25% due to same-pole Jaccard
+        truth: 100
       }
     },
     {

@@ -127,6 +127,7 @@ function ResponsesList() {
   const [submissions, setSubmissions] = useState([]);
   const [baselineId, setBaselineIdState] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -134,12 +135,14 @@ function ResponsesList() {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAllSubmissions();
       setSubmissions(data.submissions || []);
       setBaselineIdState(data.baseline);
-    } catch (error) {
-      console.error('Error loading submissions:', error);
+    } catch (err) {
+      console.error('Error loading submissions:', err);
+      setError(err.message || 'Failed to load submissions');
     } finally {
       setLoading(false);
     }
@@ -156,6 +159,39 @@ function ResponsesList() {
 
   if (loading) {
     return <Card><CardContent className="pt-6">Loading...</CardContent></Card>;
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Unable to Load Submissions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error.includes('500') || error.includes('timeout')
+                ? 'Backend database is responding slowly or unavailable. Please try again in a moment.'
+                : error.includes('404')
+                ? 'Backend endpoint not found. Please check your configuration.'
+                : 'Could not connect to backend. Check your internet connection.'}
+            </AlertDescription>
+          </Alert>
+          <div className="flex gap-2">
+            <Button onClick={loadData} className="flex-1">
+              Retry Loading
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline" className="flex-1">
+              Refresh Page
+            </Button>
+          </div>
+          <p className="text-sm text-gray-600">
+            If the problem persists, the backend service may be experiencing issues.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

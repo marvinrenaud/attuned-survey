@@ -16,7 +16,7 @@ const API_BASE =
 export async function getAllSubmissions() {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
     
     const response = await fetch(`${API_BASE}/submissions`, {
       signal: controller.signal
@@ -34,7 +34,7 @@ export async function getAllSubmissions() {
     };
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error('Request timeout: getAllSubmissions took longer than 10 seconds');
+      console.error('Request timeout: getAllSubmissions took longer than 15 seconds');
     } else {
       console.error('Error fetching submissions:', error);
     }
@@ -48,7 +48,7 @@ export async function getAllSubmissions() {
 export async function getSubmission(id) {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
     
     const response = await fetch(`${API_BASE}/submissions/${id}`, {
       signal: controller.signal
@@ -65,7 +65,7 @@ export async function getSubmission(id) {
     return await response.json();
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error('Request timeout: Submission fetch took longer than 10 seconds');
+      console.error('Request timeout: Submission fetch took longer than 15 seconds');
     } else {
       console.error('Error fetching submission:', error);
     }

@@ -31,7 +31,7 @@ export default function Result() {
         if (!submissionId) {
           console.error('No submission ID in location state');
           setError('No submission ID provided');
-          setTimeout(() => navigate('/'), 2000);
+          setLoading(false);
           return;
         }
 
@@ -149,20 +149,30 @@ export default function Result() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {error.includes('timeout') 
+                  ? 'Backend is taking longer than expected. The database may be slow. Please try again.' 
+                  : error.includes('500')
+                  ? 'Backend database encountered an error. Please try again in a moment.'
+                  : error.includes('No submission ID')
+                  ? 'No submission ID provided. Please complete the survey first.'
+                  : error}
+              </AlertDescription>
             </Alert>
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                Your submission may have been saved. You can check the admin panel to verify.
+                {error.includes('No submission ID') 
+                  ? 'You need to complete a survey to see results.'
+                  : 'Your submission may have been saved. Try reloading or check the admin panel.'}
               </p>
               <div className="flex gap-2">
                 <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
                   <Home className="w-4 h-4 mr-2" />
                   Go Home
                 </Button>
-                {retryCount < 3 && (
-                  <Button onClick={() => setRetryCount(retryCount + 1)} className="flex-1">
-                    Retry
+                {!error.includes('No submission ID') && (
+                  <Button onClick={() => window.location.reload()} className="flex-1">
+                    Retry Loading
                   </Button>
                 )}
               </div>

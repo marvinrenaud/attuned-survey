@@ -114,6 +114,91 @@ function calculateAsymmetricDirectionalJaccard(topCategory, bottomCategory) {
 }
 
 /**
+ * Same-pole Jaccard for Top/Top or Bottom/Bottom pairs
+ * For these pairs, matching on giving/receiving is actually INCOMPATIBLE
+ * Only compatible if one or both are versatile (can switch roles within activity)
+ * @param {Object} categoryA - First person's category activities
+ * @param {Object} categoryB - Second person's category activities
+ * @returns {number} - Jaccard score 0-1
+ */
+function calculateSamePoleJaccard(categoryA, categoryB) {
+  // Validate inputs
+  if (!categoryA || !categoryB || typeof categoryA !== 'object' || typeof categoryB !== 'object') {
+    console.error('calculateSamePoleJaccard: Invalid input - expected objects, got:', typeof categoryA, typeof categoryB);
+    return 0;
+  }
+
+  const keys = Object.keys(categoryA);
+  let compatibleInteractions = 0;
+  let totalPossibleInteractions = 0;
+  
+  const debugDetails = [];
+
+  keys.forEach(key => {
+    const valA = categoryA[key] || 0;
+    const valB = categoryB[key] || 0;
+
+    if (key.endsWith('_give')) {
+      const receiveKey = key.replace('_give', '_receive');
+      const receiveA = categoryA[receiveKey] || 0;
+      const receiveB = categoryB[receiveKey] || 0;
+      
+      // For same-pole pairs, we need OPPOSITE preferences
+      // If both want to give, they're incompatible (no one to receive)
+      if (valA >= 0.5 || valB >= 0.5) {
+        totalPossibleInteractions++;
+        
+        // The only way this works is if one or both can ALSO receive
+        // (versatility within the activity)
+        
+        // A versatile (give AND receive), B not → Minimal credit
+        if ((valA >= 0.5 && receiveA >= 0.5) && (valB >= 0.5 && receiveB < 0.5)) {
+          compatibleInteractions += 0.1;  // Reduced from 0.3
+          debugDetails.push(`${key}: A versatile, B not → 0.1`);
+        } 
+        // B versatile, A not → Minimal credit
+        else if ((valA >= 0.5 && receiveA < 0.5) && (valB >= 0.5 && receiveB >= 0.5)) {
+          compatibleInteractions += 0.1;  // Reduced from 0.3
+          debugDetails.push(`${key}: B versatile, A not → 0.1`);
+        } 
+        // Both versatile → Slight credit
+        else if ((valA >= 0.5 && receiveA >= 0.5) && (valB >= 0.5 && receiveB >= 0.5)) {
+          compatibleInteractions += 0.2;  // Reduced from 0.5
+          debugDetails.push(`${key}: Both versatile → 0.2`);
+        } else {
+          // Both want same role, no versatility = incompatible
+          debugDetails.push(`${key}: Both same role, no versatility → 0.0`);
+        }
+        // Else: Both want to give but not receive = 0 points (incompatible)
+      }
+    }
+    else if (!key.endsWith('_receive')) {
+      // Non-directional activities get REDUCED credit for same-pole pairs (0.3 instead of 1.0)
+      // Reasoning: Power incompatibility affects everything, even shared interests
+      // Two Tops who both love dirty talk still can't fulfill each other's dominant needs
+      if (valA >= 0.5 && valB >= 0.5) {
+        compatibleInteractions += 0.3;  // Reduced from 1.0 to 0.3
+        debugDetails.push(`${key}: Non-directional match → 0.3`);
+      }
+      if (valA >= 0.5 || valB >= 0.5) {
+        totalPossibleInteractions++;
+      }
+    }
+  });
+
+  const score = totalPossibleInteractions === 0 ? 0 : compatibleInteractions / totalPossibleInteractions;
+  
+  console.log('  Same-Pole Jaccard result:', {
+    compatibleInteractions: compatibleInteractions.toFixed(2),
+    totalPossibleInteractions,
+    score: score.toFixed(3),
+    details: debugDetails.slice(0, 5) // Show first 5 for debugging
+  });
+  
+  return score;
+}
+
+/**
  * Calculate activity-level overlap with power-aware Jaccard selection
  * Uses asymmetric directional Jaccard for Top/Bottom pairs, standard for others
  * @param {Object} activitiesA - First person's activities
@@ -123,10 +208,28 @@ function calculateAsymmetricDirectionalJaccard(topCategory, bottomCategory) {
  * @returns {number} - Overlap score 0-1
  */
 function calculateActivityOverlap(activitiesA, activitiesB, powerA, powerB) {
+  // Debug logging
+  console.log('calculateActivityOverlap called with power:', {
+    powerA: powerA?.orientation,
+    powerB: powerB?.orientation
+  });
+
   const isTopBottomPair = (
     (powerA.orientation === 'Top' && powerB.orientation === 'Bottom') ||
     (powerA.orientation === 'Bottom' && powerB.orientation === 'Top')
   );
+
+  // Detect same-pole pairs (Top/Top or Bottom/Bottom)
+  const isSamePolePair = (
+    (powerA.orientation === 'Top' && powerB.orientation === 'Top') ||
+    (powerA.orientation === 'Bottom' && powerB.orientation === 'Bottom')
+  );
+
+  console.log('Pair type detection:', {
+    isTopBottomPair,
+    isSamePolePair,
+    willUse: isTopBottomPair ? 'Asymmetric' : isSamePolePair ? 'Same-Pole' : 'Standard'
+  });
 
   const categories = ['physical_touch', 'oral', 'anal', 'power_exchange', 'verbal_roleplay', 'display_performance'];
   const scores = [];
@@ -144,13 +247,18 @@ function calculateActivityOverlap(activitiesA, activitiesB, powerA, powerB) {
     ].includes(category);
 
     if (isTopBottomPair && hasDirectionalActivities) {
-      // Use asymmetric directional Jaccard
+      // Use asymmetric directional Jaccard for complementary pairs
       const topActivities = powerA.orientation === 'Top' ? activitiesA[category] : activitiesB[category];
       const bottomActivities = powerA.orientation === 'Bottom' ? activitiesA[category] : activitiesB[category];
 
       score = calculateAsymmetricDirectionalJaccard(topActivities, bottomActivities);
-    } else {
-      // Use standard Jaccard for Switch/Switch, same-pole pairs, or non-directional categories
+    } 
+    else if (isSamePolePair && hasDirectionalActivities) {
+      // Use same-pole Jaccard for incompatible power dynamics
+      score = calculateSamePoleJaccard(activitiesA[category], activitiesB[category]);
+    }
+    else {
+      // Use standard Jaccard for Switch/Switch pairs or non-directional categories
       score = calculateStandardJaccard(activitiesA[category], activitiesB[category]);
     }
 
@@ -340,7 +448,7 @@ export function calculateCompatibilityDetailed(
   truthTopicsB,
   boundariesA,
   boundariesB,
-  weights = { power: 0.15, domain: 0.25, activity: 0.40, truth: 0.20 }
+  weights = { power: 0.20, domain: 0.25, activity: 0.45, truth: 0.10 }
 ) {
   // 1. Power Complement (0-1)
   const powerComplement = calculatePowerComplement(powerA, powerB);
@@ -353,6 +461,15 @@ export function calculateCompatibilityDetailed(
 
   // 4. Truth Overlap (0-1)
   const truthOverlap = calculateTruthOverlap(truthTopicsA, truthTopicsB);
+
+  // Detect same-pole pairs for truth multiplier
+  const isSamePolePair = (
+    (powerA.orientation === 'Top' && powerB.orientation === 'Top') ||
+    (powerA.orientation === 'Bottom' && powerB.orientation === 'Bottom')
+  );
+
+  // Apply 0.5 multiplier to truth overlap for same-pole pairs
+  const adjustedTruthOverlap = isSamePolePair ? truthOverlap * 0.5 : truthOverlap;
 
   // 5. Boundary Conflicts
   const playerAProxy = { 
@@ -369,10 +486,10 @@ export function calculateCompatibilityDetailed(
 
   // Debug logging
   console.log('Compatibility Calculation Debug:');
-  console.log('  Power Complement:   ', powerComplement.toFixed(3), '× 0.15 =', (powerComplement * weights.power).toFixed(3));
-  console.log('  Domain Similarity:  ', domainSimilarity.toFixed(3), '× 0.25 =', (domainSimilarity * weights.domain).toFixed(3));
-  console.log('  Activity Overlap:   ', activityOverlap.toFixed(3), '× 0.40 =', (activityOverlap * weights.activity).toFixed(3));
-  console.log('  Truth Overlap:      ', truthOverlap.toFixed(3), '× 0.20 =', (truthOverlap * weights.truth).toFixed(3));
+  console.log('  Power Complement:   ', powerComplement.toFixed(3), '× ' + weights.power + ' =', (powerComplement * weights.power).toFixed(3));
+  console.log('  Domain Similarity:  ', domainSimilarity.toFixed(3), '× ' + weights.domain + ' =', (domainSimilarity * weights.domain).toFixed(3));
+  console.log('  Activity Overlap:   ', activityOverlap.toFixed(3), '× ' + weights.activity + ' =', (activityOverlap * weights.activity).toFixed(3));
+  console.log('  Truth Overlap:      ', adjustedTruthOverlap.toFixed(3), '× ' + weights.truth + ' =', (adjustedTruthOverlap * weights.truth).toFixed(3), isSamePolePair ? '(0.5 multiplier applied)' : '');
   console.log('  Boundary Conflicts: ', boundaryConflicts.length);
 
   // Calculate weighted overall score
@@ -380,7 +497,7 @@ export function calculateCompatibilityDetailed(
     weights.power * powerComplement +
     weights.domain * domainSimilarity +
     weights.activity * activityOverlap +
-    weights.truth * truthOverlap
+    weights.truth * adjustedTruthOverlap
   );
 
   // Apply boundary penalty (0.2 per conflict)
@@ -391,7 +508,7 @@ export function calculateCompatibilityDetailed(
   console.log('  Final Score:        ', overallScore.toFixed(3), '→', Math.round(overallScore * 100) + '%');
 
   return {
-    compatibility_version: '0.4-fixed',
+    compatibility_version: '0.5',
     overall_compatibility: {
       score: Math.round(overallScore * 100),
       interpretation: interpretCompatibility(Math.round(overallScore * 100))
@@ -400,7 +517,7 @@ export function calculateCompatibilityDetailed(
       power_complement: Math.round(powerComplement * 100),
       domain_similarity: Math.round(domainSimilarity * 100),
       activity_overlap: Math.round(activityOverlap * 100),
-      truth_overlap: Math.round(truthOverlap * 100),
+      truth_overlap: Math.round(adjustedTruthOverlap * 100),
       boundary_conflicts: boundaryConflicts
     }
   };

@@ -197,6 +197,12 @@ export function calculateDomainSimilarity(domainsA, domainsB, powerA, powerB) {
     (powerA.orientation === 'Bottom' && powerB.orientation === 'Top')
   );
 
+  // Detect if this is a same-pole pair (Top/Top or Bottom/Bottom)
+  const isSamePolePair = powerA && powerB && (
+    (powerA.orientation === 'Top' && powerB.orientation === 'Top') ||
+    (powerA.orientation === 'Bottom' && powerB.orientation === 'Bottom')
+  );
+
   if (isComplementaryPair) {
     // For complementary pairs, use minimum threshold approach for exploration/verbal
     // An eager Bottom (95) + measured Top (60) is ideal, not a problem!
@@ -215,8 +221,23 @@ export function calculateDomainSimilarity(domainsA, domainsB, powerA, powerB) {
     const verbalScore = minVerbal >= 50 ? 1.0 : minVerbal / 50;
     
     return (sensationDist + connectionDist + powerDist + explorationScore + verbalScore) / 5;
-  } else {
-    // For Switch/Switch or same-pole pairs, use standard distance
+  } 
+  else if (isSamePolePair) {
+    // For same-pole pairs, HIGH similarity = LESS compatible (both want same role)
+    // Apply 0.5 multiplier to penalize domain similarity
+    const sensationDist = 1 - Math.abs(domainsA.sensation - domainsB.sensation) / 100;
+    const connectionDist = 1 - Math.abs(domainsA.connection - domainsB.connection) / 100;
+    const powerDist = 1 - Math.abs(domainsA.power - domainsB.power) / 100;
+    const explorationDist = 1 - Math.abs(domainsA.exploration - domainsB.exploration) / 100;
+    const verbalDist = 1 - Math.abs(domainsA.verbal - domainsB.verbal) / 100;
+    
+    const avgSimilarity = (sensationDist + connectionDist + powerDist + explorationDist + verbalDist) / 5;
+    
+    // Apply 0.5 multiplier - two identical Tops competing for same role = less compatible
+    return avgSimilarity * 0.5;
+  }
+  else {
+    // For Switch/Switch or other combinations, use standard distance
     const sensationDist = 1 - Math.abs(domainsA.sensation - domainsB.sensation) / 100;
     const connectionDist = 1 - Math.abs(domainsA.connection - domainsB.connection) / 100;
     const powerDist = 1 - Math.abs(domainsA.power - domainsB.power) / 100;
