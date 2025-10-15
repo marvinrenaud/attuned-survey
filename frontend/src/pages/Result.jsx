@@ -6,7 +6,13 @@ import { Progress } from '@/components/ui/progress';
 import { Edit, Home, Heart, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getSubmission, getBaseline } from '../lib/storage/apiStore';
-import { computeOverallMatch } from '../lib/matching/overlapHelper';
+import { calculateCompatibility } from '../lib/matching/compatibilityMapper';
+import { getCategoryName, getActivityName } from '../lib/matching/categoryMap';
+
+const DEBUG_RESULTS = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
+function dbg(...args) {
+  if (DEBUG_RESULTS) console.log('[RESULT DEBUG]', ...args);
+}
 
 export default function Result() {
   const location = useLocation();
@@ -25,11 +31,12 @@ export default function Result() {
         if (!submissionId) {
           console.error('No submission ID in location state');
           setError('No submission ID provided');
-          setTimeout(() => navigate('/'), 2000);
+          setLoading(false);
           return;
         }
 
         console.log(`Loading submission: ${submissionId} (attempt ${retryCount + 1})`);
+        console.log('Fetching from backend...');
         
         // Retry logic: try up to 3 times with delays
         let sub = null;
@@ -38,16 +45,18 @@ export default function Result() {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           if (attempt > 0) {
             console.log(`Retry attempt ${attempt}/${maxRetries}...`);
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
           }
           
+          console.log(`  Calling getSubmission(${submissionId})...`);
           sub = await getSubmission(submissionId);
+          console.log(`  Response received:`, sub ? 'Success' : 'Null response');
           
           if (sub) {
-            console.log('✅ Submission loaded successfully');
+            console.log('✅ Submission loaded successfully', { id: sub.id, version: sub.version });
             break;
           } else {
-            console.warn(`Attempt ${attempt + 1}: Submission not found`);
+            console.warn(`Attempt ${attempt + 1}: Submission not found or fetch failed`);
           }
         }
         
@@ -66,19 +75,35 @@ export default function Result() {
           console.log(`Loading baseline: ${baselineId}`);
           const baseline = await getSubmission(baselineId);
           if (baseline) {
-            console.log('✅ Baseline loaded, calculating match...');
-            try {
-              const match = computeOverallMatch({
-                answersA: sub.answers,
-                answersB: baseline.answers,
-                traitsA: sub.derived.traits,
-                traitsB: baseline.derived.traits
+            // Check if both profiles are v0.4
+            const currentIsV04 = sub.version === '0.4' || sub.derived?.profile_version === '0.4';
+            const baselineIsV04 = baseline.version === '0.4' || baseline.derived?.profile_version === '0.4';
+            
+            console.log('Version check:', { 
+              current: currentIsV04 ? 'v0.4' : 'v0.3.1', 
+              baseline: baselineIsV04 ? 'v0.4' : 'v0.3.1' 
+            });
+
+            if (currentIsV04 && baselineIsV04 && baseline.derived && sub.derived) {
+              console.log('✅ Both profiles are v0.4, calculating compatibility...');
+              try {
+                const compatibility = calculateCompatibility(sub.derived, baseline.derived);
+                dbg('Compatibility result:', compatibility);
+                setBaselineMatch({ baseline, compatibility });
+                console.log('✅ Compatibility calculated:', compatibility.overall_compatibility);
+              } catch (matchError) {
+                console.error('Error calculating compatibility:', matchError);
+                // Set baseline without compatibility for display
+                setBaselineMatch({ baseline, compatibility: null, error: matchError.message });
+              }
+            } else {
+              // Version mismatch or missing data
+              console.warn('⚠️ Version mismatch or missing data - cannot calculate compatibility');
+              setBaselineMatch({ 
+                baseline, 
+                compatibility: null, 
+                versionMismatch: !currentIsV04 || !baselineIsV04 
               });
-              setBaselineMatch({ baseline, match });
-              console.log('✅ Match calculated:', match);
-            } catch (matchError) {
-              console.error('Error calculating match:', matchError);
-              // Don't fail the whole page if match calculation fails
             }
           }
         }
@@ -124,20 +149,30 @@ export default function Result() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {error.includes('timeout') 
+                  ? 'Backend is taking longer than expected. The database may be slow. Please try again.' 
+                  : error.includes('500')
+                  ? 'Backend database encountered an error. Please try again in a moment.'
+                  : error.includes('No submission ID')
+                  ? 'No submission ID provided. Please complete the survey first.'
+                  : error}
+              </AlertDescription>
             </Alert>
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                Your submission may have been saved. You can check the admin panel to verify.
+                {error.includes('No submission ID') 
+                  ? 'You need to complete a survey to see results.'
+                  : 'Your submission may have been saved. Try reloading or check the admin panel.'}
               </p>
               <div className="flex gap-2">
                 <Button onClick={() => navigate('/')} variant="outline" className="flex-1">
                   <Home className="w-4 h-4 mr-2" />
                   Go Home
                 </Button>
-                {retryCount < 3 && (
-                  <Button onClick={() => setRetryCount(retryCount + 1)} className="flex-1">
-                    Retry
+                {!error.includes('No submission ID') && (
+                  <Button onClick={() => window.location.reload()} className="flex-1">
+                    Retry Loading
                   </Button>
                 )}
               </div>
@@ -148,12 +183,46 @@ export default function Result() {
     );
   }
 
-  // No submission (shouldn't happen after loading/error checks)
+  // No submission
   if (!submission) {
     return null;
   }
 
   const { derived } = submission;
+  
+  // Check if this is a v0.4 profile
+  if (!derived || !derived.profile_version || derived.profile_version !== '0.4') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-600">
+              <AlertCircle className="w-6 h-6" />
+              Incompatible Profile Version
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              This profile was created with an older version of the survey and cannot be displayed with the current system.
+            </p>
+            <Button onClick={() => navigate('/')} className="w-full">
+              <Home className="w-4 h-4 mr-2" />
+              Take New Survey
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { 
+    arousal_propensity, 
+    power_dynamic, 
+    domain_scores, 
+    boundaries,
+    activities,
+    truth_topics 
+  } = derived;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
@@ -166,10 +235,12 @@ export default function Result() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {submission.name}'s Intimacy Profile
           </h1>
-          <p className="text-gray-600">Here's what we discovered about you</p>
+          <p className="text-gray-600">Your personalized intimacy profile (v0.4)</p>
+          <p className="text-sm text-gray-500 mt-1">Completed on {new Date(submission.createdAt).toLocaleDateString()}</p>
         </div>
 
-        <Card className="mb-6" data-testid="result-demographics">
+        {/* Demographics */}
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl">About You</CardTitle>
           </CardHeader>
@@ -187,75 +258,342 @@ export default function Result() {
           </CardContent>
         </Card>
 
-        {/* Archetype */}
-        <Card className="mb-6" data-testid="result-archetype">
+        {/* Arousal Propensity */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Your Archetype{derived.archetypes.length > 1 ? 's' : ''}</CardTitle>
+            <CardTitle className="text-2xl">Arousal Profile</CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-gray-600 mb-4">
+              Your arousal style based on the Sexual Excitation/Sexual Inhibition model.
+            </p>
             <div className="space-y-4">
-              {derived.archetypes.map((archetype, idx) => (
-                <div key={idx} className="p-4 bg-rose-50 rounded-lg">
-                  <h3 className="text-xl font-semibold text-rose-900 mb-2">{archetype.name}</h3>
-                  <Progress value={archetype.score * 100} className="mb-2" />
-                  <p className="text-sm text-gray-700">{archetype.score > 0.7 ? 'Strong match' : 'Moderate match'}</p>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <span className="font-medium">Sexual Excitation (SE)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.se})</span>
+                  </div>
+                  <span className="text-gray-600">{Math.round(arousal_propensity.sexual_excitation * 100)}%</span>
+                </div>
+                <Progress value={arousal_propensity.sexual_excitation * 100} />
+                <p className="text-sm text-gray-600 mt-1">How easily you become aroused</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <span className="font-medium">Inhibition - Performance (SIS-P)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.sis_p})</span>
+                  </div>
+                  <span className="text-gray-600">{Math.round(arousal_propensity.inhibition_performance * 100)}%</span>
+                </div>
+                <Progress value={arousal_propensity.inhibition_performance * 100} />
+                <p className="text-sm text-gray-600 mt-1">Performance concerns that affect arousal</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <span className="font-medium">Inhibition - Consequence (SIS-C)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.sis_c})</span>
+                  </div>
+                  <span className="text-gray-600">{Math.round(arousal_propensity.inhibition_consequence * 100)}%</span>
+                </div>
+                <Progress value={arousal_propensity.inhibition_consequence * 100} />
+                <p className="text-sm text-gray-600 mt-1">Concerns about consequences that affect arousal</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Power Dynamic */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Power Dynamic</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-semibold">{power_dynamic.orientation}</h3>
+                <span className="text-sm text-gray-600">{power_dynamic.interpretation}</span>
+              </div>
+              
+              {/* Visual slider for power dynamic */}
+              <div className="relative h-12 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 rounded-lg mb-4">
+                <div 
+                  className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-gray-800 rounded-full border-2 border-white shadow-lg"
+                  style={{
+                    left: power_dynamic.orientation === 'Switch' 
+                      ? '50%' 
+                      : power_dynamic.orientation === 'Top'
+                      ? `${50 - power_dynamic.confidence * 50}%`
+                      : power_dynamic.orientation === 'Bottom'
+                      ? `${50 + power_dynamic.confidence * 50}%`
+                      : '50%',
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-medium">
+                  <span>Top</span>
+                  <span>Switch</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Top Score</span>
+                    <span className="text-sm font-medium">{power_dynamic.top_score}/100</span>
+                  </div>
+                  <Progress value={power_dynamic.top_score} />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Bottom Score</span>
+                    <span className="text-sm font-medium">{power_dynamic.bottom_score}/100</span>
+                  </div>
+                  <Progress value={power_dynamic.bottom_score} />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Domain Scores */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Domain Preferences</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Your preferences across five key domains of intimacy.
+            </p>
+            <div className="space-y-4">
+              {Object.entries(domain_scores).map(([domain, score]) => (
+                <div key={domain}>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium capitalize">{domain}</span>
+                    <span className="text-gray-600">{score}/100</span>
+                  </div>
+                  <Progress value={score} />
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Traits - if available */}
-        {derived.traits && Object.keys(derived.traits).length > 0 && (
-          <Card className="mb-6" data-testid="result-traits">
-            <CardHeader>
-              <CardTitle className="text-2xl">Your Traits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(derived.traits).map(([trait, score]) => (
-                  <div key={trait}>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium capitalize">{trait}</span>
-                      <span className="text-gray-600">{Math.round(score * 100)}/100</span>
-                    </div>
-                    <Progress value={score * 100} />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Baseline Match */}
-        {baselineMatch && (
-          <Card className="mb-6" data-testid="result-match">
-            <CardHeader>
-              <CardTitle className="text-2xl">Compatibility with {baselineMatch.baseline.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Overall Match</span>
-                    <span className="text-gray-600">{Math.round(baselineMatch.match.overall * 1)}%</span>
-                  </div>
-                  <Progress value={baselineMatch.match.overall * 1} />
-                </div>
-                {baselineMatch.match.catScores && (
-                  <div className="mt-4">
-                    <h4 className="font-medium mb-2">Category Breakdown</h4>
-                    <div className="space-y-2">
-                      {Object.entries(baselineMatch.match.catScores).map(([category, score]) => (
-                        <div key={category} className="flex justify-between text-sm">
-                          <span className="capitalize">{category}</span>
-                          <span>{Math.round(score * 100)}%</span>
-                        </div>
+        {/* Activity Summary */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Activity Interests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Activities you're open to exploring with a partner.
+            </p>
+            <div className="space-y-4">
+              {Object.entries(activities).map(([category, categoryActivities]) => {
+                const interested = Object.entries(categoryActivities).filter(([_, val]) => val >= 0.5);
+                if (interested.length === 0) return null;
+                
+                return (
+                  <div key={category} className="border-t pt-3 first:border-t-0 first:pt-0">
+                    <h4 className="font-medium mb-2 capitalize">{getCategoryName(category)}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {interested.map(([activity, value]) => (
+                        <span 
+                          key={activity}
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            value === 1.0 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {getActivityName(activity)} {value === 0.5 ? '(Maybe)' : ''}
+                        </span>
                       ))}
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Boundaries */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Boundaries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Hard Limits</h4>
+                {boundaries.hard_limits && boundaries.hard_limits.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {boundaries.hard_limits.map((limit, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm capitalize">
+                        {limit.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No hard limits specified</p>
                 )}
               </div>
+
+              {boundaries.additional_notes && (
+                <div>
+                  <h4 className="font-medium mb-2">Additional Notes</h4>
+                  <p className="text-gray-700 italic">"{boundaries.additional_notes}"</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Truth Topics */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Truth Topic Openness</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <div className="flex justify-between mb-2">
+                <span className="font-medium">Overall Openness</span>
+                <span className="text-gray-600">{truth_topics.openness_score}/100</span>
+              </div>
+              <Progress value={truth_topics.openness_score} />
+            </div>
+            <p className="text-sm text-gray-600">
+              Your comfort level discussing intimate topics with a partner.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Compatibility (if baseline set) */}
+        {baselineMatch && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-2xl">
+                Compatibility with {baselineMatch.baseline.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Version mismatch warning */}
+              {baselineMatch.versionMismatch && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Version Mismatch:</strong> The baseline profile was created with a different survey version.
+                    Both profiles must be v0.4 to calculate compatibility. Please have your partner retake the survey,
+                    then set their new submission as the baseline.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {/* Error during calculation */}
+              {baselineMatch.error && !baselineMatch.versionMismatch && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Error:</strong> Failed to calculate compatibility: {baselineMatch.error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Successful compatibility calculation */}
+              {baselineMatch.compatibility && (
+                <div className="space-y-6">
+                {/* Overall Score */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium text-lg">Overall Compatibility</span>
+                    <span className="text-lg font-semibold text-rose-600">
+                      {baselineMatch.compatibility.overall_compatibility.score}%
+                    </span>
+                  </div>
+                  <Progress value={baselineMatch.compatibility.overall_compatibility.score} />
+                  <p className="text-sm text-gray-600 mt-1">
+                    {baselineMatch.compatibility.overall_compatibility.interpretation}
+                  </p>
+                </div>
+
+                {/* Breakdown */}
+                <div>
+                  <h4 className="font-medium mb-3">Compatibility Breakdown</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Power Complement</span>
+                        <span>{baselineMatch.compatibility.breakdown.power_complement}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.power_complement} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Domain Similarity</span>
+                        <span>{baselineMatch.compatibility.breakdown.domain_similarity}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.domain_similarity} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Activity Overlap</span>
+                        <span>{baselineMatch.compatibility.breakdown.activity_overlap}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.activity_overlap} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Truth Topics</span>
+                        <span>{baselineMatch.compatibility.breakdown.truth_overlap}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.truth_overlap} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Boundary Conflicts */}
+                {baselineMatch.compatibility.breakdown.boundary_conflicts.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-2 text-red-600">⚠️ Boundary Conflicts</h4>
+                    <div className="bg-red-50 p-3 rounded-lg">
+                      <p className="text-sm text-red-800 mb-2">
+                        {baselineMatch.compatibility.breakdown.boundary_conflicts.length} potential conflict(s) detected
+                      </p>
+                      <ul className="text-sm text-red-700 list-disc list-inside">
+                        {baselineMatch.compatibility.breakdown.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
+                          <li key={idx}>
+                            {conflict.player}'s boundary: {conflict.boundary.replace(/_/g, ' ')}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mutual Activities */}
+                {baselineMatch.compatibility.mutual_activities && (
+                  <div>
+                    <h4 className="font-medium mb-2">Shared Interests</h4>
+                    <div className="space-y-2">
+                      {Object.entries(baselineMatch.compatibility.mutual_activities).map(([category, acts]) => {
+                        if (!acts || acts.length === 0) return null;
+                        return (
+                          <div key={category}>
+                            <span className="text-sm font-medium capitalize">{getCategoryName(category)}: </span>
+                            <span className="text-sm text-gray-600">{acts.length} shared activities</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -266,13 +604,16 @@ export default function Result() {
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
-          <Button onClick={() => navigate('/survey')} variant="outline">
+          <Button onClick={() => navigate('/admin')}>
             <Edit className="w-4 h-4 mr-2" />
-            Take Again
+            Admin Panel
           </Button>
         </div>
       </div>
+
+      <footer className="text-center py-8 text-sm text-gray-500">
+        <p>Made with ♥️ in BK</p>
+      </footer>
     </div>
   );
 }
-

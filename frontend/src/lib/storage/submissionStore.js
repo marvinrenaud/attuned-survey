@@ -139,10 +139,6 @@ export function exportSubmissionsCSV() {
     'Sex',
     'Sexual Orientation',
     'Created At',
-    'Adventure',
-    'Connection',
-    'Intensity',
-    'Confidence',
     'Top Archetype',
     'Archetype Score'
   ];
@@ -155,10 +151,6 @@ export function exportSubmissionsCSV() {
       sub.sex || '',
       sub.sexualOrientation || '',
       sub.createdAt,
-      sub.derived?.dials?.Adventure?.toFixed(1) || '',
-      sub.derived?.dials?.Connection?.toFixed(1) || '',
-      sub.derived?.dials?.Intensity?.toFixed(1) || '',
-      sub.derived?.dials?.Confidence?.toFixed(1) || '',
       topArchetype?.name || '',
       topArchetype?.score?.toFixed(1) || ''
     ];

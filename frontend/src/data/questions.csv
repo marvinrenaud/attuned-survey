@@ -1,61 +1,75 @@
-id,chapter,text,type,traits_json,boundary_category,instruction
-A1,Arousal (SES/SIS),I get turned on easily in response to erotic cues.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A2,Arousal (SES/SIS),Physical affection can quickly lead me to strong arousal.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A3,Arousal (SES/SIS),New or novel situations tend to heighten my arousal.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A4,Arousal (SES/SIS),Erotic fantasies or images readily arouse me.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A5,Arousal (SES/SIS),Flirting or teasing builds my desire quickly.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A6,Arousal (SES/SIS),"My partner’s body, scent, or sounds easily excite me.",likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A7,Arousal (SES/SIS),Anticipation before intimacy turns me on.,likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A8,Arousal (SES/SIS),"Erotic media (texts, pictures, videos) often arouse me.",likert7,"[{""trait"": ""SE"", ""weight"": 1.0}]",,
-A9,Arousal (SES/SIS),"If I worry I won’t perform well, my arousal drops.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A10,Arousal (SES/SIS),Fears about erection/lubrication/orgasm reduce my desire.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A11,Arousal (SES/SIS),Feeling judged about my technique turns me off.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A12,Arousal (SES/SIS),Pressure to climax or meet expectations dampens my arousal.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A13,Arousal (SES/SIS),Anxiety about how my body looks during sex inhibits me.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A14,Arousal (SES/SIS),"If I think I might ‘do it wrong,’ I lose interest.",likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A15,Arousal (SES/SIS),Being compared (explicitly or implicitly) to others shuts me down.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A16,Arousal (SES/SIS),Sensing my partner’s disappointment makes my arousal fade.,likert7,"[{""trait"": ""SIS_P"", ""weight"": 1.0}]",,
-A17,Arousal (SES/SIS),Worry about being interrupted kills my mood.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A18,Arousal (SES/SIS),Concerns about pregnancy or STIs shut down my arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A19,Arousal (SES/SIS),Fear of being overheard or seen reduces my desire.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A20,Arousal (SES/SIS),Worry about relationship fallout or conflict reduces arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A21,Arousal (SES/SIS),Concerns about pain or injury inhibit my arousal.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A22,Arousal (SES/SIS),Fear of rumors or digital leaks (photos/texts) lowers my desire.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A23,Arousal (SES/SIS),Thinking about next-day obligations (fatigue/time) inhibits me.,likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-A24,Arousal (SES/SIS),"If the setting feels unsafe or illegal, I can’t get aroused.",likert7,"[{""trait"": ""SIS_C"", ""weight"": 1.0}]",,
-B1a,Preferences,Light bondage on me (I am restrained).,ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
-B1b,Preferences,Light bondage I do (I restrain my partner).,ymn,"[{""trait"": ""BONDAGE"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
-B2a,Preferences,Hair pulling on me (my hair pulled).,ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
-B2b,Preferences,Hair pulling I do (I pull my partner’s hair).,ymn,"[{""trait"": ""IMPACT"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
-B3a,Preferences,"Sensory play on me (blindfolds, earplugs, etc.).",ymn,"[{""trait"": ""TOYS"", ""weight"": 0.6}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.4}]",,
-B3b,Preferences,Sensory play I do (I blindfold/control partner’s senses).,ymn,"[{""trait"": ""TOYS"", ""weight"": 0.6}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}]",,
-B4a,Preferences,Spanking on me.,ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}]",,
-B4b,Preferences,Spanking I do.,ymn,"[{""trait"": ""IMPACT"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.5}]",,
-B5a,Preferences,Roleplay where I follow clear direction.,ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.8}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
-B5b,Preferences,Roleplay where I give clear direction.,ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.8}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
-B6a,Preferences,"Protocol/titles I follow (rules, honorifics directed at me).",ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.7}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}]",,
-B6b,Preferences,"Protocol/titles I lead (I set rules, receive honorifics).",ymn,"[{""trait"": ""ROLEPLAY"", ""weight"": 0.7}, {""trait"": ""POWER_TOP"", ""weight"": 0.6}]",,
-B7a,Preferences,Edging on me (my orgasm controlled).,ymn,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}, {""trait"": ""IMPACT"", ""weight"": 0.4}]",,
-B7b,Preferences,Edging I control (I control partner’s orgasm).,ymn,"[{""trait"": ""POWER_TOP"", ""weight"": 0.6}, {""trait"": ""IMPACT"", ""weight"": 0.4}]",,
-B8a,Preferences,Toys on me (partner uses toys on me).,ymn,"[{""trait"": ""TOYS"", ""weight"": 1.0}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.4}]",,
-B8b,Preferences,Toys I use on partner.,ymn,"[{""trait"": ""TOYS"", ""weight"": 1.0}, {""trait"": ""POWER_TOP"", ""weight"": 0.4}]",,
-B9a,Preferences,Exhibition on me/us (others might see us).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 1.0}, {""trait"": ""PUBLIC_EDGE"", ""weight"": 0.5}]",,
-B9b,Preferences,I perform/show for my partner (private display).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 0.7}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
-B10a,Preferences,"Voyeur: watching others (ethical, consenting).",ymn,"[{""trait"": ""VOYEUR"", ""weight"": 1.0}]",,
-B10b,Preferences,Being watched together (observation only).,ymn,"[{""trait"": ""EXHIBITION"", ""weight"": 0.8}, {""trait"": ""PUBLIC_EDGE"", ""weight"": 0.4}]",,
-C1,Boundaries & Context,Max intensity for impact (0–100):,slider,[],IMPACT_CAP,
-C2,Boundaries & Context,Hard NOs (we will never suggest these):,boundary,[],HARD_NO_MULTI,
-C3,Boundaries & Context,I require barriers for genital contact.,boundary,[],SAFER_SEX_REQUIRED,
-C4,Boundaries & Context,Recording/photos allowed for private use.,boundary,[],NO_RECORDING,
-C5,Boundaries & Context,I want aftercare after intense scenes.,boundary,[],AFTERCARE_REQUIRED,
-C7,Boundaries & Context,I want to use a safeword system.,boundary,[],SAFEWORD_CONFIRMED,
-C9,Boundaries & Context,We want in-scene check-ins.,boundary,[],CHECKINS_REQUIRED,
-C10,Boundaries & Context,Red lines (anything we should never do):,boundary,[],REDLINES_TEXT,
-D1,Role & Logistics,I enjoy giving clear verbal direction during intimacy.,likert7,"[{""trait"": ""POWER_TOP"", ""weight"": 0.6}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
-D2,Role & Logistics,I enjoy following a partner’s clear direction.,likert7,"[{""trait"": ""POWER_BOTTOM"", ""weight"": 0.6}, {""trait"": ""SENSUAL"", ""weight"": 0.2}]",,
-D3,Role & Logistics,"I prefer scenes with some structure (agreements, signals).",likert7,"[{""trait"": ""ROMANTIC"", ""weight"": 0.2}, {""trait"": ""ROLEPLAY"", ""weight"": 0.2}]",,
-D4,Role & Logistics,I’m comfortable improvising in the moment.,likert7,"[{""trait"": ""NOVELTY"", ""weight"": 0.3}, {""trait"": ""RISK"", ""weight"": 0.2}]",,
-IA1,Ipsative (Current Tilt),,choose2,"[{""trait"": ""EXHIBITION"", ""weight"": 0.3}, {""trait"": ""VOYEUR"", ""weight"": 0.2}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}, {""trait"": ""SENSUAL"", ""weight"": 0.3}]",,
-IA2,Ipsative (Current Tilt),,choose2,"[{""trait"": ""POWER_TOP"", ""weight"": 0.5}, {""trait"": ""POWER_BOTTOM"", ""weight"": 0.5}]",,
-IA3,Ipsative (Current Tilt),,choose2,"[{""trait"": ""TOYS"", ""weight"": 0.5}, {""trait"": ""SENSUAL"", ""weight"": 0.3}]",,
-IA4,Ipsative (Current Tilt),,choose2,"[{""trait"": ""PUBLIC_EDGE"", ""weight"": 0.5}, {""trait"": ""RISK"", ""weight"": 0.3}, {""trait"": ""ROMANTIC"", ""weight"": 0.2}]",,
+id,chapter,type,prompt,options,maps
+A1,Arousal & Power,likert7,"I am easily aroused by erotic sensory cues (touch, scent, visuals).","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SE""}"
+A2,Arousal & Power,likert7,"I quickly respond to erotic stimuli or situations.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SE""}"
+A3,Arousal & Power,likert7,"Erotic thoughts or fantasies easily turn me on.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SE""}"
+A4,Arousal & Power,likert7,"My partner's arousal increases my own arousal.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SE""}"
+A5,Arousal & Power,likert7,"My arousal decreases if I'm worried about my performance.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_P""}"
+A6,Arousal & Power,likert7,"My arousal decreases if I'm uncertain what my partner wants.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_P""}"
+A7,Arousal & Power,likert7,"Concerns about technique decrease my arousal.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_P""}"
+A8,Arousal & Power,likert7,"Pressure to perform reduces my arousal.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_P""}"
+A9,Arousal & Power,likert7,"My arousal drops if I'm worried about being caught or interrupted.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_C""}"
+A10,Arousal & Power,likert7,"In the moment privacy concerns reduce my arousal.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_C""}"
+A11,Arousal & Power,likert7,"Fear of judgment reduces my arousal.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_C""}"
+A12,Arousal & Power,likert7,"If potential consequences feel risky, my arousal drops.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""SIS_C""}"
+A13,Arousal & Power,likert7,"I enjoy giving clear direction or commands during intimate activities.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""POWER_TOP""}"
+A14,Arousal & Power,likert7,"I enjoy following direction or commands during intimate activities.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""POWER_BOTTOM""}"
+A15,Arousal & Power,likert7,"I like being in the dominant role during intimate scenarios.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""POWER_TOP""}"
+A16,Arousal & Power,likert7,"I like being in the submissive role during intimate scenarios.","1=Strongly disagree ... 7=Strongly agree","{""factor"":""POWER_BOTTOM""}"
+B1a,Physical Touch,chooseYMN,"Massage (receiving).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""massage_receive"",""direction"":""on_me"",""intensity"":""gentle""}"
+B1b,Physical Touch,chooseYMN,"Massage (giving).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""massage_give"",""direction"":""i_do"",""intensity"":""gentle""}"
+B2a,Physical Touch,chooseYMN,"Hair pulling - gentle (my hair pulled).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""hair_pull_gentle_receive"",""direction"":""on_me"",""intensity"":""gentle""}"
+B2b,Physical Touch,chooseYMN,"Hair pulling - gentle (I pull).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""hair_pull_gentle_give"",""direction"":""i_do"",""intensity"":""gentle""}"
+B3a,Physical Touch,chooseYMN,"Biting or scratching - moderate (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""biting_moderate_receive"",""direction"":""on_me"",""intensity"":""moderate""}"
+B3b,Physical Touch,chooseYMN,"Biting or scratching - moderate (I do).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""biting_moderate_give"",""direction"":""i_do"",""intensity"":""moderate""}"
+B4a,Physical Touch,chooseYMN,"Spanking - moderate (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spanking_moderate_receive"",""direction"":""on_me"",""intensity"":""moderate"",""facet"":""IMPACT""}"
+B4b,Physical Touch,chooseYMN,"Spanking - moderate (I deliver).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spanking_moderate_give"",""direction"":""i_do"",""intensity"":""moderate"",""facet"":""IMPACT""}"
+B5a,Physical Touch,chooseYMN,"Using hands/fingers on genitals (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""hands_genitals_receive"",""direction"":""on_me"",""intensity"":""moderate""}"
+B5b,Physical Touch,chooseYMN,"Using hands/fingers on partner's genitals (I do).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""hands_genitals_give"",""direction"":""i_do"",""intensity"":""moderate""}"
+B6a,Physical Touch,chooseYMN,"Spanking - hard (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spanking_hard_receive"",""direction"":""on_me"",""intensity"":""intense"",""facet"":""IMPACT""}"
+B6b,Physical Touch,chooseYMN,"Spanking - hard (I deliver).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spanking_hard_give"",""direction"":""i_do"",""intensity"":""intense"",""facet"":""IMPACT""}"
+B7a,Physical Touch,chooseYMN,"Slapping (face or body) (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""slapping_receive"",""direction"":""on_me"",""intensity"":""extreme"",""facet"":""IMPACT""}"
+B7b,Physical Touch,chooseYMN,"Slapping (face or body) (I deliver).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""slapping_give"",""direction"":""i_do"",""intensity"":""extreme"",""facet"":""IMPACT""}"
+B8a,Physical Touch,chooseYMN,"Choking or breath play (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""choking_receive"",""direction"":""on_me"",""intensity"":""extreme"",""tag"":""BREATH_PLAY""}"
+B8b,Physical Touch,chooseYMN,"Choking or breath play (I do).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""choking_give"",""direction"":""i_do"",""intensity"":""extreme"",""tag"":""BREATH_PLAY""}"
+B9a,Physical Touch,chooseYMN,"Spitting (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spitting_receive"",""direction"":""on_me"",""intensity"":""extreme"",""facet"":""NOVELTY""}"
+B9b,Physical Touch,chooseYMN,"Spitting (I do).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""spitting_give"",""direction"":""i_do"",""intensity"":""extreme"",""facet"":""NOVELTY""}"
+B10a,Physical Touch,chooseYMN,"Watersports/golden showers (on me).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""watersports_receive"",""direction"":""on_me"",""intensity"":""extreme"",""tag"":""EXPLICIT_FLUIDS"",""facet"":""NOVELTY""}"
+B10b,Physical Touch,chooseYMN,"Watersports/golden showers (I do).","Y=Yes,M=Maybe,N=No","{""category"":""physical_touch"",""activity"":""watersports_give"",""direction"":""i_do"",""intensity"":""extreme"",""tag"":""EXPLICIT_FLUIDS"",""facet"":""NOVELTY""}"
+B11a,Oral Activities,chooseYMN,"Oral sex on genitals (receiving).","Y=Yes,M=Maybe,N=No","{""category"":""oral"",""activity"":""oral_sex_receive"",""direction"":""on_me""}"
+B11b,Oral Activities,chooseYMN,"Oral sex on genitals (giving).","Y=Yes,M=Maybe,N=No","{""category"":""oral"",""activity"":""oral_sex_give"",""direction"":""i_do""}"
+B12a,Oral Activities,chooseYMN,"Oral stimulation on other body parts - chest, neck, ears, inner thighs, etc. (on me).","Y=Yes,M=Maybe,N=No","{""category"":""oral"",""activity"":""oral_body_receive"",""direction"":""on_me"",""facet"":""SENSUAL""}"
+B12b,Oral Activities,chooseYMN,"Oral stimulation on other body parts (I do).","Y=Yes,M=Maybe,N=No","{""category"":""oral"",""activity"":""oral_body_give"",""direction"":""i_do"",""facet"":""SENSUAL""}"
+B13a,Anal Activities,chooseYMN,"Anal stimulation with fingers or small toys (on me).","Y=Yes,M=Maybe,N=No","{""category"":""anal"",""activity"":""anal_fingers_toys_receive"",""direction"":""on_me"",""tag"":""ANAL_STIM"",""facet"":""TOYS""}"
+B13b,Anal Activities,chooseYMN,"Anal stimulation with fingers or small toys (I do).","Y=Yes,M=Maybe,N=No","{""category"":""anal"",""activity"":""anal_fingers_toys_give"",""direction"":""i_do"",""tag"":""ANAL_STIM"",""facet"":""TOYS""}"
+B14a,Anal Activities,chooseYMN,"Rimming - oral stimulation of anus (on me).","Y=Yes,M=Maybe,N=No","{""category"":""anal"",""activity"":""rimming_receive"",""direction"":""on_me"",""tag"":""RIMMING"",""facet"":""TOYS""}"
+B14b,Anal Activities,chooseYMN,"Rimming - oral stimulation of anus (I do).","Y=Yes,M=Maybe,N=No","{""category"":""anal"",""activity"":""rimming_give"",""direction"":""i_do"",""tag"":""RIMMING"",""facet"":""TOYS""}"
+B15a,Power Exchange,chooseYMN,"Being restrained (hands held, ties, cuffs, rope) (on me).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""restraints_receive"",""direction"":""on_me"",""facet"":""BONDAGE""}"
+B15b,Power Exchange,chooseYMN,"Restraining partner (I do).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""restraints_give"",""direction"":""i_do"",""facet"":""BONDAGE""}"
+B16a,Power Exchange,chooseYMN,"Blindfolding or sensory deprivation (on me).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""blindfold_receive"",""direction"":""on_me"",""facet"":""BONDAGE""}"
+B16b,Power Exchange,chooseYMN,"Blindfolding or sensory deprivation (I do).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""blindfold_give"",""direction"":""i_do"",""facet"":""BONDAGE""}"
+B17a,Power Exchange,chooseYMN,"Orgasm control - edging, denial, forced orgasm (on me).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""orgasm_control_receive"",""direction"":""on_me"",""facet"":""ROLEPLAY""}"
+B17b,Power Exchange,chooseYMN,"Orgasm control - edging, denial, forced orgasm (I control).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""orgasm_control_give"",""direction"":""i_do"",""facet"":""ROLEPLAY""}"
+B18a,Power Exchange,chooseYMN,"Following strict commands or protocols during intimate play (I follow).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""protocols_follow"",""direction"":""on_me"",""facet"":""ROLEPLAY""}"
+B18b,Power Exchange,chooseYMN,"Giving strict commands or protocols during intimate play (I give).","Y=Yes,M=Maybe,N=No","{""category"":""power_exchange"",""activity"":""protocols_give"",""direction"":""i_do"",""facet"":""ROLEPLAY""}"
+B19,Verbal & Roleplay,chooseYMN,"Dirty talk or explicit language during intimate activities.","Y=Yes,M=Maybe,N=No","{""category"":""verbal_roleplay"",""activity"":""dirty_talk"",""facet"":""ROLEPLAY""}"
+B20,Verbal & Roleplay,chooseYMN,"Moaning or vocal encouragement.","Y=Yes,M=Maybe,N=No","{""category"":""verbal_roleplay"",""activity"":""moaning"",""facet"":""SENSUAL""}"
+B21,Verbal & Roleplay,chooseYMN,"Roleplay scenarios (boss/employee, strangers, teacher/student, etc.).","Y=Yes,M=Maybe,N=No","{""category"":""verbal_roleplay"",""activity"":""roleplay"",""facet"":""ROLEPLAY""}"
+B22,Verbal & Roleplay,chooseYMN,"Giving or receiving commands.","Y=Yes,M=Maybe,N=No","{""category"":""verbal_roleplay"",""activity"":""commands"",""facet"":""ROLEPLAY""}"
+B23,Verbal & Roleplay,chooseYMN,"Begging or pleading (in play).","Y=Yes,M=Maybe,N=No","{""category"":""verbal_roleplay"",""activity"":""begging"",""facet"":""ROLEPLAY""}"
+B24a,Display & Performance,chooseYMN,"Stripping or undressing slowly (me performing).","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""stripping_me"",""direction"":""on_me"",""facet"":""EXHIBITION""}"
+B24b,Display & Performance,chooseYMN,"Watching partner strip (I watch).","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""watching_strip"",""direction"":""i_do"",""facet"":""VOYEUR""}"
+B25a,Display & Performance,chooseYMN,"Being watched during solo pleasure (me).","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""watched_solo_pleasure"",""direction"":""on_me"",""facet"":""EXHIBITION""}"
+B25b,Display & Performance,chooseYMN,"Watching partner during solo pleasure (I watch).","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""watching_solo_pleasure"",""direction"":""i_do"",""facet"":""VOYEUR""}"
+B26,Display & Performance,chooseYMN,"Posing or being positioned for viewing.","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""posing"",""facet"":""EXHIBITION""}"
+B27,Display & Performance,chooseYMN,"Dancing sensually.","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""dancing"",""facet"":""EXHIBITION""}"
+B28,Display & Performance,chooseYMN,"Wearing revealing or fantasy clothing/lingerie.","Y=Yes,M=Maybe,N=No","{""category"":""display_performance"",""activity"":""revealing_clothing"",""facet"":""EXHIBITION""}"
+B29,Truth Topics,chooseYMN,"Past sexual or romantic experiences.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""past_experiences""}"
+B30,Truth Topics,chooseYMN,"Current fantasies or desires.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""fantasies"",""facet"":""ROMANTIC""}"
+B31,Truth Topics,chooseYMN,"Turn-ons and attractions.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""turn_ons""}"
+B32,Truth Topics,chooseYMN,"Turn-offs and dislikes.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""turn_offs""}"
+B33,Truth Topics,chooseYMN,"Insecurities or vulnerabilities about intimacy.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""insecurities"",""facet"":""ROMANTIC""}"
+B34,Truth Topics,chooseYMN,"Boundaries and limits.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""boundaries""}"
+B35,Truth Topics,chooseYMN,"Fantasies about the future with my partner.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""future_fantasies"",""facet"":""ROMANTIC""}"
+B36,Truth Topics,chooseYMN,"What makes me feel most desired or wanted.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""feeling_desired"",""facet"":""ROMANTIC""}"
+C1,Boundaries & Safety,checklist,"Select ANY of the following that are hard boundaries (absolutely not interested).","Check all that apply","{""boundary"":""hard_limits"",""options"":[""impact_play"",""restraints_bondage"",""breath_play"",""degradation_humiliation"",""public_activities"",""recording"",""roleplay"",""multi_partner"",""toys_props"",""anal_activities"",""watersports"",""other""]}"
+C2,Boundaries & Safety,text,"Any other specific activities, scenarios, topics, or contexts you want to ensure are avoided?","Free text","{""boundary"":""additional_notes""}"

@@ -15,7 +15,15 @@ const API_BASE =
  */
 export async function getAllSubmissions() {
   try {
-    const response = await fetch(`${API_BASE}/submissions`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    const response = await fetch(`${API_BASE}/submissions`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -25,7 +33,11 @@ export async function getAllSubmissions() {
       baseline: data.baseline
     };
   } catch (error) {
-    console.error('Error fetching submissions:', error);
+    if (error.name === 'AbortError') {
+      console.error('Request timeout: getAllSubmissions took longer than 15 seconds');
+    } else {
+      console.error('Error fetching submissions:', error);
+    }
     return { submissions: [], baseline: null };
   }
 }
@@ -35,7 +47,15 @@ export async function getAllSubmissions() {
  */
 export async function getSubmission(id) {
   try {
-    const response = await fetch(`${API_BASE}/submissions/${id}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    const response = await fetch(`${API_BASE}/submissions/${id}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -44,7 +64,11 @@ export async function getSubmission(id) {
     }
     return await response.json();
   } catch (error) {
-    console.error('Error fetching submission:', error);
+    if (error.name === 'AbortError') {
+      console.error('Request timeout: Submission fetch took longer than 15 seconds');
+    } else {
+      console.error('Error fetching submission:', error);
+    }
     return null;
   }
 }
@@ -60,7 +84,7 @@ export async function saveSubmission(submission) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: '0.3.1',
+        version: '0.4',
         ...submission,
       }),
     });

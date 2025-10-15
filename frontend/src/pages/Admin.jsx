@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Database, History, AlertCircle, Home } from 'lucide-react';
+import { computeDomainsFromTraits } from '@/lib/scoring/domainCalculator';
 import {
   getAllSubmissions,
   getBaseline,
@@ -126,6 +127,7 @@ function ResponsesList() {
   const [submissions, setSubmissions] = useState([]);
   const [baselineId, setBaselineIdState] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -133,12 +135,14 @@ function ResponsesList() {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await getAllSubmissions();
       setSubmissions(data.submissions || []);
       setBaselineIdState(data.baseline);
-    } catch (error) {
-      console.error('Error loading submissions:', error);
+    } catch (err) {
+      console.error('Error loading submissions:', err);
+      setError(err.message || 'Failed to load submissions');
     } finally {
       setLoading(false);
     }
@@ -155,6 +159,39 @@ function ResponsesList() {
 
   if (loading) {
     return <Card><CardContent className="pt-6">Loading...</CardContent></Card>;
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Unable to Load Submissions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error.includes('500') || error.includes('timeout')
+                ? 'Backend database is responding slowly or unavailable. Please try again in a moment.'
+                : error.includes('404')
+                ? 'Backend endpoint not found. Please check your configuration.'
+                : 'Could not connect to backend. Check your internet connection.'}
+            </AlertDescription>
+          </Alert>
+          <div className="flex gap-2">
+            <Button onClick={loadData} className="flex-1">
+              Retry Loading
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline" className="flex-1">
+              Refresh Page
+            </Button>
+          </div>
+          <p className="text-sm text-gray-600">
+            If the problem persists, the backend service may be experiencing issues.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -175,39 +212,62 @@ function ResponsesList() {
                   <TableHead>Orientation</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Version</TableHead>
-                  <TableHead>Adventure</TableHead>
+                  <TableHead>PowerTop</TableHead>
+                  <TableHead>PowerBottom</TableHead>
                   <TableHead>Connection</TableHead>
-                  <TableHead>Intensity</TableHead>
-                  <TableHead>Confidence</TableHead>
-                  <TableHead>Archetype</TableHead>
+                  <TableHead>Sensory</TableHead>
+                  <TableHead>Exploration</TableHead>
+                  <TableHead>Structure</TableHead>
                   <TableHead>Baseline</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {submissions.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell className="font-medium">{sub.name}</TableCell>
-                    <TableCell className="capitalize">{sub.sex || '-'}</TableCell>
-                    <TableCell className="capitalize">{sub.sexualOrientation || '-'}</TableCell>
-                    <TableCell>{new Date(sub.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{sub.version || '—'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Adventure?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Connection?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Intensity?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.dials?.Confidence?.toFixed(0) || '-'}</TableCell>
-                    <TableCell>{sub.derived?.archetypes?.[0]?.name || '-'}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant={baselineId === sub.id ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleSetBaseline(sub.id)}
-                        data-testid="set-baseline"
-                      >
-                        {baselineId === sub.id ? 'Baseline' : 'Set'}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {submissions.map((sub) => {
+                  // Handle both v0.3.1 and v0.4 profiles
+                  const isV04 = sub.version === '0.4' || sub.derived?.profile_version === '0.4';
+                  let d;
+                  
+                  if (isV04 && sub.derived?.domain_scores) {
+                    // v0.4 has domains directly
+                    d = {
+                      powerTop: sub.derived.power_dynamic?.top_score || 0,
+                      powerBottom: sub.derived.power_dynamic?.bottom_score || 0,
+                      connection: sub.derived.domain_scores.connection || 0,
+                      sensory: sub.derived.domain_scores.sensation || 0, // Note: v0.4 calls it "sensation"
+                      exploration: sub.derived.domain_scores.exploration || 0,
+                      structure: sub.derived.domain_scores.power || 0 // Note: v0.4 "power" domain is similar to "structure"
+                    };
+                  } else {
+                    // v0.3.1 - compute from traits
+                    d = computeDomainsFromTraits(sub.derived?.traits || {});
+                  }
+                  
+                  return (
+                    <TableRow key={sub.id}>
+                      <TableCell className="font-medium">{sub.name}</TableCell>
+                      <TableCell className="capitalize">{sub.sex || '-'}</TableCell>
+                      <TableCell className="capitalize">{sub.sexualOrientation || '-'}</TableCell>
+                      <TableCell>{new Date(sub.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{sub.version || '—'}</TableCell>
+                      <TableCell>{Math.round(d.powerTop)}</TableCell>
+                      <TableCell>{Math.round(d.powerBottom)}</TableCell>
+                      <TableCell>{Math.round(d.connection)}</TableCell>
+                      <TableCell>{Math.round(d.sensory)}</TableCell>
+                      <TableCell>{Math.round(d.exploration)}</TableCell>
+                      <TableCell>{Math.round(d.structure)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant={baselineId === sub.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleSetBaseline(sub.id)}
+                          data-testid="set-baseline"
+                        >
+                          {baselineId === sub.id ? 'Baseline' : 'Set'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -241,19 +301,23 @@ function ExportTools() {
       const submissions = data.submissions || [];
       
       // Create CSV header
-      const headers = ['Name', 'Sex', 'Sexual Orientation', 'Created', 'Version', 'Adventure', 'Connection', 'Intensity', 'Confidence', 'Top Archetype'];
-      const rows = submissions.map(sub => [
-        sub.name,
-        sub.sex || '',
-        sub.sexualOrientation || '',
-        new Date(sub.createdAt).toISOString(),
-        sub.version || '',
-        sub.derived?.dials?.Adventure?.toFixed(0) || '',
-        sub.derived?.dials?.Connection?.toFixed(0) || '',
-        sub.derived?.dials?.Intensity?.toFixed(0) || '',
-        sub.derived?.dials?.Confidence?.toFixed(0) || '',
-        sub.derived?.archetypes?.[0]?.name || ''
-      ]);
+      const headers = ['Name', 'Sex', 'Sexual Orientation', 'Created', 'Version', 'PowerTop', 'PowerBottom', 'Connection', 'Sensory', 'Exploration', 'Structure'];
+      const rows = submissions.map(sub => {
+        const d = computeDomainsFromTraits(sub.derived?.traits || {});
+        return [
+          sub.name,
+          sub.sex || '',
+          sub.sexualOrientation || '',
+          new Date(sub.createdAt).toISOString(),
+          sub.version || '',
+          Math.round(d.powerTop),
+          Math.round(d.powerBottom),
+          Math.round(d.connection),
+          Math.round(d.sensory),
+          Math.round(d.exploration),
+          Math.round(d.structure)
+        ];
+      });
       
       const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
