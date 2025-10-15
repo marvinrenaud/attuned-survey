@@ -1,305 +1,545 @@
-# Attuned Survey Website - Deployment Guide
+# Attuned Survey - Deployment Guide
 
-## Overview
-
-The **Attuned Intimacy Profile Survey** is a comprehensive web application built to help users discover their unique intimacy profile through a scientifically-designed questionnaire. The application implements the IntimacAI v0.2.3 survey framework with full scoring, matching, and data management capabilities.
-
-## Deployment Status
-
-✅ **Application Built Successfully**  
-✅ **Ready for Production Deployment**
-
-The application has been packaged and is awaiting your confirmation to publish to a public URL.
+**Version**: v0.4 Survey | v0.5 Compatibility  
+**Status**: ✅ Production Deployed  
+**Last Updated**: October 15, 2025
 
 ---
 
-## Key Features Implemented
+## Quick Start
 
-### 1. **Survey Flow**
-- **5 Chapters** organized by theme:
-  - Arousal (SES/SIS) - 24 questions
-  - Preferences - 46 questions  
-  - Boundaries & Context - 10 questions
-  - Role & Logistics - 6 questions
-  - Ipsative (Current Tilt) - 6 questions
-- **Chapter-by-chapter navigation** with progress tracking
-- **Session persistence** using LocalStorage (answers saved automatically)
-- **Name collection** before survey starts
-- **Validation** to ensure all required questions are answered
+### Current Production Deployment
 
-### 2. **Question Types**
-- **Likert-7 Scale**: 1-7 rating with visual slider
-- **YMN (Yes/Maybe/No)**: Three-option choice for preferences
-- **Choose2 (A/B)**: Binary choice for ipsative questions
-- **Boundary**: Optional safety/boundary questions
-
-### 3. **Scoring Engine**
-Implements the complete IntimacAI v0.2.3 scoring algorithm:
-
-#### **Trait Calculation**
-- 18 psychological traits calculated from weighted question responses
-- Includes: SE, SIS_P, SIS_C, NOVELTY, RISK, SENSUAL, ROMANTIC, CONTROL_PREF, POWER_TOP, POWER_BOTTOM, VOYEUR, EXHIB, GROUP, ENM_OPEN, AFTERCARE, COMM, BODY_CONF, PERF_ANXI
-
-#### **Dial Calculation**  
-Four key dimensions derived from trait combinations:
-- **Adventure**: Novelty + Risk appetite
-- **Connection**: Romantic + Sensual + Aftercare needs
-- **Intensity**: Power dynamics + Edge play interest
-- **Confidence**: Body confidence - Performance anxiety
-
-#### **Archetype Assignment**
-- 12 archetypes based on dial scores
-- Top 3 archetypes displayed in order
-- Includes: Explorer, Sensualist, Romantic, Adventurer, Hedonist, Connector, Devotee, Dominant, Switch, Submissive, Steady, Cautious
-
-### 4. **Compatibility Matching**
-Advanced matching algorithm with:
-- **Category-based alignment** across 12 intimacy categories
-- **Power complement calculation** (top/bottom compatibility)
-- **Boundary gates** (hard limits must be respected)
-- **Overall compatibility score** (0-100%)
-- **Detailed breakdown** by category
-
-### 5. **Admin Panel**
-Password-protected admin interface (password: `1111`):
-- **View all submissions** in a sortable table
-- **Set baseline** for compatibility comparison
-- **Export data** as CSV or JSON
-- **Version history** tracking (v0.2.3 current)
-
-### 6. **Data Management**
-- **LocalStorage persistence** for all submissions
-- **Unique submission IDs** (timestamp-based)
-- **Session recovery** (resume incomplete surveys)
-- **Export capabilities** for research/analysis
+The application is **live and fully functional** with:
+- ✅ v0.4 survey (54 questions)
+- ✅ v0.5 compatibility algorithm (asymmetric matching)
+- ✅ Supabase PostgreSQL database
+- ✅ Render.com backend hosting
+- ✅ All tests passing
 
 ---
 
-## Technical Architecture
+## System Requirements
 
-### **Frontend Framework**
-- **React 18** with functional components and hooks
-- **React Router** for navigation
-- **Vite** for fast development and optimized builds
+### Frontend
+- **Node.js** 22+
+- **pnpm** 10+ (package manager)
+- **Modern browser** (Chrome, Firefox, Safari, Edge)
 
-### **UI Components**
-- **shadcn/ui** component library
-- **Tailwind CSS** for styling
-- **Lucide React** icons
-- Fully responsive design (mobile, tablet, desktop)
+### Backend
+- **Python** 3.11+
+- **PostgreSQL** 13+ (via Supabase)
+- **pip** package manager
 
-### **Data Structure**
-```javascript
+---
+
+## Local Development Setup
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/marvinrenaud/attuned-survey.git
+cd attuned-survey
+```
+
+### 2. Frontend Setup
+
+```bash
+cd frontend
+pnpm install
+pnpm run dev
+```
+
+Frontend runs on: `http://localhost:5173` (or auto-incremented port)
+
+### 3. Backend Setup (Optional - Uses Remote Supabase)
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python run_backend.py
+```
+
+Backend runs on: `http://localhost:5001`
+
+**Note**: By default, frontend connects to remote production backend (`attuned-backend.onrender.com`). To use local backend, create `frontend/.env.local`:
+
+```bash
+VITE_API_URL=http://localhost:5001
+```
+
+---
+
+## Production Deployment
+
+### Current Stack
+
+**Frontend**: React SPA
+- Build tool: Vite
+- Output: Static files in `dist/`
+- Hosting: Can deploy to Vercel, Netlify, or serve via Flask
+
+**Backend**: Flask API
+- Hosting: Render.com
+- Database: Supabase PostgreSQL
+- Auto-deploy: GitHub integration
+
+### Frontend Deployment
+
+#### Option 1: Vercel (Recommended for Frontend-Only)
+
+```bash
+cd frontend
+
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel deploy --prod
+```
+
+Configuration (`vercel.json`):
+```json
 {
-  id: "timestamp-uuid",
-  name: "User Name",
-  createdAt: "ISO timestamp",
-  answers: {
-    A1: 5,
-    B1: "Y",
-    IA1: "A",
-    // ... all 92 questions
-  },
-  derived: {
-    traits: { SE: 65.2, NOVELTY: 72.1, ... },
-    dials: { Adventure: 68.5, Connection: 75.2, ... },
-    archetypes: [
-      { id: "explorer", name: "Explorer", score: 85.3, desc: "..." },
-      // ... top 3
-    ],
-    boundaryFlags: { HARD_LIMITS: [], SOFT_LIMITS: [] }
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "env": {
+    "VITE_API_URL": "https://attuned-backend.onrender.com"
   }
 }
 ```
 
-### **File Structure**
-```
-attuned-survey/
-├── src/
-│   ├── data/
-│   │   ├── schema.json          # Survey schema v0.2.3
-│   │   ├── questions.csv        # Question bank
-│   │   └── AttunedLogo.png      # Brand logo
-│   ├── lib/
-│   │   ├── scoring/
-│   │   │   ├── traitCalculator.js
-│   │   │   ├── dialCalculator.js
-│   │   │   └── archetypeCalculator.js
-│   │   ├── matching/
-│   │   │   ├── categoryMap.js
-│   │   │   └── overlapHelper.js
-│   │   ├── storage/
-│   │   │   └── submissionStore.js
-│   │   └── surveyData.js
-│   ├── pages/
-│   │   ├── Landing.jsx          # Home page
-│   │   ├── Survey.jsx           # Survey flow
-│   │   ├── Result.jsx           # Results display
-│   │   ├── Admin.jsx            # Admin panel
-│   │   └── Privacy.jsx          # Privacy policy
-│   ├── App.jsx                  # Main app with routing
-│   └── main.jsx                 # Entry point
-├── dist/                        # Production build
-└── package.json
-```
-
----
-
-## How to Use the Deployed Website
-
-### **For Survey Takers**
-
-1. **Visit the homepage**
-   - Read the welcome message and instructions
-   - Click "Start Your Survey"
-
-2. **Enter your name**
-   - Provide your name for personalized results
-   - Click "Continue"
-
-3. **Complete the survey**
-   - Answer questions honestly (no wrong answers)
-   - Use "Next" to move between chapters
-   - Your progress is saved automatically
-   - You can close and resume later
-
-4. **View your results**
-   - See your archetype(s)
-   - Review your four dimension scores
-   - If a baseline is set, see compatibility match
-
-5. **Edit if needed**
-   - Click "Edit Answers" to modify responses
-   - Results update automatically
-
-### **For Administrators**
-
-1. **Access admin panel**
-   - Navigate to `/admin`
-   - Enter password: `1111`
-
-2. **View responses**
-   - See all submissions in table format
-   - Review dials and archetypes
-   - Set baseline for matching
-
-3. **Export data**
-   - Download CSV for spreadsheet analysis
-   - Download JSON for programmatic use
-
-4. **Manage baselines**
-   - Click "Set" next to any submission
-   - All future submissions will show compatibility
-
----
-
-## Testing Checklist
-
-✅ Landing page displays correctly  
-✅ Survey navigation works (Previous/Next)  
-✅ Questions display with proper UI  
-✅ Progress bar updates correctly  
-✅ Session persistence (refresh recovery)  
-✅ Scoring calculations execute  
-✅ Results page shows archetypes and dials  
-✅ Admin login works (password: 1111)  
-✅ Data export functions (CSV/JSON)  
-✅ Responsive design on mobile/tablet  
-✅ Accessibility (keyboard navigation, ARIA labels)
-
----
-
-## Browser Compatibility
-
-- **Chrome/Edge**: ✅ Fully supported
-- **Firefox**: ✅ Fully supported  
-- **Safari**: ✅ Fully supported
-- **Mobile browsers**: ✅ Responsive design
-
----
-
-## Data Privacy & Security
-
-- **Local storage only**: All data stored in browser LocalStorage
-- **No server-side storage**: Privacy-first approach
-- **No tracking**: No analytics or third-party scripts
-- **Export control**: Users/admins control data export
-- **Password-protected admin**: Simple password gate for admin features
-
----
-
-## Future Enhancements (Not Implemented)
-
-The following were specified but marked as future work:
-- **Lite version**: Shorter 30-question survey
-- **Version rollback**: Restore previous schema versions
-- **Advanced analytics**: Aggregate statistics dashboard
-- **Multi-language support**: Internationalization
-- **Email results**: Send results via email
-- **PDF export**: Download results as PDF
-
----
-
-## Support & Documentation
-
-### **Original Specifications**
-- Survey Schema: `intimacai_survey_schema_v0.2.3.json`
-- Question Bank: `intimacai_question_bank_v0.2.3.csv`
-- Requirements: `AttunedSurveyPrototypeRequirements–v0.2.3.docx`
-- README: `README_IntimacAI_EndToEnd_v0.2.3.md`
-
-### **Technical References**
-- Overlap Helper: `intimacai_overlap_helper_v0.2.3.ts`
-- Category Map: `intimacai_overlap_map_v0.2.2.ts`
-
----
-
-## Deployment URL
-
-Once you click **Publish**, you'll receive a permanent public URL in the format:
-
-```
-https://[unique-id].manus.app
-```
-
-This URL will be:
-- ✅ **Permanent** (won't expire)
-- ✅ **HTTPS-secured**
-- ✅ **Globally accessible**
-- ✅ **Fast CDN delivery**
-
----
-
-## Credits
-
-**Built with**: [Manus](https://manus.im)  
-**Version**: 0.2.3  
-**Date**: October 2025
-
----
-
-## Quick Start Commands
-
-If you need to modify the application locally:
+#### Option 2: Netlify
 
 ```bash
-# Navigate to project
-cd /home/ubuntu/attuned-survey
-
-# Install dependencies (already done)
-pnpm install
-
-# Start development server
-pnpm run dev
-
-# Build for production
+cd frontend
 pnpm run build
 
-# Preview production build
-pnpm run preview
+# Deploy via Netlify CLI or drag-drop dist/ folder
+netlify deploy --prod --dir=dist
+```
+
+#### Option 3: Serve via Flask Backend
+
+```bash
+cd frontend
+pnpm run build
+
+# Copy build to backend static folder
+cp -r dist/* ../backend/src/static/
+```
+
+Then deploy Flask as normal.
+
+### Backend Deployment
+
+#### Current: Render.com (Auto-Deploy)
+
+**Setup**:
+1. Connected to GitHub repository
+2. Auto-deploys on push to `main` branch
+3. Environment variables configured in Render dashboard
+
+**Environment Variables (Render.com)**:
+```bash
+DATABASE_URL=postgresql://user:pass@host/db  # Supabase connection
+FLASK_ENV=production
+SECRET_KEY=your_secret_key
+PORT=5001
+```
+
+**Build Command**: `pip install -r requirements.txt`  
+**Start Command**: `gunicorn src.main:app`
+
+#### Alternative: Heroku
+
+```bash
+cd backend
+
+# Create Heroku app
+heroku create attuned-backend
+
+# Add PostgreSQL (or use Supabase)
+heroku addons:create heroku-postgresql:mini
+
+# Set environment variables
+heroku config:set FLASK_ENV=production
+
+# Deploy
+git push heroku main
 ```
 
 ---
 
-**Ready to publish!** Click the Publish button in your interface to deploy the website.
+## Database Setup
 
+### Supabase Configuration
+
+**Current Setup**:
+- **Project**: Attuned Survey
+- **Region**: US East
+- **Plan**: Free tier (sufficient for MVP)
+
+**Tables**:
+1. `survey_submissions` - All survey responses and calculated profiles
+2. `survey_baseline` - Currently selected baseline for compatibility
+
+**Migrations**: Auto-handled by SQLAlchemy in Flask
+
+**Connection String**:
+```
+postgresql://[user]:[password]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+```
+
+### Backup Strategy
+
+**Automated** (Supabase):
+- Daily backups (free tier: 7 days retention)
+- Point-in-time recovery available on paid tiers
+
+**Manual Export**:
+```bash
+# Via admin panel
+# Navigate to /admin/export
+# Click "Download JSON" or "Download CSV"
+```
+
+---
+
+## Configuration
+
+### Frontend Configuration
+
+**API Base URL** (`frontend/src/lib/storage/apiStore.js`):
+```javascript
+const DEFAULT_API =
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost')
+    ? 'http://localhost:5001'  // Local development
+    : 'https://attuned-backend.onrender.com';  // Production
+
+const API_BASE = `${(import.meta.env?.VITE_API_URL || DEFAULT_API)}/api/survey`;
+```
+
+**Timeouts**:
+```javascript
+// All API calls have 15-second timeout
+const timeoutId = setTimeout(() => controller.abort(), 15000);
+```
+
+**Admin Password** (Frontend - Not Secure):
+```javascript
+// frontend/src/pages/Admin.jsx
+const ADMIN_PASSWORD = '1111';  // Change for production
+```
+
+### Backend Configuration
+
+**Flask Settings** (`backend/src/main.py`):
+```python
+from flask import Flask
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS for frontend
+
+# Database connection via environment variable
+DATABASE_URL = os.getenv('DATABASE_URL')
+```
+
+**CORS Configuration**:
+```python
+# Allows frontend on any origin (development)
+# For production, specify exact origin:
+CORS(app, origins=['https://your-frontend-domain.com'])
+```
+
+---
+
+## Testing
+
+### Automated Tests
+
+**Frontend Tests**:
+```bash
+cd frontend
+
+# Run compatibility algorithm tests
+# Navigate to: http://localhost:5173/test-compatibility
+# Click test buttons and check console
+```
+
+**Expected Results**:
+- Top/Bottom: 89% ✅
+- Top/Top: 38% ✅
+- Bottom/Bottom: 41% ✅
+
+### Manual Testing
+
+**Complete Survey Flow**:
+1. Navigate to `/survey`
+2. Enter name, sex, orientation
+3. Complete all 54 questions
+4. Submit and view results
+5. Verify all sections display correctly
+
+**Compatibility Testing**:
+1. Complete survey as Top user
+2. Go to `/admin`, set as baseline
+3. Complete survey as Bottom user
+4. View results - should show ~89% compatibility
+
+**Error Handling**:
+1. Simulate slow backend (network throttling)
+2. Verify timeout triggers after 15s
+3. Verify retry buttons appear
+4. Verify helpful error messages
+
+---
+
+## Monitoring
+
+### Health Checks
+
+**Backend**:
+```bash
+# Health check endpoint
+curl https://attuned-backend.onrender.com/api/survey/submissions
+# Should return 200 OK with submissions
+```
+
+**Frontend**:
+```bash
+# Check if site loads
+curl https://your-frontend-url.com
+# Should return 200 OK with HTML
+```
+
+### Logs
+
+**Render.com Backend Logs**:
+- Dashboard → Your Service → Logs
+- Shows: API requests, errors, database queries
+
+**Supabase Database Logs**:
+- Dashboard → Database → Logs
+- Shows: Queries, connection issues, slow queries
+
+**Frontend Console**:
+- Browser DevTools → Console
+- Shows: Calculation breakdowns, API calls, errors
+
+### Performance Metrics
+
+**Expected**:
+- Page load: <2s
+- Survey submit: <1s
+- Results calculation: <100ms
+- Compatibility calculation: <50ms
+- API timeout: 15s max
+
+---
+
+## Scaling Considerations
+
+### Current Limits (Free Tier)
+
+**Supabase**:
+- Database: 500 MB
+- API requests: Unlimited (with rate limits)
+- Bandwidth: 5 GB/month
+
+**Render.com**:
+- Free tier: Sleeps after 15 min inactivity
+- Wakes on request (~30s delay)
+- 750 hours/month free
+
+### When to Upgrade
+
+**Supabase Pro** (Consider when):
+- >500 MB database size
+- >5 GB bandwidth/month
+- Need point-in-time recovery
+
+**Render.com Paid** (Consider when):
+- Need always-on (no sleep)
+- >750 hours usage/month
+- Need faster performance
+
+---
+
+## Security Checklist
+
+### Before Production (Future Improvements)
+
+- [ ] Move admin password to backend authentication
+- [ ] Implement JWT for user sessions
+- [ ] Enable Supabase Row Level Security (RLS)
+- [ ] Add rate limiting (prevent abuse)
+- [ ] Validate all inputs on backend
+- [ ] Enable HTTPS only
+- [ ] Add Content Security Policy headers
+- [ ] Implement backend validation of survey responses
+- [ ] Encrypt sensitive data at rest
+- [ ] Add audit logging
+
+### Current Security Posture
+
+✅ **Good**:
+- HTTPS enforced
+- CORS configured
+- Database hosted (Supabase managed)
+- No sensitive data in frontend code
+
+⚠️ **Needs Improvement**:
+- Admin password in frontend (not secure)
+- No rate limiting
+- No user authentication
+- No data encryption beyond Supabase defaults
+
+---
+
+## Rollback Procedure
+
+### If Issues Occur in Production
+
+**Step 1: Identify Branch**
+```bash
+# Current production: fix-compatibility-algo branch
+# Previous: feature/v0.3.1-2 or main
+```
+
+**Step 2: Rollback Frontend**
+```bash
+git checkout main  # or previous stable branch
+cd frontend
+pnpm install
+pnpm run build
+# Re-deploy build
+```
+
+**Step 3: Rollback Backend (Render.com)**
+- Dashboard → Manual Deploy
+- Select previous deployment
+- Click "Redeploy"
+
+**Step 4: Verify**
+- Test survey completion
+- Test results display
+- Test compatibility matching
+
+---
+
+## Version Migration
+
+### Upgrading from v0.3.1 to v0.4
+
+**Database**: No migration needed
+- v0.3.1 profiles remain in database
+- v0.4 profiles stored alongside
+- Admin panel handles both versions
+
+**Frontend**: Deploy new code
+- New profiles automatically use v0.4
+- Old profiles viewable in admin (compatibility mode)
+- Results page requires v0.4 (shows error for v0.3.1)
+
+**Backward Compatibility**:
+- Admin panel: ✅ Shows both v0.3.1 and v0.4
+- Results page: ❌ v0.4 only (intentional)
+- Compatibility: ✅ Works if both profiles same version
+
+---
+
+## Support & Maintenance
+
+### Regular Maintenance
+
+**Weekly**:
+- Check Render.com logs for errors
+- Monitor Supabase usage
+- Review submission count growth
+
+**Monthly**:
+- Export data backup (via admin panel)
+- Review performance metrics
+- Check for security updates
+
+**Quarterly**:
+- Review and update dependencies
+- Performance optimization review
+- User feedback incorporation
+
+### Contact & Resources
+
+**Documentation**:
+- Executive Summary: `/EXECUTIVE_SUMMARY.md`
+- README: `/README.md`
+- Technical Notes: `/docs/TECHNICAL_NOTES.md`
+- This Guide: `/docs/DEPLOYMENT_GUIDE.md`
+
+**Code Repository**:
+- GitHub: https://github.com/marvinrenaud/attuned-survey
+- Branch: `fix-compatibility-algo` (production)
+- Main: `main` (stable releases)
+
+---
+
+## Success Checklist
+
+After deployment, verify:
+
+- [ ] Frontend loads correctly
+- [ ] Can complete survey (all 54 questions)
+- [ ] Results display with all sections
+- [ ] Power visualizer shows correct position
+- [ ] Admin panel loads submissions
+- [ ] Can set baseline
+- [ ] Compatibility displays when baseline set
+- [ ] Test page works (`/test-compatibility`)
+- [ ] All three pair types score correctly:
+  - [ ] Top/Bottom: 85-95%
+  - [ ] Top/Top: 35-45%
+  - [ ] Bottom/Bottom: 35-45%
+- [ ] Error handling works (retry buttons, timeouts)
+- [ ] No console errors
+- [ ] Mobile responsive
+- [ ] Data persists in database
+
+---
+
+## Deployment Timeline
+
+| Date | Version | Changes | Status |
+|------|---------|---------|--------|
+| Oct 10, 2025 | v1.0.0 | Initial release | ✅ Deployed |
+| Oct 11, 2025 | v0.3.1 | Minor refinements | ✅ Deployed |
+| Oct 14, 2025 | v0.4 | Survey refactor | ✅ Deployed |
+| Oct 15, 2025 | v0.5 | Compatibility fix | ✅ Deployed |
+
+**Current Production**: v0.4 Survey + v0.5 Compatibility
+
+---
+
+## Emergency Contacts
+
+**Backend Issues (Render.com)**:
+- Dashboard: https://dashboard.render.com
+- Logs: Service → Logs tab
+- Restart: Service → Manual Deploy
+
+**Database Issues (Supabase)**:
+- Dashboard: https://supabase.com/dashboard
+- Connection: Check pooler status
+- Backup: Download from admin panel
+
+**Code Issues**:
+- GitHub: https://github.com/marvinrenaud/attuned-survey
+- Branch: `fix-compatibility-algo`
+- Rollback: Deploy previous commit
+
+---
+
+**Deployment guide complete. System is production-ready and fully documented.**
+
+*Made with ♥️ in BK*

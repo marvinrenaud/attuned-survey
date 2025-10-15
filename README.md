@@ -2,33 +2,40 @@
 
 A comprehensive web application for discovering intimacy profiles through a scientifically-grounded survey. Built with React and Flask.
 
+**Version**: v0.4 Survey | v0.5 Compatibility  
+**Status**: ✅ Production Deployed
+
 ![Attuned Logo](frontend/public/AttunedLogo.png)
 
 ## Overview
 
-Attuned helps users understand their unique intimacy profile through a 92-question survey covering:
-- **Arousal patterns** (Sexual Excitation/Inhibition)
-- **Preferences** (Activities and dynamics)
-- **Boundaries** (Limits and rules)
-- **Role & Logistics** (Communication and planning)
- 
+Attuned helps users understand their unique intimacy profile through a streamlined **54-question survey** covering:
+- **Arousal Propensity** (Sexual Excitation/Inhibition - SES/SIS model)
+- **Power Dynamics** (Top/Bottom/Switch/Versatile orientation)
+- **Activity Preferences** (Physical, oral, anal, power exchange, verbal, display)
+- **Truth Topics** (Communication and conversation comfort)
+- **Boundaries** (Hard limits and safety preferences)
 
 Results include:
-- **Intimacy Archetypes** (e.g., The Romantic, The Director, The Explorer)
-- **Four Dimensions** (Adventure, Connection, Intensity, Confidence)
-- **Compatibility Matching** (Compare with baseline profile)
+- **Arousal Profile** (SE, SIS-P, SIS-C scores with interpretations)
+- **Power Orientation** (Top/Bottom/Switch with confidence level)
+- **Five Domain Scores** (Sensation, Connection, Power, Exploration, Verbal)
+- **Advanced Compatibility Matching** (Asymmetric algorithm for all power dynamics)
 
 ## Features
 
-- ✅ **92-question survey** across 5 chapters
+- ✅ **54-question survey** (streamlined from 71) across 3 sections
+- ✅ **Arousal profiling** (SES/SIS Dual Control Model)
+- ✅ **Explicit power dynamics** (Top/Bottom/Switch determination)
 - ✅ **Real-time validation** and progress tracking
 - ✅ **Session persistence** (resume incomplete surveys)
-- ✅ **Results visualization** with archetypes and dimension scores
-- ✅ **Compatibility matching** with category-by-category breakdown
+- ✅ **Domain-based results** (5 key dimensions + power orientation)
+- ✅ **Advanced compatibility** (asymmetric matching for all power dynamics)
 - ✅ **Admin panel** for viewing submissions and managing baselines
+- ✅ **Test suite** for algorithm validation
 - ✅ **Data export** (CSV and JSON formats)
 - ✅ **Responsive design** (mobile, tablet, desktop)
-- ✅ **Accessibility** (WCAG 2.1 AA compliant)
+- ✅ **Robust error handling** (15s timeouts, retry buttons)
 
 ## Tech Stack
 
@@ -43,7 +50,8 @@ Results include:
 ### Backend
 - **Flask 3.1** - API server
 - **Python 3.11** - Runtime
-- **JSON files** - Data storage (for MVP)
+- **Supabase PostgreSQL** - Database
+- **Render.com** - Hosting
 - **Flask-CORS** - Cross-origin support
 
 ## Project Structure
@@ -288,29 +296,48 @@ For issues, questions, or feedback:
 
 ## Changelog
 
-### v0.3.1
-- Ipsative (IA1–IA4) removed; domain scores + direction-aware matching make them unnecessary.
+### v0.5 (October 15, 2025) - Compatibility Algorithm Fix
+- ✅ **Same-pole incompatibility recognition** (Top/Top, Bottom/Bottom)
+- ✅ Fixed false positive high scores for incompatible pairs
+- ✅ Optimized weights (Power 20%, Activity 45%, Domain 25%, Truth 10%)
+- ✅ Domain & truth penalties for same-pole pairs (0.5× multiplier)
+- ✅ Updated test suite with all pair types
+- **Impact**: Same-pole pairs now score 38-41% (was 75%)
+
+### v0.4 (October 14, 2025) - Survey Refactor & Asymmetric Matching
+- ✅ **Survey streamlined** (71 → 54 questions, 25% shorter)
+- ✅ **Explicit power dynamics section** (A13-A16)
+- ✅ **Asymmetric directional Jaccard** for Top/Bottom pairs
+- ✅ **Complementary-aware domain similarity**
+- ✅ **New profile structure** (arousal, power, domains, activities, truth, boundaries)
+- ✅ **Results redesigned** (domain-based, removed archetypes)
+- ✅ **Question clarifications** (8 questions improved)
+- ✅ **Power visualizer fix** (Top displays correctly)
+- ✅ **Boundary mapping fix** (begging ≠ degradation)
+- **Impact**: Top/Bottom pairs now score 89% (was 60%)
+
+### v0.3.1 (October 11, 2025)
+- Removed ipsative questions (IA1–IA4)
+- Domain-first matching approach
 
 ### v1.0.0 (October 10, 2025)
-- ✅ Initial release
-- ✅ Full survey implementation (92 questions)
-- ✅ Scoring engine (traits, dials, archetypes)
-- ✅ Compatibility matching algorithm
-- ✅ Admin panel with data export
-- ✅ Responsive design
-- ✅ Data persistence fixes
+- ✅ Initial production release
+- ✅ Full survey implementation
+- ✅ API-based data persistence
+- ✅ Admin panel
+- ✅ Supabase integration
 
-### Known Issues
-- JSON file storage (not scalable for production)
-- No user authentication
-- No data encryption
-- Admin password hardcoded
+### Current Status
+- ✅ Production deployed and stable
+- ✅ All tests passing
+- ✅ Real user data validated
+- ✅ Error handling robust (15s timeouts, retry buttons)
 
 ### Roadmap
-- [ ] Database migration (PostgreSQL)
-- [ ] User authentication
-- [ ] Data encryption
-- [ ] Real-time updates
+- [ ] Activity recommendations based on profiles
+- [ ] Partner coordination features
+- [ ] Profile evolution tracking
+- [ ] Educational content
 - [ ] Mobile app
 - [ ] Multi-language support
 
