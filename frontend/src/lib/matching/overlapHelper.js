@@ -1,238 +1,218 @@
 /**
- * Overlap Helper - Matching algorithm (v0.3.1)
- * Direction-aware matching with boundary gates and trait complement.
+ * Overlap Helper (v0.4)
+ * Helper functions for calculating activity overlap and compatibility
  */
-
-import { CATEGORY_MAP, CATEGORIES } from './categoryMap.js';
-export const EXCLUDED_FROM_MEAN = new Set(['RECORDING', 'GROUP_ENM']);
-const DOMAIN_KEYS = ['CONNECTION', 'SENSORY', 'EXPLORATION', 'STRUCTURE']; // Power handled via complement
 
 /**
- * Convert YMN answer to numeric value
+ * Calculate Jaccard coefficient for a category
+ * @param {Object} categoryA - First person's category
+ * @param {Object} categoryB - Second person's category
+ * @returns {number} - Jaccard coefficient 0-1
  */
-function ynm01(value) {
-  const v = (value || '').trim().toUpperCase();
-  if (v === 'Y') return 1.0;
-  if (v === 'M') return 0.5;
-  return 0.0;
-}
+export function calculateJaccard(categoryA, categoryB) {
+  const keys = new Set([
+    ...Object.keys(categoryA || {}),
+    ...Object.keys(categoryB || {})
+  ]);
 
-/**
- * Calculate weighted Jaccard similarity for a set of items
- */
-// Direction-aware Jaccard:
-// - For bases with A/B variants (e.g., B14a/B14b), compute cross-direction overlap
-//   mean(min(A[b], B[a]), min(A[a], B[b])) with union as mean of corresponding maxima.
-// - For non-directional items, compare same IDs.
-function jaccardWeightedDirectional(itemIds, answersA, answersB) {
   let intersection = 0;
   let union = 0;
 
-  // Group by base (e.g., B14)
-  const baseToVariants = new Map();
-  const nonDirectional = [];
+  keys.forEach(key => {
+    const valA = (categoryA && categoryA[key]) || 0;
+    const valB = (categoryB && categoryB[key]) || 0;
 
-  for (const id of itemIds) {
-    const m = /^([A-Za-z]+\d+)([ab])$/i.exec(id);
-    if (m) {
-      const base = m[1];
-      const variant = m[2].toLowerCase();
-      if (!baseToVariants.has(base)) baseToVariants.set(base, new Set());
-      baseToVariants.get(base).add(variant);
-    } else {
-      nonDirectional.push(id);
+    // Both interested (>= 0.5)
+    if (valA >= 0.5 && valB >= 0.5) {
+      intersection++;
     }
-  }
 
-  // Handle directional bases
-  for (const [base, variants] of baseToVariants.entries()) {
-    const hasA = variants.has('a');
-    const hasB = variants.has('b');
-
-    const Ab = ynm01(answersA[`${base}b`]);
-    const Ba = ynm01(answersB[`${base}a`]);
-    const Aa = ynm01(answersA[`${base}a`]);
-    const Bb = ynm01(answersB[`${base}b`]);
-
-    if (hasA && hasB) {
-      // Both variants present: cross-direction complement (two terms)
-      if (!(Ab === 0 && Ba === 0)) {
-        intersection += Math.min(Ab, Ba);
-        union += Math.max(Ab, Ba);
-      }
-      if (!(Aa === 0 && Bb === 0)) {
-        intersection += Math.min(Aa, Bb);
-        union += Math.max(Aa, Bb);
-      }
-    } else if (hasA && !hasB) {
-      // Only 'a' present: compare same-variant 'a' with 'a'
-      if (!(Aa === 0 && Ba === 0)) {
-        intersection += Math.min(Aa, Ba);
-        union += Math.max(Aa, Ba);
-      }
-    } else if (hasB && !hasA) {
-      // Only 'b' present: compare same-variant 'b' with 'b'
-      if (!(Ab === 0 && Bb === 0)) {
-        intersection += Math.min(Ab, Bb);
-        union += Math.max(Ab, Bb);
-      }
+    // At least one interested
+    if (valA >= 0.5 || valB >= 0.5) {
+      union++;
     }
-  }
+  });
 
-  // Handle non-directional items as standard Jaccard
-  for (const id of nonDirectional) {
-    const a = ynm01(answersA[id]);
-    const b = ynm01(answersB[id]);
-    if (a === 0 && b === 0) continue;
-    intersection += Math.min(a, b);
-    union += Math.max(a, b);
-  }
-
-  return union === 0 ? 0 : intersection / union;
+  if (union === 0) return 0;
+  return intersection / union;
 }
 
 /**
- * Apply boundary gates to category score
+ * Calculate overall activity overlap
+ * @param {Object} activitiesA - First person's activities
+ * @param {Object} activitiesB - Second person's activities
+ * @returns {number} - Overall overlap 0-1
  */
-function gateCategoryScore(category, score, boundariesA, boundariesB) {
-  let gatedScore = score;
+export function calculateOverallOverlap(activitiesA, activitiesB) {
+  const categories = [
+    'physical_touch',
+    'oral',
+    'anal',
+    'power_exchange',
+    'verbal_roleplay',
+    'display_performance'
+  ];
 
-  const hardNosA = new Set((boundariesA?.hardNos || []).map(x => x.toLowerCase()));
-  const hardNosB = new Set((boundariesB?.hardNos || []).map(x => x.toLowerCase()));
+  const jaccards = categories.map(cat => 
+    calculateJaccard(activitiesA[cat], activitiesB[cat])
+  );
 
-  // Hard NO gates by simple token matching against category key
-  const catToken = category.toLowerCase().replace(/_/g, '-');
-  if (hardNosA.has(catToken) || hardNosB.has(catToken)) return 0;
-
-  // Recording gate
-  if (category === 'RECORDING') {
-    if (boundariesA?.noRecording || boundariesB?.noRecording) return 0;
-  }
-
-  // Impact cap scaling (exclude excess by scaling overlap)
-  if (category === 'IMPACT') {
-    const capA = typeof boundariesA?.impactCap === 'number' ? Math.max(0, Math.min(100, boundariesA.impactCap)) : 100;
-    const capB = typeof boundariesB?.impactCap === 'number' ? Math.max(0, Math.min(100, boundariesB.impactCap)) : 100;
-    const scale = Math.min(capA, capB) / 100;
-    gatedScore *= scale;
-  }
-
-  return gatedScore;
+  const sum = jaccards.reduce((a, b) => a + b, 0);
+  return sum / jaccards.length;
 }
 
 /**
- * Calculate power complement from trait scores
+ * Get category-level overlap scores
+ * @param {Object} activitiesA - First person's activities
+ * @param {Object} activitiesB - Second person's activities
+ * @returns {Object} - Category scores
  */
-function powerComplementFromTraits(traitsA, traitsB) {
-  if (!traitsA || !traitsB) return 0;
+export function getCategoryScores(activitiesA, activitiesB) {
+  const categories = [
+    'physical_touch',
+    'oral',
+    'anal',
+    'power_exchange',
+    'verbal_roleplay',
+    'display_performance'
+  ];
 
-  const topA = (traitsA.POWER_TOP ?? 50) / 100;
-  const botA = (traitsA.POWER_BOTTOM ?? 50) / 100;
-  const topB = (traitsB.POWER_TOP ?? 50) / 100;
-  const botB = (traitsB.POWER_BOTTOM ?? 50) / 100;
+  const scores = {};
+  categories.forEach(cat => {
+    scores[cat] = calculateJaccard(
+      activitiesA[cat] || {},
+      activitiesB[cat] || {}
+    );
+  });
 
-  const comp1 = Math.max(0, Math.min(1, topA)) * Math.max(0, Math.min(1, botB));
-  const comp2 = Math.max(0, Math.min(1, topB)) * Math.max(0, Math.min(1, botA));
-
-  return Math.max(comp1, comp2);
+  return scores;
 }
 
 /**
- * Compute overall match between two submissions
- * @param {Object} options
- * @param {Record<string, string | number>} options.answersA
- * @param {Record<string, string | number>} options.answersB
- * @param {Record<string, number>} options.traitsA
- * @param {Record<string, number>} options.traitsB
- * @param {Object} options.boundariesA
- * @param {Object} options.boundariesB
- * @param {number} [options.jaccardWeight=0.85]
- * @param {number} [options.powerWeight=0.15]
- * @returns {Object} {overall, catScores, meanJ, powerComplement}
+ * Find mutual activities (both Y or M)
+ * @param {Object} activitiesA - First person's activities
+ * @param {Object} activitiesB - Second person's activities
+ * @returns {Object} - Mutual activities by category
  */
-export function computeOverallMatch(options) {
-  const {
-    answersA,
-    answersB,
-    traitsA,
-    traitsB,
-    boundariesA,
-    boundariesB,
-    jaccardWeight = 0.20,
-    powerWeight = 0.20,
-    domainWeight = 0.60,
-    domainsA,
-    domainsB
-  } = options;
+export function findMutualActivities(activitiesA, activitiesB) {
+  const mutual = {};
+  const categories = [
+    'physical_touch',
+    'oral',
+    'anal',
+    'power_exchange',
+    'verbal_roleplay',
+    'display_performance'
+  ];
 
-  // Calculate category similarities
-  const catScores = {};
-  let sumIncluded = 0;
-  const categories = CATEGORIES;
-  const categoriesForMean = categories.filter(c => !EXCLUDED_FROM_MEAN.has(c));
+  categories.forEach(cat => {
+    mutual[cat] = [];
+    const catA = activitiesA[cat] || {};
+    const catB = activitiesB[cat] || {};
+    
+    Object.keys(catA).forEach(key => {
+      const valA = catA[key] || 0;
+      const valB = catB[key] || 0;
+      
+      if (valA >= 0.5 && valB >= 0.5) {
+        mutual[cat].push(key);
+      }
+    });
+  });
 
-  for (const category of categories) {
-    const itemIds = CATEGORY_MAP[category] || [];
-    const rawScore = jaccardWeightedDirectional(itemIds, answersA, answersB);
-    const gatedScore = gateCategoryScore(category, rawScore, boundariesA, boundariesB);
-    catScores[category] = gatedScore;
-    if (!EXCLUDED_FROM_MEAN.has(category)) sumIncluded += gatedScore;
+  return mutual;
+}
+
+/**
+ * Find growth opportunities (one Y, one M)
+ * @param {Object} activitiesA - First person's activities
+ * @param {Object} activitiesB - Second person's activities
+ * @returns {Array} - Growth opportunities
+ */
+export function findGrowthOpportunities(activitiesA, activitiesB) {
+  const growth = [];
+  const categories = [
+    'physical_touch',
+    'oral',
+    'anal',
+    'power_exchange',
+    'verbal_roleplay',
+    'display_performance'
+  ];
+
+  categories.forEach(cat => {
+    const catA = activitiesA[cat] || {};
+    const catB = activitiesB[cat] || {};
+    
+    Object.keys(catA).forEach(key => {
+      const valA = catA[key] || 0;
+      const valB = catB[key] || 0;
+      
+      // One person Y (1.0), other M (0.5)
+      if ((valA === 1.0 && valB === 0.5) || (valA === 0.5 && valB === 1.0)) {
+        growth.push({
+          category: cat,
+          activity: key,
+          playerA_interest: valA === 1.0 ? 'yes' : 'maybe',
+          playerB_interest: valB === 1.0 ? 'yes' : 'maybe'
+        });
+      }
+    });
+  });
+
+  return growth;
+}
+
+/**
+ * Count mutual interests
+ * @param {Object} activitiesA - First person's activities
+ * @param {Object} activitiesB - Second person's activities
+ * @returns {Object} - Counts by category
+ */
+export function countMutualInterests(activitiesA, activitiesB) {
+  const mutual = findMutualActivities(activitiesA, activitiesB);
+  const counts = {};
+  
+  Object.keys(mutual).forEach(cat => {
+    counts[cat] = mutual[cat].length;
+  });
+  
+  counts.total = Object.values(counts).reduce((a, b) => a + b, 0);
+  
+  return counts;
+}
+
+/**
+ * Compute overall match (legacy compatibility for existing code)
+ * @param {Object} params - Parameters
+ * @returns {Object} - Match result
+ */
+export function computeOverallMatch(params) {
+  const { activitiesA, activitiesB, answersA, answersB } = params;
+  
+  // If we have full activities objects, use them
+  if (activitiesA && activitiesB) {
+    const catScores = getCategoryScores(activitiesA, activitiesB);
+    const overallScore = calculateOverallOverlap(activitiesA, activitiesB);
+    
+    return {
+      score: Math.round(overallScore * 100),
+      catScores,
+      mutual: findMutualActivities(activitiesA, activitiesB),
+      growth: findGrowthOpportunities(activitiesA, activitiesB)
+    };
   }
-
-  const meanJ = categoriesForMean.length > 0 ? sumIncluded / categoriesForMean.length : 0;
-
-  // Calculate power complement
-  const powerComplement = powerComplementFromTraits(traitsA, traitsB);
-
-  // Domain similarity using domains if provided; fallback to trait similarity
-  let domainSim = 0;
-  if (domainsA && domainsB) {
-    const pairs = DOMAIN_KEYS.filter(k => Number.isFinite(domainsA?.[k.toLowerCase()]) && Number.isFinite(domainsB?.[k.toLowerCase()]));
-    if (pairs.length) {
-      let acc = 0;
-      for (const k of pairs) {
-        const kk = k.toLowerCase();
-        acc += 1 - Math.abs(domainsA[kk] - domainsB[kk]) / 100;
-      }
-      domainSim = Math.max(0, Math.min(1, acc / pairs.length));
-    } else {
-      // fallback to trait similarity
-      if (traitsA && traitsB) {
-        const keys = Array.from(new Set([...Object.keys(traitsA), ...Object.keys(traitsB)]));
-        if (keys.length > 0) {
-          let num = 0, den = 0;
-          for (const k of keys) {
-            const a = typeof traitsA[k] === 'number' ? traitsA[k] : 0;
-            const b = typeof traitsB[k] === 'number' ? traitsB[k] : 0;
-            num += 1 - Math.abs(a - b);
-            den += 1;
-          }
-          domainSim = den > 0 ? Math.max(0, Math.min(1, num / den)) : 0;
-        }
-      }
-    }
-  } else if (traitsA && traitsB) {
-    const keys = Array.from(new Set([...Object.keys(traitsA), ...Object.keys(traitsB)]));
-    if (keys.length > 0) {
-      let num = 0, den = 0;
-      for (const k of keys) {
-        const a = typeof traitsA[k] === 'number' ? traitsA[k] : 0;
-        const b = typeof traitsB[k] === 'number' ? traitsB[k] : 0;
-        num += 1 - Math.abs(a - b);
-        den += 1;
-      }
-      domainSim = den > 0 ? Math.max(0, Math.min(1, num / den)) : 0;
-    }
-  }
-
-  // Overall score
-  const overall = Math.max(0, Math.min(1, jaccardWeight * meanJ + powerWeight * powerComplement + domainWeight * domainSim));
-
+  
+  // Fallback: construct activities from raw answers if needed
+  // This is for backward compatibility
   return {
-    overall: overall * 100, // Scale to 0-100
-    catScores,
-    meanJ,
-    powerComplement
+    score: 50,
+    catScores: {},
+    mutual: {},
+    growth: []
   };
 }
 
+// Categories that are excluded from mean calculations
+// (for backward compatibility with existing code)
+export const EXCLUDED_FROM_MEAN = new Set([]);

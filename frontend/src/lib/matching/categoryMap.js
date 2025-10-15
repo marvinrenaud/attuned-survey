@@ -1,75 +1,195 @@
 /**
- * Category Map for couple overlap matching (v0.3.1)
- * Includes directional A/B items and new B13–B17 items.
+ * Category Map (v0.4)
+ * Maps question IDs to activity categories
  */
 
-// Active categories used by breakdowns
-export const CATEGORIES = [
-  "IMPACT",
-  "BONDAGE",
-  "EXHIBITION",
-  "VOYEUR",
-  "ROLEPLAY",
-  "RECORDING",
-  "GROUP_ENM",
-  "PUBLIC_EDGE",
-  "TOYS",
-  "SENSUAL",
-  "ROMANTIC"
-];
-
-// Map of category -> array of question IDs contributing to it (single-category assignment)
+// Map v0.4 question IDs to categories
 export const CATEGORY_MAP = {
-  // Striking/force sensations
-  IMPACT: ["B2a","B2b","B4a","B4b"],
+  // Physical Touch: B1-B10
+  'B1a': 'physical_touch',
+  'B1b': 'physical_touch',
+  'B2a': 'physical_touch',
+  'B2b': 'physical_touch',
+  'B3a': 'physical_touch',
+  'B3b': 'physical_touch',
+  'B4a': 'physical_touch',
+  'B4b': 'physical_touch',
+  'B5a': 'physical_touch',
+  'B5b': 'physical_touch',
+  'B6a': 'physical_touch',
+  'B6b': 'physical_touch',
+  'B7a': 'physical_touch',
+  'B7b': 'physical_touch',
+  'B8a': 'physical_touch',
+  'B8b': 'physical_touch',
+  'B9a': 'physical_touch',
+  'B9b': 'physical_touch',
+  'B10a': 'physical_touch',
+  'B10b': 'physical_touch',
 
-  // Rope/restraints/immobilization (B3 moved here; remove from any other category)
-  BONDAGE: ["B1a","B1b"],
+  // Oral: B11-B12
+  'B11a': 'oral',
+  'B11b': 'oral',
+  'B12a': 'oral',
+  'B12b': 'oral',
 
-  // Being seen / performing; public-ish display
-  EXHIBITION: ["B9a","B10b"],
+  // Anal: B13-B14
+  'B13a': 'anal',
+  'B13b': 'anal',
+  'B14a': 'anal',
+  'B14b': 'anal',
 
-  // Watching others
-  VOYEUR: ["B10a"],
+  // Power Exchange: B15-B18
+  'B15a': 'power_exchange',
+  'B15b': 'power_exchange',
+  'B16a': 'power_exchange',
+  'B16b': 'power_exchange',
+  'B17a': 'power_exchange',
+  'B17b': 'power_exchange',
+  'B18a': 'power_exchange',
+  'B18b': 'power_exchange',
 
-  // Scenes/characters/commands (non-implement)
-  ROLEPLAY: ["B5a","B5b","B6a","B6b"],
+  // Verbal & Roleplay: B19-B23
+  'B19': 'verbal_roleplay',
+  'B20': 'verbal_roleplay',
+  'B21': 'verbal_roleplay',
+  'B22': 'verbal_roleplay',
+  'B23': 'verbal_roleplay',
 
-  // Gates (no direct items here; overlap will be 0 if gated off)
-  RECORDING: ["C4"],
-  GROUP_ENM: [],
+  // Display & Performance: B24-B28
+  'B24a': 'display_performance',
+  'B24b': 'display_performance',
+  'B25a': 'display_performance',
+  'B25b': 'display_performance',
+  'B26': 'display_performance',
+  'B27': 'display_performance',
+  'B28': 'display_performance',
 
-  // Risk/fluids edge conditions (keep watersports only to avoid duplication with EXHIBITION)
-  PUBLIC_EDGE: ["B13a","B13b"],
-
-  // Implements/devices/insertables
-  TOYS: ["B8a","B8b","B14a","B14b","B15a","B15b","B16a","B16b"],
-
-  // Pure sensual touch/massage/feet (not restraints)
-  SENSUAL: ["B3a","B3b","B17a","B17b"],
-
-  // Affection/aftercare rituals (legacy single item)
-  ROMANTIC: ["B9b"],
-
-  // Not used for Jaccard; power complement is computed from traits in overlapHelper
-  POWER_DYNAMICS: []
+  // Truth Topics: B29-B36
+  'B29': 'truth_topics',
+  'B30': 'truth_topics',
+  'B31': 'truth_topics',
+  'B32': 'truth_topics',
+  'B33': 'truth_topics',
+  'B34': 'truth_topics',
+  'B35': 'truth_topics',
+  'B36': 'truth_topics'
 };
 
-// Optional item tags for gating/analytics
-export const ITEM_TAGS = {
-  B13a: ["EXPLICIT_FLUIDS"], B13b: ["EXPLICIT_FLUIDS"],
-  B14a: ["ANAL_STIM"], B14b: ["ANAL_STIM"],
-  B15a: ["RIMMING"], B15b: ["RIMMING"],
-  B16a: ["PEGGING"], B16b: ["PEGGING"],
-  B17a: ["FOOT"], B17b: ["FOOT"]
-};
+/**
+ * Get category for a question ID
+ * @param {string} questionId - Question ID
+ * @returns {string|null} - Category name or null
+ */
+export function getCategory(questionId) {
+  return CATEGORY_MAP[questionId] || null;
+}
 
-// Direction map: a = on_me, b = i_do
-export const DIRECTION_MAP = {
-  a: "on_me",
-  b: "i_do"
-};
+/**
+ * Get all question IDs for a category
+ * @param {string} category - Category name
+ * @returns {string[]} - Array of question IDs
+ */
+export function getQuestionsByCategory(category) {
+  return Object.entries(CATEGORY_MAP)
+    .filter(([_, cat]) => cat === category)
+    .map(([qid, _]) => qid);
+}
 
-// Categories included in mean (sanity echo for debug UIs)
-export const CATEGORIES_FOR_MEAN = CATEGORIES.filter(c => c !== 'RECORDING' && c !== 'GROUP_ENM');
+/**
+ * Get all categories
+ * @returns {string[]} - Array of unique category names
+ */
+export function getAllCategories() {
+  return Array.from(new Set(Object.values(CATEGORY_MAP)));
+}
 
+/**
+ * Map activity key to human-readable name
+ * @param {string} activityKey - Activity key (e.g., 'massage_receive')
+ * @returns {string} - Human-readable name
+ */
+export function getActivityName(activityKey) {
+  const nameMap = {
+    // Physical touch
+    'massage_receive': 'Massage (receiving)',
+    'massage_give': 'Massage (giving)',
+    'hair_pull_gentle_receive': 'Hair pulling - gentle (receiving)',
+    'hair_pull_gentle_give': 'Hair pulling - gentle (giving)',
+    'biting_moderate_receive': 'Biting/scratching - moderate (receiving)',
+    'biting_moderate_give': 'Biting/scratching - moderate (giving)',
+    'spanking_moderate_receive': 'Spanking - moderate (receiving)',
+    'spanking_moderate_give': 'Spanking - moderate (giving)',
+    'hands_genitals_receive': 'Hands on genitals (receiving)',
+    'hands_genitals_give': 'Hands on genitals (giving)',
+    'spanking_hard_receive': 'Spanking - hard (receiving)',
+    'spanking_hard_give': 'Spanking - hard (giving)',
+    'slapping_receive': 'Slapping (receiving)',
+    'slapping_give': 'Slapping (giving)',
+    'choking_receive': 'Choking/breath play (receiving)',
+    'choking_give': 'Choking/breath play (giving)',
+    'spitting_receive': 'Spitting (receiving)',
+    'spitting_give': 'Spitting (giving)',
+    'watersports_receive': 'Watersports (receiving)',
+    'watersports_give': 'Watersports (giving)',
+
+    // Oral
+    'oral_sex_receive': 'Oral sex on genitals (receiving)',
+    'oral_sex_give': 'Oral sex on genitals (giving)',
+    'oral_body_receive': 'Oral on body parts (receiving)',
+    'oral_body_give': 'Oral on body parts (giving)',
+
+    // Anal
+    'anal_fingers_toys_receive': 'Anal stimulation (receiving)',
+    'anal_fingers_toys_give': 'Anal stimulation (giving)',
+    'rimming_receive': 'Rimming (receiving)',
+    'rimming_give': 'Rimming (giving)',
+
+    // Power exchange
+    'restraints_receive': 'Restraints (receiving)',
+    'restraints_give': 'Restraints (giving)',
+    'blindfold_receive': 'Blindfold/sensory deprivation (receiving)',
+    'blindfold_give': 'Blindfold/sensory deprivation (giving)',
+    'orgasm_control_receive': 'Orgasm control (receiving)',
+    'orgasm_control_give': 'Orgasm control (giving)',
+    'protocols_follow': 'Following protocols/commands',
+    'protocols_give': 'Giving protocols/commands',
+
+    // Verbal & roleplay
+    'dirty_talk': 'Dirty talk',
+    'moaning': 'Moaning/vocal encouragement',
+    'roleplay': 'Roleplay scenarios',
+    'commands': 'Commands',
+    'begging': 'Begging/pleading',
+
+    // Display & performance
+    'stripping_me': 'Stripping (performing)',
+    'watching_strip': 'Watching partner strip',
+    'watched_solo_pleasure': 'Being watched (solo)',
+    'watching_solo_pleasure': 'Watching partner (solo)',
+    'posing': 'Posing for viewing',
+    'dancing': 'Sensual dancing',
+    'revealing_clothing': 'Revealing clothing/lingerie'
+  };
+
+  return nameMap[activityKey] || activityKey;
+}
+
+/**
+ * Map category to human-readable name
+ * @param {string} category - Category key
+ * @returns {string} - Human-readable name
+ */
+export function getCategoryName(category) {
+  const nameMap = {
+    'physical_touch': 'Physical Touch & Sensation',
+    'oral': 'Oral Activities',
+    'anal': 'Anal Activities',
+    'power_exchange': 'Power Exchange & Control',
+    'verbal_roleplay': 'Verbal & Roleplay',
+    'display_performance': 'Display & Performance',
+    'truth_topics': 'Truth Topics'
+  };
+
+  return nameMap[category] || category;
+}

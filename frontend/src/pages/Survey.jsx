@@ -7,8 +7,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getSurveyChapters, validateChapter, getSchema } from '../lib/surveyData';
-import { computeTraits, scoreArchetypes, getTopArchetypes } from '../lib/scoring/calculator';
+import { calculateProfile } from '../lib/scoring/profileCalculator';
 import { saveSubmission, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../lib/storage/apiStore';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const DEBUG_SURVEY = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
@@ -154,19 +156,16 @@ export default function Survey() {
     try {
       console.log('Starting survey submission...');
       
-      // Calculate derived data
-      const schema = getSchema();
-      console.log('Schema loaded, calculating traits...');
-      
-      const traits = computeTraits(schema, answers);
-      console.log('Traits calculated:', Object.keys(traits).length);
-      
-      const archetypeScores = scoreArchetypes(schema, traits);
-      const topArchetypes = getTopArchetypes(archetypeScores, schema, 3);
-      console.log('Archetypes calculated:', topArchetypes.map(a => a.name));
-
-      // Generate unique ID with timestamp + random component to avoid collisions
+      // Calculate profile using v0.4 calculator
       const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      console.log('Calculating v0.4 profile...');
+      
+      const profile = calculateProfile(uniqueId, answers);
+      console.log('Profile calculated:', {
+        arousal: profile.arousal_propensity,
+        power: profile.power_dynamic.orientation,
+        domains: profile.domain_scores
+      });
       
       const submission = {
         id: uniqueId,
@@ -175,10 +174,7 @@ export default function Survey() {
         sexualOrientation,
         createdAt: new Date().toISOString(),
         answers,
-        derived: {
-          traits,
-          archetypes: topArchetypes
-        }
+        derived: profile
       };
 
       console.log('Submitting to API...', { id: submission.id, name: submission.name });
@@ -407,7 +403,7 @@ function QuestionItem({ item, value, onChange }) {
     );
   }
 
-  if (item.type === 'ymn') {
+  if (item.type === 'ymn' || item.type === 'chooseYMN') {
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">
@@ -454,45 +450,77 @@ function QuestionItem({ item, value, onChange }) {
     );
   }
 
-  if (item.type === 'boundary') {
-    if (item.id === 'C2') {
-      // Hard NOs - multi-select checkboxes
-      const options = ['impact', 'bondage', 'exhibition', 'voyeur', 'roleplay', 'recording', 'group/enm', 'public-edge', 'toys'];
-      const selected = value ? value.split(',').map(s => s.trim()) : [];
-      
-      const handleToggle = (option) => {
-        const newSelected = selected.includes(option)
-          ? selected.filter(s => s !== option)
-          : [...selected, option];
-        onChange(newSelected.join(','));
-      };
+  if (item.type === 'checklist') {
+    // C1: Hard boundaries checklist
+    const options = [
+      { value: 'impact_play', label: 'Impact play' },
+      { value: 'restraints_bondage', label: 'Restraints/bondage' },
+      { value: 'breath_play', label: 'Breath play/choking' },
+      { value: 'degradation_humiliation', label: 'Degradation/humiliation' },
+      { value: 'public_activities', label: 'Public/semi-public activities' },
+      { value: 'recording', label: 'Recording/photos/videos' },
+      { value: 'roleplay', label: 'Roleplay scenarios' },
+      { value: 'multi_partner', label: 'Multi-partner/group activities' },
+      { value: 'toys_props', label: 'Toys/props' },
+      { value: 'anal_activities', label: 'Anal activities' },
+      { value: 'watersports', label: 'Watersports/bodily fluids' },
+      { value: 'other', label: 'Other' }
+    ];
+    
+    const selected = Array.isArray(value) ? value : (value ? value.split(',').map(s => s.trim()) : []);
+    
+    const handleToggle = (option) => {
+      const newSelected = selected.includes(option)
+        ? selected.filter(s => s !== option)
+        : [...selected, option];
+      onChange(newSelected); // Pass array directly
+    };
 
-      return (
-        <div data-testid={`item-${item.id}`}>
-          <Label className="text-base font-medium text-text-primary mb-3 block">
-            {item.text}
-          </Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {options.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id={`${item.id}-${option}`}
-                  checked={selected.includes(option)}
-                  onChange={() => handleToggle(option)}
-                  className="rounded border-gray-300"
-                />
-                <Label htmlFor={`${item.id}-${option}`} className="cursor-pointer capitalize">
-                  {option}
-                </Label>
-              </div>
-            ))}
-          </div>
+    return (
+      <div data-testid={`item-${item.id}`}>
+        <Label className="text-base font-medium text-text-primary mb-3 block">
+          {item.text}
+        </Label>
+        <p className="text-sm text-text-secondary mb-4">
+          Select all activities that are hard boundaries for you (absolutely not interested).
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {options.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <Checkbox
+                id={`${item.id}-${option.value}`}
+                checked={selected.includes(option.value)}
+                onCheckedChange={() => handleToggle(option.value)}
+              />
+              <Label htmlFor={`${item.id}-${option.value}`} className="cursor-pointer">
+                {option.label}
+              </Label>
+            </div>
+          ))}
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    // Other boundary items - simple yes/no
+  if (item.type === 'text') {
+    // C2: Additional notes
+    return (
+      <div data-testid={`item-${item.id}`}>
+        <Label className="text-base font-medium text-text-primary mb-3 block">
+          {item.text}
+        </Label>
+        <Textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Enter any specific boundaries or concerns..."
+          className="min-h-[100px]"
+        />
+      </div>
+    );
+  }
+
+  if (item.type === 'boundary') {
+    // Legacy boundary type - simple yes/no
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">

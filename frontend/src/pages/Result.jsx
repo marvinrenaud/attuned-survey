@@ -6,11 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Edit, Home, Heart, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getSubmission, getBaseline } from '../lib/storage/apiStore';
-import { computeOverallMatch } from '../lib/matching/overlapHelper';
-import { EXCLUDED_FROM_MEAN } from '@/lib/matching/overlapHelper';
-import { CATEGORY_MAP } from '@/lib/matching/categoryMap';
-import { computeDomainsFromTraits } from '@/lib/scoring/domainCalculator';
-import { extractBoundaries } from '../lib/scoring/traitCalculator';
+import { calculateCompatibility } from '../lib/matching/compatibilityMapper';
+import { getCategoryName, getActivityName } from '../lib/matching/categoryMap';
 
 const DEBUG_RESULTS = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
 function dbg(...args) {
@@ -39,6 +36,7 @@ export default function Result() {
         }
 
         console.log(`Loading submission: ${submissionId} (attempt ${retryCount + 1})`);
+        console.log('Fetching from backend...');
         
         // Retry logic: try up to 3 times with delays
         let sub = null;
@@ -47,16 +45,18 @@ export default function Result() {
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           if (attempt > 0) {
             console.log(`Retry attempt ${attempt}/${maxRetries}...`);
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
           }
           
+          console.log(`  Calling getSubmission(${submissionId})...`);
           sub = await getSubmission(submissionId);
+          console.log(`  Response received:`, sub ? 'Success' : 'Null response');
           
           if (sub) {
-            console.log('✅ Submission loaded successfully');
+            console.log('✅ Submission loaded successfully', { id: sub.id, version: sub.version });
             break;
           } else {
-            console.warn(`Attempt ${attempt + 1}: Submission not found`);
+            console.warn(`Attempt ${attempt + 1}: Submission not found or fetch failed`);
           }
         }
         
@@ -75,70 +75,35 @@ export default function Result() {
           console.log(`Loading baseline: ${baselineId}`);
           const baseline = await getSubmission(baselineId);
           if (baseline) {
-            console.log('✅ Baseline loaded, calculating match...');
-            try {
-              const boundariesA = extractBoundaries(sub.answers || {});
-              const boundariesB = extractBoundaries(baseline.answers || {});
-              const domainsA = computeDomainsFromTraits(sub?.derived?.traits || {});
-              const domainsB = computeDomainsFromTraits(baseline?.derived?.traits || {});
-              const match = computeOverallMatch({
-                answersA: sub.answers,
-                answersB: baseline.answers,
-                traitsA: sub.derived?.traits,
-                traitsB: baseline.derived?.traits,
-                boundariesA,
-                boundariesB,
-                domainsA,
-                domainsB
-              });
-              // Debug dump
-              dbg('submission.id', sub?.id);
-              dbg('baseline.id', baseline?.id);
-              dbg('EXCLUDED_FROM_MEAN', Array.from(EXCLUDED_FROM_MEAN || []));
-              dbg('CATEGORY_MAP', CATEGORY_MAP);
-              dbg('ANSWERS_A', sub?.answers);
-              dbg('ANSWERS_B', baseline?.answers);
-              dbg('BOUNDARIES_A', boundariesA);
-              dbg('BOUNDARIES_B', boundariesB);
-              dbg('TRAITS_A', sub?.derived?.traits);
-              dbg('TRAITS_B', baseline?.derived?.traits);
-              dbg('DOMAINS_A', domainsA);
-              dbg('DOMAINS_B', domainsB);
-              // Second run for introspection (re-using same inputs)
-              const match2 = computeOverallMatch({
-                answersA: sub.answers,
-                answersB: baseline.answers,
-                traitsA: sub.derived?.traits,
-                traitsB: baseline.derived?.traits,
-                boundariesA,
-                boundariesB,
-                domainsA,
-                domainsB
-              });
-              dbg('MATCH_OUT', match2);
-              if (match2?.catScores) {
-                const rows = Object.entries(match2.catScores).map(([k, v]) => ({ category: k, percent: Math.round((v ?? 0) * 100) }));
-                console.table(rows);
-              }
-              // Directional EXHIBITION inputs quick view
+            // Check if both profiles are v0.4
+            const currentIsV04 = sub.version === '0.4' || sub.derived?.profile_version === '0.4';
+            const baselineIsV04 = baseline.version === '0.4' || baseline.derived?.profile_version === '0.4';
+            
+            console.log('Version check:', { 
+              current: currentIsV04 ? 'v0.4' : 'v0.3.1', 
+              baseline: baselineIsV04 ? 'v0.4' : 'v0.3.1' 
+            });
+
+            if (currentIsV04 && baselineIsV04 && baseline.derived && sub.derived) {
+              console.log('✅ Both profiles are v0.4, calculating compatibility...');
               try {
-                const A_B9a = sub?.answers?.['B9a'];
-                const B_B9a = baseline?.answers?.['B9a'];
-                const A_B10b = sub?.answers?.['B10b'];
-                const B_B10b = baseline?.answers?.['B10b'];
-                console.table([
-                  { key: 'A.B9a', value: A_B9a },
-                  { key: 'B.B9a', value: B_B9a },
-                  { key: 'A.B10b', value: A_B10b },
-                  { key: 'B.B10b', value: B_B10b },
-                  { key: 'catScores.EXHIBITION', value: Math.round((match2?.catScores?.EXHIBITION ?? 0) * 100) + '%' },
-                ]);
-              } catch {}
-              setBaselineMatch({ baseline, match });
-              console.log('✅ Match calculated:', match);
-            } catch (matchError) {
-              console.error('Error calculating match:', matchError);
-              // Don't fail the whole page if match calculation fails
+                const compatibility = calculateCompatibility(sub.derived, baseline.derived);
+                dbg('Compatibility result:', compatibility);
+                setBaselineMatch({ baseline, compatibility });
+                console.log('✅ Compatibility calculated:', compatibility.overall_compatibility);
+              } catch (matchError) {
+                console.error('Error calculating compatibility:', matchError);
+                // Set baseline without compatibility for display
+                setBaselineMatch({ baseline, compatibility: null, error: matchError.message });
+              }
+            } else {
+              // Version mismatch or missing data
+              console.warn('⚠️ Version mismatch or missing data - cannot calculate compatibility');
+              setBaselineMatch({ 
+                baseline, 
+                compatibility: null, 
+                versionMismatch: !currentIsV04 || !baselineIsV04 
+              });
             }
           }
         }
@@ -208,15 +173,46 @@ export default function Result() {
     );
   }
 
-  // No submission (shouldn't happen after loading/error checks)
+  // No submission
   if (!submission) {
     return null;
   }
 
   const { derived } = submission;
-  const HIDE_TRAITS = new Set(['RECORDING','GROUP_ENM']);
-  const visibleTraits = Object.entries(derived?.traits || {}).filter(([k]) => !HIDE_TRAITS.has(k));
-  const gates = extractBoundaries(submission?.answers || {});
+  
+  // Check if this is a v0.4 profile
+  if (!derived || !derived.profile_version || derived.profile_version !== '0.4') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-600">
+              <AlertCircle className="w-6 h-6" />
+              Incompatible Profile Version
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              This profile was created with an older version of the survey and cannot be displayed with the current system.
+            </p>
+            <Button onClick={() => navigate('/')} className="w-full">
+              <Home className="w-4 h-4 mr-2" />
+              Take New Survey
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { 
+    arousal_propensity, 
+    power_dynamic, 
+    domain_scores, 
+    boundaries,
+    activities,
+    truth_topics 
+  } = derived;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
@@ -229,10 +225,12 @@ export default function Result() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             {submission.name}'s Intimacy Profile
           </h1>
-          <p className="text-gray-600">Here's what we discovered about you</p>
+          <p className="text-gray-600">Your personalized intimacy profile (v0.4)</p>
+          <p className="text-sm text-gray-500 mt-1">Completed on {new Date(submission.createdAt).toLocaleDateString()}</p>
         </div>
 
-        <Card className="mb-6" data-testid="result-demographics">
+        {/* Demographics */}
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl">About You</CardTitle>
           </CardHeader>
@@ -250,143 +248,342 @@ export default function Result() {
           </CardContent>
         </Card>
 
-        {/* Domains */}
-        <Card className="mb-6" data-testid="result-domains">
+        {/* Arousal Propensity */}
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Your Domains</CardTitle>
+            <CardTitle className="text-2xl">Arousal Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            {(() => {
-              const domains = computeDomainsFromTraits(derived?.traits || {});
-              return (
-                <div className="space-y-4">
-                  {/* Power Top & Bottom */}
+            <p className="text-gray-600 mb-4">
+              Your arousal style based on the Sexual Excitation/Sexual Inhibition model.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
                   <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Power (Top)</span><span>{Math.round(domains.powerTop)}</span></div>
-                    <Progress value={domains.powerTop} />
+                    <span className="font-medium">Sexual Excitation (SE)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.se})</span>
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Power (Bottom)</span><span>{Math.round(domains.powerBottom)}</span></div>
-                    <Progress value={domains.powerBottom} />
-                  </div>
-
-                  {/* Connection, Sensory, Exploration, Structure */}
-                  <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Connection</span><span>{Math.round(domains.connection)}</span></div>
-                    <Progress value={domains.connection} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Sensory</span><span>{Math.round(domains.sensory)}</span></div>
-                    <Progress value={domains.sensory} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Exploration</span><span>{Math.round(domains.exploration)}</span></div>
-                    <Progress value={domains.exploration} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1"><span className="font-medium">Structure</span><span>{Math.round(domains.structure)}</span></div>
-                    <Progress value={domains.structure} />
-                  </div>
-
-                  {/* Baseline comparison small badges (if baseline present) */}
-                  {baselineMatch && baselineMatch.baseline?.derived?.traits && (
-                    (() => {
-                      const bd = computeDomainsFromTraits(baselineMatch.baseline.derived.traits || {});
-                      const Row = ({ label, a, b }) => (
-                        <div className="flex justify-between text-sm text-gray-700">
-                          <span>{label}</span>
-                          <span>{Math.round(a)} vs {Math.round(b)}</span>
-                        </div>
-                      );
-                      return (
-                        <div className="mt-4 space-y-1">
-                          <Row label="Power (Top)" a={domains.powerTop} b={bd.powerTop} />
-                          <Row label="Power (Bottom)" a={domains.powerBottom} b={bd.powerBottom} />
-                          <Row label="Connection" a={domains.connection} b={bd.connection} />
-                          <Row label="Sensory" a={domains.sensory} b={bd.sensory} />
-                          <Row label="Exploration" a={domains.exploration} b={bd.exploration} />
-                          <Row label="Structure" a={domains.structure} b={bd.structure} />
-                        </div>
-                      );
-                    })()
-                  )}
+                  <span className="text-gray-600">{Math.round(arousal_propensity.sexual_excitation * 100)}%</span>
                 </div>
-              );
-            })()}
-          </CardContent>
-        </Card>
+                <Progress value={arousal_propensity.sexual_excitation * 100} />
+                <p className="text-sm text-gray-600 mt-1">How easily you become aroused</p>
+              </div>
 
-        {/* Gates */}
-        <Card className="mt-4" data-testid="result-gates">
-          <CardHeader>
-            <CardTitle>Gates</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-gray-700">
-            <div><strong>Recording OK:</strong> {gates.noRecording ? 'No' : 'Yes'}</div>
-            <div><strong>Impact Cap:</strong> {Number.isFinite(gates.impactCap) ? `${gates.impactCap}/100` : '—'}</div>
-            <div>
-              <strong>Hard NOs:</strong>{' '}
-              {gates.hardNos?.length ? gates.hardNos.join(', ') : 'None'}
+              <div>
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <span className="font-medium">Inhibition - Performance (SIS-P)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.sis_p})</span>
+                  </div>
+                  <span className="text-gray-600">{Math.round(arousal_propensity.inhibition_performance * 100)}%</span>
+                </div>
+                <Progress value={arousal_propensity.inhibition_performance * 100} />
+                <p className="text-sm text-gray-600 mt-1">Performance concerns that affect arousal</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <span className="font-medium">Inhibition - Consequence (SIS-C)</span>
+                    <span className="ml-2 text-sm text-gray-500">({arousal_propensity.interpretation.sis_c})</span>
+                  </div>
+                  <span className="text-gray-600">{Math.round(arousal_propensity.inhibition_consequence * 100)}%</span>
+                </div>
+                <Progress value={arousal_propensity.inhibition_consequence * 100} />
+                <p className="text-sm text-gray-600 mt-1">Concerns about consequences that affect arousal</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Traits - if available (hide gate traits) */}
-        {visibleTraits.length > 0 && (
-          <Card className="mb-6" data-testid="result-traits">
-            <CardHeader>
-              <CardTitle className="text-2xl">Your Traits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {visibleTraits.map(([trait, score]) => (
-                  <div key={trait}>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium capitalize">{trait}</span>
-                      <span className="text-gray-600">{Math.round(score * 100)}/100</span>
-                    </div>
-                    <Progress value={score * 100} />
-                  </div>
-                ))}
+        {/* Power Dynamic */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Power Dynamic</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-semibold">{power_dynamic.orientation}</h3>
+                <span className="text-sm text-gray-600">{power_dynamic.interpretation}</span>
               </div>
-            </CardContent>
-          </Card>
-        )}
+              
+              {/* Visual slider for power dynamic */}
+              <div className="relative h-12 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 rounded-lg mb-4">
+                <div 
+                  className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-gray-800 rounded-full border-2 border-white shadow-lg"
+                  style={{
+                    left: power_dynamic.orientation === 'Switch' 
+                      ? '50%' 
+                      : power_dynamic.orientation === 'Top'
+                      ? `${50 - power_dynamic.confidence * 50}%`
+                      : power_dynamic.orientation === 'Bottom'
+                      ? `${50 + power_dynamic.confidence * 50}%`
+                      : '50%',
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-medium">
+                  <span>Top</span>
+                  <span>Switch</span>
+                  <span>Bottom</span>
+                </div>
+              </div>
 
-        {/* Baseline Match */}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Top Score</span>
+                    <span className="text-sm font-medium">{power_dynamic.top_score}/100</span>
+                  </div>
+                  <Progress value={power_dynamic.top_score} />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">Bottom Score</span>
+                    <span className="text-sm font-medium">{power_dynamic.bottom_score}/100</span>
+                  </div>
+                  <Progress value={power_dynamic.bottom_score} />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Domain Scores */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Domain Preferences</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Your preferences across five key domains of intimacy.
+            </p>
+            <div className="space-y-4">
+              {Object.entries(domain_scores).map(([domain, score]) => (
+                <div key={domain}>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium capitalize">{domain}</span>
+                    <span className="text-gray-600">{score}/100</span>
+                  </div>
+                  <Progress value={score} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Activity Summary */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Activity Interests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              Activities you're open to exploring with a partner.
+            </p>
+            <div className="space-y-4">
+              {Object.entries(activities).map(([category, categoryActivities]) => {
+                const interested = Object.entries(categoryActivities).filter(([_, val]) => val >= 0.5);
+                if (interested.length === 0) return null;
+                
+                return (
+                  <div key={category} className="border-t pt-3 first:border-t-0 first:pt-0">
+                    <h4 className="font-medium mb-2 capitalize">{getCategoryName(category)}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {interested.map(([activity, value]) => (
+                        <span 
+                          key={activity}
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            value === 1.0 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {getActivityName(activity)} {value === 0.5 ? '(Maybe)' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Boundaries */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Boundaries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Hard Limits</h4>
+                {boundaries.hard_limits && boundaries.hard_limits.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {boundaries.hard_limits.map((limit, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm capitalize">
+                        {limit.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No hard limits specified</p>
+                )}
+              </div>
+
+              {boundaries.additional_notes && (
+                <div>
+                  <h4 className="font-medium mb-2">Additional Notes</h4>
+                  <p className="text-gray-700 italic">"{boundaries.additional_notes}"</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Truth Topics */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl">Truth Topic Openness</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <div className="flex justify-between mb-2">
+                <span className="font-medium">Overall Openness</span>
+                <span className="text-gray-600">{truth_topics.openness_score}/100</span>
+              </div>
+              <Progress value={truth_topics.openness_score} />
+            </div>
+            <p className="text-sm text-gray-600">
+              Your comfort level discussing intimate topics with a partner.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Compatibility (if baseline set) */}
         {baselineMatch && (
-          <Card className="mb-6" data-testid="result-match">
+          <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="text-2xl">Compatibility with {baselineMatch.baseline.name}</CardTitle>
+              <CardTitle className="text-2xl">
+                Compatibility with {baselineMatch.baseline.name}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              {/* Version mismatch warning */}
+              {baselineMatch.versionMismatch && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Version Mismatch:</strong> The baseline profile was created with a different survey version.
+                    Both profiles must be v0.4 to calculate compatibility. Please have your partner retake the survey,
+                    then set their new submission as the baseline.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {/* Error during calculation */}
+              {baselineMatch.error && !baselineMatch.versionMismatch && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Error:</strong> Failed to calculate compatibility: {baselineMatch.error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Successful compatibility calculation */}
+              {baselineMatch.compatibility && (
+                <div className="space-y-6">
+                {/* Overall Score */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium">Overall Match</span>
-                    <span className="text-gray-600">{Math.round(baselineMatch.match.overall * 1)}%</span>
+                    <span className="font-medium text-lg">Overall Compatibility</span>
+                    <span className="text-lg font-semibold text-rose-600">
+                      {baselineMatch.compatibility.overall_compatibility.score}%
+                    </span>
                   </div>
-                  <Progress value={baselineMatch.match.overall * 1} />
+                  <Progress value={baselineMatch.compatibility.overall_compatibility.score} />
+                  <p className="text-sm text-gray-600 mt-1">
+                    {baselineMatch.compatibility.overall_compatibility.interpretation}
+                  </p>
                 </div>
-                {baselineMatch.match.catScores && (
-                  <div className="mt-4">
-                    <h4 className="font-medium mb-2">Category Breakdown</h4>
-                    <div className="space-y-2">
-                      {Object.entries(baselineMatch.match.catScores)
-                        .filter(([category]) => !EXCLUDED_FROM_MEAN.has(category))
-                        .map(([category, score]) => (
-                        <div key={category} className="flex justify-between text-sm">
-                          <span className="capitalize">{category}</span>
-                          <span>{Math.round(score * 100)}%</span>
-                        </div>
-                      ))}
-                      <p className="text-xs text-gray-500 mt-2">
-                        Compatibility excludes gate categories: {Array.from(EXCLUDED_FROM_MEAN).join(', ')}. See “Gates” for details.
+
+                {/* Breakdown */}
+                <div>
+                  <h4 className="font-medium mb-3">Compatibility Breakdown</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Power Complement</span>
+                        <span>{baselineMatch.compatibility.breakdown.power_complement}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.power_complement} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Domain Similarity</span>
+                        <span>{baselineMatch.compatibility.breakdown.domain_similarity}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.domain_similarity} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Activity Overlap</span>
+                        <span>{baselineMatch.compatibility.breakdown.activity_overlap}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.activity_overlap} className="h-2" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1 text-sm">
+                        <span>Truth Topics</span>
+                        <span>{baselineMatch.compatibility.breakdown.truth_overlap}%</span>
+                      </div>
+                      <Progress value={baselineMatch.compatibility.breakdown.truth_overlap} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Boundary Conflicts */}
+                {baselineMatch.compatibility.breakdown.boundary_conflicts.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-2 text-red-600">⚠️ Boundary Conflicts</h4>
+                    <div className="bg-red-50 p-3 rounded-lg">
+                      <p className="text-sm text-red-800 mb-2">
+                        {baselineMatch.compatibility.breakdown.boundary_conflicts.length} potential conflict(s) detected
                       </p>
+                      <ul className="text-sm text-red-700 list-disc list-inside">
+                        {baselineMatch.compatibility.breakdown.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
+                          <li key={idx}>
+                            {conflict.player}'s boundary: {conflict.boundary.replace(/_/g, ' ')}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 )}
-              </div>
+
+                {/* Mutual Activities */}
+                {baselineMatch.compatibility.mutual_activities && (
+                  <div>
+                    <h4 className="font-medium mb-2">Shared Interests</h4>
+                    <div className="space-y-2">
+                      {Object.entries(baselineMatch.compatibility.mutual_activities).map(([category, acts]) => {
+                        if (!acts || acts.length === 0) return null;
+                        return (
+                          <div key={category}>
+                            <span className="text-sm font-medium capitalize">{getCategoryName(category)}: </span>
+                            <span className="text-sm text-gray-600">{acts.length} shared activities</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -397,13 +594,16 @@ export default function Result() {
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
-          <Button onClick={() => navigate('/survey')} variant="outline">
+          <Button onClick={() => navigate('/admin')}>
             <Edit className="w-4 h-4 mr-2" />
-            Take Again
+            Admin Panel
           </Button>
         </div>
       </div>
+
+      <footer className="text-center py-8 text-sm text-gray-500">
+        <p>Made with ♥️ in BK</p>
+      </footer>
     </div>
   );
 }
-

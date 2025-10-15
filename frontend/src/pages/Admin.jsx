@@ -187,7 +187,25 @@ function ResponsesList() {
               </TableHeader>
               <TableBody>
                 {submissions.map((sub) => {
-                  const d = computeDomainsFromTraits(sub.derived?.traits || {});
+                  // Handle both v0.3.1 and v0.4 profiles
+                  const isV04 = sub.version === '0.4' || sub.derived?.profile_version === '0.4';
+                  let d;
+                  
+                  if (isV04 && sub.derived?.domain_scores) {
+                    // v0.4 has domains directly
+                    d = {
+                      powerTop: sub.derived.power_dynamic?.top_score || 0,
+                      powerBottom: sub.derived.power_dynamic?.bottom_score || 0,
+                      connection: sub.derived.domain_scores.connection || 0,
+                      sensory: sub.derived.domain_scores.sensation || 0, // Note: v0.4 calls it "sensation"
+                      exploration: sub.derived.domain_scores.exploration || 0,
+                      structure: sub.derived.domain_scores.power || 0 // Note: v0.4 "power" domain is similar to "structure"
+                    };
+                  } else {
+                    // v0.3.1 - compute from traits
+                    d = computeDomainsFromTraits(sub.derived?.traits || {});
+                  }
+                  
                   return (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.name}</TableCell>
