@@ -43,15 +43,20 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
     # Connection pooling configuration
+    # More conservative settings for Render + Supabase
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_size": 5,              # Number of connections to maintain
-        "pool_recycle": 300,         # Recycle connections after 5 minutes
+        "pool_size": 3,              # Smaller pool for Render's limited resources
+        "pool_recycle": 280,         # Recycle before Supabase 5min timeout
         "pool_pre_ping": True,       # Verify connections before using them
-        "max_overflow": 2,           # Allow 2 additional connections when pool is full
+        "max_overflow": 1,           # Minimal overflow to prevent exhaustion
         "pool_timeout": 30,          # Wait up to 30 seconds for a connection
         "connect_args": {
             "sslmode": "require",    # Require SSL connection
-            "connect_timeout": 10,   # Connection timeout in seconds
+            "connect_timeout": 30,   # Longer timeout for initial connection (was 10)
+            "keepalives": 1,         # Enable TCP keepalives
+            "keepalives_idle": 30,   # Seconds before keepalive probes start
+            "keepalives_interval": 10,  # Seconds between keepalive probes
+            "keepalives_count": 5,   # Number of keepalives before giving up
         }
     }
 
