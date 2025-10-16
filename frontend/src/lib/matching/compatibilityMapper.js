@@ -297,45 +297,65 @@ function checkBoundaryConflicts(playerA, playerB) {
       'anal_fingers_toys_give', 'anal_fingers_toys_receive',
       'rimming_give', 'rimming_receive'
     ],
-    'degradation_humiliation': [],  // FIXED: Begging is NOT degradation - it's verbal power exchange
+    'degradation_humiliation': [],
     'roleplay': ['roleplay', 'protocols_follow', 'protocols_give'],
     'watersports': ['watersports_give', 'watersports_receive'],
-    'toys_props': []  // Would need separate tracking
+    'toys_props': []
   };
+
+  // NEW: Track which boundaries have conflicts (to avoid duplicates)
+  const conflictingBoundaries = new Set();
 
   // Check A's boundaries vs B's interests
   const limitsA = playerA.boundaries?.hard_limits || [];
   limitsA.forEach(limit => {
     const activityKeys = boundaryMap[limit] || [];
+    let hasConflict = false;
+
+    // Check if ANY activity in this boundary category conflicts
     activityKeys.forEach(actKey => {
-      // Search all activity categories in B's profile
       Object.values(playerB.activities || {}).forEach(category => {
         if (category[actKey] !== undefined && category[actKey] >= 0.5) {
-          conflicts.push({
-            player: playerA.user_id,
-            boundary: limit,
-            conflicting_activity: actKey
-          });
+          hasConflict = true;
         }
       });
     });
+
+    // NEW: Only add ONE conflict per boundary type
+    if (hasConflict && !conflictingBoundaries.has(`A-${limit}`)) {
+      conflicts.push({
+        player: playerA.user_id,
+        boundary: limit,
+        conflicting_with: playerB.user_id
+      });
+      conflictingBoundaries.add(`A-${limit}`);
+    }
   });
 
   // Check B's boundaries vs A's interests
   const limitsB = playerB.boundaries?.hard_limits || [];
   limitsB.forEach(limit => {
     const activityKeys = boundaryMap[limit] || [];
+    let hasConflict = false;
+
+    // Check if ANY activity in this boundary category conflicts
     activityKeys.forEach(actKey => {
       Object.values(playerA.activities || {}).forEach(category => {
         if (category[actKey] !== undefined && category[actKey] >= 0.5) {
-          conflicts.push({
-            player: playerB.user_id,
-            boundary: limit,
-            conflicting_activity: actKey
-          });
+          hasConflict = true;
         }
       });
     });
+
+    // NEW: Only add ONE conflict per boundary type
+    if (hasConflict && !conflictingBoundaries.has(`B-${limit}`)) {
+      conflicts.push({
+        player: playerB.user_id,
+        boundary: limit,
+        conflicting_with: playerA.user_id
+      });
+      conflictingBoundaries.add(`B-${limit}`);
+    }
   });
 
   return conflicts;
