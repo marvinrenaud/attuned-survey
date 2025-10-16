@@ -156,14 +156,25 @@ def create_recommendations():
                 if candidates:
                     # Convert first candidate to activity item format
                     candidate = candidates[0]
+                    
+                    # Alternate actors: odd steps = A, even steps = B
+                    actor = 'A' if seq % 2 == 1 else 'B'
+                    partner = 'B' if actor == 'A' else 'A'
+                    
+                    # Update script with alternating actor
+                    script = candidate.script.copy() if candidate.script else {'steps': []}
+                    if script.get('steps'):
+                        for step in script['steps']:
+                            step['actor'] = actor
+                    
                     activity_item = {
                         'id': f'bank_{candidate.activity_id}',
                         'seq': seq,
                         'type': candidate.type,
                         'rating': candidate.rating,
                         'intensity': candidate.intensity,
-                        'roles': {'active_player': 'A', 'partner_player': 'B'},
-                        'script': candidate.script,
+                        'roles': {'active_player': actor, 'partner_player': partner},
+                        'script': script,
                         'tags': candidate.tags or [],
                         'provenance': {
                             'source': 'bank',

@@ -112,9 +112,13 @@ def get_safe_fallback(
     Get a safe fallback activity template.
     
     These are ultra-safe, generic activities that should work for any pair.
+    Alternates between Player A and Player B based on sequence number.
     """
     # Use middle of intensity range
     intensity = (intensity_min + intensity_max) // 2
+    
+    # Alternate actors: odd steps = A, even steps = B
+    actor = 'A' if seq % 2 == 1 else 'B'
     
     # Safe truth fallbacks
     truth_fallbacks = {
@@ -150,7 +154,7 @@ def get_safe_fallback(
         'intensity': intensity,
         'script': {
             'steps': [
-                {'actor': 'A', 'do': description}
+                {'actor': actor, 'do': description}
             ]
         },
         'tags': ['fallback', 'safe'],
@@ -175,18 +179,22 @@ def create_placeholder_activity(
     rating: str,
     intensity: int
 ) -> dict:
-    """Create a placeholder activity when all else fails."""
+    """Create a placeholder activity when all else fails. Alternates actors."""
+    # Alternate actors: odd steps = A, even steps = B
+    actor = 'A' if seq % 2 == 1 else 'B'
+    partner = 'B' if actor == 'A' else 'A'
+    
     return {
         'id': f'placeholder_{seq}',
         'seq': seq,
         'type': activity_type,
         'rating': rating,
         'intensity': intensity,
-        'roles': {'active_player': 'A', 'partner_player': 'B'},
+        'roles': {'active_player': actor, 'partner_player': partner},
         'script': {
             'steps': [
                 {
-                    'actor': 'A',
+                    'actor': actor,
                     'do': f'Placeholder {activity_type} activity - please regenerate'
                 }
             ]

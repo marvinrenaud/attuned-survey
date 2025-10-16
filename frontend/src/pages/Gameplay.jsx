@@ -141,7 +141,7 @@ export default function Gameplay() {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Attuned Gameplay
           </h1>
@@ -151,6 +151,32 @@ export default function Gameplay() {
               : 'Game Session'}
           </p>
         </div>
+
+        {/* Session Configuration Card */}
+        {session && (
+          <Card className="mb-6 bg-gradient-to-r from-rose-50 to-pink-50">
+            <CardContent className="pt-4 pb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-sm text-gray-600">Player A</div>
+                  <div className="font-semibold text-gray-900">{playerA?.name || 'Player A'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Player B</div>
+                  <div className="font-semibold text-gray-900">{playerB?.name || 'Player B'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Rating</div>
+                  <div className="font-semibold text-gray-900">{session.rating}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Mode</div>
+                  <div className="font-semibold text-gray-900 capitalize">{session.activity_type}</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Progress Bar */}
         <Card className="mb-6">
@@ -199,21 +225,32 @@ export default function Gameplay() {
             <CardContent className="pt-8 pb-8">
               <div className="space-y-6">
                 {/* Activity Steps */}
-                {currentActivity.script?.steps?.map((step, idx) => (
-                  <div key={idx} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-rose-100 text-rose-700 font-semibold text-sm">
-                        {step.actor}
-                      </span>
-                      <span className="text-sm font-medium text-gray-500">
-                        Player {step.actor}
-                      </span>
+                {currentActivity.script?.steps?.map((step, idx) => {
+                  // Map actor letter to player name
+                  const actorName = step.actor === 'A' 
+                    ? (playerA?.name || 'Player A')
+                    : (playerB?.name || 'Player B');
+                  
+                  return (
+                    <div key={idx} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${
+                          step.actor === 'A' 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          {step.actor}
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {actorName}
+                        </span>
+                      </div>
+                      <p className="text-lg text-gray-900 pl-10">
+                        {step.do}
+                      </p>
                     </div>
-                    <p className="text-lg text-gray-900 pl-10">
-                      {step.do}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Tags */}
                 {currentActivity.tags && currentActivity.tags.length > 0 && (
