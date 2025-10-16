@@ -3,13 +3,50 @@
  * Replaces localStorage with server-side persistence
  */
 
-const DEFAULT_API =
-  (typeof window !== 'undefined' && window.location.hostname === 'localhost')
-    ? 'http://localhost:5001'
-    : 'https://attuned-backend.onrender.com';
+// Determine API base URL
+// DEBUG: Log environment info at module load
+console.log('🔧 API Store Module Loading...');
+console.log('  - import.meta.env.MODE:', import.meta.env?.MODE);
+console.log('  - import.meta.env.VITE_API_URL:', import.meta.env?.VITE_API_URL);
+console.log('  - window.location.hostname:', typeof window !== 'undefined' ? window.location.hostname : 'undefined');
 
-const API_BASE =
-  `${(import.meta.env?.VITE_API_URL || DEFAULT_API)}/api/survey`;
+function getApiRoot() {
+  // Priority 1: Explicit environment variable
+  if (import.meta.env?.VITE_API_URL) {
+    console.log('📍 [getApiRoot] Using VITE_API_URL:', import.meta.env.VITE_API_URL);
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Priority 2: Development mode → localhost
+  // This is more reliable than hostname detection because Vite sets MODE explicitly
+  if (import.meta.env?.MODE === 'development') {
+    console.log('✅ [getApiRoot] MODE=development → Using localhost:5001');
+    return 'http://localhost:5001';
+  }
+  
+  // Priority 3: Runtime hostname detection (fallback)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    console.log('🔍 [getApiRoot] Checking hostname:', hostname);
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      console.log('✅ [getApiRoot] Hostname is localhost → Using localhost:5001');
+      return 'http://localhost:5001';
+    }
+  }
+  
+  // Priority 4: Production backend
+  console.log('🌐 [getApiRoot] Defaulting to PRODUCTION backend');
+  return 'https://attuned-backend.onrender.com';
+}
+
+// Call function to get the API root
+const API_ROOT = getApiRoot();
+const API_BASE = `${API_ROOT}/api/survey`;
+
+console.log('✅ API Store configured:');
+console.log('  - API_ROOT:', API_ROOT);
+console.log('  - API_BASE:', API_BASE);
 /**
  * Get all submissions from server
  */
@@ -182,6 +219,147 @@ export async function exportData() {
     throw error;
   }
 }
+
+// ============================================================================
+// RECOMMENDATIONS & COMPATIBILITY API
+// ============================================================================
+
+/**
+ * Generate activity recommendations for a game session
+ * @param {Object} payload - Recommendation request
+ * @param {Object} payload.player_a - Player A data (with submission_id or full profile)
+ * @param {Object} payload.player_b - Player B data (with submission_id or full profile)
+ * @param {Object} payload.session - Session configuration
+ * @returns {Promise<Object>} Session with activities array
+ */
+export async function generateRecommendations(payload) {
+  try {
+    console.log('Generating recommendations...', { 
+      player_a: payload.player_a?.submission_id, 
+      player_b: payload.player_b?.submission_id,
+      target: payload.session?.target_activities 
+    });
+    
+    const response = await fetch(`${API_ROOT}/api/recommendations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Recommendations error:', errorText);
+      throw new Error(`Failed to generate recommendations: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Recommendations generated:', {
+      session_id: data.session_id,
+      activity_count: data.activities?.length,
+      stats: data.stats
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get activities for a specific session
+ * @param {string} sessionId - Session ID
+ * @returns {Promise<Object>} Session with activities
+ */
+export async function getSessionActivities(sessionId) {
+  try {
+    const response = await fetch(`${API_ROOT}/api/recommendations/${sessionId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching session activities:', error);
+    throw error;
+  }
+}
+
+/**
+ * Calculate and store compatibility between two players
+ * @param {string} submissionIdA - First player's submission ID
+ * @param {string} submissionIdB - Second player's submission ID
+ * @returns {Promise<Object>} Compatibility result
+ */
+export async function calculateCompatibility(submissionIdA, submissionIdB) {
+  try {
+    console.log('Calculating compatibility...', { submissionIdA, submissionIdB });
+    
+    const response = await fetch(`${API_ROOT}/api/compatibility`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        submission_id_a: submissionIdA,
+        submission_id_b: submissionIdB,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Compatibility calculation error:', errorText);
+      throw new Error(`Failed to calculate compatibility: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Compatibility calculated:', {
+      score: data.overall_compatibility?.score,
+      interpretation: data.overall_compatibility?.interpretation
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error calculating compatibility:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get stored compatibility result (or calculate if not exists)
+ * @param {string} submissionIdA - First player's submission ID
+ * @param {string} submissionIdB - Second player's submission ID
+ * @returns {Promise<Object>} Compatibility result
+ */
+export async function getCompatibility(submissionIdA, submissionIdB) {
+  try {
+    const response = await fetch(
+      `${API_ROOT}/api/compatibility/${submissionIdA}/${submissionIdB}`
+    );
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching compatibility:', error);
+    throw error;
+  }
+}
+
+// ============================================================================
+// SESSION MANAGEMENT (localStorage for temporary data)
+// ============================================================================
 
 // Keep localStorage functions for session management (temporary data)
 const SESSION_KEY = 'attuned_current_session';

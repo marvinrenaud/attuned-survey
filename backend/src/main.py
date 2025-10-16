@@ -10,6 +10,11 @@ from sqlalchemy import text
 
 from .extensions import db
 from .models.survey import SurveyBaseline, SurveySubmission
+from .models.profile import Profile
+from .models.session import Session
+from .models.activity import Activity
+from .models.session_activity import SessionActivity
+from .models.compatibility import Compatibility
 
 
 def create_app() -> Flask:
@@ -95,8 +100,10 @@ def create_app() -> Flask:
 
     # --- Routes ---
     from .routes.survey import bp as survey_bp  # noqa: WPS433 (local import)
+    from .routes.recommendations import bp as recommendations_bp  # noqa: WPS433 (local import)
 
     app.register_blueprint(survey_bp)
+    app.register_blueprint(recommendations_bp)
 
     return app
 
@@ -109,4 +116,9 @@ __all__ = [
     "db",
     "SurveyBaseline",
     "SurveySubmission",
+    "Profile",
+    "Session",
+    "Activity",
+    "SessionActivity",
+    "Compatibility",
 ]

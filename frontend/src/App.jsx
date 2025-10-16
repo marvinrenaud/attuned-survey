@@ -6,6 +6,7 @@ import Result from './pages/Result';
 import Privacy from './pages/Privacy';
 import Admin from './pages/Admin';
 import TestCompatibility from './pages/TestCompatibility';
+import Gameplay from './pages/Gameplay';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/survey" element={<Survey />} />
         <Route path="/result" element={<Result />} />
+        <Route path="/gameplay" element={<Gameplay />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/admin/*" element={<Admin />} />
         <Route path="/test-compatibility" element={<TestCompatibility />} />
