@@ -3,15 +3,50 @@
  * Replaces localStorage with server-side persistence
  */
 
-const DEFAULT_API =
-  (typeof window !== 'undefined' && window.location.hostname === 'localhost')
-    ? 'http://localhost:5001'
-    : 'https://attuned-backend.onrender.com';
+// Determine API base URL
+// DEBUG: Log environment info at module load
+console.log('🔧 API Store Module Loading...');
+console.log('  - import.meta.env.MODE:', import.meta.env?.MODE);
+console.log('  - import.meta.env.VITE_API_URL:', import.meta.env?.VITE_API_URL);
+console.log('  - window.location.hostname:', typeof window !== 'undefined' ? window.location.hostname : 'undefined');
 
-const API_BASE =
-  `${(import.meta.env?.VITE_API_URL || DEFAULT_API)}/api/survey`;
+function getApiRoot() {
+  // Priority 1: Explicit environment variable
+  if (import.meta.env?.VITE_API_URL) {
+    console.log('📍 [getApiRoot] Using VITE_API_URL:', import.meta.env.VITE_API_URL);
+    return import.meta.env.VITE_API_URL;
+  }
   
-const API_ROOT = (import.meta.env?.VITE_API_URL || DEFAULT_API);
+  // Priority 2: Development mode → localhost
+  // This is more reliable than hostname detection because Vite sets MODE explicitly
+  if (import.meta.env?.MODE === 'development') {
+    console.log('✅ [getApiRoot] MODE=development → Using localhost:5001');
+    return 'http://localhost:5001';
+  }
+  
+  // Priority 3: Runtime hostname detection (fallback)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    console.log('🔍 [getApiRoot] Checking hostname:', hostname);
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      console.log('✅ [getApiRoot] Hostname is localhost → Using localhost:5001');
+      return 'http://localhost:5001';
+    }
+  }
+  
+  // Priority 4: Production backend
+  console.log('🌐 [getApiRoot] Defaulting to PRODUCTION backend');
+  return 'https://attuned-backend.onrender.com';
+}
+
+// Call function to get the API root
+const API_ROOT = getApiRoot();
+const API_BASE = `${API_ROOT}/api/survey`;
+
+console.log('✅ API Store configured:');
+console.log('  - API_ROOT:', API_ROOT);
+console.log('  - API_BASE:', API_BASE);
 /**
  * Get all submissions from server
  */

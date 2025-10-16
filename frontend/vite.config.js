@@ -11,4 +11,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Force localhost backend in development
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.NODE_ENV === 'production' 
+        ? 'https://attuned-backend.onrender.com'
+        : 'http://localhost:5001'
+    ),
+  },
 })
