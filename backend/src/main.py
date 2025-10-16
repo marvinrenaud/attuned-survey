@@ -100,8 +100,10 @@ def create_app() -> Flask:
 
     # --- Routes ---
     from .routes.survey import bp as survey_bp  # noqa: WPS433 (local import)
+    from .routes.recommendations import bp as recommendations_bp  # noqa: WPS433 (local import)
 
     app.register_blueprint(survey_bp)
+    app.register_blueprint(recommendations_bp)
 
     return app
 
