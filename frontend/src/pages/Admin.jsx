@@ -5,14 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Database, History, AlertCircle, Home } from 'lucide-react';
+import { Download, Database, History, AlertCircle, Home, Sparkles } from 'lucide-react';
 import { computeDomainsFromTraits } from '@/lib/scoring/domainCalculator';
 import {
   getAllSubmissions,
   getBaseline,
   setBaseline,
   clearBaseline,
-  exportData
+  exportData,
+  generateRecommendations,
+  getSessionActivities
 } from '../lib/storage/apiStore';
 
 const ADMIN_PASSWORD = '1111';
@@ -79,7 +81,7 @@ export default function Admin() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Link to="/admin">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
@@ -98,6 +100,15 @@ export default function Admin() {
               </CardContent>
             </Card>
           </Link>
+          <Link to="/admin/recommendations">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <Sparkles className="w-8 h-8 text-amber-600 mb-2" />
+                <h3 className="font-semibold text-gray-900">Recommendations</h3>
+                <p className="text-sm text-gray-600">Test AI activity generation</p>
+              </CardContent>
+            </Card>
+          </Link>
           <Link to="/admin/history">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
@@ -112,6 +123,7 @@ export default function Admin() {
         <Routes>
           <Route index element={<ResponsesList />} />
           <Route path="export" element={<ExportTools />} />
+          <Route path="recommendations" element={<RecommendationsPanel />} />
           <Route path="history" element={<VersionHistory />} />
         </Routes>
       </div>
@@ -360,6 +372,276 @@ function ExportTools() {
               Export JSON
             </Button>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RecommendationsPanel() {
+  const [submissions, setSubmissions] = useState([]);
+  const [playerA, setPlayerA] = useState('');
+  const [playerB, setPlayerB] = useState('');
+  const [rating, setRating] = useState('R');
+  const [targetActivities, setTargetActivities] = useState(5);
+  const [activityType, setActivityType] = useState('random');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadSubmissions();
+  }, []);
+
+  const loadSubmissions = async () => {
+    try {
+      const data = await getAllSubmissions();
+      setSubmissions(data.submissions || []);
+      
+      // Auto-select first two submissions if available
+      if (data.submissions && data.submissions.length >= 2) {
+        setPlayerA(data.submissions[0].id);
+        setPlayerB(data.submissions[1].id);
+      }
+    } catch (error) {
+      console.error('Error loading submissions:', error);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!playerA || !playerB) {
+      setError('Please select both Player A and Player B');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const payload = {
+        player_a: { submission_id: playerA },
+        player_b: { submission_id: playerB },
+        session: {
+          rating,
+          target_activities: parseInt(targetActivities),
+          activity_type: activityType,
+          bank_ratio: 0.5,
+          rules: { avoid_maybe_until: 6 }
+        }
+      };
+
+      const data = await generateRecommendations(payload);
+      setResult(data);
+    } catch (err) {
+      setError(err.message || 'Failed to generate recommendations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!result) return;
+
+    const json = JSON.stringify(result, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recommendations-${result.session_id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Activity Recommendations (Groq AI)</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {/* Configuration */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Player A
+              </label>
+              <select
+                className="w-full border border-gray-300 rounded-md p-2"
+                value={playerA}
+                onChange={(e) => setPlayerA(e.target.value)}
+              >
+                <option value="">Select Player A</option>
+                {submissions.map(sub => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.name} ({sub.sex || 'unknown'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Player B
+              </label>
+              <select
+                className="w-full border border-gray-300 rounded-md p-2"
+                value={playerB}
+                onChange={(e) => setPlayerB(e.target.value)}
+              >
+                <option value="">Select Player B</option>
+                {submissions.map(sub => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.name} ({sub.sex || 'unknown'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rating
+              </label>
+              <select
+                className="w-full border border-gray-300 rounded-md p-2"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+              >
+                <option value="G">G - General (family-friendly)</option>
+                <option value="R">R - Restricted (sensual/intimate)</option>
+                <option value="X">X - Explicit (sexual content)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Number of Activities
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="50"
+                value={targetActivities}
+                onChange={(e) => setTargetActivities(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Activity Type
+              </label>
+              <select
+                className="w-full border border-gray-300 rounded-md p-2"
+                value={activityType}
+                onChange={(e) => setActivityType(e.target.value)}
+              >
+                <option value="random">Random Mix (~50/50)</option>
+                <option value="truth">Truth Only</option>
+                <option value="dare">Dare Only</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <div>
+            <Button
+              onClick={handleGenerate}
+              disabled={loading || !playerA || !playerB}
+              className="w-full gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              {loading ? 'Generating...' : 'Generate Plan'}
+            </Button>
+          </div>
+
+          {/* Error Display */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Results */}
+          {result && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Generated Plan
+                </h3>
+                <Button onClick={handleDownload} variant="outline" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Download JSON
+                </Button>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="bg-blue-50 p-3 rounded">
+                  <div className="text-2xl font-bold text-blue-900">{result.stats?.total || 0}</div>
+                  <div className="text-xs text-blue-700">Total Activities</div>
+                </div>
+                <div className="bg-green-50 p-3 rounded">
+                  <div className="text-2xl font-bold text-green-900">{result.stats?.truths || 0}</div>
+                  <div className="text-xs text-green-700">Truths</div>
+                </div>
+                <div className="bg-purple-50 p-3 rounded">
+                  <div className="text-2xl font-bold text-purple-900">{result.stats?.dares || 0}</div>
+                  <div className="text-xs text-purple-700">Dares</div>
+                </div>
+                <div className="bg-amber-50 p-3 rounded">
+                  <div className="text-2xl font-bold text-amber-900">{result.stats?.bank_count || 0}</div>
+                  <div className="text-xs text-amber-700">From Bank</div>
+                </div>
+                <div className="bg-rose-50 p-3 rounded">
+                  <div className="text-2xl font-bold text-rose-900">{Math.round(result.stats?.elapsed_ms || 0)}ms</div>
+                  <div className="text-xs text-rose-700">Generation Time</div>
+                </div>
+              </div>
+
+              {/* Activities Preview */}
+              <div className="border rounded p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                <h4 className="font-semibold mb-3">Activities Preview:</h4>
+                <div className="space-y-2">
+                  {result.activities?.slice(0, 10).map((activity, idx) => (
+                    <div key={idx} className="bg-white p-3 rounded border border-gray-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-gray-500">#{activity.seq}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          activity.type === 'truth' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {activity.type}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          Intensity: {activity.intensity}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        {activity.script?.steps?.[0]?.do || 'No description'}
+                      </p>
+                    </div>
+                  ))}
+                  {result.activities?.length > 10 && (
+                    <p className="text-sm text-gray-500 text-center pt-2">
+                      ... and {result.activities.length - 10} more activities
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Full JSON */}
+              <details className="border rounded">
+                <summary className="p-3 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50">
+                  View Full JSON
+                </summary>
+                <div className="p-3 bg-gray-50 border-t">
+                  <pre className="text-xs overflow-x-auto">
+                    {JSON.stringify(result, null, 2)}
+                  </pre>
+                </div>
+              </details>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

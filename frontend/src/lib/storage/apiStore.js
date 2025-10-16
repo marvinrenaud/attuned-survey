@@ -10,6 +10,8 @@ const DEFAULT_API =
 
 const API_BASE =
   `${(import.meta.env?.VITE_API_URL || DEFAULT_API)}/api/survey`;
+  
+const API_ROOT = (import.meta.env?.VITE_API_URL || DEFAULT_API);
 /**
  * Get all submissions from server
  */
@@ -182,6 +184,147 @@ export async function exportData() {
     throw error;
   }
 }
+
+// ============================================================================
+// RECOMMENDATIONS & COMPATIBILITY API
+// ============================================================================
+
+/**
+ * Generate activity recommendations for a game session
+ * @param {Object} payload - Recommendation request
+ * @param {Object} payload.player_a - Player A data (with submission_id or full profile)
+ * @param {Object} payload.player_b - Player B data (with submission_id or full profile)
+ * @param {Object} payload.session - Session configuration
+ * @returns {Promise<Object>} Session with activities array
+ */
+export async function generateRecommendations(payload) {
+  try {
+    console.log('Generating recommendations...', { 
+      player_a: payload.player_a?.submission_id, 
+      player_b: payload.player_b?.submission_id,
+      target: payload.session?.target_activities 
+    });
+    
+    const response = await fetch(`${API_ROOT}/api/recommendations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Recommendations error:', errorText);
+      throw new Error(`Failed to generate recommendations: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Recommendations generated:', {
+      session_id: data.session_id,
+      activity_count: data.activities?.length,
+      stats: data.stats
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get activities for a specific session
+ * @param {string} sessionId - Session ID
+ * @returns {Promise<Object>} Session with activities
+ */
+export async function getSessionActivities(sessionId) {
+  try {
+    const response = await fetch(`${API_ROOT}/api/recommendations/${sessionId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching session activities:', error);
+    throw error;
+  }
+}
+
+/**
+ * Calculate and store compatibility between two players
+ * @param {string} submissionIdA - First player's submission ID
+ * @param {string} submissionIdB - Second player's submission ID
+ * @returns {Promise<Object>} Compatibility result
+ */
+export async function calculateCompatibility(submissionIdA, submissionIdB) {
+  try {
+    console.log('Calculating compatibility...', { submissionIdA, submissionIdB });
+    
+    const response = await fetch(`${API_ROOT}/api/compatibility`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        submission_id_a: submissionIdA,
+        submission_id_b: submissionIdB,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Compatibility calculation error:', errorText);
+      throw new Error(`Failed to calculate compatibility: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('✅ Compatibility calculated:', {
+      score: data.overall_compatibility?.score,
+      interpretation: data.overall_compatibility?.interpretation
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error calculating compatibility:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get stored compatibility result (or calculate if not exists)
+ * @param {string} submissionIdA - First player's submission ID
+ * @param {string} submissionIdB - Second player's submission ID
+ * @returns {Promise<Object>} Compatibility result
+ */
+export async function getCompatibility(submissionIdA, submissionIdB) {
+  try {
+    const response = await fetch(
+      `${API_ROOT}/api/compatibility/${submissionIdA}/${submissionIdB}`
+    );
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching compatibility:', error);
+    throw error;
+  }
+}
+
+// ============================================================================
+// SESSION MANAGEMENT (localStorage for temporary data)
+// ============================================================================
 
 // Keep localStorage functions for session management (temporary data)
 const SESSION_KEY = 'attuned_current_session';
