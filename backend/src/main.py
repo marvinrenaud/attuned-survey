@@ -51,8 +51,9 @@ def create_app() -> Flask:
         "max_overflow": 1,           # Minimal overflow to prevent exhaustion
         "pool_timeout": 30,          # Wait up to 30 seconds for a connection
         "connect_args": {
-            "sslmode": "require",    # Require SSL connection
-            "connect_timeout": 30,   # Longer timeout for initial connection (was 10)
+            # Note: sslmode is already set in the URL above (line 39)
+            # Don't duplicate it here - causes SSL handshake failures
+            "connect_timeout": 30,   # Longer timeout for initial connection
             "keepalives": 1,         # Enable TCP keepalives
             "keepalives_idle": 30,   # Seconds before keepalive probes start
             "keepalives_interval": 10,  # Seconds between keepalive probes
@@ -69,39 +70,62 @@ def create_app() -> Flask:
 
     with app.app_context():
         try:
-            # Create the table(s) on boot (simple & fine for now)
-            db.create_all()
+            # Detect if using Supabase pooler (PgBouncer doesn't allow DDL)
+            is_pooler = 'pooler.supabase.com' in db_url
             
-            # Test database connection
+            if is_pooler:
+                app.logger.info("🔗 Detected Supabase connection pooler - skipping DDL operations")
+                app.logger.info("   (Tables should already exist; DDL not allowed through PgBouncer)")
+            
+            # Test basic connectivity
+            app.logger.info("Attempting database connection...")
             db.session.execute(text("SELECT 1"))
             db.session.commit()
             app.logger.info("✅ Database connection successful")
-
-            # Ensure expected columns exist on existing deployments
-            # Some older databases may be missing these nullable columns
-            db.session.execute(text(
-                """
-                ALTER TABLE survey_submissions
-                ADD COLUMN IF NOT EXISTS name VARCHAR(256);
-                """
-            ))
-            db.session.execute(text(
-                """
-                ALTER TABLE survey_submissions
-                ADD COLUMN IF NOT EXISTS sex VARCHAR(32);
-                """
-            ))
-            db.session.execute(text(
-                """
-                ALTER TABLE survey_submissions
-                ADD COLUMN IF NOT EXISTS sexual_orientation VARCHAR(64);
-                """
-            ))
-            db.session.commit()
-            app.logger.info("✅ Verified survey_submissions columns (name, sex, sexual_orientation)")
+            
+            # Only run DDL if NOT using pooler
+            if not is_pooler:
+                app.logger.info("Running DDL operations (create tables, add columns)...")
+                
+                # Create tables
+                try:
+                    db.create_all()
+                    app.logger.info("✅ Tables created/verified")
+                except Exception as table_error:
+                    app.logger.warning(f"⚠️ Table creation failed: {table_error}")
+                
+                # Add missing columns (for backward compatibility)
+                try:
+                    db.session.execute(text(
+                        """
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS name VARCHAR(256);
+                        """
+                    ))
+                    db.session.execute(text(
+                        """
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS sex VARCHAR(32);
+                        """
+                    ))
+                    db.session.execute(text(
+                        """
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS sexual_orientation VARCHAR(64);
+                        """
+                    ))
+                    db.session.commit()
+                    app.logger.info("✅ Verified survey_submissions columns")
+                except Exception as col_error:
+                    app.logger.warning(f"⚠️ Column verification failed: {col_error}")
+                    db.session.rollback()
+            else:
+                app.logger.info("✅ Pooler mode - assuming tables and columns already exist")
+                
         except Exception as e:
-            app.logger.error(f"❌ Database connection failed: {e}")
-            raise
+            app.logger.error(f"❌ Database initialization failed: {e}")
+            app.logger.error("App will start but database operations may fail")
+            # Don't raise - allow app to start even if DB has issues
 
     # --- Routes ---
     from .routes.survey import bp as survey_bp  # noqa: WPS433 (local import)
