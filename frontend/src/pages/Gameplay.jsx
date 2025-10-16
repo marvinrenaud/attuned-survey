@@ -252,19 +252,27 @@ export default function Gameplay() {
                   );
                 })}
 
-                {/* Tags */}
-                {currentActivity.tags && currentActivity.tags.length > 0 && (
-                  <div className="flex gap-2 flex-wrap mt-4 pt-4 border-t">
-                    {currentActivity.tags.map((tag, idx) => (
-                      <span 
-                        key={idx}
-                        className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {/* Tags (filter out internal system tags) */}
+                {currentActivity.tags && currentActivity.tags.length > 0 && (() => {
+                  // Filter out internal tags that users shouldn't see
+                  const internalTags = ['fallback', 'safe', 'placeholder', 'bank'];
+                  const userTags = currentActivity.tags.filter(tag => !internalTags.includes(tag.toLowerCase()));
+                  
+                  if (userTags.length === 0) return null;
+                  
+                  return (
+                    <div className="flex gap-2 flex-wrap mt-4 pt-4 border-t">
+                      {userTags.map((tag, idx) => (
+                        <span 
+                          key={idx}
+                          className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>
