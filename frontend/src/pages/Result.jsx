@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Edit, Home, Heart, AlertCircle } from 'lucide-react';
+import { Edit, Home, Heart, AlertCircle, Play } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getSubmission, getBaseline } from '../lib/storage/apiStore';
+import { getSubmission, getBaseline, generateRecommendations } from '../lib/storage/apiStore';
 import { calculateCompatibility } from '../lib/matching/compatibilityMapper';
 import { getCategoryName, getActivityName } from '../lib/matching/categoryMap';
 
@@ -22,6 +22,7 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [startingGame, setStartingGame] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -118,6 +119,49 @@ export default function Result() {
 
     loadData();
   }, [location, navigate, retryCount]);
+
+  const handleStartGame = async () => {
+    if (!submission || !baselineMatch?.baseline) {
+      console.error('Cannot start game: missing submission or baseline');
+      return;
+    }
+
+    setStartingGame(true);
+
+    try {
+      console.log('Starting game session...');
+      
+      // Generate recommendations for 25 activities
+      const payload = {
+        player_a: { submission_id: submission.id },
+        player_b: { submission_id: baselineMatch.baseline.id },
+        session: {
+          rating: 'R',  // Default to R-rated
+          target_activities: 25,
+          activity_type: 'random',
+          bank_ratio: 0.5,
+          rules: { avoid_maybe_until: 6 }
+        }
+      };
+
+      const recommendationsData = await generateRecommendations(payload);
+      
+      console.log('✅ Game session created:', recommendationsData.session_id);
+      
+      // Navigate to gameplay page with session ID
+      navigate('/gameplay', { 
+        state: { 
+          sessionId: recommendationsData.session_id,
+          playerA: submission,
+          playerB: baselineMatch.baseline
+        } 
+      });
+    } catch (err) {
+      console.error('Error starting game:', err);
+      alert('Failed to start game: ' + err.message);
+      setStartingGame(false);
+    }
+  };
 
   // Loading state
   if (loading) {
@@ -599,12 +643,25 @@ export default function Result() {
         )}
 
         {/* Actions */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <Button onClick={() => navigate('/')} variant="outline">
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
-          <Button onClick={() => navigate('/admin')}>
+          
+          {/* Start Game button - only show if baseline match exists */}
+          {baselineMatch?.baseline && baselineMatch?.compatibility && (
+            <Button 
+              onClick={handleStartGame} 
+              disabled={startingGame}
+              className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              {startingGame ? 'Starting Game...' : 'Start Game'}
+            </Button>
+          )}
+          
+          <Button onClick={() => navigate('/admin')} variant="outline">
             <Edit className="w-4 h-4 mr-2" />
             Admin Panel
           </Button>
