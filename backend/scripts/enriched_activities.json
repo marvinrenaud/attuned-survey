@@ -5138,5 +5138,4752 @@
     ],
     "requires_consent_negotiation": true,
     "enriched_at": "2025-10-17T19:59:58.931066"
+  },
+  "221": {
+    "row_id": 221,
+    "type": "dare",
+    "description": "Make your orgasm face the next stranger you see until they make eye contact.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play",
+      "public"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:59:59.755256"
+  },
+  "222": {
+    "row_id": 222,
+    "type": "dare",
+    "description": "Caress the person next to you from their neck all the way to the brim of their underwear for 90 seconds.",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "control",
+      "massage"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:00.574616"
+  },
+  "223": {
+    "row_id": 223,
+    "type": "dare",
+    "description": "Play a round of seven minutes in heaven with your partner (or person of choice) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:01.335022"
+  },
+  "224": {
+    "row_id": 224,
+    "type": "dare",
+    "description": "Take off your clothes immediately, in front of your partner/group for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:02.136204"
+  },
+  "225": {
+    "row_id": 225,
+    "type": "dare",
+    "description": "Put an ice cube under your clothes/in your underwear for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "sensory",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:02.981605"
+  },
+  "226": {
+    "row_id": 226,
+    "type": "dare",
+    "description": "Lick something off my finger/body (you choose the place) for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "dominance",
+      "submission",
+      "sensory_play",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:04.047999"
+  },
+  "227": {
+    "row_id": 227,
+    "type": "dare",
+    "description": "Go without underwear for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:04.856676"
+  },
+  "228": {
+    "row_id": 228,
+    "type": "dare",
+    "description": "Fake an orgasm while describing a sex position for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "orgasm_control",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:05.689711"
+  },
+  "229": {
+    "row_id": 229,
+    "type": "dare",
+    "description": "Give the player on your right an erotic massage for 1 minute.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "erotic",
+      "intimate"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:06.445354"
+  },
+  "230": {
+    "row_id": 230,
+    "type": "dare",
+    "description": "Seductively eat a banana while locking eyes with the person to your left for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "eye_contact",
+      "teasing"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:07.254084"
+  },
+  "231": {
+    "row_id": 231,
+    "type": "dare",
+    "description": "Act out your dirtiest dream for 3 minutes.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:08.087707"
+  },
+  "232": {
+    "row_id": 232,
+    "type": "dare",
+    "description": "Bite the tip of the tongue from the player in front of you (lightly) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:08.887414"
+  },
+  "233": {
+    "row_id": 233,
+    "type": "dare",
+    "description": "French kiss the player sitting in front of you for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:09.671039"
+  },
+  "234": {
+    "row_id": 234,
+    "type": "dare",
+    "description": "If you had to choose: which player would you take for a naughty evening? (Point to them) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:10.490656"
+  },
+  "235": {
+    "row_id": 235,
+    "type": "dare",
+    "description": "Lick something off the earlobes of all the players of the opposite sex for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "oral",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:11.423819"
+  },
+  "236": {
+    "row_id": 236,
+    "type": "dare",
+    "description": "Caress their thighs, without your hands, be creative! (Point to a person) for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "control"
+    ],
+    "domains": [
+      "sensual",
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:12.227707"
+  },
+  "237": {
+    "row_id": 237,
+    "type": "dare",
+    "description": "Go skinny-dipping (if a pool/hot tub is available) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "nudity"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:13.097093"
+  },
+  "238": {
+    "row_id": 238,
+    "type": "truth",
+    "description": "What was your very first impression of me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:13.882139"
+  },
+  "239": {
+    "row_id": 239,
+    "type": "truth",
+    "description": "What's your biggest fear (in general)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:14.685253"
+  },
+  "240": {
+    "row_id": 240,
+    "type": "truth",
+    "description": "What's your ultimate unpopular opinion?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:15.507789"
+  },
+  "241": {
+    "row_id": 241,
+    "type": "truth",
+    "description": "What's the weirdest thing you've ever eaten?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:16.257808"
+  },
+  "242": {
+    "row_id": 242,
+    "type": "truth",
+    "description": "If you could pick a theme song for every time you entered a room, what would it be?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:17.038151"
+  },
+  "243": {
+    "row_id": 243,
+    "type": "truth",
+    "description": "What was the last thing you Googled?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:17.798630"
+  },
+  "244": {
+    "row_id": 244,
+    "type": "truth",
+    "description": "What's the worst thing you've ever done at work?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:18.599457"
+  },
+  "245": {
+    "row_id": 245,
+    "type": "truth",
+    "description": "What's your biggest regret?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:19.407656"
+  },
+  "246": {
+    "row_id": 246,
+    "type": "truth",
+    "description": "What's your favorite childhood memory?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:20.196461"
+  },
+  "247": {
+    "row_id": 247,
+    "type": "truth",
+    "description": "What's the best piece of advice you've ever received?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:21.149946"
+  },
+  "248": {
+    "row_id": 248,
+    "type": "truth",
+    "description": "What gives you the \"ick\"?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:21.941375"
+  },
+  "249": {
+    "row_id": 249,
+    "type": "truth",
+    "description": "What's the silliest lie you've ever told me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "conversation"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:22.789254"
+  },
+  "250": {
+    "row_id": 250,
+    "type": "truth",
+    "description": "Who is your favorite/least favorite of my friends?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:23.591146"
+  },
+  "251": {
+    "row_id": 251,
+    "type": "truth",
+    "description": "Name something you think could improve our relationship.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:24.420189"
+  },
+  "252": {
+    "row_id": 252,
+    "type": "truth",
+    "description": "What was our best date?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:25.219239"
+  },
+  "253": {
+    "row_id": 253,
+    "type": "truth",
+    "description": "Have you ever knowingly done anything illegal?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:26.023113"
+  },
+  "254": {
+    "row_id": 254,
+    "type": "truth",
+    "description": "What do you believe is the biggest misconception about you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:26.835681"
+  },
+  "255": {
+    "row_id": 255,
+    "type": "truth",
+    "description": "What's your biggest fear (in life, generally)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:27.619161"
+  },
+  "256": {
+    "row_id": 256,
+    "type": "truth",
+    "description": "What is your ultimate unpopular opinion?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:28.406865"
+  },
+  "257": {
+    "row_id": 257,
+    "type": "truth",
+    "description": "What is the weirdest thing you've ever eaten?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "conversation",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:29.197817"
+  },
+  "258": {
+    "row_id": 258,
+    "type": "truth",
+    "description": "What is a secret you've never told anyone?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:29.994371"
+  },
+  "259": {
+    "row_id": 259,
+    "type": "truth",
+    "description": "What's the worst gift you've ever received?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "roleplay"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:30.798282"
+  },
+  "260": {
+    "row_id": 260,
+    "type": "truth",
+    "description": "What is the last thing you Googled?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:31.570123"
+  },
+  "261": {
+    "row_id": 261,
+    "type": "truth",
+    "description": "Who is someone you pretend to like but actually can't stand?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:32.366476"
+  },
+  "262": {
+    "row_id": 262,
+    "type": "truth",
+    "description": "What's the most embarrassing thing you've ever done in front of a mirror?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:33.173819"
+  },
+  "263": {
+    "row_id": 263,
+    "type": "truth",
+    "description": "What's your biggest fear about our relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:33.990935"
+  },
+  "264": {
+    "row_id": 264,
+    "type": "truth",
+    "description": "If you could swap lives with me for a day, what would you do first?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:34.775773"
+  },
+  "265": {
+    "row_id": 265,
+    "type": "truth",
+    "description": "Have you ever farted and blamed someone else?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:35.571132"
+  },
+  "266": {
+    "row_id": 266,
+    "type": "truth",
+    "description": "What's the longest you've gone without washing your bed sheets?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:36.328016"
+  },
+  "267": {
+    "row_id": 267,
+    "type": "truth",
+    "description": "What is the craziest thing you've done on public transportation?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "connection"
+    ],
+    "domains": [
+      "playful",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:37.176224"
+  },
+  "268": {
+    "row_id": 268,
+    "type": "truth",
+    "description": "What crime would you commit if you knew you wouldn't get caught?",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:37.973577"
+  },
+  "269": {
+    "row_id": 269,
+    "type": "truth",
+    "description": "What's the last lie you told?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:38.742703"
+  },
+  "270": {
+    "row_id": 270,
+    "type": "truth",
+    "description": "What's the biggest misconception about you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:39.499821"
+  },
+  "271": {
+    "row_id": 271,
+    "type": "truth",
+    "description": "What's the most ridiculous thing you've ever Googled at 3am?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:40.347706"
+  },
+  "272": {
+    "row_id": 272,
+    "type": "truth",
+    "description": "What's the most embarrassing thing you've done for love?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:41.159563"
+  },
+  "273": {
+    "row_id": 273,
+    "type": "truth",
+    "description": "Have you ever broken the law?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:42.018330"
+  },
+  "274": {
+    "row_id": 274,
+    "type": "truth",
+    "description": "What's your biggest regret?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:42.790571"
+  },
+  "275": {
+    "row_id": 275,
+    "type": "truth",
+    "description": "What crime would you commit if you knew you'd never get caught?",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:43.590467"
+  },
+  "276": {
+    "row_id": 276,
+    "type": "truth",
+    "description": "What's one thing you only do when you're alone?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "exploration",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:44.359848"
+  },
+  "277": {
+    "row_id": 277,
+    "type": "truth",
+    "description": "What do you worry people would judge you for?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:45.364001"
+  },
+  "278": {
+    "row_id": 278,
+    "type": "truth",
+    "description": "What's your biggest fear about our relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:46.129619"
+  },
+  "279": {
+    "row_id": 279,
+    "type": "truth",
+    "description": "What's the biggest secret you've kept from your parents?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:46.941579"
+  },
+  "280": {
+    "row_id": 280,
+    "type": "truth",
+    "description": "What would constitute a \u201cperfect\u201d day for you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:47.738810"
+  },
+  "281": {
+    "row_id": 281,
+    "type": "truth",
+    "description": "Do you have a secret hunch about how you will die?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:48.575113"
+  },
+  "282": {
+    "row_id": 282,
+    "type": "truth",
+    "description": "Name three things you and your partner appear to have in common.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:49.386543"
+  },
+  "283": {
+    "row_id": 283,
+    "type": "truth",
+    "description": "What's the most illegal thing you've ever done?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:50.191584"
+  },
+  "284": {
+    "row_id": 284,
+    "type": "truth",
+    "description": "What was your most embarrassing moment in our relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:50.999549"
+  },
+  "285": {
+    "row_id": 285,
+    "type": "truth",
+    "description": "Is there a secret you've been too scared to tell me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:51.815801"
+  },
+  "286": {
+    "row_id": 286,
+    "type": "truth",
+    "description": "Have you ever lied to avoid getting in trouble with me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:52.659774"
+  },
+  "287": {
+    "row_id": 287,
+    "type": "truth",
+    "description": "What do you appreciate about the way we\u2019ve spent money so far?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:53.448671"
+  },
+  "288": {
+    "row_id": 288,
+    "type": "truth",
+    "description": "What's your biggest insecurity?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:00:54.264029"
+  },
+  "289": {
+    "row_id": 289,
+    "type": "truth",
+    "description": "What was your first impression of me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:55.045044"
+  },
+  "290": {
+    "row_id": 290,
+    "type": "truth",
+    "description": "When did you first know that you were in love with me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:55.852939"
+  },
+  "291": {
+    "row_id": 291,
+    "type": "truth",
+    "description": "What makes me feel cherished, loved, and secure?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "worship",
+      "service"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "loving",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:56.690602"
+  },
+  "292": {
+    "row_id": 292,
+    "type": "truth",
+    "description": "What makes me feel afraid in relationships? Why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:57.455327"
+  },
+  "293": {
+    "row_id": 293,
+    "type": "truth",
+    "description": "What was your very first impression of me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:58.250441"
+  },
+  "294": {
+    "row_id": 294,
+    "type": "truth",
+    "description": "What's your biggest fear (in general)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:59.056616"
+  },
+  "295": {
+    "row_id": 295,
+    "type": "truth",
+    "description": "What's your ultimate unpopular opinion?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:00:59.870614"
+  },
+  "296": {
+    "row_id": 296,
+    "type": "truth",
+    "description": "What's the weirdest thing you've ever eaten?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "conversation",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:00.635377"
+  },
+  "297": {
+    "row_id": 297,
+    "type": "truth",
+    "description": "If you could pick a theme song for every time you entered a room, what would it be?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:01.463148"
+  },
+  "298": {
+    "row_id": 298,
+    "type": "truth",
+    "description": "What was the last thing you Googled?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:02.249013"
+  },
+  "299": {
+    "row_id": 299,
+    "type": "truth",
+    "description": "What's the worst thing you've ever done at work?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:03.045083"
+  },
+  "300": {
+    "row_id": 300,
+    "type": "truth",
+    "description": "What's your biggest regret?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:03.808701"
+  },
+  "301": {
+    "row_id": 301,
+    "type": "truth",
+    "description": "What's your favorite childhood memory?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:04.600500"
+  },
+  "302": {
+    "row_id": 302,
+    "type": "truth",
+    "description": "What's the best piece of advice you've ever received?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "service"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:05.424627"
+  },
+  "303": {
+    "row_id": 303,
+    "type": "truth",
+    "description": "What gives you the \"ick\"?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:06.171969"
+  },
+  "304": {
+    "row_id": 304,
+    "type": "truth",
+    "description": "What's the silliest lie you've ever told me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "conversation"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:06.952710"
+  },
+  "305": {
+    "row_id": 305,
+    "type": "truth",
+    "description": "Have you ever knowingly done anything illegal?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:07.758793"
+  },
+  "306": {
+    "row_id": 306,
+    "type": "truth",
+    "description": "What do you believe is the biggest misconception about you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:08.599610"
+  },
+  "307": {
+    "row_id": 307,
+    "type": "truth",
+    "description": "What's your biggest fear (in life, generally)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:09.387557"
+  },
+  "308": {
+    "row_id": 308,
+    "type": "truth",
+    "description": "What is your ultimate unpopular opinion?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:10.184926"
+  },
+  "309": {
+    "row_id": 309,
+    "type": "truth",
+    "description": "What is the weirdest thing you've ever eaten?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "conversation",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:11.011612"
+  },
+  "310": {
+    "row_id": 310,
+    "type": "truth",
+    "description": "What is a secret you've never told anyone?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:11.816179"
+  },
+  "311": {
+    "row_id": 311,
+    "type": "truth",
+    "description": "What's the worst gift you've ever received?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:12.630564"
+  },
+  "312": {
+    "row_id": 312,
+    "type": "truth",
+    "description": "What is the last thing you Googled?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:13.438883"
+  },
+  "313": {
+    "row_id": 313,
+    "type": "truth",
+    "description": "Who is someone you pretend to like but actually can't stand?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:14.226852"
+  },
+  "314": {
+    "row_id": 314,
+    "type": "truth",
+    "description": "What's the most embarrassing thing you've ever done in front of a mirror?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:15.034560"
+  },
+  "315": {
+    "row_id": 315,
+    "type": "truth",
+    "description": "Have you ever farted and blamed someone else?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:15.800410"
+  },
+  "316": {
+    "row_id": 316,
+    "type": "truth",
+    "description": "What's the longest you've gone without washing your bed sheets?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:16.597471"
+  },
+  "317": {
+    "row_id": 317,
+    "type": "truth",
+    "description": "What is the craziest thing you've done on public transportation?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:17.380135"
+  },
+  "318": {
+    "row_id": 318,
+    "type": "truth",
+    "description": "What crime would you commit if you knew you wouldn't get caught?",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:18.183239"
+  },
+  "319": {
+    "row_id": 319,
+    "type": "truth",
+    "description": "What's the last lie you told?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:18.991312"
+  },
+  "320": {
+    "row_id": 320,
+    "type": "truth",
+    "description": "What's the biggest misconception about you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:19.756658"
+  },
+  "321": {
+    "row_id": 321,
+    "type": "truth",
+    "description": "What's the most ridiculous thing you've ever Googled at 3am?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:20.572444"
+  },
+  "322": {
+    "row_id": 322,
+    "type": "truth",
+    "description": "What's the most embarrassing thing you've done for love?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:21.681548"
+  },
+  "323": {
+    "row_id": 323,
+    "type": "truth",
+    "description": "Have you ever broken the law?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:22.511286"
+  },
+  "324": {
+    "row_id": 324,
+    "type": "truth",
+    "description": "What's your biggest regret?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "emotional"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:23.314717"
+  },
+  "325": {
+    "row_id": 325,
+    "type": "truth",
+    "description": "What crime would you commit if you knew you'd never get caught?",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:24.204884"
+  },
+  "326": {
+    "row_id": 326,
+    "type": "truth",
+    "description": "What's one thing you only do when you're alone?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:25.050927"
+  },
+  "327": {
+    "row_id": 327,
+    "type": "truth",
+    "description": "What do you worry people would judge you for?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:25.834203"
+  },
+  "328": {
+    "row_id": 328,
+    "type": "truth",
+    "description": "What would constitute a \u201cperfect\u201d day for you?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:26.645969"
+  },
+  "329": {
+    "row_id": 329,
+    "type": "truth",
+    "description": "Name three things you and your partner appear to have in common.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "service"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:27.459880"
+  },
+  "330": {
+    "row_id": 330,
+    "type": "truth",
+    "description": "What's the most illegal thing you've ever done?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:28.249228"
+  },
+  "331": {
+    "row_id": 331,
+    "type": "truth",
+    "description": "What's your biggest insecurity?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:29.360223"
+  },
+  "332": {
+    "row_id": 332,
+    "type": "truth",
+    "description": "What was your first impression of me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:30.155242"
+  },
+  "333": {
+    "row_id": 333,
+    "type": "truth",
+    "description": "How do you define trust in a non-monogamous relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:30.995183"
+  },
+  "334": {
+    "row_id": 334,
+    "type": "truth",
+    "description": "What are the benefits and challenges of non-monogamous relationships?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "exploration",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:31.781643"
+  },
+  "335": {
+    "row_id": 335,
+    "type": "truth",
+    "description": "What boundaries do you think are important to discuss when entering a non-monogamous relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:32.628700"
+  },
+  "336": {
+    "row_id": 336,
+    "type": "truth",
+    "description": "If tomorrow your partner said \u201cnever mind, I want to be monogamous\u201d how would you feel?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "emotional"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:33.381111"
+  },
+  "337": {
+    "row_id": 337,
+    "type": "truth",
+    "description": "What makes me feel cherished, loved, and secure?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "worship",
+      "service"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "loving",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:34.206012"
+  },
+  "338": {
+    "row_id": 338,
+    "type": "truth",
+    "description": "What makes me feel afraid in relationships? Why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:34.995873"
+  },
+  "339": {
+    "row_id": 339,
+    "type": "truth",
+    "description": "How would your spouse describe your relationship with them?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:35.780617"
+  },
+  "340": {
+    "row_id": 340,
+    "type": "truth",
+    "description": "How would your spouse describe how you opened (to polyamory)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:36.596018"
+  },
+  "341": {
+    "row_id": 341,
+    "type": "truth",
+    "description": "What's your biggest turn-on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:37.393245"
+  },
+  "342": {
+    "row_id": 342,
+    "type": "truth",
+    "description": "Where's the weirdest/most adventurous place you've had sex?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "adventurous"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:38.190648"
+  },
+  "343": {
+    "row_id": 343,
+    "type": "truth",
+    "description": "Have you ever faked an orgasm?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "orgasm_control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:39.034713"
+  },
+  "344": {
+    "row_id": 344,
+    "type": "truth",
+    "description": "What's your favorite sex position and why?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "oral",
+      "anal"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:39.875571"
+  },
+  "345": {
+    "row_id": 345,
+    "type": "truth",
+    "description": "What typically non-sexual thing turns you on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:40.679102"
+  },
+  "346": {
+    "row_id": 346,
+    "type": "truth",
+    "description": "What's your secret bedroom talent?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:41.478468"
+  },
+  "347": {
+    "row_id": 347,
+    "type": "truth",
+    "description": "What sexual act(s) are you not into (turn-offs)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "oral",
+      "anal",
+      "manual_stimulation",
+      "dominance"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:42.356404"
+  },
+  "348": {
+    "row_id": 348,
+    "type": "truth",
+    "description": "What's the biggest age gap you've had in a hook-up or relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:43.104800"
+  },
+  "349": {
+    "row_id": 349,
+    "type": "truth",
+    "description": "Have you ever cheated on a partner and if so, why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:43.917676"
+  },
+  "350": {
+    "row_id": 350,
+    "type": "truth",
+    "description": "Who was your worst sexual partner, and why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:44.697584"
+  },
+  "351": {
+    "row_id": 351,
+    "type": "truth",
+    "description": "What's your biggest turn-on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:45.567635"
+  },
+  "352": {
+    "row_id": 352,
+    "type": "truth",
+    "description": "Where's the weirdest/most adventurous place you've had sex?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "adventurous"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:46.364210"
+  },
+  "353": {
+    "row_id": 353,
+    "type": "truth",
+    "description": "Have you ever faked an orgasm?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "orgasm_control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:47.202778"
+  },
+  "354": {
+    "row_id": 354,
+    "type": "truth",
+    "description": "What's your favorite sex position and why?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "oral",
+      "anal"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:48.014437"
+  },
+  "355": {
+    "row_id": 355,
+    "type": "truth",
+    "description": "What typically non-sexual thing turns you on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:48.818657"
+  },
+  "356": {
+    "row_id": 356,
+    "type": "truth",
+    "description": "What's your secret bedroom talent?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:49.627678"
+  },
+  "357": {
+    "row_id": 357,
+    "type": "truth",
+    "description": "What sexual act(s) are you not into (turn-offs)?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "penetration",
+      "anal",
+      "manual_stimulation",
+      "dominance"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:50.453708"
+  },
+  "358": {
+    "row_id": 358,
+    "type": "truth",
+    "description": "What's the biggest age gap you've had in a hook-up or relationship?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:01:51.245655"
+  },
+  "359": {
+    "row_id": 359,
+    "type": "truth",
+    "description": "Have you ever cheated on a partner and if so, why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:52.101698"
+  },
+  "360": {
+    "row_id": 360,
+    "type": "truth",
+    "description": "Who was your worst sexual partner, and why?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:52.890008"
+  },
+  "361": {
+    "row_id": 361,
+    "type": "truth",
+    "description": "Do you like to be choked?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "restraint",
+      "bondage",
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "edge",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy",
+      "extreme"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:53.736100"
+  },
+  "362": {
+    "row_id": 362,
+    "type": "truth",
+    "description": "Have you tried wax play?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:54.547129"
+  },
+  "363": {
+    "row_id": 363,
+    "type": "truth",
+    "description": "What's the kinkiest thing you like to do during sex?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kinking",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:55.363811"
+  },
+  "364": {
+    "row_id": 364,
+    "type": "truth",
+    "description": "What are your thoughts on BDSM?",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:56.136633"
+  },
+  "365": {
+    "row_id": 365,
+    "type": "truth",
+    "description": "Do you like things in your butt?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "anal",
+      "penetration"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:56.910978"
+  },
+  "366": {
+    "row_id": 366,
+    "type": "truth",
+    "description": "What's the weirdest thing you've ever masturbated to?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "masturbation",
+      "self_exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "personal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:57.714886"
+  },
+  "367": {
+    "row_id": 367,
+    "type": "truth",
+    "description": "Are you dominant or submissive?",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:58.514855"
+  },
+  "368": {
+    "row_id": 368,
+    "type": "truth",
+    "description": "Have you ever had sex with more than one person at once?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "simultaneous_climax"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:01:59.309873"
+  },
+  "369": {
+    "row_id": 369,
+    "type": "truth",
+    "description": "Who in this room would you fantasize about while masturbating?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "masturbation",
+      "fantasy"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:00.136612"
+  },
+  "370": {
+    "row_id": 370,
+    "type": "truth",
+    "description": "Do you like to be choked?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "restraint",
+      "bondage",
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "edge",
+      "sensory_play"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:00.937783"
+  },
+  "371": {
+    "row_id": 371,
+    "type": "truth",
+    "description": "Have you tried wax play?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:01.732683"
+  },
+  "372": {
+    "row_id": 372,
+    "type": "truth",
+    "description": "What's the kinkiest thing you like to do during sex?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "kinking"
+    ],
+    "domains": [
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:02.532307"
+  },
+  "373": {
+    "row_id": 373,
+    "type": "truth",
+    "description": "What are your thoughts on BDSM?",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:03.311658"
+  },
+  "374": {
+    "row_id": 374,
+    "type": "truth",
+    "description": "Have you ever tried partner-swapping?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:04.685259"
+  },
+  "375": {
+    "row_id": 375,
+    "type": "truth",
+    "description": "Do you like things in your butt?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "anal",
+      "penetration"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:05.426124"
+  },
+  "376": {
+    "row_id": 376,
+    "type": "truth",
+    "description": "What's the weirdest thing you've ever masturbated to?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "masturbation",
+      "self_exploration"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "personal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:06.198496"
+  },
+  "377": {
+    "row_id": 377,
+    "type": "truth",
+    "description": "Are you dominant or submissive?",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:07.032650"
+  },
+  "378": {
+    "row_id": 378,
+    "type": "truth",
+    "description": "What first attracted you to me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:07.928385"
+  },
+  "379": {
+    "row_id": 379,
+    "type": "truth",
+    "description": "What's your secret bedroom talent?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:08.701950"
+  },
+  "380": {
+    "row_id": 380,
+    "type": "truth",
+    "description": "What sexual act(s) are you not into?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "penetration",
+      "anal"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:09.539432"
+  },
+  "381": {
+    "row_id": 381,
+    "type": "truth",
+    "description": "Describe your perfect date night that ends in the bedroom.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "penetration",
+      "romance"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:10.363473"
+  },
+  "382": {
+    "row_id": 382,
+    "type": "truth",
+    "description": "Which outfit of mine do you find most irresistible?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:11.165893"
+  },
+  "383": {
+    "row_id": 383,
+    "type": "truth",
+    "description": "What do you love most about my body?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:11.984376"
+  },
+  "384": {
+    "row_id": 384,
+    "type": "truth",
+    "description": "What typically non-sexual thing turns you on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:12.750499"
+  },
+  "385": {
+    "row_id": 385,
+    "type": "truth",
+    "description": "Where's the craziest place you've had sex?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "roleplay"
+    ],
+    "domains": [
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:13.518981"
+  },
+  "386": {
+    "row_id": 386,
+    "type": "truth",
+    "description": "What's your favorite sex act to receive?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "penetration",
+      "manual_stimulation"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "personal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:14.345735"
+  },
+  "387": {
+    "row_id": 387,
+    "type": "truth",
+    "description": "What sex toy do you want to try that you haven't already?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "exploration",
+      "sensory_play"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:15.146897"
+  },
+  "388": {
+    "row_id": 388,
+    "type": "truth",
+    "description": "What's one thing you've been wanting me to do to you in bed?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:15.942010"
+  },
+  "389": {
+    "row_id": 389,
+    "type": "truth",
+    "description": "What love language do you like to give/receive?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "worship",
+      "service"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:16.796344"
+  },
+  "390": {
+    "row_id": 390,
+    "type": "truth",
+    "description": "Do you prefer to be dominant or submissive?",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:17.574094"
+  },
+  "391": {
+    "row_id": 391,
+    "type": "truth",
+    "description": "Have you ever had a sexy dream about me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:18.329173"
+  },
+  "392": {
+    "row_id": 392,
+    "type": "truth",
+    "description": "What's the naughtiest thing you've ever done in public?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:19.120504"
+  },
+  "393": {
+    "row_id": 393,
+    "type": "truth",
+    "description": "What's one thing you're curious about trying in the bedroom?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "exploration",
+      "connection"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:19.871587"
+  },
+  "394": {
+    "row_id": 394,
+    "type": "truth",
+    "description": "What's your most memorable kiss?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "connection",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:20.729046"
+  },
+  "395": {
+    "row_id": 395,
+    "type": "truth",
+    "description": "What are your thoughts on polyamory?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:21.529783"
+  },
+  "396": {
+    "row_id": 396,
+    "type": "truth",
+    "description": "What's the spiciest thing you've ever done on a date?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:22.317727"
+  },
+  "397": {
+    "row_id": 397,
+    "type": "truth",
+    "description": "Do you make love, have sex, or screw?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:23.162375"
+  },
+  "398": {
+    "row_id": 398,
+    "type": "truth",
+    "description": "If you could have a celebrity for a best friend, who would it be?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "roleplay"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:23.972538"
+  },
+  "399": {
+    "row_id": 399,
+    "type": "truth",
+    "description": "What article of clothing in my closet do you find the sexiest?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:24.731420"
+  },
+  "400": {
+    "row_id": 400,
+    "type": "truth",
+    "description": "What is your favorite sex act to receive?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "penetration",
+      "manual_stimulation"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "personal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:25.566337"
+  },
+  "401": {
+    "row_id": 401,
+    "type": "truth",
+    "description": "What's the boldest thing you've ever done to get someone's attention?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:26.416501"
+  },
+  "402": {
+    "row_id": 402,
+    "type": "truth",
+    "description": "What is your biggest turn-off?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:27.227890"
+  },
+  "403": {
+    "row_id": 403,
+    "type": "truth",
+    "description": "What's the largest age gap between you and a sexual partner?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:27.999233"
+  },
+  "404": {
+    "row_id": 404,
+    "type": "truth",
+    "description": "Have you ever faked an orgasm?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "orgasm_control",
+      "submission"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:28.808565"
+  },
+  "405": {
+    "row_id": 405,
+    "type": "truth",
+    "description": "Do you like loud or silent people in bed?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:29.565890"
+  },
+  "406": {
+    "row_id": 406,
+    "type": "truth",
+    "description": "What's your most interesting sexual fantasy (describe it generally)?",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "roleplay"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:30.594809"
+  },
+  "407": {
+    "row_id": 407,
+    "type": "truth",
+    "description": "What are your top three places to be touched?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "manual_stimulation",
+      "massage"
+    ],
+    "domains": [
+      "sensual",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:31.415828"
+  },
+  "408": {
+    "row_id": 408,
+    "type": "truth",
+    "description": "How would you describe the way I taste?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:32.208171"
+  },
+  "409": {
+    "row_id": 409,
+    "type": "truth",
+    "description": "When do you feel your most sensual?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "connection",
+      "exploration"
+    ],
+    "domains": [
+      "sensual",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:33.016920"
+  },
+  "410": {
+    "row_id": 410,
+    "type": "truth",
+    "description": "Have you ever had a one-night stand?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:33.835025"
+  },
+  "411": {
+    "row_id": 411,
+    "type": "truth",
+    "description": "What is your favorite song about action in the bedroom?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "oral",
+      "manual_stimulation",
+      "penetration"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:34.600279"
+  },
+  "412": {
+    "row_id": 412,
+    "type": "truth",
+    "description": "What's the most embarrassing text in your phone right now?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:35.384683"
+  },
+  "413": {
+    "row_id": 413,
+    "type": "truth",
+    "description": "What first attracted you to me?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:36.189731"
+  },
+  "414": {
+    "row_id": 414,
+    "type": "truth",
+    "description": "What's your secret bedroom talent?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:36.944424"
+  },
+  "415": {
+    "row_id": 415,
+    "type": "truth",
+    "description": "What sexual act(s) are you not into?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "oral",
+      "anal"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:37.753770"
+  },
+  "416": {
+    "row_id": 416,
+    "type": "truth",
+    "description": "Describe your perfect date night that ends in the bedroom.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "penetration"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:38.546896"
+  },
+  "417": {
+    "row_id": 417,
+    "type": "truth",
+    "description": "What typically non-sexual thing turns you on?",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T20:02:39.381014"
+  },
+  "418": {
+    "row_id": 418,
+    "type": "truth",
+    "description": "Where's the craziest place you've had sex?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "roleplay"
+    ],
+    "domains": [
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:40.183584"
+  },
+  "419": {
+    "row_id": 419,
+    "type": "truth",
+    "description": "What's your favorite sex act to receive?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "penetration",
+      "manual_stimulation"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "personal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:41.025590"
+  },
+  "420": {
+    "row_id": 420,
+    "type": "truth",
+    "description": "What sex toy do you want to try that you haven't already?",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "exploration",
+      "sensory_play"
+    ],
+    "domains": [
+      "exploration",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T20:02:41.842830"
   }
 }
