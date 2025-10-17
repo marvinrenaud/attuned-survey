@@ -28,6 +28,13 @@ class Activity(db.Model):
     # e.g., ["impact_play", "bondage"] - used to filter against player boundaries
     hard_limit_keys = db.Column(db.JSON, nullable=True)
     
+    # AI-enriched metadata (added for personalization)
+    power_role = db.Column(db.String(16), nullable=True, index=True)  # top, bottom, switch, neutral
+    preference_keys = db.Column(db.JSON, nullable=True)  # [massage, oral, bondage, etc.]
+    domains = db.Column(db.JSON, nullable=True)  # [sensual, playful, power, connection, exploration]
+    intensity_modifiers = db.Column(db.JSON, nullable=True)  # [gentle, intense, edgy, taboo, etc.]
+    requires_consent_negotiation = db.Column(db.Boolean, default=False, nullable=True)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -52,6 +59,11 @@ class Activity(db.Model):
             'source': self.source,
             'approved': self.approved,
             'hard_limit_keys': self.hard_limit_keys or [],
+            'power_role': self.power_role,
+            'preference_keys': self.preference_keys or [],
+            'domains': self.domains or [],
+            'intensity_modifiers': self.intensity_modifiers or [],
+            'requires_consent_negotiation': self.requires_consent_negotiation,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }

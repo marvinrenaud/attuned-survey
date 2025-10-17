@@ -1,0 +1,1648 @@
+{
+  "1": {
+    "row_id": 1,
+    "type": "dare",
+    "description": "Imitate your partner's laugh perfectly for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:14.981119"
+  },
+  "2": {
+    "row_id": 2,
+    "type": "dare",
+    "description": "Do your best five-minute stand-up comedy routine for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:15.968811"
+  },
+  "3": {
+    "row_id": 3,
+    "type": "dare",
+    "description": "Swap outfits with me for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:16.971931"
+  },
+  "4": {
+    "row_id": 4,
+    "type": "dare",
+    "description": "Write a love poem in five minutes or less for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:17.972497"
+  },
+  "5": {
+    "row_id": 5,
+    "type": "dare",
+    "description": "Talk in an accent for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:18.996955"
+  },
+  "6": {
+    "row_id": 6,
+    "type": "dare",
+    "description": "Serenade me with a song of your choice for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "worship",
+      "service"
+    ],
+    "domains": [
+      "playful",
+      "connection",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:19.987487"
+  },
+  "7": {
+    "row_id": 7,
+    "type": "dare",
+    "description": "Make the weirdest face you can and hold it for 10 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:20.965918"
+  },
+  "8": {
+    "row_id": 8,
+    "type": "dare",
+    "description": "Let me do your makeup while blindfolded for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:21.960660"
+  },
+  "9": {
+    "row_id": 9,
+    "type": "dare",
+    "description": "Do a sexy walk across the room while balancing a book on your head for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:22.989285"
+  },
+  "10": {
+    "row_id": 10,
+    "type": "dare",
+    "description": "Go without underwear on our next date night for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:44:24.006093"
+  },
+  "11": {
+    "row_id": 11,
+    "type": "dare",
+    "description": "Take a shower with your clothes on for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:44:24.990594"
+  },
+  "12": {
+    "row_id": 12,
+    "type": "dare",
+    "description": "Let me text your best friend whatever I want for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:44:25.989688"
+  },
+  "13": {
+    "row_id": 13,
+    "type": "dare",
+    "description": "Draw a picture using only your feet for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:26.970554"
+  },
+  "14": {
+    "row_id": 14,
+    "type": "dare",
+    "description": "Do your best celebrity impression for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:27.928522"
+  },
+  "15": {
+    "row_id": 15,
+    "type": "dare",
+    "description": "Say yes to everything for the next 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:28.929444"
+  },
+  "16": {
+    "row_id": 16,
+    "type": "dare",
+    "description": "Post a photo of yourself in a ridiculous pose on your social media for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:29.894219"
+  },
+  "17": {
+    "row_id": 17,
+    "type": "dare",
+    "description": "Deliver your best five-minute stand-up comedy routine for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:30.979768"
+  },
+  "18": {
+    "row_id": 18,
+    "type": "dare",
+    "description": "Swap outfits with your partner for the rest of the game for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:32.021892"
+  },
+  "19": {
+    "row_id": 19,
+    "type": "dare",
+    "description": "Let your partner do your makeup while blindfolded for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:33.059613"
+  },
+  "20": {
+    "row_id": 20,
+    "type": "dare",
+    "description": "Write a love poem about your partner in five minutes or less for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "connection",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:44:34.057593"
+  },
+  "21": {
+    "row_id": 21,
+    "type": "dare",
+    "description": "Burp the alphabet for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:33.677286"
+  },
+  "22": {
+    "row_id": 22,
+    "type": "dare",
+    "description": "Let me post a photo of my choice to your Instagram story for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:34.690866"
+  },
+  "23": {
+    "row_id": 23,
+    "type": "dare",
+    "description": "Take a bite out of a raw onion for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:35.714238"
+  },
+  "24": {
+    "row_id": 24,
+    "type": "dare",
+    "description": "Give me a 10-minute massage for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:36.678536"
+  },
+  "25": {
+    "row_id": 25,
+    "type": "dare",
+    "description": "Hold eye contact for two full minutes for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "eye_contact",
+      "connection"
+    ],
+    "domains": [
+      "connection",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:37.687100"
+  },
+  "26": {
+    "row_id": 26,
+    "type": "dare",
+    "description": "Reenact the moment we met for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "connection"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:38.687025"
+  },
+  "27": {
+    "row_id": 27,
+    "type": "dare",
+    "description": "Write a love poem for me in five minutes or less for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:39.701206"
+  },
+  "28": {
+    "row_id": 28,
+    "type": "dare",
+    "description": "Take turns giving each other heartfelt compliments for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "connection",
+      "worship"
+    ],
+    "domains": [
+      "connection",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "loving",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:40.671129"
+  },
+  "29": {
+    "row_id": 29,
+    "type": "dare",
+    "description": "Act out a scene from your favorite fantasy movie or book. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:41.645115"
+  },
+  "30": {
+    "row_id": 30,
+    "type": "dare",
+    "description": "Do your best impression of me for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:42.593945"
+  },
+  "31": {
+    "row_id": 31,
+    "type": "dare",
+    "description": "Do a catwalk across the room and strike a pose at the end. 4 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:43.564923"
+  },
+  "32": {
+    "row_id": 32,
+    "type": "dare",
+    "description": "Imitate your best flirting technique using only facial expressions. 4 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "flirting"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:44.536422"
+  },
+  "33": {
+    "row_id": 33,
+    "type": "dare",
+    "description": "Go live on one of your social media accounts and declare your love for me for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "commands",
+      "worship",
+      "service"
+    ],
+    "domains": [
+      "power",
+      "connection",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic",
+      "loving"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:45.549590"
+  },
+  "34": {
+    "row_id": 34,
+    "type": "dare",
+    "description": "Do your best five-minute stand-up comedy routine for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:46.542629"
+  },
+  "35": {
+    "row_id": 35,
+    "type": "dare",
+    "description": "Write a love poem in five minutes or less for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:47.518479"
+  },
+  "36": {
+    "row_id": 36,
+    "type": "dare",
+    "description": "Talk in an accent for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:48.478401"
+  },
+  "37": {
+    "row_id": 37,
+    "type": "dare",
+    "description": "Make the weirdest face you can and hold it for 10 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:49.448593"
+  },
+  "38": {
+    "row_id": 38,
+    "type": "dare",
+    "description": "Do a sexy walk across the room while balancing a book on your head for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:50.460682"
+  },
+  "39": {
+    "row_id": 39,
+    "type": "dare",
+    "description": "Take a shower with your clothes on for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:51.441868"
+  },
+  "40": {
+    "row_id": 40,
+    "type": "dare",
+    "description": "Let me text your best friend whatever I want for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:52.509089"
+  },
+  "41": {
+    "row_id": 41,
+    "type": "dare",
+    "description": "Draw a picture using only your feet for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "playful",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:53.531297"
+  },
+  "42": {
+    "row_id": 42,
+    "type": "dare",
+    "description": "Do your best celebrity impression for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:54.556696"
+  },
+  "43": {
+    "row_id": 43,
+    "type": "dare",
+    "description": "Say yes to everything for the next 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:55.538716"
+  },
+  "44": {
+    "row_id": 44,
+    "type": "dare",
+    "description": "Post a photo of yourself in a ridiculous pose on your social media for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:56.525756"
+  },
+  "45": {
+    "row_id": 45,
+    "type": "dare",
+    "description": "Deliver your best five-minute stand-up comedy routine for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:57.492919"
+  },
+  "46": {
+    "row_id": 46,
+    "type": "dare",
+    "description": "Burp the alphabet for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:48:58.485279"
+  },
+  "47": {
+    "row_id": 47,
+    "type": "dare",
+    "description": "Let me post a photo of my choice to your Instagram story for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:48:59.461907"
+  },
+  "48": {
+    "row_id": 48,
+    "type": "dare",
+    "description": "Take a bite out of a raw onion for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "edge"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:00.467832"
+  },
+  "49": {
+    "row_id": 49,
+    "type": "dare",
+    "description": "Give the player across from you a backhanded compliment for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "degrading"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:02.550628"
+  },
+  "50": {
+    "row_id": 50,
+    "type": "dare",
+    "description": "Serenade the person to your right for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:05.616040"
+  },
+  "51": {
+    "row_id": 51,
+    "type": "dare",
+    "description": "Do your best impression of someone in the room for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:08.692253"
+  },
+  "52": {
+    "row_id": 52,
+    "type": "dare",
+    "description": "Act out a scene from your favorite fantasy movie or book. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:11.730011"
+  },
+  "53": {
+    "row_id": 53,
+    "type": "dare",
+    "description": "Call a random phone number and talk to them for as long as possible. 5 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:14.825325"
+  },
+  "54": {
+    "row_id": 54,
+    "type": "dare",
+    "description": "Let another person draw a tattoo with a permanent marker on your back. 5 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "sensory"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:17.909080"
+  },
+  "55": {
+    "row_id": 55,
+    "type": "dare",
+    "description": "Do a catwalk across the room and strike a pose at the end. 4 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "sensory_play",
+      "playful"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:21.044295"
+  },
+  "56": {
+    "row_id": 56,
+    "type": "dare",
+    "description": "Imitate your best flirting technique using only facial expressions. 4 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "flirting"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:24.089344"
+  },
+  "57": {
+    "row_id": 57,
+    "type": "dare",
+    "description": "Kiss your favourite part of my body. 6 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "kissing",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:28.107808"
+  },
+  "58": {
+    "row_id": 58,
+    "type": "dare",
+    "description": "Go into the bathroom or bedroom and send me a sexy selfie for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:31.151610"
+  },
+  "59": {
+    "row_id": 59,
+    "type": "dare",
+    "description": "Lick something off my finger. 6 for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "commands",
+      "obedience",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:34.215775"
+  },
+  "60": {
+    "row_id": 60,
+    "type": "dare",
+    "description": "Give me a five-minute foot massage. 6 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "sensory_play",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:37.276691"
+  },
+  "61": {
+    "row_id": 61,
+    "type": "dare",
+    "description": "Do a seductive dance. 6 for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:40.322744"
+  },
+  "62": {
+    "row_id": 62,
+    "type": "dare",
+    "description": "Read an erotic passage out loud. 6 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:43.404001"
+  },
+  "63": {
+    "row_id": 63,
+    "type": "dare",
+    "description": "Hide a chocolate in your clothes and let me find it. 6 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:46.478242"
+  },
+  "64": {
+    "row_id": 64,
+    "type": "dare",
+    "description": "Perform a sexy dance to a decidedly unsexy song. 7 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dance",
+      "roleplay",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:49.628694"
+  },
+  "65": {
+    "row_id": 65,
+    "type": "dare",
+    "description": "Let your partner blindfold you and tickle you for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "submission"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:52.718465"
+  },
+  "66": {
+    "row_id": 66,
+    "type": "dare",
+    "description": "Play a song you'd like to have sex to for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:49:55.779147"
+  },
+  "67": {
+    "row_id": 67,
+    "type": "dare",
+    "description": "Whisper some dirty talk in my ear for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:49:58.848099"
+  },
+  "68": {
+    "row_id": 68,
+    "type": "dare",
+    "description": "Do your sexiest dance for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:01.879596"
+  },
+  "69": {
+    "row_id": 69,
+    "type": "dare",
+    "description": "Take off three items of clothing. 6 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:04.932538"
+  },
+  "70": {
+    "row_id": 70,
+    "type": "dare",
+    "description": "Drop an ice cube in your underwear. 6 for 60 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:08.002251"
+  }
+}
