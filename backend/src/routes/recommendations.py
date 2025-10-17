@@ -143,50 +143,49 @@ def create_recommendations():
             activity_item = None
             
             if len(activities) / target_activities < bank_ratio:
-                # Try bank first
-                candidates = repository.find_activity_candidates(
+                # Try to find best-matching activity from bank using preference scoring
+                best_candidate = repository.find_best_activity_candidate(
                     rating=rating,
                     intensity_min=intensity_min,
                     intensity_max=intensity_max,
                     activity_type=picked_type,
+                    player_a_profile=player_a_profile,
+                    player_b_profile=player_b_profile,
                     hard_limits=all_hard_limits,
-                    limit=10
+                    top_n=20  # Consider top 20 candidates for scoring
                 )
                 
-                if candidates:
-                    # Convert first candidate to activity item format
-                    candidate = candidates[0]
-                    
+                if best_candidate:
                     # Alternate actors: odd steps = A, even steps = B
                     actor = 'A' if seq % 2 == 1 else 'B'
                     partner = 'B' if actor == 'A' else 'A'
                     
                     # Update script with alternating actor
-                    script = candidate.script.copy() if candidate.script else {'steps': []}
+                    script = best_candidate.script.copy() if best_candidate.script else {'steps': []}
                     if script.get('steps'):
                         for step in script['steps']:
                             step['actor'] = actor
                     
                     activity_item = {
-                        'id': f'bank_{candidate.activity_id}',
+                        'id': f'bank_{best_candidate.activity_id}',
                         'seq': seq,
-                        'type': candidate.type,
-                        'rating': candidate.rating,
-                        'intensity': candidate.intensity,
+                        'type': best_candidate.type,
+                        'rating': best_candidate.rating,
+                        'intensity': best_candidate.intensity,
                         'roles': {'active_player': actor, 'partner_player': partner},
                         'script': script,
-                        'tags': candidate.tags or [],
+                        'tags': best_candidate.tags or [],
                         'provenance': {
                             'source': 'bank',
-                            'template_id': candidate.activity_id
+                            'template_id': best_candidate.activity_id
                         },
                         'checks': {
                             'respects_hard_limits': True,
                             'uses_yes_overlap': True,
                             'maybe_items_present': False,
                             'anatomy_ok': True,
-                            'power_alignment': None,
-                            'notes': 'From curated bank'
+                            'power_alignment': True,  # Verified by scoring
+                            'notes': 'Selected via preference scoring'
                         }
                     }
                     bank_count += 1

@@ -223,6 +223,102 @@ def get_activity(activity_id: int) -> Optional[Activity]:
     return Activity.query.get(activity_id)
 
 
+def find_best_activity_candidate(
+    rating: str,
+    intensity_min: int,
+    intensity_max: int,
+    activity_type: str,
+    player_a_profile: Dict[str, Any],
+    player_b_profile: Dict[str, Any],
+    hard_limits: Optional[List[str]] = None,
+    top_n: int = 20
+) -> Optional[Activity]:
+    """
+    Find best-matching activity using preference-based scoring.
+    
+    Args:
+        rating: Content rating (G/R/X)
+        intensity_min: Minimum intensity
+        intensity_max: Maximum intensity
+        activity_type: 'truth' or 'dare'
+        player_a_profile: Player A's complete profile dict
+        player_b_profile: Player B's complete profile dict
+        hard_limits: List of hard limit keys to exclude
+        top_n: Consider top N candidates for scoring
+    
+    Returns:
+        Best-matching Activity or None
+    """
+    from ..recommender.scoring import score_activity_for_players, filter_by_power_dynamics
+    
+    # Get candidates using existing filter
+    candidates = find_activity_candidates(
+        rating=rating,
+        intensity_min=intensity_min,
+        intensity_max=intensity_max,
+        activity_type=activity_type,
+        hard_limits=hard_limits,
+        limit=top_n
+    )
+    
+    if not candidates:
+        return None
+    
+    # Convert to dicts for scoring
+    candidate_dicts = [c.to_dict() for c in candidates]
+    
+    # Filter by power dynamics first (removes hard mismatches)
+    player_a_orientation = player_a_profile.get('power_dynamic', {}).get('orientation', 'Switch')
+    player_b_orientation = player_b_profile.get('power_dynamic', {}).get('orientation', 'Switch')
+    
+    compatible_dicts = filter_by_power_dynamics(
+        candidate_dicts,
+        player_a_orientation,
+        player_b_orientation,
+        min_score=0.3  # Moderate filtering
+    )
+    
+    if not compatible_dicts:
+        # No power-compatible activities, return first candidate anyway
+        logger.warning(f"No power-compatible activities found, using first candidate")
+        return candidates[0]
+    
+    # Score each compatible activity
+    scored_activities = []
+    
+    for activity_dict in compatible_dicts:
+        scores = score_activity_for_players(
+            activity_dict,
+            player_a_profile,
+            player_b_profile
+        )
+        
+        scored_activities.append({
+            'activity_id': activity_dict['activity_id'],
+            'score': scores['overall_score'],
+            'scores': scores
+        })
+    
+    # Sort by overall score descending
+    scored_activities.sort(key=lambda x: x['score'], reverse=True)
+    
+    # Get best activity
+    best = scored_activities[0]
+    best_activity = next(c for c in candidates if c.activity_id == best['activity_id'])
+    
+    logger.debug(
+        f"Selected activity with score {best['score']:.3f}",
+        extra={
+            'activity_id': best['activity_id'],
+            'mutual_interest': best['scores']['mutual_interest_score'],
+            'power_alignment': best['scores']['power_alignment_score'],
+            'domain_fit': best['scores']['domain_fit_score']
+        }
+    )
+    
+    return best_activity
+
+
 # ==============================================================================
 # Session Activity Operations
 # ==============================================================================

@@ -1644,5 +1644,3499 @@
     ],
     "requires_consent_negotiation": true,
     "enriched_at": "2025-10-17T19:50:08.002251"
+  },
+  "71": {
+    "row_id": 71,
+    "type": "dare",
+    "description": "Let me draw you naked. 6 for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:11.124597"
+  },
+  "72": {
+    "row_id": 72,
+    "type": "dare",
+    "description": "Put an ice cube in your mouth until it melts while maintaining eye contact with someone. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "eye_contact",
+      "control"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:14.192894"
+  },
+  "73": {
+    "row_id": 73,
+    "type": "dare",
+    "description": "Do a seductive dance. 6 for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dance",
+      "sensuality",
+      "seduction",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "seductive",
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:17.283604"
+  },
+  "74": {
+    "row_id": 74,
+    "type": "dare",
+    "description": "Read an erotic passage out loud. 6 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play",
+      "roleplay",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:20.359086"
+  },
+  "75": {
+    "row_id": 75,
+    "type": "dare",
+    "description": "Perform a sexy dance to a decidedly unsexy song. 7 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dance",
+      "roleplay",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light-hearted"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:23.426979"
+  },
+  "76": {
+    "row_id": 76,
+    "type": "dare",
+    "description": "Do your sexiest dance for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:26.480073"
+  },
+  "77": {
+    "row_id": 77,
+    "type": "dare",
+    "description": "Take a body shot (lick or eat something off another willing player). 8 for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:29.513281"
+  },
+  "78": {
+    "row_id": 78,
+    "type": "dare",
+    "description": "Give another volunteer player a lap dance. 9 for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:32.592226"
+  },
+  "79": {
+    "row_id": 79,
+    "type": "dare",
+    "description": "Run your body the full length of another player's body. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:35.625582"
+  },
+  "80": {
+    "row_id": 80,
+    "type": "dare",
+    "description": "Let the other players pick someone for you to make out with for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "kissing",
+      "dominance",
+      "submission",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:38.704425"
+  },
+  "81": {
+    "row_id": 81,
+    "type": "dare",
+    "description": "Take off three items of clothing. 6 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:42.781666"
+  },
+  "82": {
+    "row_id": 82,
+    "type": "dare",
+    "description": "Put an ice cube in your mouth until it melts while maintaining eye contact with someone. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "eye_contact"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:50:45.872509"
+  },
+  "83": {
+    "row_id": 83,
+    "type": "dare",
+    "description": "Let another player step on you. 9 for 60 seconds.",
+    "intimacy_level": "L3",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:48.946327"
+  },
+  "84": {
+    "row_id": 84,
+    "type": "dare",
+    "description": "Quiet time! Until next turn, wear a gag (e.g. underwear). 9 for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience",
+      "restraint",
+      "sensory_play",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "sensory",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:52.042012"
+  },
+  "85": {
+    "row_id": 85,
+    "type": "dare",
+    "description": "Punishment time - let another player spank you (agree number and safeword first). 9 for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "obedience",
+      "sensory_play",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:55.182601"
+  },
+  "86": {
+    "row_id": 86,
+    "type": "dare",
+    "description": "Let another player drip candle wax on your skin (Use low-temp candles only, agree on limits). 9 for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:50:58.285728"
+  },
+  "87": {
+    "row_id": 87,
+    "type": "dare",
+    "description": "Strip down and roleplay as a dominant master, ordering your partner to worship you for the next minute. 4 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "worship",
+      "commands",
+      "roleplay"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:01.379656"
+  },
+  "88": {
+    "row_id": 88,
+    "type": "dare",
+    "description": "Until the next player takes a dare, you're wearing hand-cuffs or ankle-cuffs. 9 for 60 seconds.",
+    "intimacy_level": "L3",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "restraint",
+      "bondage",
+      "obedience",
+      "commands",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:04.478269"
+  },
+  "89": {
+    "row_id": 89,
+    "type": "dare",
+    "description": "Let another player scratch a message onto your back with their nails. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:07.544144"
+  },
+  "90": {
+    "row_id": 90,
+    "type": "dare",
+    "description": "Sensory Deprivation: Dare to wear a blindfold for the next three rounds, living in the fantasy of mystery. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "restraint"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:10.596081"
+  },
+  "91": {
+    "row_id": 91,
+    "type": "dare",
+    "description": "Exhibitionism: Take off a piece of clothing while blindfolded\u2014let someone guide you. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "exhibitionism",
+      "sensory_play",
+      "blindfold",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:13.690626"
+  },
+  "92": {
+    "row_id": 92,
+    "type": "dare",
+    "description": "Exhibitionism: Unbutton your shirt one button at a time until someone speaks.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "exhibitionism",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:16.781371"
+  },
+  "93": {
+    "row_id": 93,
+    "type": "dare",
+    "description": "Endurance: Hold a plank for two minutes. 15 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:51:19.864084"
+  },
+  "94": {
+    "row_id": 94,
+    "type": "dare",
+    "description": "Until the next player takes a dare, you're the drinks table (Human Furniture). 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "service",
+      "obedience",
+      "commands",
+      "roleplay",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "light"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:22.987051"
+  },
+  "95": {
+    "row_id": 95,
+    "type": "dare",
+    "description": "Demonstrate your oral sex technique with a food prop (e.g. banana, cream cake).",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "dominance"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:27.016357"
+  },
+  "96": {
+    "row_id": 96,
+    "type": "dare",
+    "description": "Let another player step on you. 9 for 60 seconds.",
+    "intimacy_level": "L3",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:30.119977"
+  },
+  "97": {
+    "row_id": 97,
+    "type": "dare",
+    "description": "Quiet time! Until next turn, wear a gag (e.g. underwear). 9 for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "commands",
+      "obedience",
+      "restraint",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensory"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:33.220569"
+  },
+  "98": {
+    "row_id": 98,
+    "type": "dare",
+    "description": "Punishment time - let another player spank you (agree number and safeword first). 9 for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "sensory_play",
+      "dominance",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:36.351692"
+  },
+  "99": {
+    "row_id": 99,
+    "type": "dare",
+    "description": "Let another player drip candle wax on your skin (Use low-temp candles only, agree on limits). 9 for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "obedience"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:39.439699"
+  },
+  "100": {
+    "row_id": 100,
+    "type": "dare",
+    "description": "Lick the earlobes of all the players of the opposite sex. 8 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "sensory_play",
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:42.468812"
+  },
+  "101": {
+    "row_id": 101,
+    "type": "dare",
+    "description": "Remove a piece of clothing from another player without using your hands. 8 for 60 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:45.535543"
+  },
+  "102": {
+    "row_id": 102,
+    "type": "dare",
+    "description": "Strip down and roleplay as a dominant master, ordering your partner to worship you for the next minute. 4 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "worship",
+      "commands",
+      "roleplay"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:48.666087"
+  },
+  "103": {
+    "row_id": 103,
+    "type": "dare",
+    "description": "Until the next player takes a dare, you're wearing hand-cuffs or ankle-cuffs. 9 for 60 seconds.",
+    "intimacy_level": "L3",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "restraint",
+      "bondage",
+      "obedience",
+      "commands",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:51.786058"
+  },
+  "104": {
+    "row_id": 104,
+    "type": "dare",
+    "description": "Let the other players write on you in marker pen - stomach, thighs, chest, butt. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:51:54.875176"
+  },
+  "105": {
+    "row_id": 105,
+    "type": "dare",
+    "description": "With a blindfold on, try to identify a volunteer player by gently touching their face or another part of their body. 9 for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:51:57.902562"
+  },
+  "106": {
+    "row_id": 106,
+    "type": "dare",
+    "description": "Let another player scratch a message onto your back with their nails. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "obedience"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "primal"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:01.026421"
+  },
+  "107": {
+    "row_id": 107,
+    "type": "dare",
+    "description": "Sit in a cake - then let the other players eat it off you. 9 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "sensory_play",
+      "submission",
+      "service"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:04.114338"
+  },
+  "108": {
+    "row_id": 108,
+    "type": "dare",
+    "description": "Sensory Deprivation: Dare to wear a blindfold for the next three rounds, living in the fantasy of mystery. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "restraint"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:07.197128"
+  },
+  "109": {
+    "row_id": 109,
+    "type": "dare",
+    "description": "Exhibitionism: Take off a piece of clothing while blindfolded\u2014let someone guide you. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "exhibitionism",
+      "sensory_play",
+      "blindfold",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:11.280891"
+  },
+  "110": {
+    "row_id": 110,
+    "type": "dare",
+    "description": "Exhibitionism: Unbutton your shirt one button at a time until someone speaks.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "exhibitionism",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:14.396025"
+  },
+  "111": {
+    "row_id": 111,
+    "type": "dare",
+    "description": "Endurance: Hold a plank for two minutes. 15 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:17.443223"
+  },
+  "112": {
+    "row_id": 112,
+    "type": "dare",
+    "description": "Kiss your favorite part of my body for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:20.491687"
+  },
+  "113": {
+    "row_id": 113,
+    "type": "dare",
+    "description": "Do a seductive dance for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "seductive"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:23.598286"
+  },
+  "114": {
+    "row_id": 114,
+    "type": "dare",
+    "description": "Lick something off my finger/cheek/neck for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "sensory_play",
+      "dominance",
+      "submission",
+      "commands"
+    ],
+    "domains": [
+      "sensual",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:26.721896"
+  },
+  "115": {
+    "row_id": 115,
+    "type": "dare",
+    "description": "Name three songs you'd add to a sex playlist for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "roleplay"
+    ],
+    "domains": [
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:29.774413"
+  },
+  "116": {
+    "row_id": 116,
+    "type": "dare",
+    "description": "Drop an ice cube in your underwear and keep it for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:32.895654"
+  },
+  "117": {
+    "row_id": 117,
+    "type": "dare",
+    "description": "Send a sexy selfie to me/the group (optional: from another room) for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:35.948497"
+  },
+  "118": {
+    "row_id": 118,
+    "type": "dare",
+    "description": "Give me a five-minute foot massage for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "service"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:39.032497"
+  },
+  "119": {
+    "row_id": 119,
+    "type": "dare",
+    "description": "Read an erotic passage out loud for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:42.140022"
+  },
+  "120": {
+    "row_id": 120,
+    "type": "dare",
+    "description": "Take off an item of my clothing without using your hands for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:45.232183"
+  },
+  "121": {
+    "row_id": 121,
+    "type": "dare",
+    "description": "Eat a piece of fruit as sexy as possible for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "roleplay",
+      "playful"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:48.304009"
+  },
+  "122": {
+    "row_id": 122,
+    "type": "dare",
+    "description": "Whisper something dirty in my ear for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:51.437023"
+  },
+  "123": {
+    "row_id": 123,
+    "type": "dare",
+    "description": "Use your worst pick-up lines on me for one minute for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "roleplay",
+      "commands",
+      "dominance"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:52:54.584580"
+  },
+  "124": {
+    "row_id": 124,
+    "type": "dare",
+    "description": "Let me give you a light spanking for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:52:57.681830"
+  },
+  "125": {
+    "row_id": 125,
+    "type": "dare",
+    "description": "Make me a snack wearing only an apron for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "service",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:00.723439"
+  },
+  "126": {
+    "row_id": 126,
+    "type": "dare",
+    "description": "Perform a striptease (stop at a comfortable level) for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "striptease",
+      "sensuality",
+      "exhibitionism",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "sensual"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:03.815857"
+  },
+  "127": {
+    "row_id": 127,
+    "type": "dare",
+    "description": "Give a lap dance to the person of my/the group's choice for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "service",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:06.973140"
+  },
+  "128": {
+    "row_id": 128,
+    "type": "dare",
+    "description": "Give me a lap dance for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "dance",
+      "sensual",
+      "submission"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:10.044403"
+  },
+  "129": {
+    "row_id": 129,
+    "type": "dare",
+    "description": "Do a sexy dance to a song I choose for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "dance",
+      "submission",
+      "obedience",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:13.103891"
+  },
+  "130": {
+    "row_id": 130,
+    "type": "dare",
+    "description": "Re-enact our first kiss for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "romantic",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:16.190866"
+  },
+  "131": {
+    "row_id": 131,
+    "type": "dare",
+    "description": "Let me draw a tattoo on you in permanent marker (subtle location) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:19.365373"
+  },
+  "132": {
+    "row_id": 132,
+    "type": "dare",
+    "description": "Use your fingers to trace over your favorite parts of my body for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "manual_stimulation",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:22.409713"
+  },
+  "133": {
+    "row_id": 133,
+    "type": "dare",
+    "description": "Take off one item of your clothing (you choose which one) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:25.572757"
+  },
+  "134": {
+    "row_id": 134,
+    "type": "dare",
+    "description": "Let me draw you naked (with clothes on, use marker on skin) for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:28.686402"
+  },
+  "135": {
+    "row_id": 135,
+    "type": "dare",
+    "description": "Hide a chocolate in your clothes and let me find it for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:31.857199"
+  },
+  "136": {
+    "row_id": 136,
+    "type": "dare",
+    "description": "Take an ice cube and run it up and down my body until it is melted for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "control",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:53:35.049268"
+  },
+  "137": {
+    "row_id": 137,
+    "type": "dare",
+    "description": "Act out how you flirt without using words for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "flirting"
+    ],
+    "domains": [
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:38.514189"
+  },
+  "138": {
+    "row_id": 138,
+    "type": "dare",
+    "description": "Write a spicy poem about your partner for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:40.622596"
+  },
+  "139": {
+    "row_id": 139,
+    "type": "dare",
+    "description": "Send a flirty text to someone you have a crush on (not me) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:43.674683"
+  },
+  "140": {
+    "row_id": 140,
+    "type": "dare",
+    "description": "Smell another player's sweat. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:45.159361"
+  },
+  "141": {
+    "row_id": 141,
+    "type": "dare",
+    "description": "CNC Scenario: Roleplay as a secret agent seducing a target for intel, requiring simulated non-consent (with safeword). 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:46.643278"
+  },
+  "142": {
+    "row_id": 142,
+    "type": "dare",
+    "description": "CNC Scenario: Play the strict teacher punishing a naughty student; decide and administer the punishment (within hard limits). 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "control"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:48.102542"
+  },
+  "143": {
+    "row_id": 143,
+    "type": "dare",
+    "description": "Objectification: Until the next player takes a dare, answer every other player with \"yes sir\" or \"yes miss\". 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:49.582993"
+  },
+  "144": {
+    "row_id": 144,
+    "type": "dare",
+    "description": "Penetrative/Couple: Finger your partner for one full minute, focusing on their most sensitive spots without aiming for an orgasm. 4 for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:51.044839"
+  },
+  "145": {
+    "row_id": 145,
+    "type": "dare",
+    "description": "Penetrative/Kink: Deep-throat your partner's fingers or whatever they're offering, holding it for as long as you can. 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:52.525012"
+  },
+  "146": {
+    "row_id": 146,
+    "type": "dare",
+    "description": "Penetrative/Couple: Jerk off your partner slowly for 30 seconds, then stop and switch roles.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:54.033922"
+  },
+  "147": {
+    "row_id": 147,
+    "type": "dare",
+    "description": "Do a seductive dance for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:55.491781"
+  },
+  "148": {
+    "row_id": 148,
+    "type": "dare",
+    "description": "Lick something off my finger/cheek/neck for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:56.985892"
+  },
+  "149": {
+    "row_id": 149,
+    "type": "dare",
+    "description": "Name three songs you'd add to a sex playlist for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:58.485646"
+  },
+  "150": {
+    "row_id": 150,
+    "type": "dare",
+    "description": "Drop an ice cube in your underwear and keep it for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:53:59.967757"
+  },
+  "151": {
+    "row_id": 151,
+    "type": "dare",
+    "description": "Send a sexy selfie to me/the group (optional: from another room) for 60 seconds.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:01.453204"
+  },
+  "152": {
+    "row_id": 152,
+    "type": "dare",
+    "description": "Read an erotic passage out loud for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:02.925805"
+  },
+  "153": {
+    "row_id": 153,
+    "type": "dare",
+    "description": "Eat a piece of fruit as sexy as possible for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:04.393030"
+  },
+  "154": {
+    "row_id": 154,
+    "type": "dare",
+    "description": "Whisper something dirty in my ear for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:05.861284"
+  },
+  "155": {
+    "row_id": 155,
+    "type": "dare",
+    "description": "Kiss the person next to you on the lips/hand/neck for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:07.343139"
+  },
+  "156": {
+    "row_id": 156,
+    "type": "dare",
+    "description": "Write your name on someone's arm using only your tongue for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:08.819591"
+  },
+  "157": {
+    "row_id": 157,
+    "type": "dare",
+    "description": "Use your worst pick-up lines on me for one minute for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:10.274744"
+  },
+  "158": {
+    "row_id": 158,
+    "type": "dare",
+    "description": "Perform a striptease (stop at a comfortable level) for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:11.746050"
+  },
+  "159": {
+    "row_id": 159,
+    "type": "dare",
+    "description": "Give a lap dance to the person of my/the group's choice for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:13.245040"
+  },
+  "160": {
+    "row_id": 160,
+    "type": "dare",
+    "description": "Give me a lap dance for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:14.734965"
+  },
+  "161": {
+    "row_id": 161,
+    "type": "dare",
+    "description": "Do a sexy dance to a song I choose for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:16.219934"
+  },
+  "162": {
+    "row_id": 162,
+    "type": "dare",
+    "description": "Hold a suggestive pose for 10 seconds while everyone counts down.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:17.770813"
+  },
+  "163": {
+    "row_id": 163,
+    "type": "dare",
+    "description": "Put your bra and underwear on over top of your clothes, then go for a walk around the block for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:19.321738"
+  },
+  "164": {
+    "row_id": 164,
+    "type": "dare",
+    "description": "Take off one item of your clothing (you choose which one) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:20.787260"
+  },
+  "165": {
+    "row_id": 165,
+    "type": "dare",
+    "description": "Give someone a neck massage for one minute for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "massage"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:22.371027"
+  },
+  "166": {
+    "row_id": 166,
+    "type": "dare",
+    "description": "Act out how you flirt without using words for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:23.846634"
+  },
+  "167": {
+    "row_id": 167,
+    "type": "dare",
+    "description": "Send a flirty text to someone you have a crush on (not me) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:25.344983"
+  },
+  "168": {
+    "row_id": 168,
+    "type": "dare",
+    "description": "Kiss the person you find the most attractive in the room for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:26.873494"
+  },
+  "169": {
+    "row_id": 169,
+    "type": "dare",
+    "description": "Let another player spit their drink into your mouth. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "oral"
+    ],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:28.449984"
+  },
+  "170": {
+    "row_id": 170,
+    "type": "dare",
+    "description": "Smell another player's sweat. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [],
+    "domains": [
+      "sensual"
+    ],
+    "intensity_modifiers": [],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:54:29.933876"
+  },
+  "171": {
+    "row_id": 171,
+    "type": "dare",
+    "description": "Hold another player's dick while they go pee (or let another player hold yours). 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "manual_stimulation",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:17.991623"
+  },
+  "172": {
+    "row_id": 172,
+    "type": "dare",
+    "description": "CNC Scenario: Roleplay as a secret agent seducing a target for intel, requiring simulated non-consent (with safeword). 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:18.895599"
+  },
+  "173": {
+    "row_id": 173,
+    "type": "dare",
+    "description": "CNC Scenario: Play the strict teacher punishing a naughty student; decide and administer the punishment (within hard limits). 4 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience",
+      "roleplay"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:19.763522"
+  },
+  "174": {
+    "row_id": 174,
+    "type": "dare",
+    "description": "Objectification: Kneel down next to another player so they can pet you. 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "worship",
+      "service",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "degrading"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:20.549584"
+  },
+  "175": {
+    "row_id": 175,
+    "type": "dare",
+    "description": "Objectification: Until the next player takes a dare, answer every other player with \"yes sir\" or \"yes miss\". 9 for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "obedience",
+      "commands",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:21.388744"
+  },
+  "176": {
+    "row_id": 176,
+    "type": "dare",
+    "description": "Penetrative/Group: Choose a partner and explore each other for 5 minutes (mandated intimate contact).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "manual_stimulation",
+      "exploration"
+    ],
+    "domains": [
+      "exploration",
+      "connection",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "intimate",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:22.209240"
+  },
+  "177": {
+    "row_id": 177,
+    "type": "dare",
+    "description": "Penetrative/Group: Demonstrate your favorite position using two others as props (requires group coordination and staging).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "penetration",
+      "roleplay",
+      "dominance",
+      "control",
+      "commands"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:23.030793"
+  },
+  "178": {
+    "row_id": 178,
+    "type": "dare",
+    "description": "Take off one article of my clothing using only your mouth for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "dominance",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:23.931654"
+  },
+  "179": {
+    "row_id": 179,
+    "type": "dare",
+    "description": "Spell the alphabet with your tongue somewhere on my body for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:24.755407"
+  },
+  "180": {
+    "row_id": 180,
+    "type": "dare",
+    "description": "Give me a body-to-body massage (30 sec - 1 min).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:25.547713"
+  },
+  "181": {
+    "row_id": 181,
+    "type": "dare",
+    "description": "Suck on my belly button/neck for a minute for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "oral",
+      "sensory_play",
+      "submission"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:26.367214"
+  },
+  "182": {
+    "row_id": 182,
+    "type": "dare",
+    "description": "Blindfold your partner and feed them something out of the fridge for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:27.188806"
+  },
+  "183": {
+    "row_id": 183,
+    "type": "dare",
+    "description": "Do my least favorite chore\u2014naked for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:28.008343"
+  },
+  "184": {
+    "row_id": 184,
+    "type": "dare",
+    "description": "Fake an orgasm, while simulating a sexual position for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "orgasm_control",
+      "simultaneous_climax"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:28.914032"
+  },
+  "185": {
+    "row_id": 185,
+    "type": "dare",
+    "description": "Take a naked selfie and send it to your partner for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:29.726664"
+  },
+  "186": {
+    "row_id": 186,
+    "type": "dare",
+    "description": "Put your hand down your partner's pants until the next round for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "manual_stimulation",
+      "dominance"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:30.567919"
+  },
+  "187": {
+    "row_id": 187,
+    "type": "dare",
+    "description": "Give the group your naughtiest look for 3 minutes.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:59:31.385469"
+  },
+  "188": {
+    "row_id": 188,
+    "type": "dare",
+    "description": "Draw a picture of me naked for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:32.205459"
+  },
+  "189": {
+    "row_id": 189,
+    "type": "dare",
+    "description": "Call a sex club and apply for a job (stay on the phone for at least 1 min).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "roleplay"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:33.069400"
+  },
+  "190": {
+    "row_id": 190,
+    "type": "dare",
+    "description": "If there's a pool or hot tub, go skinny-dipping for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "nudity"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:33.861690"
+  },
+  "191": {
+    "row_id": 191,
+    "type": "dare",
+    "description": "Take off my underwear using only your teeth for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "commands",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:34.764174"
+  },
+  "192": {
+    "row_id": 192,
+    "type": "dare",
+    "description": "Lick a shoe for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "bottom",
+    "preference_keys": [
+      "submission",
+      "obedience",
+      "worship",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensory"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "degrading",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:35.616036"
+  },
+  "193": {
+    "row_id": 193,
+    "type": "dare",
+    "description": "Blindfold your partner and feed them a mix of different foods, they have to guess each one.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "blindfold",
+      "control"
+    ],
+    "domains": [
+      "playful",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:59:36.432278"
+  },
+  "194": {
+    "row_id": 194,
+    "type": "dare",
+    "description": "Send one of your parents a sext and don't reply for one hour for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:37.326266"
+  },
+  "195": {
+    "row_id": 195,
+    "type": "dare",
+    "description": "Make your orgasm face the next stranger you see until they make eye contact.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "playful",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:38.169164"
+  },
+  "196": {
+    "row_id": 196,
+    "type": "dare",
+    "description": "Play a round of seven minutes in heaven with your partner (or person of choice) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:59:39.065645"
+  },
+  "197": {
+    "row_id": 197,
+    "type": "dare",
+    "description": "Take off your clothes immediately, in front of your partner/group for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:39.918800"
+  },
+  "198": {
+    "row_id": 198,
+    "type": "dare",
+    "description": "Put an ice cube under your clothes/in your underwear for 30 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission",
+      "control",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "sensory",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:40.739295"
+  },
+  "199": {
+    "row_id": 199,
+    "type": "dare",
+    "description": "Lick something off my finger/body (you choose the place) for 90 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "oral",
+      "dominance",
+      "submission",
+      "sensory_play",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "intense"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:41.533981"
+  },
+  "200": {
+    "row_id": 200,
+    "type": "dare",
+    "description": "Go without underwear for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:42.308985"
+  },
+  "201": {
+    "row_id": 201,
+    "type": "dare",
+    "description": "Fake an orgasm while describing a sex position for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "orgasm_control",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:43.149923"
+  },
+  "202": {
+    "row_id": 202,
+    "type": "dare",
+    "description": "Let your partner give you a light spanking for 60 seconds.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:43.951007"
+  },
+  "203": {
+    "row_id": 203,
+    "type": "dare",
+    "description": "Go into the bathroom, take a naked selfie and send it to me for 60 seconds.",
+    "intimacy_level": "L6",
+    "intimacy_rating": "R",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:44.749902"
+  },
+  "204": {
+    "row_id": 204,
+    "type": "dare",
+    "description": "Share your filthiest dirty sext to your partner (read it out loud) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:45.582729"
+  },
+  "205": {
+    "row_id": 205,
+    "type": "dare",
+    "description": "Act out your dirtiest dream for 3 minutes.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:46.374489"
+  },
+  "206": {
+    "row_id": 206,
+    "type": "dare",
+    "description": "Go skinny-dipping (if a pool/hot tub is available) for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "neutral",
+    "preference_keys": [
+      "sensory_play",
+      "nudity"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-10-17T19:59:47.158399"
+  },
+  "207": {
+    "row_id": 207,
+    "type": "dare",
+    "description": "Do my least favorite chore\u2014in only your undergarments for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "couple",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "obedience"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:48.077063"
+  },
+  "208": {
+    "row_id": 208,
+    "type": "dare",
+    "description": "Give me a body-to-body massage (30 sec - 1 min).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:48.827570"
+  },
+  "209": {
+    "row_id": 209,
+    "type": "dare",
+    "description": "Give the player to your right a professional erotic massage (1 min).",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "massage",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:49.600856"
+  },
+  "210": {
+    "row_id": 210,
+    "type": "dare",
+    "description": "Remove a piece of clothing from another player without using your hands (consent required) for 60 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:50.460805"
+  },
+  "211": {
+    "row_id": 211,
+    "type": "dare",
+    "description": "Fake an orgasm, while simulating a sexual position for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "roleplay",
+      "orgasm_control",
+      "simultaneous_climax"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:51.249081"
+  },
+  "212": {
+    "row_id": 212,
+    "type": "dare",
+    "description": "Put a hickey on the inner thigh of the person to your left for 60 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:52.061193"
+  },
+  "213": {
+    "row_id": 213,
+    "type": "dare",
+    "description": "Give the group your naughtiest look for 3 minutes.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "commands",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:52.914350"
+  },
+  "214": {
+    "row_id": 214,
+    "type": "dare",
+    "description": "Take a body shot (you may choose the person/location) for 60 seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "group",
+    "power_role": "switch",
+    "preference_keys": [
+      "oral",
+      "sensory_play",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "sensual",
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:53.978964"
+  },
+  "215": {
+    "row_id": 215,
+    "type": "dare",
+    "description": "Call a sex club and apply for a job (stay on the phone for at least 1 min).",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control",
+      "commands",
+      "roleplay"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "playful",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:54.834007"
+  },
+  "216": {
+    "row_id": 216,
+    "type": "dare",
+    "description": "If there's a pool or hot tub, go skinny-dipping for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:55.661682"
+  },
+  "217": {
+    "row_id": 217,
+    "type": "dare",
+    "description": "Whisper something dirty into the ear of the person next to you for 30 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "sensory_play",
+      "dominance",
+      "submission"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:56.480495"
+  },
+  "218": {
+    "row_id": 218,
+    "type": "dare",
+    "description": "Lick a shoe for 90 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "bottom",
+    "preference_keys": [
+      "worship",
+      "service",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "power",
+      "playful",
+      "sensory"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "degrading",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:57.302247"
+  },
+  "219": {
+    "row_id": 219,
+    "type": "dare",
+    "description": "Send one of your parents a sext and don't reply for one hour for 60 seconds.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "top",
+    "preference_keys": [
+      "dominance",
+      "commands",
+      "submission"
+    ],
+    "domains": [
+      "power",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "taboo",
+      "edgy"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:58.096128"
+  },
+  "220": {
+    "row_id": 220,
+    "type": "dare",
+    "description": "Go around the room and guess everyone's kinks.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "group",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "exploration",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "taboo"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-10-17T19:59:58.931066"
   }
 }
