@@ -41,6 +41,10 @@ def load_activities_from_csv(csv_path):
 
 def save_enrichment_results(results, output_path):
     """Save enrichment results to JSON file."""
+    # Ensure directory exists
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
     print(f"✓ Saved results to {output_path}")
@@ -82,7 +86,10 @@ def enrich_activities_batch(
         Dict of enrichment results keyed by row_id
     """
     if output_path is None:
+        # Save in scripts directory
         output_path = Path(__file__).parent / 'enriched_activities.json'
+    
+    output_path = Path(output_path).resolve()
     
     print("=" * 70)
     print("Activity Enrichment Script")
@@ -235,7 +242,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Enrich activities with AI-generated tags')
     parser.add_argument('csv_file', help='Path to consolidated activities CSV')
     parser.add_argument('--output', '-o', help='Output JSON file path', 
-                       default='backend/scripts/enriched_activities.json')
+                       default=None)  # Will use scripts/enriched_activities.json if not specified
     parser.add_argument('--limit', '-l', type=int, help='Limit number to process (for testing)')
     parser.add_argument('--resume-from', '-r', type=int, help='Resume from row number')
     parser.add_argument('--no-ai', action='store_true', help='Use keyword fallback only (no Groq)')
