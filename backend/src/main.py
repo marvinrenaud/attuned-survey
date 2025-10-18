@@ -43,21 +43,15 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
     # Connection pooling configuration
-    # More conservative settings for Render + Supabase
+    # Simplified settings to avoid SASL authentication conflicts
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_size": 3,              # Smaller pool for Render's limited resources
-        "pool_recycle": 280,         # Recycle before Supabase 5min timeout
+        "pool_size": 5,              # Connection pool size
+        "pool_recycle": 300,         # Recycle connections after 5 minutes
         "pool_pre_ping": True,       # Verify connections before using them
-        "max_overflow": 1,           # Minimal overflow to prevent exhaustion
+        "max_overflow": 2,           # Allow extra connections when pool full
         "pool_timeout": 30,          # Wait up to 30 seconds for a connection
         "connect_args": {
-            # Note: sslmode is already set in the URL above (line 39)
-            # Don't duplicate it here - causes SSL handshake failures
-            "connect_timeout": 30,   # Longer timeout for initial connection
-            "keepalives": 1,         # Enable TCP keepalives
-            "keepalives_idle": 30,   # Seconds before keepalive probes start
-            "keepalives_interval": 10,  # Seconds between keepalive probes
-            "keepalives_count": 5,   # Number of keepalives before giving up
+            "connect_timeout": 30,   # Connection timeout in seconds
         }
     }
 
