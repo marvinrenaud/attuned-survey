@@ -81,6 +81,33 @@ def create_recommendations():
             player_b_profile = player_b_data
             profile_b = None
         
+        # Flatten nested activities structure for scoring
+        # Profile activities are nested: {category: {activity: score}}
+        # We need flat: {activity: score}
+        def flatten_activities(activities_dict):
+            flat = {}
+            if not activities_dict or not isinstance(activities_dict, dict):
+                return {}
+            
+            for category, items in activities_dict.items():
+                if isinstance(items, dict):
+                    # Nested structure - flatten it
+                    for activity_key, score in items.items():
+                        # Extract base activity name (remove _receive/_give suffix)
+                        base_key = activity_key.replace('_receive', '').replace('_give', '')
+                        # Take max if we see both receive and give
+                        if base_key in flat:
+                            flat[base_key] = max(flat[base_key], score if isinstance(score, (int, float)) else 0.5)
+                        else:
+                            flat[base_key] = score if isinstance(score, (int, float)) else 0.5
+                else:
+                    # Already flat
+                    flat[category] = items if isinstance(items, (int, float)) else 0.5
+            return flat
+        
+        player_a_profile['activities'] = flatten_activities(player_a_profile.get('activities', {}))
+        player_b_profile['activities'] = flatten_activities(player_b_profile.get('activities', {}))
+        
         # Extract session config
         session_config = data.get('session', {})
         rating = session_config.get('rating', settings.ATTUNED_DEFAULT_RATING)
