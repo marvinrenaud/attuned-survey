@@ -106,14 +106,19 @@ def get_safe_fallback(
     seq: int,
     rating: str,
     intensity_min: int,
-    intensity_max: int
+    intensity_max: int,
+    used_fallback_keys: Optional[set] = None
 ) -> Optional[dict]:
     """
     Get a safe fallback activity template.
     
     These are ultra-safe, generic activities that should work for any pair.
     Alternates between Player A and Player B based on sequence number.
+    Tracks usage to prevent duplicates.
     """
+    if used_fallback_keys is None:
+        used_fallback_keys = set()
+    
     # Use middle of intensity range
     intensity = (intensity_min + intensity_max) // 2
     
@@ -148,6 +153,31 @@ def get_safe_fallback(
     if not description:
         return None
     
+    # Create unique key for this fallback
+    fallback_key = (activity_type, intensity, description)
+    
+    # Check if this fallback was already used
+    if fallback_key in used_fallback_keys:
+        # Try another intensity if available
+        for alt_intensity in [1, 2, 3, 4, 5]:
+            if alt_intensity == intensity:
+                continue  # Skip the one we just tried
+            alt_desc = fallbacks.get(alt_intensity)
+            if alt_desc:
+                alt_key = (activity_type, alt_intensity, alt_desc)
+                if alt_key not in used_fallback_keys:
+                    # Found unused fallback
+                    description = alt_desc
+                    intensity = alt_intensity
+                    fallback_key = alt_key
+                    break
+        else:
+            # All fallbacks used, return None
+            return None
+    
+    # Mark this fallback as used
+    used_fallback_keys.add(fallback_key)
+    
     return {
         'type': activity_type,
         'rating': rating,
@@ -169,7 +199,8 @@ def get_safe_fallback(
             'anatomy_ok': True,
             'power_alignment': None,
             'notes': 'Safe fallback template'
-        }
+        },
+        '_fallback_key': fallback_key  # Internal tracking
     }
 
 

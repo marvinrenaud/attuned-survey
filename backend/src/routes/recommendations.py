@@ -158,7 +158,8 @@ def create_recommendations():
         bank_count = 0
         ai_count = 0
         repaired_count = 0
-        used_activity_ids = set()  # Track used activities to prevent duplicates
+        used_activity_ids = set()  # Track used bank activity IDs
+        used_fallback_keys = set()  # Track used fallback templates by (type, intensity)
         
         for seq in range(1, target_activities + 1):
             # 1. Pick type (truth or dare)
@@ -221,11 +222,14 @@ def create_recommendations():
                 }
                 bank_count += 1
             
-            # 4. If no bank activity, use AI generation or fallback
+            # 4. If no bank activity, use AI generation or fallback (last resort)
             if not activity_item:
                 # For now, use safe fallback instead of calling Groq for each activity
                 # TODO: Implement batch AI generation or per-activity AI calls
-                fallback = get_safe_fallback(picked_type, seq, rating, intensity_min, intensity_max)
+                fallback = get_safe_fallback(
+                    picked_type, seq, rating, intensity_min, intensity_max,
+                    used_fallback_keys  # Prevent fallback duplicates
+                )
                 
                 if fallback:
                     activity_item = {
