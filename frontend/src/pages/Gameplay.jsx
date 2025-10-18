@@ -81,10 +81,10 @@ export default function Gameplay() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full mb-4 animate-pulse">
-            <Sparkles className="w-8 h-8 text-rose-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-tertiary rounded-full mb-4 animate-pulse">
+            <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <p className="text-gray-600">Loading game session...</p>
         </div>
@@ -95,7 +95,7 @@ export default function Gameplay() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary p-4">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle className="text-red-600">Unable to Load Game</CardTitle>
@@ -117,7 +117,7 @@ export default function Gameplay() {
   // No activities
   if (!activities || activities.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary p-4">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle>No Activities Found</CardTitle>
@@ -138,11 +138,11 @@ export default function Gameplay() {
   const progress = ((currentStep + 1) / activities.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
+    <div className="min-h-screen bg-background-primary">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 font-heading">
             Attuned Gameplay
           </h1>
           <p className="text-gray-600">
@@ -154,7 +154,7 @@ export default function Gameplay() {
 
         {/* Session Configuration Card */}
         {session && (
-          <Card className="mb-6 bg-gradient-to-r from-rose-50 to-pink-50">
+          <Card className="mb-6 bg-gradient-to-r from-tertiary to-background-secondary">
             <CardContent className="pt-4 pb-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
@@ -194,13 +194,13 @@ export default function Gameplay() {
         {/* Activity Card */}
         {currentActivity && (
           <Card className="mb-6 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-rose-500 to-pink-500 text-white">
+            <CardHeader className="bg-gradient-to-r from-primary to-secondary text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                     currentActivity.type === 'truth' 
-                      ? 'bg-green-500/30 border border-green-300' 
-                      : 'bg-purple-500/30 border border-purple-300'
+                      ? 'bg-accent-sage/30 border border-accent-sage' 
+                      : 'bg-alternate/30 border border-alternate'
                   }`}>
                     {currentActivity.type === 'truth' ? 'Truth' : 'Dare'}
                   </span>
@@ -236,8 +236,8 @@ export default function Gameplay() {
                       <div className="flex items-center gap-2">
                         <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${
                           step.actor === 'A' 
-                            ? 'bg-blue-100 text-blue-700' 
-                            : 'bg-purple-100 text-purple-700'
+                            ? 'bg-primary/20 text-primary' 
+                            : 'bg-secondary/20 text-secondary'
                         }`}>
                           {step.actor}
                         </span>
@@ -293,7 +293,7 @@ export default function Gameplay() {
           {currentStep < activities.length - 1 ? (
             <Button
               onClick={handleNext}
-              className="flex-1 bg-rose-600 hover:bg-rose-700"
+              className="flex-1 bg-primary hover:bg-primary-dark"
             >
               Next
               <ChevronRight className="w-4 h-4 ml-2" />
@@ -302,7 +302,7 @@ export default function Gameplay() {
             <Button
               onClick={handleEndGame}
               variant="outline"
-              className="flex-1 border-green-600 text-green-700 hover:bg-green-50"
+              className="flex-1 border-accent-sage text-accent-sage hover:bg-accent-sage/10"
             >
               Complete Session
               <ChevronRight className="w-4 h-4 ml-2" />

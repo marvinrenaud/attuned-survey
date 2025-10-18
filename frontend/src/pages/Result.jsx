@@ -166,10 +166,10 @@ export default function Result() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full mb-4 animate-pulse">
-            <Heart className="w-8 h-8 text-rose-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-tertiary rounded-full mb-4 animate-pulse">
+            <Heart className="w-8 h-8 text-primary" />
           </div>
           <p className="text-gray-600">Loading your results...</p>
           {retryCount > 0 && (
@@ -183,7 +183,7 @@ export default function Result() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary p-4">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-600">
@@ -237,7 +237,7 @@ export default function Result() {
   // Check if this is a v0.4 profile
   if (!derived || !derived.profile_version || derived.profile_version !== '0.4') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background-primary p-4">
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-yellow-600">
@@ -269,14 +269,14 @@ export default function Result() {
   } = derived;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50">
+    <div className="min-h-screen bg-background-primary">
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-rose-100 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-rose-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-tertiary rounded-full mb-4">
+            <Heart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 font-heading">
             {submission.name}'s Intimacy Profile
           </h1>
           <p className="text-gray-600">Your personalized intimacy profile (v0.4)</p>
@@ -286,7 +286,7 @@ export default function Result() {
         {/* Demographics */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">About You</CardTitle>
+            <CardTitle className="text-2xl font-heading">About You</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
@@ -305,7 +305,7 @@ export default function Result() {
         {/* Arousal Propensity */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Arousal Profile</CardTitle>
+            <CardTitle className="text-2xl font-heading">Arousal Profile</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
@@ -354,7 +354,7 @@ export default function Result() {
         {/* Power Dynamic */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Power Dynamic</CardTitle>
+            <CardTitle className="text-2xl font-heading">Power Dynamic</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="mb-4">
@@ -408,7 +408,7 @@ export default function Result() {
         {/* Domain Scores */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Domain Preferences</CardTitle>
+            <CardTitle className="text-2xl font-heading">Domain Preferences</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
@@ -431,7 +431,7 @@ export default function Result() {
         {/* Activity Summary */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Activity Interests</CardTitle>
+            <CardTitle className="text-2xl font-heading">Activity Interests</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
@@ -451,8 +451,8 @@ export default function Result() {
                           key={activity}
                           className={`px-3 py-1 rounded-full text-sm ${
                             value === 1.0 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
+                              ? 'bg-accent-sage/20 text-accent-sage' 
+                              : 'bg-tertiary/50 text-text-secondary'
                           }`}
                         >
                           {getActivityName(activity)} {value === 0.5 ? '(Maybe)' : ''}
@@ -469,7 +469,7 @@ export default function Result() {
         {/* Boundaries */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Boundaries</CardTitle>
+            <CardTitle className="text-2xl font-heading">Boundaries</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -478,7 +478,7 @@ export default function Result() {
                 {boundaries.hard_limits && boundaries.hard_limits.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {boundaries.hard_limits.map((limit, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm capitalize">
+                      <span key={idx} className="px-3 py-1 bg-error/20 text-error rounded-full text-sm capitalize">
                         {limit.replace(/_/g, ' ')}
                       </span>
                     ))}
@@ -501,7 +501,7 @@ export default function Result() {
         {/* Truth Topics */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">Truth Topic Openness</CardTitle>
+            <CardTitle className="text-2xl font-heading">Truth Topic Openness</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="mb-4">
@@ -555,7 +555,7 @@ export default function Result() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="font-medium text-lg">Overall Compatibility</span>
-                    <span className="text-lg font-semibold text-rose-600">
+                    <span className="text-lg font-semibold text-primary">
                       {baselineMatch.compatibility.overall_compatibility.score}%
                     </span>
                   </div>
@@ -654,7 +654,7 @@ export default function Result() {
             <Button 
               onClick={handleStartGame} 
               disabled={startingGame}
-              className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700"
+              className="bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark"
             >
               <Play className="w-4 h-4 mr-2" />
               {startingGame ? 'Starting Game...' : 'Start Game'}
