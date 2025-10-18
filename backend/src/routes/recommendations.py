@@ -268,10 +268,18 @@ def create_recommendations():
                 )
                 
                 if repaired:
+                    # Extract only the needed fields from repaired activity
                     activity_item = {
                         'id': f'repaired_{seq}',
                         'seq': seq,
-                        **repaired
+                        'type': repaired.get('type'),
+                        'rating': repaired.get('rating'),
+                        'intensity': repaired.get('intensity'),
+                        'roles': repaired.get('roles', {'active_player': 'A', 'partner_player': 'B'}),
+                        'script': repaired.get('script'),
+                        'tags': repaired.get('tags', []),
+                        'provenance': repaired.get('provenance', {'source': 'bank', 'template_id': None}),
+                        'checks': repaired.get('checks', {})
                     }
                     repaired_count += 1
                 else:
