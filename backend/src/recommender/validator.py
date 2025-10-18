@@ -53,8 +53,8 @@ def check_activity_item(
     """
     hard_limits = hard_limits or []
     
-    # 1. Check intensity window
-    min_intensity, max_intensity = get_intensity_window(seq, target_activities)
+    # 1. Check intensity window (rating-aware)
+    min_intensity, max_intensity = get_intensity_window(seq, target_activities, rating)
     if not (min_intensity <= item.get('intensity', 0) <= max_intensity):
         return False, f"Intensity {item.get('intensity')} out of range [{min_intensity}-{max_intensity}] for step {seq}"
     

@@ -231,6 +231,7 @@ def find_best_activity_candidate(
     player_a_profile: Dict[str, Any],
     player_b_profile: Dict[str, Any],
     hard_limits: Optional[List[str]] = None,
+    excluded_ids: Optional[set] = None,
     top_n: int = 20
 ) -> Optional[Activity]:
     """
@@ -244,12 +245,16 @@ def find_best_activity_candidate(
         player_a_profile: Player A's complete profile dict
         player_b_profile: Player B's complete profile dict
         hard_limits: List of hard limit keys to exclude
+        excluded_ids: Set of activity IDs already used (for deduplication)
         top_n: Consider top N candidates for scoring
     
     Returns:
         Best-matching Activity or None
     """
     from ..recommender.scoring import score_activity_for_players, filter_by_power_dynamics
+    
+    if excluded_ids is None:
+        excluded_ids = set()
     
     # Get candidates using existing filter
     candidates = find_activity_candidates(
@@ -258,10 +263,17 @@ def find_best_activity_candidate(
         intensity_max=intensity_max,
         activity_type=activity_type,
         hard_limits=hard_limits,
-        limit=top_n
+        limit=top_n * 2  # Get more to account for exclusions
     )
     
     if not candidates:
+        return None
+    
+    # Filter out already-used activities
+    candidates = [c for c in candidates if c.activity_id not in excluded_ids]
+    
+    if not candidates:
+        logger.warning("All candidates already used, no activities available")
         return None
     
     # Convert to dicts for scoring

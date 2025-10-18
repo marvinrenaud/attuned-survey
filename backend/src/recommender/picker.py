@@ -57,19 +57,19 @@ def pick_type_balanced(seq: int, target: int, truths: int, dares: int, mode: str
         return 'truth'
 
 
-def get_intensity_window(seq: int, target: int = 25) -> tuple[int, int]:
+def get_intensity_window(seq: int, target: int = 25, rating: str = 'R') -> tuple[int, int]:
     """
     Get the intensity window (min, max) for a given sequence number.
     
-    Progression:
-    - Warmup (1-5): 1-2
-    - Build (6-15): 2-3
-    - Peak (16-22): 4-5
-    - Afterglow (23-25): 2-3
+    Rating-based progression:
+    - G-rated (L1-L3): intensity 1 throughout (gentle, playful)
+    - R-rated (L3-L6): intensity 2-3 (sensual, intimate)
+    - X-rated (L4-L9): intensity 4-5 (explicit, intense)
     
     Args:
         seq: Sequence number (1-based)
         target: Total target activities
+        rating: Session rating (G/R/X)
     
     Returns:
         (min_intensity, max_intensity) tuple
@@ -79,18 +79,31 @@ def get_intensity_window(seq: int, target: int = 25) -> tuple[int, int]:
     build_end = int(target * 0.6)   # 60% = 15 for target 25
     peak_end = int(target * 0.88)   # 88% = 22 for target 25
     
-    if seq <= warmup_end:
-        # Warmup: gentle
-        return (1, 2)
-    elif seq <= build_end:
-        # Build: moderate
-        return (2, 3)
-    elif seq <= peak_end:
-        # Peak: intense
-        return (4, 5)
-    else:
-        # Afterglow: back down
-        return (2, 3)
+    # G-rated: All gentle (intensity 1)
+    if rating == 'G':
+        return (1, 1)  # L1-L3 range, always gentle
+    
+    # X-rated: Starts at L4 (intensity 4), peaks at L9 (intensity 5)
+    elif rating == 'X':
+        if seq <= warmup_end:
+            return (4, 4)  # Warmup with L4 (already intimate)
+        elif seq <= build_end:
+            return (4, 4)  # Build stays at L4
+        elif seq <= peak_end:
+            return (5, 5)  # Peak at L9 (intensity 5)
+        else:
+            return (4, 4)  # Afterglow back to L4
+    
+    # R-rated: L3-L6 range (intensity 2-3)
+    else:  # rating == 'R'
+        if seq <= warmup_end:
+            return (2, 2)  # Warmup with L4 (intensity 2)
+        elif seq <= build_end:
+            return (2, 3)  # Build moderate
+        elif seq <= peak_end:
+            return (3, 3)  # Peak at L6 (intensity 3)
+        else:
+            return (2, 3)  # Afterglow moderate
 
 
 def get_phase_name(seq: int, target: int = 25) -> str:

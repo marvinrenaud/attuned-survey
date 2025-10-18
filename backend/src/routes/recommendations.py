@@ -158,64 +158,68 @@ def create_recommendations():
         bank_count = 0
         ai_count = 0
         repaired_count = 0
+        used_activity_ids = set()  # Track used activities to prevent duplicates
         
         for seq in range(1, target_activities + 1):
             # 1. Pick type (truth or dare)
             picked_type = pick_type_balanced(seq, target_activities, truth_count, dare_count, activity_type)
             
-            # 2. Get intensity window
-            intensity_min, intensity_max = get_intensity_window(seq, target_activities)
+            # 2. Get intensity window (rating-aware)
+            intensity_min, intensity_max = get_intensity_window(seq, target_activities, rating)
             
-            # 3. Try to find from bank first (based on bank_ratio)
+            # 3. Try to find from bank FIRST (bank-first priority, fallback as last resort)
             activity_item = None
             
-            if len(activities) / target_activities < bank_ratio:
-                # Try to find best-matching activity from bank using preference scoring
-                best_candidate = repository.find_best_activity_candidate(
-                    rating=rating,
-                    intensity_min=intensity_min,
-                    intensity_max=intensity_max,
-                    activity_type=picked_type,
-                    player_a_profile=player_a_profile,
-                    player_b_profile=player_b_profile,
-                    hard_limits=all_hard_limits,
-                    top_n=20  # Consider top 20 candidates for scoring
-                )
+            # Always try bank first (removed bank_ratio limitation)
+            best_candidate = repository.find_best_activity_candidate(
+                rating=rating,
+                intensity_min=intensity_min,
+                intensity_max=intensity_max,
+                activity_type=picked_type,
+                player_a_profile=player_a_profile,
+                player_b_profile=player_b_profile,
+                hard_limits=all_hard_limits,
+                excluded_ids=used_activity_ids,  # Prevent duplicates
+                top_n=30  # Consider top 30 candidates for better variety
+            )
+            
+            if best_candidate:
+                # Mark this activity as used
+                used_activity_ids.add(best_candidate.activity_id)
                 
-                if best_candidate:
-                    # Alternate actors: odd steps = A, even steps = B
-                    actor = 'A' if seq % 2 == 1 else 'B'
-                    partner = 'B' if actor == 'A' else 'A'
-                    
-                    # Update script with alternating actor
-                    script = best_candidate.script.copy() if best_candidate.script else {'steps': []}
-                    if script.get('steps'):
-                        for step in script['steps']:
-                            step['actor'] = actor
-                    
-                    activity_item = {
-                        'id': f'bank_{best_candidate.activity_id}',
-                        'seq': seq,
-                        'type': best_candidate.type,
-                        'rating': best_candidate.rating,
-                        'intensity': best_candidate.intensity,
-                        'roles': {'active_player': actor, 'partner_player': partner},
-                        'script': script,
-                        'tags': best_candidate.tags or [],
-                        'provenance': {
-                            'source': 'bank',
-                            'template_id': best_candidate.activity_id
-                        },
-                        'checks': {
-                            'respects_hard_limits': True,
-                            'uses_yes_overlap': True,
-                            'maybe_items_present': False,
-                            'anatomy_ok': True,
-                            'power_alignment': True,  # Verified by scoring
-                            'notes': 'Selected via preference scoring'
-                        }
+                # Alternate actors: odd steps = A, even steps = B
+                actor = 'A' if seq % 2 == 1 else 'B'
+                partner = 'B' if actor == 'A' else 'A'
+                
+                # Update script with alternating actor
+                script = best_candidate.script.copy() if best_candidate.script else {'steps': []}
+                if script.get('steps'):
+                    for step in script['steps']:
+                        step['actor'] = actor
+                
+                activity_item = {
+                    'id': f'bank_{best_candidate.activity_id}',
+                    'seq': seq,
+                    'type': best_candidate.type,
+                    'rating': best_candidate.rating,
+                    'intensity': best_candidate.intensity,
+                    'roles': {'active_player': actor, 'partner_player': partner},
+                    'script': script,
+                    'tags': best_candidate.tags or [],
+                    'provenance': {
+                        'source': 'bank',
+                        'template_id': best_candidate.activity_id
+                    },
+                    'checks': {
+                        'respects_hard_limits': True,
+                        'uses_yes_overlap': True,
+                        'maybe_items_present': False,
+                        'anatomy_ok': True,
+                        'power_alignment': True,  # Verified by scoring
+                        'notes': 'Selected via preference scoring'
                     }
-                    bank_count += 1
+                }
+                bank_count += 1
             
             # 4. If no bank activity, use AI generation or fallback
             if not activity_item:
