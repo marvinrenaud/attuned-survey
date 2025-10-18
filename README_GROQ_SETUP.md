@@ -8,9 +8,13 @@ This guide explains how to set up and use the new AI-powered activity recommenda
 
 ### 🤖 AI-Powered Recommendations
 - Generate personalized activity sessions using Groq Llama 3.3
+- **820 curated activities** with AI-extracted tags
+- **Preference-based ranking** - prioritizes mutual interests
+- **Power dynamic filtering** - respects Top/Bottom/Switch orientations
 - Intelligent truth/dare balancing
-- Intensity progression (warmup → build → peak → afterglow)
+- Rating-based intensity progression (G=gentle, R=sensual, X=explicit)
 - Respect hard boundaries and preferences
+- Deduplication ensures variety (no repeated activities)
 
 ### 💾 Complete Database Persistence
 - All profiles stored in PostgreSQL
@@ -122,7 +126,7 @@ Expected: All endpoints pass ✅
 
 ---
 
-## Activity Import
+## Activity Import & AI Enrichment
 
 ### Prepare Your CSV
 
@@ -131,22 +135,57 @@ Required columns:
 - **Activity Description**: The activity text
 - **Audience Tag**: Couple or Group
 - **Intimacy Level**: L1 through L9
+- **Intimacy Rating**: G, R, or X
 
 Example row:
 ```
-Truth,Share your favorite memory from this year,Couple,L1
-Dare,Kiss your partner passionately for 10 seconds,Couple,L5
+Truth,Share your favorite memory from this year,L1,G,Couple
+Dare,Kiss your partner passionately for 10 seconds,L5,R,Couple
 ```
 
-### Import Activities
+### Step 1: AI Enrichment (Recommended)
+
+Use Groq to analyze activities and extract metadata for personalization:
 
 ```bash
 cd backend
 source venv/bin/activate
-python scripts/import_activities.py /path/to/your/activities.csv --clear
+
+# Enrich first 100 activities (test quality)
+python scripts/enrich_activities.py \
+  "../docs/your-activities.csv" \
+  --limit 100 \
+  --show-samples
+
+# If quality looks good, enrich all activities
+python scripts/enrich_activities.py \
+  "../docs/your-activities.csv" \
+  --show-samples
+```
+
+**This extracts:**
+- **Power roles** (top/bottom/switch/neutral) - for power dynamic filtering
+- **Preference keys** (massage, oral, bondage, etc.) - for preference matching
+- **Domains** (sensual, playful, power, connection) - for categorization
+- **Intensity modifiers** (gentle, intense, edgy, taboo) - for fine-tuning
+
+**Output:** `enriched_activities.json` with AI-generated tags
+
+### Step 2: Import to Database
+
+```bash
+# Import with AI tags (auto-detects enriched_activities.json)
+python scripts/import_activities.py \
+  /path/to/your/activities.csv \
+  --clear
 ```
 
 The `--clear` flag removes existing bank activities before import.
+
+**Import shows:**
+- Total imported
+- How many have AI tags
+- Power role distribution (Top/Bottom/Switch/Neutral)
 
 ### Verify Import
 
@@ -157,9 +196,16 @@ from src.models.activity import Activity
 with app.app_context():
     count = Activity.query.count()
     print(f'Total activities: {count}')
-    for t in ['truth', 'dare']:
-        c = Activity.query.filter_by(type=t).count()
-        print(f'{t.capitalize()}: {c}')
+    
+    # Check AI enrichment
+    enriched = Activity.query.filter(Activity.power_role.isnot(None)).count()
+    print(f'With AI tags: {enriched}')
+    
+    # Power role distribution
+    for role in ['top', 'bottom', 'switch', 'neutral']:
+        c = Activity.query.filter_by(power_role=role).count()
+        if c > 0:
+            print(f'{role.capitalize()}: {c}')
 "
 ```
 
@@ -203,13 +249,41 @@ When generating recommendations, you can configure:
 
 ## Advanced Features
 
+### Activity Personalization System
+
+**How It Works:**
+
+The system uses AI-powered preference-based ranking to select activities:
+
+1. **AI Tagging**: Groq analyzes each activity description to extract:
+   - Power role (top/bottom/switch/neutral)
+   - Preference keys (massage, oral, bondage, etc.)
+   - Domain tags (sensual, playful, power, connection)
+   - Intensity modifiers
+
+2. **Intelligent Ranking**: Activities are scored based on:
+   - **Mutual Interest (50%)**: Both players want this activity
+   - **Power Alignment (30%)**: Matches player power dynamics
+   - **Domain Fit (20%)**: Matches domain preferences
+
+3. **Smart Selection**:
+   - Filters out power mismatches (Top activities for Bottom-only players)
+   - Ranks candidates by composite score
+   - Selects best-matching activity
+   - Tracks used IDs to prevent duplicates
+
+4. **Rating-Based Progression**:
+   - **G-rated**: Intensity 1 throughout (gentle, playful)
+   - **R-rated**: Intensity 2-3 (sensual, intimate)
+   - **X-rated**: Intensity 4-5 (explicit, starts at L4)
+
 ### Enabling Full Groq AI Generation
 
-Currently, the system uses fallback templates for speed. To enable full AI generation:
+Currently, the system uses curated bank activities with fallback templates. To enable full AI generation:
 
 1. Ensure `GROQ_API_KEY` is set correctly
-2. In `backend/src/routes/recommendations.py`, modify the logic to call Groq for AI activities
-3. Set `bank_ratio: 0.2` to get 80% AI-generated activities
+2. In `backend/src/routes/recommendations.py`, uncomment Groq generation logic
+3. AI will generate activities when bank pool is exhausted
 
 ### Custom Activity Templates
 
