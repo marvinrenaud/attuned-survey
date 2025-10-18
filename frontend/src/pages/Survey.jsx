@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getSurveyChapters, validateChapter, getSchema } from '../lib/surveyData';
@@ -377,54 +378,51 @@ export default function Survey() {
 
 function QuestionItem({ item, value, onChange }) {
   if (item.type === 'likert7') {
+    const likertOptions = [1, 2, 3, 4, 5, 6, 7].map(num => ({
+      value: num.toString(),
+      label: num.toString()
+    }));
+
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">
           {item.text}
         </Label>
-        <RadioGroup value={value?.toString()} onValueChange={(v) => onChange(Number(v))}>
-          <div className="grid grid-cols-7 gap-2">
-            {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-              <div key={num} className="flex flex-col items-center">
-                <RadioGroupItem value={num.toString()} id={`${item.id}-${num}`} className="mb-1" />
-                <Label htmlFor={`${item.id}-${num}`} className="text-xs text-text-secondary cursor-pointer">
-                  {num}
-                </Label>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between text-xs text-text-secondary mt-2">
-            <span>Strongly Disagree</span>
-            <span>Neutral</span>
-            <span>Strongly Agree</span>
-          </div>
-        </RadioGroup>
+        <SegmentedControl
+          options={likertOptions}
+          value={value?.toString()}
+          onValueChange={(v) => onChange(Number(v))}
+          name={`${item.id}`}
+          data-testid={`likert-${item.id}`}
+        />
+        <div className="flex justify-between text-xs text-text-secondary mt-2">
+          <span>Strongly Disagree</span>
+          <span>Neutral</span>
+          <span>Strongly Agree</span>
+        </div>
       </div>
     );
   }
 
   if (item.type === 'ymn' || item.type === 'chooseYMN') {
+    const ymnOptions = [
+      { value: 'Y', label: 'Yes' },
+      { value: 'M', label: 'Maybe' },
+      { value: 'N', label: 'No' }
+    ];
+
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">
           {item.text}
         </Label>
-        <RadioGroup value={value} onValueChange={onChange}>
-          <div className="flex gap-6">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Y" id={`${item.id}-Y`} />
-              <Label htmlFor={`${item.id}-Y`} className="cursor-pointer">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="M" id={`${item.id}-M`} />
-              <Label htmlFor={`${item.id}-M`} className="cursor-pointer">Maybe</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="N" id={`${item.id}-N`} />
-              <Label htmlFor={`${item.id}-N`} className="cursor-pointer">No</Label>
-            </div>
-          </div>
-        </RadioGroup>
+        <SegmentedControl
+          options={ymnOptions}
+          value={value}
+          onValueChange={onChange}
+          name={`${item.id}`}
+          data-testid={`ymn-${item.id}`}
+        />
       </div>
     );
   }
@@ -521,49 +519,66 @@ function QuestionItem({ item, value, onChange }) {
 
   if (item.type === 'boundary') {
     // Legacy boundary type - simple yes/no
+    const boundaryOptions = [
+      { value: 'Y', label: 'Yes' },
+      { value: 'N', label: 'No' }
+    ];
+
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">
           {item.text}
         </Label>
-        <RadioGroup value={value} onValueChange={onChange}>
-          <div className="flex gap-6">
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Y" id={`${item.id}-Y`} />
-              <Label htmlFor={`${item.id}-Y`} className="cursor-pointer">Yes</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="N" id={`${item.id}-N`} />
-              <Label htmlFor={`${item.id}-N`} className="cursor-pointer">No</Label>
-            </div>
-          </div>
-        </RadioGroup>
+        <SegmentedControl
+          options={boundaryOptions}
+          value={value}
+          onValueChange={onChange}
+          name={`${item.id}`}
+          data-testid={`boundary-${item.id}`}
+        />
       </div>
     );
   }
 
   if (item.type === 'choose2') {
+    const choose2Options = [
+      { value: 'A', label: `A: ${item.optionA_text}` },
+      { value: 'B', label: `B: ${item.optionB_text}` }
+    ];
+
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">
           {item.text}
         </Label>
-        <RadioGroup value={value} onValueChange={onChange}>
-          <div className="space-y-3">
-            <div className="flex items-start space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer">
-              <RadioGroupItem value="A" id={`${item.id}-A`} className="mt-1" />
-              <Label htmlFor={`${item.id}-A`} className="cursor-pointer flex-1">
-                <span className="font-semibold text-primary">A:</span> {item.optionA_text}
-              </Label>
+        <div className="space-y-3">
+          {choose2Options.map((option) => (
+            <div 
+              key={option.value}
+              className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
+                value === option.value 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-gray-200 hover:border-primary'
+              }`}
+              onClick={() => onChange(option.value)}
+            >
+              <div className="flex items-start space-x-3">
+                <div className={`w-4 h-4 rounded-full border-2 mt-1 flex items-center justify-center ${
+                  value === option.value 
+                    ? 'border-primary bg-primary' 
+                    : 'border-gray-300'
+                }`}>
+                  {value === option.value && (
+                    <div className="w-2 h-2 rounded-full bg-white"></div>
+                  )}
+                </div>
+                <Label className="cursor-pointer flex-1">
+                  <span className="font-semibold text-primary">{option.value}:</span> {option.label.split(': ')[1]}
+                </Label>
+              </div>
             </div>
-            <div className="flex items-start space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-primary transition-colors cursor-pointer">
-              <RadioGroupItem value="B" id={`${item.id}-B`} className="mt-1" />
-              <Label htmlFor={`${item.id}-B`} className="cursor-pointer flex-1">
-                <span className="font-semibold text-primary">B:</span> {item.optionB_text}
-              </Label>
-            </div>
-          </div>
-        </RadioGroup>
+          ))}
+        </div>
       </div>
     );
   }

@@ -133,3 +133,75 @@
   }
 }
 
+/* Segmented Control Styles */
+.segmented-options {
+  display: flex;
+  flex-wrap: wrap; /* Allows buttons to wrap on small screens */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden; /* Clips the corners to the border-radius */
+}
+
+/* Visually hide the actual radio button.
+  We use this specific CSS to ensure it's still accessible
+  to screen readers and keyboard navigation.
+*/
+.segmented-input {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+}
+
+/* Style the labels to look like buttons */
+.segmented-label {
+  flex-grow: 1; /* Each button grows to fill the space */
+  flex-basis: 0;  /* Ensures all buttons are equal width */
+  min-width: 40px; /* Minimum width for tap target */
+  
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #333;
+  font-weight: 500;
+  
+  /* Add a border between buttons */
+  border-right: 1px solid #eee;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Remove border from the last button */
+.segmented-label:last-of-type {
+  border-right: none;
+}
+
+/* Hover state for desktop */
+.segmented-label:hover {
+  background-color: #f5f5f5;
+}
+
+/*
+  THIS IS THE KEY: The ":checked" state.
+  We use the adjacent sibling selector (+) to style the
+  label that comes *after* a checked radio button.
+*/
+.segmented-input:checked + .segmented-label {
+  background-color: #9B6B8F; /* Primary brand color */
+  color: #ffffff;
+  font-weight: 700;
+  z-index: 1;
+}
+
+/* Keyboard navigation focus style */
+.segmented-input:focus + .segmented-label {
+  outline: 2px solid #9B6B8F;
+  outline-offset: -2px;
+  z-index: 2; /* Ensure focus outline is on top */
+}
+
