@@ -43,17 +43,23 @@ def create_app() -> Flask:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
     # Connection pooling configuration
-    # Simplified settings to avoid SASL authentication conflicts
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_size": 5,              # Connection pool size
-        "pool_recycle": 300,         # Recycle connections after 5 minutes
-        "pool_pre_ping": True,       # Verify connections before using them
-        "max_overflow": 2,           # Allow extra connections when pool full
-        "pool_timeout": 30,          # Wait up to 30 seconds for a connection
-        "connect_args": {
-            "connect_timeout": 30,   # Connection timeout in seconds
+    # Only apply PostgreSQL-specific settings for PostgreSQL databases
+    if db_url.startswith("postgresql://"):
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_size": 5,              # Connection pool size
+            "pool_recycle": 300,         # Recycle connections after 5 minutes
+            "pool_pre_ping": True,       # Verify connections before using them
+            "max_overflow": 2,           # Allow extra connections when pool full
+            "pool_timeout": 30,          # Wait up to 30 seconds for a connection
+            "connect_args": {
+                "connect_timeout": 30,   # Connection timeout in seconds
+            }
         }
-    }
+    else:
+        # For SQLite and other databases, use minimal configuration
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_pre_ping": True,       # Verify connections before using them
+        }
 
     # Enable SQLAlchemy logging in development
     if os.environ.get("FLASK_ENV") == "development":
@@ -124,9 +130,11 @@ def create_app() -> Flask:
     # --- Routes ---
     from .routes.survey import bp as survey_bp  # noqa: WPS433 (local import)
     from .routes.recommendations import bp as recommendations_bp  # noqa: WPS433 (local import)
+    from .routes.user import user_bp  # noqa: WPS433 (local import)
 
     app.register_blueprint(survey_bp)
     app.register_blueprint(recommendations_bp)
+    app.register_blueprint(user_bp)
 
     return app
 
