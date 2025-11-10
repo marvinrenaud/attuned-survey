@@ -252,27 +252,94 @@ export default function Gameplay() {
                   );
                 })}
 
-                {/* Tags (filter out internal system tags) */}
-                {currentActivity.tags && currentActivity.tags.length > 0 && (() => {
-                  // Filter out internal tags that users shouldn't see
-                  const internalTags = ['fallback', 'safe', 'placeholder', 'bank'];
-                  const userTags = currentActivity.tags.filter(tag => !internalTags.includes(tag.toLowerCase()));
+                {/* Activity Metadata */}
+                <div className="mt-6 pt-6 border-t space-y-3">
+                  {/* Tags */}
+                  {currentActivity.tags && currentActivity.tags.length > 0 && (() => {
+                    // Filter out internal tags
+                    const internalTags = ['fallback', 'safe', 'placeholder', 'bank'];
+                    const userTags = currentActivity.tags.filter(tag => !internalTags.includes(tag.toLowerCase()));
+                    
+                    if (userTags.length === 0) return null;
+                    
+                    return (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Tags</p>
+                        <div className="flex gap-2 flex-wrap">
+                          {userTags.map((tag, idx) => (
+                            <span 
+                              key={idx}
+                              className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   
-                  if (userTags.length === 0) return null;
-                  
-                  return (
-                    <div className="flex gap-2 flex-wrap mt-4 pt-4 border-t">
-                      {userTags.map((tag, idx) => (
-                        <span 
-                          key={idx}
-                          className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                  {/* Power Role */}
+                  {currentActivity.power_role && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Power Role</p>
+                      <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded font-medium capitalize">
+                        {currentActivity.power_role}
+                      </span>
                     </div>
-                  );
-                })()}
+                  )}
+                  
+                  {/* Preference Keys */}
+                  {currentActivity.preference_keys && currentActivity.preference_keys.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Preferences</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {currentActivity.preference_keys.map((key, idx) => (
+                          <span 
+                            key={idx}
+                            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded"
+                          >
+                            {key.replace(/_/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Domains */}
+                  {currentActivity.domains && currentActivity.domains.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Domains</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {currentActivity.domains.map((domain, idx) => (
+                          <span 
+                            key={idx}
+                            className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded capitalize"
+                          >
+                            {domain}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Hard Boundaries */}
+                  {currentActivity.hard_boundaries && currentActivity.hard_boundaries.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">Boundaries Involved</p>
+                      <div className="flex gap-2 flex-wrap">
+                        {currentActivity.hard_boundaries.map((boundary, idx) => (
+                          <span 
+                            key={idx}
+                            className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded"
+                          >
+                            {boundary.replace('hardBoundary', '').replace(/([A-Z])/g, ' $1').trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

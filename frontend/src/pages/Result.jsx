@@ -291,12 +291,16 @@ export default function Result() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
               <div>
-                <p className="text-sm uppercase tracking-wide text-gray-500">Sex</p>
-                <p className="text-lg font-semibold capitalize">{submission.sex || 'Not specified'}</p>
+                <p className="text-sm uppercase tracking-wide text-gray-500">Your Anatomy</p>
+                <p className="text-lg font-semibold capitalize">
+                  {derived.anatomy?.anatomy_self?.join(', ') || 'Not specified'}
+                </p>
               </div>
               <div>
-                <p className="text-sm uppercase tracking-wide text-gray-500">Sexual Orientation</p>
-                <p className="text-lg font-semibold capitalize">{submission.sexualOrientation || 'Not specified'}</p>
+                <p className="text-sm uppercase tracking-wide text-gray-500">Partner Anatomy Preferences</p>
+                <p className="text-lg font-semibold capitalize">
+                  {derived.anatomy?.anatomy_preference?.join(', ') || 'Not specified'}
+                </p>
               </div>
             </div>
           </CardContent>

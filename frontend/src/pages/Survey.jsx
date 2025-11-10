@@ -467,20 +467,16 @@ function QuestionItem({ item, value, onChange }) {
   }
 
   if (item.type === 'checklist') {
-    // C1: Hard boundaries checklist
+    // C1: Hard boundaries checklist (8-key taxonomy)
     const options = [
-      { value: 'impact_play', label: 'Impact play' },
-      { value: 'restraints_bondage', label: 'Restraints/bondage' },
-      { value: 'breath_play', label: 'Breath play/choking' },
-      { value: 'degradation_humiliation', label: 'Degradation/humiliation' },
-      { value: 'public_activities', label: 'Public/semi-public activities' },
-      { value: 'recording', label: 'Recording/photos/videos' },
-      { value: 'roleplay', label: 'Roleplay scenarios' },
-      { value: 'multi_partner', label: 'Multi-partner/group activities' },
-      { value: 'toys_props', label: 'Toys/props' },
-      { value: 'anal_activities', label: 'Anal activities' },
-      { value: 'watersports', label: 'Watersports/bodily fluids' },
-      { value: 'other', label: 'Other' }
+      { value: 'hardBoundaryImpact', label: 'Impact play' },
+      { value: 'hardBoundaryRestrain', label: 'Bondage and Restraints' },
+      { value: 'hardBoundaryBreath', label: 'Breath Play' },
+      { value: 'hardBoundaryDegrade', label: 'Degradation' },
+      { value: 'hardBoundaryPublic', label: 'Public Play' },
+      { value: 'hardBoundaryRecord', label: 'Recording' },
+      { value: 'hardBoundaryAnal', label: 'Anal' },
+      { value: 'hardBoundaryWatersports', label: 'Watersports / scat play' }
     ];
     
     const selected = Array.isArray(value) ? value : (value ? value.split(',').map(s => s.trim()) : []);
