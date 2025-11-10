@@ -19,16 +19,10 @@ function sdbg(...args) {
   if (DEBUG_SURVEY) console.log('[SURVEY DEBUG]', ...args);
 }
 
-const SEX_OPTIONS = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-  { value: 'intersex', label: 'Intersex' }
-];
-
-const ORIENTATION_OPTIONS = [
-  { value: 'heterosexual', label: 'Heterosexual' },
-  { value: 'homosexual', label: 'Homosexual' },
-  { value: 'bisexual', label: 'Bisexual' }
+const ANATOMY_OPTIONS = [
+  { value: 'penis', label: 'Penis' },
+  { value: 'vagina', label: 'Vagina' },
+  { value: 'breasts', label: 'Breasts' }
 ];
 
 export default function Survey() {
@@ -50,8 +44,8 @@ export default function Survey() {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [name, setName] = useState('');
-  const [sex, setSex] = useState('');
-  const [sexualOrientation, setSexualOrientation] = useState('');
+  const [anatomySelf, setAnatomySelf] = useState([]);
+  const [anatomyPreference, setAnatomyPreference] = useState([]);
   const [errors, setErrors] = useState([]);
   const [showNameInput, setShowNameInput] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,10 +62,12 @@ export default function Survey() {
       setAnswers(session.answers || {});
       setCurrentChapterIndex(session.currentChapter || 0);
       setName(session.name || '');
-      setSex(session.sex || '');
-      setSexualOrientation(session.sexualOrientation || '');
+      setAnatomySelf(session.anatomySelf || []);
+      setAnatomyPreference(session.anatomyPreference || []);
       const hasDemographics = Boolean(
-        (session.name && session.name.trim()) && session.sex && session.sexualOrientation
+        (session.name && session.name.trim()) && 
+        session.anatomySelf && session.anatomySelf.length > 0 &&
+        session.anatomyPreference && session.anatomyPreference.length > 0
       );
       setShowNameInput(!hasDemographics);
     }
@@ -79,16 +75,16 @@ export default function Survey() {
 
   // Save session on changes
   useEffect(() => {
-    if (name || sex || sexualOrientation || Object.keys(answers).length > 0) {
+    if (name || anatomySelf.length > 0 || anatomyPreference.length > 0 || Object.keys(answers).length > 0) {
       saveCurrentSession({
         answers,
         currentChapter: currentChapterIndex,
         name,
-        sex,
-        sexualOrientation
+        anatomySelf,
+        anatomyPreference
       });
     }
-  }, [answers, currentChapterIndex, name, sex, sexualOrientation]);
+  }, [answers, currentChapterIndex, name, anatomySelf, anatomyPreference]);
 
   const handleAnswer = (itemId, value) => {
     setAnswers(prev => ({
@@ -103,11 +99,11 @@ export default function Survey() {
     if (!name.trim()) {
       validationErrors.push('Please enter your name to continue');
     }
-    if (!sex) {
-      validationErrors.push('Please select your sex to continue');
+    if (!anatomySelf || anatomySelf.length === 0) {
+      validationErrors.push('Please select at least one option for what anatomy you have');
     }
-    if (!sexualOrientation) {
-      validationErrors.push('Please select your sexual orientation to continue');
+    if (!anatomyPreference || anatomyPreference.length === 0) {
+      validationErrors.push('Please select at least one option for what anatomy you like to play with');
     }
 
     if (validationErrors.length > 0) {
@@ -161,20 +157,26 @@ export default function Survey() {
       const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       console.log('Calculating v0.4 profile...');
       
-      const profile = calculateProfile(uniqueId, answers);
+      // Add anatomy answers to survey answers (D1, D2)
+      const answersWithAnatomy = {
+        ...answers,
+        D1: anatomySelf,
+        D2: anatomyPreference
+      };
+      
+      const profile = calculateProfile(uniqueId, answersWithAnatomy);
       console.log('Profile calculated:', {
         arousal: profile.arousal_propensity,
         power: profile.power_dynamic.orientation,
-        domains: profile.domain_scores
+        domains: profile.domain_scores,
+        anatomy: profile.anatomy
       });
       
       const submission = {
         id: uniqueId,
         name,
-        sex,
-        sexualOrientation,
         createdAt: new Date().toISOString(),
-        answers,
+        answers: answersWithAnatomy,
         derived: profile
       };
 
@@ -201,7 +203,7 @@ export default function Survey() {
           <p className="text-text-secondary mb-6">
             Please enter your name. This helps us personalize your results.
           </p>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
               <Label htmlFor="name">Your Name</Label>
               <Input
@@ -217,47 +219,63 @@ export default function Survey() {
                 onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
               />
             </div>
+            
             <div>
-              <Label htmlFor="sex">Sex</Label>
-              <Select
-                value={sex}
-                onValueChange={(value) => {
-                  setSex(value);
-                  setErrors([]);
-                }}
-              >
-                <SelectTrigger id="sex" className="mt-1 w-full">
-                  <SelectValue placeholder="Select your sex" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SEX_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
+              <Label className="text-base font-semibold">What anatomy do you have to play with?</Label>
+              <p className="text-sm text-text-secondary mb-3">Select all that apply</p>
+              <div className="space-y-2">
+                {ANATOMY_OPTIONS.map(option => (
+                  <div key={option.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`anatomy-self-${option.value}`}
+                      checked={anatomySelf.includes(option.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setAnatomySelf(prev => [...prev, option.value]);
+                        } else {
+                          setAnatomySelf(prev => prev.filter(v => v !== option.value));
+                        }
+                        setErrors([]);
+                      }}
+                    />
+                    <label
+                      htmlFor={`anatomy-self-${option.value}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
                       {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
+            
             <div>
-              <Label htmlFor="sexualOrientation">Sexual Orientation</Label>
-              <Select
-                value={sexualOrientation}
-                onValueChange={(value) => {
-                  setSexualOrientation(value);
-                  setErrors([]);
-                }}
-              >
-                <SelectTrigger id="sexualOrientation" className="mt-1 w-full">
-                  <SelectValue placeholder="Select your sexual orientation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ORIENTATION_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
+              <Label className="text-base font-semibold">What anatomy do you like to play with in partners?</Label>
+              <p className="text-sm text-text-secondary mb-3">Select all that apply</p>
+              <div className="space-y-2">
+                {ANATOMY_OPTIONS.map(option => (
+                  <div key={option.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`anatomy-pref-${option.value}`}
+                      checked={anatomyPreference.includes(option.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setAnatomyPreference(prev => [...prev, option.value]);
+                        } else {
+                          setAnatomyPreference(prev => prev.filter(v => v !== option.value));
+                        }
+                        setErrors([]);
+                      }}
+                    />
+                    <label
+                      htmlFor={`anatomy-pref-${option.value}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
                       {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
             {errors.length > 0 && (
               <Alert variant="destructive">
