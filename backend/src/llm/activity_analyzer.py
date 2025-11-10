@@ -9,26 +9,45 @@ logger = logging.getLogger(__name__)
 
 
 # Canonical list of preference keys that match survey responses
+# Directional keys (give/receive) match survey structure for accurate matching
 PREFERENCE_KEYS = [
-    # Physical activities
-    'massage', 'kissing', 'oral', 'manual_stimulation', 'penetration',
-    'anal', 'edging', 'orgasm_control', 'simultaneous_climax',
+    # Physical Touch (directional)
+    'massage_give', 'massage_receive',
+    'hair_pull_give', 'hair_pull_receive',
+    'biting_give', 'biting_receive',
+    'spanking_give', 'spanking_receive',
+    'hands_on_genitals_give', 'hands_on_genitals_receive',
+    'slapping_give', 'slapping_receive',
+    'choking_give', 'choking_receive',
+    'spitting_give', 'spitting_receive',
+    'watersports_give', 'watersports_receive',
     
-    # Power dynamics
-    'dominance', 'submission', 'control', 'worship', 'service',
-    'commands', 'obedience', 'restraint', 'bondage',
+    # Oral (directional)
+    'oral_sex_give', 'oral_sex_receive',
+    'oral_body_give', 'oral_body_receive',
     
-    # Sensory & roleplay
-    'sensory_play', 'blindfold', 'temperature_play', 'roleplay',
-    'costumes', 'fantasy', 'exhibitionism', 'voyeurism',
+    # Anal (directional)
+    'anal_give', 'anal_receive',
+    'rimming_give', 'rimming_receive',
     
-    # Intensity & edge
-    'spanking', 'impact_play', 'pain', 'degradation', 'humiliation',
-    'primal', 'rough', 'gentle', 'romantic',
+    # Power Exchange (directional)
+    'restraints_give', 'restraints_receive',
+    'blindfold_give', 'blindfold_receive',
+    'orgasm_control_give', 'orgasm_control_receive',
+    'protocols_give', 'protocols_follow',
     
-    # Communication
-    'dirty_talk', 'verbal', 'eye_contact', 'confession',
-    'compliments', 'affirmation'
+    # Verbal & Roleplay (non-directional)
+    'dirty_talk', 'moaning', 'roleplay', 'commands', 'begging',
+    
+    # Display & Performance
+    'stripping_self', 'watching_strip',
+    'solo_pleasure_self', 'watching_solo_pleasure',
+    'posing', 'dancing', 'revealing_clothing',
+    
+    # General/Mutual (non-directional)
+    'kissing', 'eye_contact', 'confession', 'manual_stimulation',
+    'penetration', 'sensory_play', 'temperature_play',
+    'impact_play', 'exhibitionism', 'voyeurism'
 ]
 
 # Canonical domain tags
@@ -37,50 +56,94 @@ DOMAINS = ['sensual', 'playful', 'power', 'connection', 'exploration', 'edge']
 
 def build_analyzer_prompt(description: str, activity_type: str, intimacy_level: str) -> str:
     """Build prompt for activity analysis."""
-    return f"""You are an expert at analyzing intimacy activities and extracting structured metadata.
-
-Analyze this activity and extract the following information:
+    return f"""You are an expert at analyzing intimacy activities. Extract structured metadata with precision.
 
 ACTIVITY DETAILS:
 - Type: {activity_type}
 - Intimacy Level: {intimacy_level}
 - Description: "{description}"
 
+CRITICAL CONTEXT: The ACTIVE PLAYER (who drew this card) performs this activity.
+
 EXTRACT THESE FIELDS:
 
-1. **power_role**: The power dynamic role this activity requires.
-   Options: "top" (requires controlling/dominant player), "bottom" (requires receiving/submissive player), "switch" (works for either), "neutral" (no power dynamic)
+1. **power_role**: What power dynamic role does the ACTIVE PLAYER take?
+   
+   Options: "top", "bottom", or "neutral"
+   
+   IMPORTANT DISTINCTION - Dominance/Submission (D/s) vs Sadism/Masochism (S/M):
+   
+   "top" = PSYCHOLOGICAL DOMINANCE through power exchange
+   - Active player COMMANDS, CONTROLS, DOMINATES through authority/ownership
+   - Language: "command them to...", "make them...", "order your partner...", "control their..."
+   - Examples: "Tell your partner to kneel and beg", "Command them to strip"
+   
+   "bottom" = PSYCHOLOGICAL SUBMISSION through power exchange  
+   - Active player OBEYS, SUBMITS, SERVES, ASKS PERMISSION
+   - Language: "obey their...", "serve your...", "worship their...", "beg to...", "ask permission to..."
+   - Examples: "Kneel and beg for permission", "Worship their body"
+   
+   "neutral" = DEFAULT - Everything else including:
+   - Pain/sensation play (spanking, clamps, wax, biting) - This is S/M, NOT D/s
+   - Mutual activities (kissing, massage, equal participation)
+   - Exhibition/voyeurism (public play, watching, stripping)  
+   - Performance (dancing, posing, showing off)
+   - All truth questions
+   - Physical activities without power language
+   
+   RULE: Use top/bottom ONLY when there's explicit PSYCHOLOGICAL power exchange (D/s).
+   DEFAULT to neutral for sensation play, mutual acts, and ambiguous activities.
+   
+   PERSPECTIVE CHECK:
+   - "Do X to your partner" → Active player GIVES
+   - "Let your partner do X to you" → Active player RECEIVES
+   - Focus on WHO commands/obeys, not just physical dominance
+
+2. **preference_keys**: DIRECTIONAL preference tags matching survey structure.
+   
+   Available keys include (use exact matches):
+   Directional: spanking_give, spanking_receive, oral_sex_give, oral_sex_receive,
+                anal_give, anal_receive, restraints_give, restraints_receive, etc.
+   
+   Non-directional: kissing, dirty_talk, roleplay, moaning, eye_contact, etc.
+   
+   Choose 2-5 most relevant keys. Use directional (_give/_receive) when activity clearly involves one player acting on another.
+   
+   Examples:
+   - "Spank your partner" → ["spanking_give", "impact_play"]
+   - "Let your partner spank you" → ["spanking_receive", "impact_play"]
+   - "Kiss passionately" → ["kissing"]
+
+3. **domains**: 1-3 domain categories from: {', '.join(DOMAINS)}
+   
+   Domain definitions:
+   - sensual: Physical touch, pleasure, intimacy (oral, massage, penetration)
+   - playful: Fun, lighthearted, games, teasing, humor
+   - power: D/s dynamics, commands, worship, psychological control
+   - connection: Emotional, vulnerability, confession, eye contact
+   - exploration: New experiences, public play, exhibitionism, edge play
+   - edge: Intense, taboo, degradation, extreme sensation
    
    Guidelines:
-   - "top" if: commanding, controlling, leading, dominating, using partner, giving orders
-   - "bottom" if: obeying, serving, being used, receiving commands, submitting, worshiping
-   - "neutral" if: equal participation, no power imbalance
-   - "switch" if: role could flip or alternate
+   - "power" domain ONLY for D/s activities (commands, obedience, worship)
+   - Don't use "power" for sensation play (spanking, wax, clamps) → use "sensual" or "edge"
+   - Public/semi-public → "exploration"
 
-2. **preference_keys**: List of relevant preference tags from this list:
-   {', '.join(PREFERENCE_KEYS[:20])}... (and others like penetration, anal, roleplay, etc.)
-   
-   Choose 1-5 most relevant keys that best describe this activity.
+4. **intensity_modifiers**: 1-3 descriptive tags
+   Options: gentle, intense, extreme, taboo, playful, romantic, primal, edgy, degrading, loving
 
-3. **domains**: List of 1-3 domain categories:
-   {', '.join(DOMAINS)}
+5. **requires_consent_negotiation**: true if involves edge play, pain, degradation, or explicit prior discussion needed
 
-4. **intensity_modifiers**: Descriptive tags like:
-   - gentle, intense, extreme, taboo, playful, romantic, primal, edgy, degrading, loving, etc.
-   Choose 1-3 most relevant.
-
-5. **requires_consent_negotiation**: true if activity involves edge play, pain, degradation, or anything requiring explicit prior discussion
-
-RESPOND WITH VALID JSON:
+RESPOND WITH VALID JSON ONLY:
 {{
-  "power_role": "top|bottom|switch|neutral",
-  "preference_keys": ["key1", "key2", ...],
+  "power_role": "top|bottom|neutral",
+  "preference_keys": ["key1", "key2"],
   "domains": ["domain1", "domain2"],
-  "intensity_modifiers": ["modifier1", "modifier2"],
+  "intensity_modifiers": ["modifier1"],
   "requires_consent_negotiation": true|false
 }}
 
-Be precise and consistent. Consider the language carefully - words like "command", "obey", "worship", "serve" indicate power dynamics."""
+Remember: DEFAULT to neutral for power_role unless there's explicit D/s language. Focus on the ACTIVE PLAYER'S role."""
 
 
 def analyze_activity(
@@ -136,7 +199,7 @@ def analyze_activity(
                 result[field] = [] if field != 'power_role' else 'neutral'
         
         # Validate power_role is valid
-        valid_roles = ['top', 'bottom', 'switch', 'neutral']
+        valid_roles = ['top', 'bottom', 'neutral']
         if result['power_role'] not in valid_roles:
             logger.warning(f"Invalid power_role '{result['power_role']}' for row {row_id}, defaulting to neutral")
             result['power_role'] = 'neutral'

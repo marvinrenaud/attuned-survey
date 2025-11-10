@@ -93,13 +93,8 @@ def create_recommendations():
                 if isinstance(items, dict):
                     # Nested structure - flatten it
                     for activity_key, score in items.items():
-                        # Extract base activity name (remove _receive/_give suffix)
-                        base_key = activity_key.replace('_receive', '').replace('_give', '')
-                        # Take max if we see both receive and give
-                        if base_key in flat:
-                            flat[base_key] = max(flat[base_key], score if isinstance(score, (int, float)) else 0.5)
-                        else:
-                            flat[base_key] = score if isinstance(score, (int, float)) else 0.5
+                        # KEEP directional suffixes (_give/_receive) for accurate matching
+                        flat[activity_key] = score if isinstance(score, (int, float)) else 0.5
                 else:
                     # Already flat
                     flat[category] = items if isinstance(items, (int, float)) else 0.5
