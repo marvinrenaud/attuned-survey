@@ -9,6 +9,11 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -190,11 +195,16 @@ def enrich_activities_batch(
         if resume_from and activity['row_id'] < resume_from:
             continue
         
-        # Stop if limit reached
-        if limit and len(to_process) >= limit:
-            break
-        
         to_process.append(activity)
+    
+    # If limit specified, take subset (random if requested)
+    if limit and len(to_process) > limit:
+        if dry_run:  # For dry run, show random sample
+            import random
+            random.shuffle(to_process)
+            to_process = to_process[:limit]
+        else:  # For actual enrichment, take first N (deterministic)
+            to_process = to_process[:limit]
     
     if not to_process:
         print("✓ All activities already enriched!")

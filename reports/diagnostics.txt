@@ -1,0 +1,55 @@
+======================================================================
+Activity Bank Diagnostics
+======================================================================
+
+Activity Counts by Audience Scope:
+──────────────────────────────────────────────────────────────────────
+  all: 1584
+  couples: 49
+  groups: 37
+
+Activities with Anatomy Requirements:
+──────────────────────────────────────────────────────────────────────
+  Total active activities: 1670
+  With active anatomy requirements: 8
+  With partner anatomy requirements: 17
+  With both anatomy requirements: 6
+  With no anatomy requirements: 1639
+
+Boundary Flags Distribution:
+──────────────────────────────────────────────────────────────────────
+  hardBoundaryImpact: 49 activities
+  hardBoundaryRestrain: 45 activities
+  hardBoundaryDegrade: 27 activities
+  hardBoundaryPublic: 26 activities
+  hardBoundaryRecord: 25 activities
+  hardBoundaryAnal: 24 activities
+  hardBoundaryBreath: 20 activities
+  hardBoundaryWatersports: 15 activities
+
+AI Enrichment Coverage:
+──────────────────────────────────────────────────────────────────────
+  Total activities: 1670
+  With power role tags: 822 (49.2%)
+  With preference keys: 822
+
+  Power Role Distribution:
+    bottom: 115
+    neutral: 402
+    switch: 40
+    top: 265
+
+Activities by Rating and Intensity:
+──────────────────────────────────────────────────────────────────────
+  G-rated:
+    Intensity 1: 905
+  R-rated:
+    Intensity 2: 91
+    Intensity 3: 247
+    Intensity 4: 193
+  X-rated:
+    Intensity 4: 147
+    Intensity 5: 87
+
+Session Filtering Simulation:
+──────────────────────────────────────────────────────────────────────

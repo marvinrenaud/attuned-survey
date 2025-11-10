@@ -1,0 +1,31 @@
+======================================================================
+Attuned Database Schema Verification
+======================================================================
+
+Verifying profiles table...
+
+Verifying activities table...
+
+Verifying indexes...
+
+======================================================================
+Verification Results
+======================================================================
+✅ PASS: profiles.anatomy
+✅ PASS: activities.audience_scope
+✅ PASS: activities.hard_boundaries
+✅ PASS: activities.required_bodyparts
+✅ PASS: activities.activity_uid
+✅ PASS: activities.source_version
+✅ PASS: activities.is_active
+✅ PASS: activities.archived_at
+✅ PASS: idx_activities_hard_boundaries
+✅ PASS: idx_activities_required_bodyparts
+✅ PASS: idx_activities_audience_scope
+✅ PASS: idx_activities_activity_uid
+✅ PASS: idx_activities_is_active
+✅ PASS: idx_activities_active_lookup
+
+======================================================================
+Total: 14 passed, 0 failed
+======================================================================

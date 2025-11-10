@@ -1,0 +1,44 @@
+✓ Loaded enriched data for 619 activities
+Reading XLSX file: ../Consolidated_ToD_Activities (20).xlsx, sheet: Consolidated Activities
+✓ Loaded 850 rows from file
+  Processed 100/850 rows...
+  Processed 200/850 rows...
+  Processed 300/850 rows...
+  Processed 400/850 rows...
+  Processed 500/850 rows...
+  Processed 600/850 rows...
+  Processed 700/850 rows...
+  Processed 800/850 rows...
+
+======================================================================
+Import Summary
+======================================================================
+Total rows processed: 850
+Added: 850
+Updated: 0
+Skipped: 0
+Errors: 0
+
+Audience Scope Distribution:
+  couples: 49
+  groups: 37
+  all: 764
+
+Anatomy Requirements:
+  active: 8
+  partner: 17
+  both: 6
+  neither: 819
+
+Boundary Flags (activities with boundaries):
+  hardBoundaryImpact: 49
+  hardBoundaryRestrain: 45
+  hardBoundaryDegrade: 27
+  hardBoundaryPublic: 26
+  hardBoundaryRecord: 25
+  hardBoundaryAnal: 24
+  hardBoundaryBreath: 20
+  hardBoundaryWatersports: 15
+
+AI Enrichment: 2/850 activities have AI tags
+======================================================================
