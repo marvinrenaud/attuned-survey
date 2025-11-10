@@ -80,24 +80,29 @@ EXTRACT THESE FIELDS:
    
    "bottom" = PSYCHOLOGICAL SUBMISSION through power exchange  
    - Active player OBEYS, SUBMITS, SERVES, ASKS PERMISSION
-   - Language: "obey their...", "serve your...", "worship their...", "beg to...", "ask permission to..."
-   - Examples: "Kneel and beg for permission", "Worship their body"
+   - REQUIRES explicit submission language:
+     * "beg to...", "plead for...", "beg for permission..."
+     * "worship their...", "adore their...", "serve your..."
+     * "obey their...", "ask permission to...", "submit to..."
+   - Examples: "Kneel and beg for permission", "Worship their body", "Ask permission to pleasure them"
+   - NOTE: "Let your partner do X" WITHOUT submission words = neutral (just receiving sensation)
    
    "neutral" = DEFAULT - Everything else including:
-   - Pain/sensation play (spanking, clamps, wax, biting) - This is S/M, NOT D/s
+   - Pain/sensation play (spanking, clamps, wax, biting, trampling, scratching) - This is S/M, NOT D/s
+   - Receiving physical acts without submission language ("let your partner spank you" with no begging/worship)
    - Mutual activities (kissing, massage, equal participation)
    - Exhibition/voyeurism (public play, watching, stripping)  
    - Performance (dancing, posing, showing off)
    - All truth questions
    - Physical activities without power language
    
-   RULE: Use top/bottom ONLY when there's explicit PSYCHOLOGICAL power exchange (D/s).
-   DEFAULT to neutral for sensation play, mutual acts, and ambiguous activities.
+   RULE: Use top/bottom ONLY when there's EXPLICIT PSYCHOLOGICAL power exchange language (commands, begging, worship, obey, serve).
+   DEFAULT to neutral for sensation play, physical receiving, and ambiguous activities.
    
    PERSPECTIVE CHECK:
    - "Do X to your partner" → Active player GIVES
-   - "Let your partner do X to you" → Active player RECEIVES
-   - Focus on WHO commands/obeys, not just physical dominance
+   - "Let your partner do X to you" → Active player RECEIVES (but still neutral unless submission words present)
+   - Focus on POWER LANGUAGE (commands/obedience), not physical actions
 
 2. **preference_keys**: DIRECTIONAL preference tags matching survey structure.
    
@@ -105,29 +110,46 @@ EXTRACT THESE FIELDS:
    Directional: spanking_give, spanking_receive, oral_sex_give, oral_sex_receive,
                 anal_give, anal_receive, restraints_give, restraints_receive, etc.
    
-   Non-directional: kissing, dirty_talk, roleplay, moaning, eye_contact, etc.
+   Non-directional: kissing, moaning, roleplay, etc.
    
    Choose 2-5 most relevant keys. Use directional (_give/_receive) when activity clearly involves one player acting on another.
+   
+   STRICT CRITERIA:
+   - dirty_talk: ONLY for FILTHY/DEGRADING/GRAPHIC verbal content
+     * Must involve: name-calling, degrading phrases, graphic sexual descriptions, begging with filthy language
+     * Examples: "call yourself dirty names", "describe in filthy detail", "beg like a slut"
+     * NOT for: discussing sex, confessing desires, asking questions about sex
+   
+   - roleplay: ONLY when ACTING AS A CHARACTER/PERSONA
+     * Must involve: playing a role (teacher/student, agent/target, pet/owner, etc.)
+     * Examples: "Play the strict teacher", "Roleplay a secret agent"
+     * NOT for: reading texts, sharing info, performing non-character actions
+   
+   - eye_contact: ONLY when SPECIFICALLY about gazing/staring/eye contact
+     * Examples: "Hold eye contact for 2 minutes", "Stare into their eyes while..."
+     * NOT a default for truth questions
    
    Examples:
    - "Spank your partner" → ["spanking_give", "impact_play"]
    - "Let your partner spank you" → ["spanking_receive", "impact_play"]
    - "Kiss passionately" → ["kissing"]
+   - "Tell me about your fantasies" → ["confession"] (NOT dirty_talk or eye_contact)
 
 3. **domains**: 1-3 domain categories from: {', '.join(DOMAINS)}
    
    Domain definitions:
-   - sensual: Physical touch, pleasure, intimacy (oral, massage, penetration)
+   - sensual: PLEASURE-FOCUSED physical touch (oral, massage, gentle stimulation, caressing)
    - playful: Fun, lighthearted, games, teasing, humor
-   - power: D/s dynamics, commands, worship, psychological control
-   - connection: Emotional, vulnerability, confession, eye contact
-   - exploration: New experiences, public play, exhibitionism, edge play
-   - edge: Intense, taboo, degradation, extreme sensation
+   - power: D/s dynamics with commands, worship, psychological control (ONLY when power_role is top/bottom)
+   - connection: Emotional intimacy, vulnerability, confession, deep conversation
+   - exploration: New/unusual experiences, public play, exhibitionism, voyeurism, trying new things
+   - edge: INTENSE sensation, pain, pressure, trampling, degradation, taboo acts, extreme physical play
    
    Guidelines:
-   - "power" domain ONLY for D/s activities (commands, obedience, worship)
-   - Don't use "power" for sensation play (spanking, wax, clamps) → use "sensual" or "edge"
-   - Public/semi-public → "exploration"
+   - "power" domain ONLY when power_role is top or bottom (D/s activities)
+   - "sensual" for pleasure-focused touch; "edge" for pain/pressure/intense sensation
+   - Pain/pressure/trampling/wax = "edge", not "sensual"
+   - Public/semi-public = "exploration"
 
 4. **intensity_modifiers**: 1-3 descriptive tags
    Options: gentle, intense, extreme, taboo, playful, romantic, primal, edgy, degrading, loving
@@ -143,7 +165,13 @@ RESPOND WITH VALID JSON ONLY:
   "requires_consent_negotiation": true|false
 }}
 
-Remember: DEFAULT to neutral for power_role unless there's explicit D/s language. Focus on the ACTIVE PLAYER'S role."""
+CRITICAL REMINDERS:
+- DEFAULT to "neutral" for power_role (use top/bottom sparingly, only with explicit power language)
+- Use "dirty_talk" ONLY for filthy/degrading language (NOT discussing sex)
+- Use "roleplay" ONLY for character acting (NOT reading/sharing)
+- Use "eye_contact" ONLY when specifically about gazing (NOT default for truths)
+- "sensual" = pleasure; "edge" = pain/pressure/intense sensation
+- "power" domain ONLY when power_role is top or bottom"""
 
 
 def analyze_activity(
