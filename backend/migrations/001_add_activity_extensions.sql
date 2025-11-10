@@ -29,34 +29,27 @@ ALTER TABLE activities
 ALTER TABLE activities 
   ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ;
 
--- Add constraints
-ALTER TABLE activities 
-  DROP CONSTRAINT IF EXISTS chk_hard_boundaries_valid;
+-- Add constraints (structure validation only)
+-- Note: Value validation (allowed keys/bodyparts) handled at application level
+DO $$ BEGIN
+    ALTER TABLE activities 
+      ADD CONSTRAINT chk_hard_boundaries_valid 
+      CHECK (jsonb_typeof(hard_boundaries) = 'array');
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
 
-ALTER TABLE activities 
-  ADD CONSTRAINT chk_hard_boundaries_valid 
-  CHECK (
-    jsonb_typeof(hard_boundaries) = 'array' AND
-    (SELECT COUNT(*) FROM jsonb_array_elements_text(hard_boundaries) AS elem
-     WHERE elem NOT IN (
-       'hardBoundaryImpact', 'hardBoundaryRestrain', 'hardBoundaryBreath',
-       'hardBoundaryDegrade', 'hardBoundaryPublic', 'hardBoundaryRecord',
-       'hardBoundaryAnal', 'hardBoundaryWatersports'
-     )) = 0
-  );
-
-ALTER TABLE activities 
-  DROP CONSTRAINT IF EXISTS chk_required_bodyparts_structure;
-  
-ALTER TABLE activities 
-  ADD CONSTRAINT chk_required_bodyparts_structure 
-  CHECK (
-    jsonb_typeof(required_bodyparts) = 'object' AND
-    required_bodyparts ? 'active' AND
-    required_bodyparts ? 'partner' AND
-    jsonb_typeof(required_bodyparts->'active') = 'array' AND
-    jsonb_typeof(required_bodyparts->'partner') = 'array'
-  );
+DO $$ BEGIN
+    ALTER TABLE activities 
+      ADD CONSTRAINT chk_required_bodyparts_structure 
+      CHECK (
+        jsonb_typeof(required_bodyparts) = 'object' AND
+        required_bodyparts ? 'active' AND
+        required_bodyparts ? 'partner' AND
+        jsonb_typeof(required_bodyparts->'active') = 'array' AND
+        jsonb_typeof(required_bodyparts->'partner') = 'array'
+      );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
 
 -- Unique constraint on activity_uid
 DO $$ BEGIN
