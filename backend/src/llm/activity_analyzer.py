@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 # Canonical list of preference keys that match survey responses
-# Directional keys (give/receive) match survey structure for accurate matching
+# RESTRICTED to survey-matched keys only for accurate personalization
 PREFERENCE_KEYS = [
     # Physical Touch (directional)
     'massage_give', 'massage_receive',
@@ -37,17 +37,15 @@ PREFERENCE_KEYS = [
     'protocols_give', 'protocols_follow',
     
     # Verbal & Roleplay (non-directional)
-    'dirty_talk', 'moaning', 'roleplay', 'commands', 'begging',
+    'dirty_talk', 'moaning', 'roleplay', 'commands', 'begging', 'confession',
     
     # Display & Performance
     'stripping_self', 'watching_strip',
     'solo_pleasure_self', 'watching_solo_pleasure',
-    'posing', 'dancing', 'revealing_clothing',
+    'posing', 'dancing', 'revealing_clothing', 'exhibitionism',
     
     # General/Mutual (non-directional)
-    'kissing', 'eye_contact', 'confession', 'manual_stimulation',
-    'penetration', 'sensory_play', 'temperature_play',
-    'impact_play', 'exhibitionism', 'voyeurism'
+    'kissing', 'penetration', 'impact_play'
 ]
 
 # Canonical domain tags
@@ -115,10 +113,13 @@ EXTRACT THESE FIELDS:
    Choose 2-5 most relevant keys. Use directional (_give/_receive) when activity clearly involves one player acting on another.
    
    STRICT CRITERIA:
-   - dirty_talk: ONLY for FILTHY/DEGRADING/GRAPHIC verbal content
-     * Must involve: name-calling, degrading phrases, graphic sexual descriptions, begging with filthy language
-     * Examples: "call yourself dirty names", "describe in filthy detail", "beg like a slut"
-     * NOT for: discussing sex, confessing desires, asking questions about sex
+   - dirty_talk: ONLY when the TASK IS TO SAY/READ filthy/degrading/explicit things
+     * The ACTIVITY ITSELF must be verbal expression of dirty content
+     * Examples: "Tell your partner every filthy thing...", "call yourself dirty names", "beg like a slut", "read your filthiest sext/erotica aloud"
+     * NOT for: Questions ABOUT sex, discussing preferences, confessing experiences
+     * KEY TEST: Is the activity "say dirty words" (YES) or "answer a question that mentions sex" (NO)?
+     * "What position makes you cum hardest?" = NOT dirty_talk (it's a question/discussion)
+     * "Describe every filthy detail of how you want to be fucked" = YES dirty_talk (task is to be explicit)
    
    - roleplay: ONLY when ACTING AS A CHARACTER/PERSONA
      * Must involve: playing a role (teacher/student, agent/target, pet/owner, etc.)
@@ -129,11 +130,48 @@ EXTRACT THESE FIELDS:
      * Examples: "Hold eye contact for 2 minutes", "Stare into their eyes while..."
      * NOT a default for truth questions
    
+   - Use "solo_pleasure_self" for masturbation/self-touch activities (not multiple terms)
+   
+   MAPPING GUIDE - Map uncommon activities to closest survey match:
+   - Wax play → massage_give or massage_receive
+   - Ice play / temperature play → massage_give or massage_receive
+   - Scratching → biting_give or biting_receive
+   - Trampling / stepping / foot play → spanking_give or spanking_receive
+   - Body shots → oral_body_give
+   - Pressure play → spanking_give or spanking_receive
+   - Feather play / light sensory → massage_give or massage_receive
+   - Clothing swap / dressing up → exhibitionism
+   - Nudity / naked / stripping → stripping_self or exhibitionism
+   - Reading aloud / sharing content → confession
+   
+   ONLY USE THESE EXACT PREFERENCE KEYS (do not invent new ones):
+   Physical: massage_give, massage_receive, hair_pull_give, hair_pull_receive, biting_give, biting_receive,
+             spanking_give, spanking_receive, hands_on_genitals_give, hands_on_genitals_receive,
+             slapping_give, slapping_receive, choking_give, choking_receive, spitting_give, spitting_receive,
+             watersports_give, watersports_receive
+   Oral: oral_sex_give, oral_sex_receive, oral_body_give, oral_body_receive
+   Anal: anal_give, anal_receive, rimming_give, rimming_receive
+   Power: restraints_give, restraints_receive, blindfold_give, blindfold_receive,
+          orgasm_control_give, orgasm_control_receive, protocols_give, protocols_follow
+   Verbal: dirty_talk, moaning, roleplay, commands, begging, confession
+   Display: stripping_self, watching_strip, solo_pleasure_self, watching_solo_pleasure,
+            posing, dancing, revealing_clothing, exhibitionism
+   General: kissing, penetration, impact_play
+   
+   DO NOT USE: connection, intimacy, vulnerability, sensual_touch, truth_telling, conversation,
+               clothing_swap, reading_aloud, wax_play, ice_play, trampling, scratching, etc.
+               Map these to the closest match from the allowed list above.
+   
    Examples:
    - "Spank your partner" → ["spanking_give", "impact_play"]
    - "Let your partner spank you" → ["spanking_receive", "impact_play"]
+   - "Drip wax on your partner" → ["massage_give"] (NOT wax_play)
+   - "Let partner drip wax on you" → ["massage_receive"] (NOT wax_play_receive)
    - "Kiss passionately" → ["kissing"]
-   - "Tell me about your fantasies" → ["confession"] (NOT dirty_talk or eye_contact)
+   - "Tell me about your fantasies" → ["confession"] (NOT dirty_talk)
+   - "Describe what great sex means to you" → ["confession"] (NOT dirty_talk - reflective, not filthy)
+   - "Read your filthiest sext aloud" → ["dirty_talk", "confession"] (YES - explicitly filthy content)
+   - "What position makes you cum hardest?" → ["confession"] (NOT dirty_talk - question about preference)
 
 3. **domains**: 1-3 domain categories from: {', '.join(DOMAINS)}
    
