@@ -114,13 +114,16 @@ EXTRACT THESE FIELDS:
    
    STRICT CRITERIA:
    - dirty_talk: ONLY when task is to SAY/READ DEGRADING or GRAPHIC/FILTHY language
-     * Must be: Degrading (name-calling, humiliation), Graphic/filthy (explicit sexual descriptions), or Begging with filthy language
-     * YES: "call yourself dirty names", "describe in filthy detail how...", "read your filthiest sext", "whisper dirty things", "beg like a slut"
-     * NO: Flirty/teasing ("I'm not wearing underwear"), Questions about sex, Confessing experiences, Discussing preferences
-     * KEY TEST: Is it DEGRADING or GRAPHIC? Flirty/provocative/teasing ≠ dirty talk
-     * "Describe what great sex means" = NO (reflective)
-     * "Whisper dirty things to each other" = YES (explicitly dirty)
-     * "Send text: I'm not wearing underwear" = NO (flirty, not degrading/graphic)
+     * Must be DEGRADING or GRAPHIC:
+       - Degrading: name-calling, humiliation, degrading self-talk ("call yourself dirty names", "beg like a slut")
+       - Graphic/Filthy: explicit sexual descriptions ("describe in filthy detail", "every dirty thing you want them to do")
+       - Explicitly dirty: "whisper dirty things", "read your filthiest sext", "say the dirtiest thing"
+     * NOT dirty_talk:
+       - Flirty/teasing: "I'm not wearing underwear", "I'm thinking of you"
+       - Provocative but not graphic: "I want you", suggestive hints
+       - Questions about sex: "What position do you like?"
+       - Confessing/discussing: "Describe what great sex means to you"
+     * RULE: If you'd say it on a first date or in public = NOT dirty_talk. Must be degrading or explicitly graphic.
    
    - roleplay: ONLY when ACTING AS A CHARACTER/PERSONA
      * Must involve: playing a role (teacher/student, agent/target, pet/owner, etc.)
@@ -137,6 +140,11 @@ EXTRACT THESE FIELDS:
    - "squeeze neck", "choke", "throat", "breathe" → choking_give or choking_receive
    - "tie", "bind", "rope", "cuff" → restraints_give or restraints_receive
    - Always check for physical acts even in roleplay scenarios
+   
+   DIRECTION CLARITY for performance:
+   - "Strip for your partner" → stripping_self (active player strips)
+   - "Watch your partner strip" → watching_strip (active player watches)
+   - "Do whatever to your partner in front of mirror" → depends on what they DO (not stripping unless explicitly stripping)
    
    MAPPING GUIDE - Map uncommon activities to closest survey match:
    - Wax play → massage_give or massage_receive
