@@ -31,6 +31,7 @@ class Profile(db.Model):
     activities = db.Column(db.JSON, nullable=False)  # {activity_key: preference_score}
     truth_topics = db.Column(db.JSON, nullable=False)  # {topic: openness_score}
     boundaries = db.Column(db.JSON, nullable=False)  # {hard_limits: [], soft_limits: [], maybe_items: []}
+    anatomy = db.Column(db.JSON, nullable=False, default=dict)  # {anatomy_self: [], anatomy_preference: []}
     activity_tags = db.Column(db.JSON, nullable=True)  # Optional activity tags
     
     # Relationships
@@ -56,6 +57,7 @@ class Profile(db.Model):
             'activities': self.activities,
             'truth_topics': self.truth_topics,
             'boundaries': self.boundaries,
+            'anatomy': self.anatomy,
             'activity_tags': self.activity_tags,
         }
 

@@ -1,6 +1,17 @@
 """Activity model - stores activity bank templates."""
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import ENUM
 from ..extensions import db
+
+# Allowed boundary keys (8-key taxonomy)
+ALLOWED_BOUNDARIES = [
+    'hardBoundaryImpact', 'hardBoundaryRestrain', 'hardBoundaryBreath',
+    'hardBoundaryDegrade', 'hardBoundaryPublic', 'hardBoundaryRecord',
+    'hardBoundaryAnal', 'hardBoundaryWatersports'
+]
+
+# Allowed body parts
+ALLOWED_BODYPARTS = ['penis', 'vagina', 'breasts']
 
 
 class Activity(db.Model):
@@ -35,6 +46,20 @@ class Activity(db.Model):
     intensity_modifiers = db.Column(db.JSON, nullable=True)  # [gentle, intense, edgy, taboo, etc.]
     requires_consent_negotiation = db.Column(db.Boolean, default=False, nullable=True)
     
+    # New: Audience scope, boundaries, anatomy requirements, and versioning
+    audience_scope = db.Column(
+        ENUM('couples', 'groups', 'all', name='audience_scope_enum', create_type=False),
+        nullable=False,
+        default='all',
+        index=True
+    )
+    hard_boundaries = db.Column(db.JSON, nullable=False, default=list)  # 8-key boundary taxonomy
+    required_bodyparts = db.Column(db.JSON, nullable=False, default=lambda: {"active": [], "partner": []})
+    activity_uid = db.Column(db.String(64), unique=True, index=True)  # SHA256 hash for deduplication
+    source_version = db.Column(db.String(32))  # Source spreadsheet version
+    is_active = db.Column(db.Boolean, nullable=False, default=True, index=True)
+    archived_at = db.Column(db.DateTime)
+    
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -46,6 +71,25 @@ class Activity(db.Model):
     
     def __repr__(self):
         return f"<Activity {self.activity_id} {self.type} {self.rating}{self.intensity}>"
+    
+    def validate_boundaries(self) -> bool:
+        """Validate hard_boundaries contains only allowed keys."""
+        if not isinstance(self.hard_boundaries, list):
+            return False
+        return all(b in ALLOWED_BOUNDARIES for b in self.hard_boundaries)
+    
+    def validate_bodyparts(self) -> bool:
+        """Validate required_bodyparts structure and values."""
+        if not isinstance(self.required_bodyparts, dict):
+            return False
+        if 'active' not in self.required_bodyparts or 'partner' not in self.required_bodyparts:
+            return False
+        active = self.required_bodyparts['active']
+        partner = self.required_bodyparts['partner']
+        if not isinstance(active, list) or not isinstance(partner, list):
+            return False
+        return (all(bp in ALLOWED_BODYPARTS for bp in active) and
+                all(bp in ALLOWED_BODYPARTS for bp in partner))
     
     def to_dict(self):
         """Convert activity to dictionary format."""
@@ -64,6 +108,13 @@ class Activity(db.Model):
             'domains': self.domains or [],
             'intensity_modifiers': self.intensity_modifiers or [],
             'requires_consent_negotiation': self.requires_consent_negotiation,
+            'audience_scope': self.audience_scope,
+            'hard_boundaries': self.hard_boundaries or [],
+            'required_bodyparts': self.required_bodyparts or {"active": [], "partner": []},
+            'activity_uid': self.activity_uid,
+            'source_version': self.source_version,
+            'is_active': self.is_active,
+            'archived_at': self.archived_at.isoformat() if self.archived_at else None,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }

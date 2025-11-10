@@ -117,10 +117,22 @@ def create_recommendations():
         rules = session_config.get('rules', {'avoid_maybe_until': 6})
         session_id = session_config.get('session_id')
         
-        # Collect hard limits
+        # Collect hard limits (boundaries)
         a_hard_limits = player_a_profile.get('boundaries', {}).get('hard_limits', [])
         b_hard_limits = player_b_profile.get('boundaries', {}).get('hard_limits', [])
         all_hard_limits = list(set(a_hard_limits + b_hard_limits))
+        
+        # Extract anatomy data from profiles
+        a_anatomy = player_a_profile.get('anatomy', {})
+        b_anatomy = player_b_profile.get('anatomy', {})
+        
+        player_anatomy = {
+            'active_anatomy': a_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts']),
+            'partner_anatomy': b_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts'])
+        }
+        
+        # Determine session mode (couples by default, groups if specified in session config)
+        session_mode = session_config.get('session_mode', 'couples')
         
         logger.info(
             f"Starting recommendations generation",
@@ -129,7 +141,10 @@ def create_recommendations():
                 "rating": rating,
                 "target_activities": target_activities,
                 "activity_type": activity_type,
-                "hard_limits_count": len(all_hard_limits)
+                "session_mode": session_mode,
+                "hard_limits_count": len(all_hard_limits),
+                "player_a_anatomy": player_anatomy['active_anatomy'],
+                "player_b_anatomy": player_anatomy['partner_anatomy']
             }
         )
         
@@ -179,7 +194,9 @@ def create_recommendations():
                 activity_type=picked_type,
                 player_a_profile=player_a_profile,
                 player_b_profile=player_b_profile,
-                hard_limits=all_hard_limits,
+                session_mode=session_mode,
+                player_boundaries=all_hard_limits,
+                player_anatomy=player_anatomy,
                 excluded_ids=used_activity_ids,  # Prevent duplicates
                 top_n=30  # Consider top 30 candidates for better variety
             )
@@ -262,7 +279,11 @@ def create_recommendations():
                     activity_item, seq, rating, picked_type,
                     intensity_min, intensity_max,
                     [c.to_dict() for c in repository.find_activity_candidates(
-                        rating, intensity_min, intensity_max, picked_type, all_hard_limits, 20
+                        rating, intensity_min, intensity_max, picked_type,
+                        session_mode=session_mode,
+                        player_boundaries=all_hard_limits,
+                        player_anatomy=player_anatomy,
+                        limit=20
                     )],
                     all_hard_limits
                 )

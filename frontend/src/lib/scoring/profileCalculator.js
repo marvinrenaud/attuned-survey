@@ -36,6 +36,47 @@ function extractBoundaries(answers) {
 }
 
 /**
+ * Extract anatomy data from answers
+ * @param {Object} answers - Raw survey answers
+ * @returns {Object} - Anatomy object
+ */
+function extractAnatomy(answers) {
+  // D1: What anatomy do you have to play with? (Multi-select)
+  let anatomySelf = [];
+  const d1 = answers['D1'];
+  
+  if (Array.isArray(d1)) {
+    anatomySelf = d1.filter(a => ['penis', 'vagina', 'breasts'].includes(a.toLowerCase()));
+  } else if (typeof d1 === 'string' && d1.trim() !== '') {
+    anatomySelf = d1.split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(a => ['penis', 'vagina', 'breasts'].includes(a));
+  }
+
+  // D2: What anatomy do you like to play with in partners? (Multi-select)
+  let anatomyPreference = [];
+  const d2 = answers['D2'];
+  
+  if (Array.isArray(d2)) {
+    anatomyPreference = d2.filter(a => ['penis', 'vagina', 'breasts', 'any', 'all'].includes(a.toLowerCase()));
+  } else if (typeof d2 === 'string' && d2.trim() !== '') {
+    anatomyPreference = d2.split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(a => ['penis', 'vagina', 'breasts', 'any', 'all'].includes(a));
+  }
+
+  // If preference includes 'any' or 'all', expand to all options
+  if (anatomyPreference.includes('any') || anatomyPreference.includes('all')) {
+    anatomyPreference = ['penis', 'vagina', 'breasts'];
+  }
+
+  return {
+    anatomy_self: anatomySelf,
+    anatomy_preference: anatomyPreference
+  };
+}
+
+/**
  * Calculate complete intimacy profile from survey responses
  * @param {string} userId - User identifier
  * @param {Object} answers - Raw survey answers
@@ -60,7 +101,10 @@ export function calculateProfile(userId, answers) {
   // 6. Extract Boundaries (C1-C2)
   const boundaries = extractBoundaries(answers);
 
-  // 7. Generate Activity Tags
+  // 7. Extract Anatomy (D1-D2)
+  const anatomy = extractAnatomy(answers);
+
+  // 8. Generate Activity Tags
   const activityTags = generateActivityTags(activities, boundaries);
 
   // Build complete profile
@@ -74,6 +118,7 @@ export function calculateProfile(userId, answers) {
     activities: activities,
     truth_topics: truthTopics,
     boundaries: boundaries,
+    anatomy: anatomy,
     activity_tags: activityTags
   };
 

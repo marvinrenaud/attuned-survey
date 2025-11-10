@@ -278,29 +278,40 @@ function calculateActivityOverlap(activitiesA, activitiesB, powerA, powerB) {
 function checkBoundaryConflicts(playerA, playerB) {
   const conflicts = [];
 
-  // Boundary to activity mapping
+  // Boundary to activity mapping (8-key taxonomy)
   const boundaryMap = {
-    'impact_play': [
+    'hardBoundaryImpact': [
       'spanking_moderate_give', 'spanking_moderate_receive',
       'spanking_hard_give', 'spanking_hard_receive',
       'slapping_give', 'slapping_receive',
       'biting_moderate_give', 'biting_moderate_receive'
     ],
-    'restraints_bondage': [
+    'hardBoundaryRestrain': [
       'restraints_give', 'restraints_receive',
       'blindfold_give', 'blindfold_receive'
     ],
-    'breath_play': [
+    'hardBoundaryBreath': [
       'choking_give', 'choking_receive'
     ],
-    'anal_activities': [
+    'hardBoundaryDegrade': [
+      'degradation_give', 'degradation_receive',
+      'humiliation_give', 'humiliation_receive'
+    ],
+    'hardBoundaryPublic': [
+      'exhibitionism', 'voyeurism',
+      'public_play'
+    ],
+    'hardBoundaryRecord': [
+      'recording', 'photos', 'videos'
+    ],
+    'hardBoundaryAnal': [
       'anal_fingers_toys_give', 'anal_fingers_toys_receive',
       'rimming_give', 'rimming_receive'
     ],
-    'degradation_humiliation': [],
-    'roleplay': ['roleplay', 'protocols_follow', 'protocols_give'],
-    'watersports': ['watersports_give', 'watersports_receive'],
-    'toys_props': []
+    'hardBoundaryWatersports': [
+      'watersports_give', 'watersports_receive',
+      'scat_play'
+    ]
   };
 
   // NEW: Track which boundaries have conflicts (to avoid duplicates)

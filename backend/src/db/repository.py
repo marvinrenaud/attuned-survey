@@ -49,6 +49,17 @@ def get_or_create_profile(submission_id: str) -> Profile:
     if not derived:
         raise ValueError(f"Submission {submission_id} has no derived profile data")
     
+    # Extract anatomy data (with defaults for legacy profiles)
+    anatomy = derived.get('anatomy', {})
+    anatomy_self = anatomy.get('anatomy_self', [])
+    anatomy_preference = anatomy.get('anatomy_preference', [])
+    
+    # Default to all anatomy if not specified (backward compatibility)
+    if not anatomy_self:
+        anatomy_self = ['penis', 'vagina', 'breasts']
+    if not anatomy_preference:
+        anatomy_preference = ['penis', 'vagina', 'breasts']
+    
     # Create new profile
     profile = Profile(
         submission_id=submission_id,
@@ -59,6 +70,7 @@ def get_or_create_profile(submission_id: str) -> Profile:
         activities=derived.get('activities', {}),
         truth_topics=derived.get('truth_topics', {}),
         boundaries=derived.get('boundaries', {}),
+        anatomy={'anatomy_self': anatomy_self, 'anatomy_preference': anatomy_preference},
         activity_tags=derived.get('activity_tags', {})
     )
     
@@ -156,63 +168,142 @@ def complete_session(session_id: str) -> None:
 # Activity Bank Operations
 # ==============================================================================
 
+def meets_anatomy_requirements(activity: Activity, player_anatomy: Dict[str, List[str]]) -> bool:
+    """
+    Check if players have required body parts for activity.
+    
+    Args:
+        activity: Activity instance
+        player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' keys
+    
+    Returns:
+        True if anatomy requirements are met, False otherwise
+    """
+    req = activity.required_bodyparts or {"active": [], "partner": []}
+    active_req = req.get('active', [])
+    partner_req = req.get('partner', [])
+    
+    # Get player anatomy (default to all if not specified)
+    active_has = player_anatomy.get('active_anatomy', ['penis', 'vagina', 'breasts'])
+    partner_has = player_anatomy.get('partner_anatomy', ['penis', 'vagina', 'breasts'])
+    
+    # Check if all required parts are present
+    for part in active_req:
+        if part not in active_has:
+            return False
+    for part in partner_req:
+        if part not in partner_has:
+            return False
+    
+    return True
+
+
+def has_boundary_conflict(activity_boundaries: List[str], player_boundaries: List[str]) -> bool:
+    """
+    Check if activity hits any player hard boundary.
+    
+    Args:
+        activity_boundaries: List of boundary keys from activity.hard_boundaries
+        player_boundaries: Combined list of player hard boundaries
+    
+    Returns:
+        True if there's a conflict, False otherwise
+    """
+    if not activity_boundaries or not player_boundaries:
+        return False
+    return any(b in player_boundaries for b in activity_boundaries)
+
+
 def find_activity_candidates(
     rating: str,
     intensity_min: int,
     intensity_max: int,
     activity_type: Optional[str] = None,
-    hard_limits: Optional[List[str]] = None,
+    session_mode: str = 'couples',
+    player_boundaries: Optional[List[str]] = None,
+    player_anatomy: Optional[Dict[str, List[str]]] = None,
+    hard_limits: Optional[List[str]] = None,  # LEGACY, deprecated
     tags: Optional[List[str]] = None,
     limit: int = 50
 ) -> List[Activity]:
     """
-    Find activity candidates matching criteria.
+    Find activity candidates matching criteria with pre-filters for anatomy, boundaries, and audience.
     
     Args:
         rating: Content rating (G/R/X)
         intensity_min: Minimum intensity
         intensity_max: Maximum intensity
         activity_type: Optional type filter (truth/dare)
-        hard_limits: List of hard limit keys to exclude
+        session_mode: Session mode ('couples' or 'groups')
+        player_boundaries: List of combined player hard boundaries
+        player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' lists
+        hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         tags: Optional tag filters
         limit: Maximum results to return
     
     Returns:
         List of matching Activity instances
     """
+    # Base query: active, approved activities only
     query = Activity.query.filter(
+        Activity.is_active == True,
         Activity.approved == True,
         Activity.rating == rating,
         Activity.intensity >= intensity_min,
         Activity.intensity <= intensity_max
     )
     
+    # Filter by audience scope
+    if session_mode == 'couples':
+        query = query.filter(Activity.audience_scope.in_(['couples', 'all']))
+    elif session_mode == 'groups':
+        query = query.filter(Activity.audience_scope.in_(['groups', 'all']))
+    
+    # Filter by activity type
     if activity_type:
         query = query.filter(Activity.type == activity_type)
     
-    # Filter out hard limits
-    # Note: This is a simple exclusion; for complex filtering, you might need raw SQL
-    all_candidates = query.all()
+    # Fetch candidates (over-fetch to account for post-filtering)
+    candidates = query.limit(limit * 3).all()
     
+    # Post-filter: anatomy requirements
+    if player_anatomy:
+        filtered = []
+        for activity in candidates:
+            if not meets_anatomy_requirements(activity, player_anatomy):
+                continue
+            filtered.append(activity)
+        candidates = filtered
+    
+    # Post-filter: hard boundaries (new system)
+    if player_boundaries:
+        filtered = []
+        for activity in candidates:
+            if has_boundary_conflict(activity.hard_boundaries or [], player_boundaries):
+                continue
+            filtered.append(activity)
+        candidates = filtered
+    
+    # Legacy hard limits filter (for backward compatibility)
     if hard_limits:
-        filtered_candidates = []
-        for activity in all_candidates:
+        filtered = []
+        for activity in candidates:
             if activity.hard_limit_keys:
                 if any(limit in hard_limits for limit in activity.hard_limit_keys):
                     continue
-            filtered_candidates.append(activity)
-            if len(filtered_candidates) >= limit:
-                break
-        candidates = filtered_candidates
-    else:
-        candidates = all_candidates[:limit]
+            filtered.append(activity)
+        candidates = filtered
+    
+    # Return up to limit
+    candidates = candidates[:limit]
     
     logger.debug(
         f"Found {len(candidates)} activity candidates",
         extra={
             "rating": rating,
             "intensity_range": f"{intensity_min}-{intensity_max}",
-            "type": activity_type
+            "type": activity_type,
+            "session_mode": session_mode
         }
     )
     return candidates
@@ -230,12 +321,15 @@ def find_best_activity_candidate(
     activity_type: str,
     player_a_profile: Dict[str, Any],
     player_b_profile: Dict[str, Any],
-    hard_limits: Optional[List[str]] = None,
+    session_mode: str = 'couples',
+    player_boundaries: Optional[List[str]] = None,
+    player_anatomy: Optional[Dict[str, List[str]]] = None,
+    hard_limits: Optional[List[str]] = None,  # LEGACY
     excluded_ids: Optional[set] = None,
     top_n: int = 20
 ) -> Optional[Activity]:
     """
-    Find best-matching activity using preference-based scoring.
+    Find best-matching activity using preference-based scoring with anatomy and boundary filters.
     
     Args:
         rating: Content rating (G/R/X)
@@ -244,7 +338,10 @@ def find_best_activity_candidate(
         activity_type: 'truth' or 'dare'
         player_a_profile: Player A's complete profile dict
         player_b_profile: Player B's complete profile dict
-        hard_limits: List of hard limit keys to exclude
+        session_mode: Session mode ('couples' or 'groups')
+        player_boundaries: Combined list of player hard boundaries
+        player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' lists
+        hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         excluded_ids: Set of activity IDs already used (for deduplication)
         top_n: Consider top N candidates for scoring
     
@@ -256,12 +353,15 @@ def find_best_activity_candidate(
     if excluded_ids is None:
         excluded_ids = set()
     
-    # Get candidates using existing filter
+    # Get candidates using enhanced filter
     candidates = find_activity_candidates(
         rating=rating,
         intensity_min=intensity_min,
         intensity_max=intensity_max,
         activity_type=activity_type,
+        session_mode=session_mode,
+        player_boundaries=player_boundaries,
+        player_anatomy=player_anatomy,
         hard_limits=hard_limits,
         limit=top_n * 2  # Get more to account for exclusions
     )
