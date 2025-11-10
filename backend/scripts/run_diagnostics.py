@@ -113,23 +113,28 @@ def count_enrichment_coverage():
 def check_index_usage():
     """Check index usage statistics."""
     with app.app_context():
-        result = db.session.execute(text("""
-            SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
-            FROM pg_stat_user_indexes
-            WHERE tablename = 'activities'
-            ORDER BY idx_scan DESC
-        """))
-        
-        indexes = []
-        for row in result:
-            indexes.append({
-                'name': row[2],
-                'scans': row[3],
-                'tuples_read': row[4],
-                'tuples_fetched': row[5]
-            })
-        
-        return indexes
+        try:
+            result = db.session.execute(text("""
+                SELECT schemaname, relname, indexrelname, idx_scan, idx_tup_read, idx_tup_fetch
+                FROM pg_stat_user_indexes
+                WHERE relname = 'activities'
+                ORDER BY idx_scan DESC
+            """))
+            
+            indexes = []
+            for row in result:
+                indexes.append({
+                    'name': row[2],
+                    'scans': row[3],
+                    'tuples_read': row[4],
+                    'tuples_fetched': row[5]
+                })
+            
+            return indexes
+        except Exception as e:
+            # If stats view not available (permissions or Supabase restriction)
+            print(f"  ⚠️  Index statistics not available: {str(e)[:100]}")
+            return []
 
 
 def count_by_rating_and_intensity():
@@ -171,16 +176,18 @@ def simulate_filtering():
             Activity.audience_scope.in_(['groups', 'all'])
         ).count()
         
-        # Count activities with specific boundaries
-        with_boundaries = Activity.query.filter(
-            Activity.is_active == True,
-            Activity.hard_boundaries != []
-        ).count()
-        
-        # Count activities with anatomy requirements
+        # Count activities with specific boundaries and anatomy requirements
+        # Note: Can't use != [] with JSONB in SQLAlchemy, so fetch and filter in Python
         activities = Activity.query.filter_by(is_active=True).all()
+        
+        with_boundaries = 0
         with_anatomy = 0
         for activity in activities:
+            # Check boundaries
+            if activity.hard_boundaries and len(activity.hard_boundaries) > 0:
+                with_boundaries += 1
+            
+            # Check anatomy
             bodyparts = activity.required_bodyparts or {"active": [], "partner": []}
             if bodyparts.get('active') or bodyparts.get('partner'):
                 with_anatomy += 1
