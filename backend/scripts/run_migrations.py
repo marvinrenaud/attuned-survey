@@ -44,15 +44,10 @@ def run_migration_file(filepath: Path, dry_run: bool = False) -> bool:
         return True
     
     try:
-        # Execute SQL in a transaction
+        # Execute entire SQL file as one transaction
+        # PostgreSQL can handle multiple statements including DO blocks
         with app.app_context():
-            # Split on semicolons but keep statements together
-            statements = [s.strip() for s in sql_content.split(';') if s.strip()]
-            
-            for stmt in statements:
-                if stmt:
-                    db.session.execute(text(stmt))
-            
+            db.session.execute(text(sql_content))
             db.session.commit()
             
             print(f"✅ Successfully executed {filepath.name}")
@@ -63,8 +58,7 @@ def run_migration_file(filepath: Path, dry_run: bool = False) -> bool:
         # Rollback must happen inside app context
         try:
             with app.app_context():
-                if not dry_run:
-                    db.session.rollback()
+                db.session.rollback()
         except:
             pass  # Rollback already happened or context issue
         return False
