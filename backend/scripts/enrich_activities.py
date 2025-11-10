@@ -16,6 +16,56 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.llm.activity_analyzer import analyze_activity, batch_analyze_activities, get_fallback_tags
 
 
+def load_activities_from_xlsx(xlsx_path, sheet_name):
+    """Load activities from XLSX file."""
+    try:
+        import openpyxl
+    except ImportError:
+        print("❌ openpyxl not installed. Run: pip install openpyxl")
+        sys.exit(1)
+    
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    
+    if sheet_name not in wb.sheetnames:
+        print(f"❌ Sheet '{sheet_name}' not found in workbook")
+        print(f"Available sheets: {', '.join(wb.sheetnames)}")
+        sys.exit(1)
+    
+    sheet = wb[sheet_name]
+    
+    # Get header row
+    headers = [cell.value for cell in sheet[1]]
+    
+    # Read data rows
+    activities = []
+    for row_num, row_cells in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=1):
+        row_dict = {}
+        for i, value in enumerate(row_cells):
+            if i < len(headers) and headers[i]:
+                row_dict[headers[i]] = value
+        
+        # Skip empty rows
+        if not any(row_dict.values()):
+            continue
+        
+        activity_type = str(row_dict.get('Activity Type', '')).strip().lower()
+        description = str(row_dict.get('Activity Description', '')).strip()
+        
+        if activity_type and description:
+            activity = {
+                'row_id': row_num,
+                'type': activity_type,
+                'description': description,
+                'intimacy_level': str(row_dict.get('Intimacy Level', '')).strip(),
+                'intimacy_rating': str(row_dict.get('Intimacy Rating', '')).strip(),
+                'audience_tag': str(row_dict.get('audienceTarget', row_dict.get('Audience Tag', ''))).strip().lower()
+            }
+            activities.append(activity)
+    
+    wb.close()
+    return activities
+
+
 def load_activities_from_csv(csv_path):
     """Load activities from CSV file."""
     activities = []
@@ -60,7 +110,9 @@ def load_enrichment_results(output_path):
 
 
 def enrich_activities_batch(
-    csv_path,
+    file_path,
+    file_type='csv',
+    sheet_name=None,
     output_path=None,
     limit=None,
     resume_from=None,
@@ -70,10 +122,12 @@ def enrich_activities_batch(
     save_every=50
 ):
     """
-    Enrich activities from CSV with AI-generated tags.
+    Enrich activities from CSV or XLSX with AI-generated tags.
     
     Args:
-        csv_path: Path to consolidated activities CSV
+        file_path: Path to consolidated activities file (CSV or XLSX)
+        file_type: 'csv' or 'xlsx'
+        sheet_name: Sheet name (required if XLSX)
         output_path: Where to save enrichment results (default: enriched_activities.json)
         limit: Optional limit on number to process (for testing)
         resume_from: Resume from this row number (for interrupted runs)
@@ -95,15 +149,23 @@ def enrich_activities_batch(
     print("Activity Enrichment Script")
     print("=" * 70)
     print()
-    print(f"CSV: {csv_path}")
+    print(f"Input: {file_path} ({'Sheet: ' + sheet_name if sheet_name else 'CSV'})")
     print(f"Output: {output_path}")
     print(f"AI Mode: {'Groq' if use_ai else 'Keyword fallback only'}")
     print(f"Dry run: {dry_run}")
     print()
     
-    # Load activities
-    print("Loading activities from CSV...")
-    activities = load_activities_from_csv(csv_path)
+    # Load activities based on file type
+    if file_type == 'xlsx':
+        if not sheet_name:
+            print("❌ Sheet name required for XLSX files")
+            sys.exit(1)
+        print(f"Loading activities from XLSX (sheet: {sheet_name})...")
+        activities = load_activities_from_xlsx(file_path, sheet_name)
+    else:
+        print("Loading activities from CSV...")
+        activities = load_activities_from_csv(file_path)
+    
     print(f"✓ Loaded {len(activities)} activities")
     print()
     
@@ -239,8 +301,28 @@ def show_sample_results(results, count=5):
 if __name__ == '__main__':
     import argparse
     
-    parser = argparse.ArgumentParser(description='Enrich activities with AI-generated tags')
-    parser.add_argument('csv_file', help='Path to consolidated activities CSV')
+    parser = argparse.ArgumentParser(
+        description='Enrich activities with AI-generated tags',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Enrich from XLSX
+  python enrich_activities.py --xlsx "../file.xlsx" --sheet "Consolidated Activities"
+  
+  # Enrich from CSV  
+  python enrich_activities.py --csv activities.csv
+  
+  # Test first 10 activities
+  python enrich_activities.py --xlsx "../file.xlsx" --sheet "Sheet1" --limit 10 --show-samples
+  
+  # Resume from row 500
+  python enrich_activities.py --csv activities.csv --resume-from 500
+        """
+    )
+    
+    parser.add_argument('--xlsx', help='Path to XLSX file')
+    parser.add_argument('--csv', help='Path to CSV file')
+    parser.add_argument('--sheet', help='Sheet name (required if using --xlsx)')
     parser.add_argument('--output', '-o', help='Output JSON file path', 
                        default=None)  # Will use scripts/enriched_activities.json if not specified
     parser.add_argument('--limit', '-l', type=int, help='Limit number to process (for testing)')
@@ -251,6 +333,18 @@ if __name__ == '__main__':
     parser.add_argument('--show-samples', '-s', action='store_true', help='Show sample results after processing')
     
     args = parser.parse_args()
+    
+    # Validate input
+    if args.xlsx and args.csv:
+        print("❌ Error: Specify either --xlsx or --csv, not both")
+        sys.exit(1)
+    
+    if not args.xlsx and not args.csv:
+        print("❌ Error: Must specify either --xlsx or --csv")
+        sys.exit(1)
+    
+    file_path = args.xlsx or args.csv
+    file_type = 'xlsx' if args.xlsx else 'csv'
     
     # Check Groq API key if using AI
     if not args.no_ai and not os.getenv('GROQ_API_KEY'):
@@ -267,7 +361,9 @@ if __name__ == '__main__':
     # Run enrichment
     try:
         results = enrich_activities_batch(
-            csv_path=args.csv_file,
+            file_path=file_path,
+            file_type=file_type,
+            sheet_name=args.sheet,
             output_path=args.output,
             limit=args.limit,
             resume_from=args.resume_from,
