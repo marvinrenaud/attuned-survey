@@ -41,7 +41,19 @@ def map_audience_scope(audience_target: str) -> str:
     if not audience_target:
         return 'all'
     
+    # Normalize to lowercase for matching
+    normalized = audience_target.lower().strip()
+    
     mapping = {
+        # Exact values from spreadsheet
+        'audienceall': 'all',
+        'audiencecoupleonly': 'couples',
+        'audiencegrouponly': 'groups',
+        
+        # Alternative formats (just in case)
+        'audience_all': 'all',
+        'audience_couple_only': 'couples',
+        'audience_group_only': 'groups',
         'couple': 'couples',
         'couples': 'couples',
         'group': 'groups',
@@ -49,52 +61,71 @@ def map_audience_scope(audience_target: str) -> str:
         'all': 'all',
         'both': 'all'
     }
-    return mapping.get(audience_target.lower().strip(), 'all')
+    
+    result = mapping.get(normalized, 'all')
+    
+    # Log warning if we're using default fallback
+    if normalized and normalized not in mapping:
+        print(f"⚠️  Unknown audienceTarget value: '{audience_target}', defaulting to 'all'")
+    
+    return result
 
 
 def parse_boundaries(row: Dict[str, Any]) -> List[str]:
     """Extract hard boundary keys from columns J-Q (8 boundary columns)."""
-    # Map column names to boundary keys
-    boundary_mapping = {
-        'hardBoundaryImpact': row.get('hardBoundaryImpact', ''),
-        'hardBoundaryRestrain': row.get('hardBoundaryRestrain', ''),
-        'hardBoundaryBreath': row.get('hardBoundaryBreath', ''),
-        'hardBoundaryDegrade': row.get('hardBoundaryDegrade', ''),
-        'hardBoundaryPublic': row.get('hardBoundaryPublic', ''),
-        'hardBoundaryRecord': row.get('hardBoundaryRecord', ''),
-        'hardBoundaryAnal': row.get('hardBoundaryAnal', ''),
-        'hardBoundaryWatersports': row.get('hardBoundaryWatersports', '')
-    }
+    # These are the exact column names from the spreadsheet
+    boundary_columns = [
+        'hardBoundaryImpact',
+        'hardBoundaryRestrain',
+        'hardBoundaryBreath',
+        'hardBoundaryDegrade',
+        'hardBoundaryPublic',
+        'hardBoundaryRecord',
+        'hardBoundaryAnal',
+        'hardBoundaryWatersports'
+    ]
     
     boundaries = []
-    for key, value in boundary_mapping.items():
-        if isinstance(value, str):
-            value_lower = value.strip().lower()
-            if value_lower == 'hitsboundary':
-                boundaries.append(key)
-        elif value is True or value == 1:
-            boundaries.append(key)
+    for boundary_key in boundary_columns:
+        value = row.get(boundary_key)
+        
+        # Handle different value types
+        if value is None:
+            continue
+        
+        # Convert to string and normalize
+        value_str = str(value).strip().lower()
+        
+        # Check if this boundary is flagged
+        if value_str == 'hitsboundary' or value_str == 'true' or value_str == '1':
+            boundaries.append(boundary_key)
+        # Ignore 'null', 'false', '0', empty strings
     
     return boundaries
 
 
 def parse_anatomy(value: Any) -> List[str]:
-    """Parse comma-separated anatomy values."""
-    if value is None or (isinstance(value, str) and value.strip().lower() == 'null'):
+    """Parse comma-separated anatomy values from activePlayer/partnerPlayer Must Have columns."""
+    # Handle None, empty, or "null" string
+    if value is None:
         return []
     
-    value_str = str(value).strip().lower()
-    if not value_str or value_str == 'null':
+    value_str = str(value).strip()
+    
+    # Handle various empty/null representations
+    if not value_str or value_str.lower() in ['null', 'none', 'n/a', '']:
         return []
     
     # Split by comma and clean up
     parts = [p.strip().lower() for p in value_str.split(',')]
     
-    # Filter to only valid anatomy
+    # Filter to only valid anatomy, remove duplicates
     valid = []
+    seen = set()
     for part in parts:
-        if part in ALLOWED_BODYPARTS:
+        if part in ALLOWED_BODYPARTS and part not in seen:
             valid.append(part)
+            seen.add(part)
     
     return valid
 
@@ -166,7 +197,7 @@ def read_csv(filepath: str) -> List[Dict]:
     return rows
 
 
-def parse_activity_row(row: Dict, enriched_data: Optional[Dict] = None) -> Optional[Dict[str, Any]]:
+def parse_activity_row(row: Dict, enriched_data: Optional[Dict] = None, row_num: int = 0) -> Optional[Dict[str, Any]]:
     """Parse a single row from the spreadsheet into activity data."""
     # Expected columns:
     # A: Activity Type
@@ -180,17 +211,33 @@ def parse_activity_row(row: Dict, enriched_data: Optional[Dict] = None) -> Optio
     # I: partnerPlayer Must Have
     # J-Q: 8 boundary columns
     
-    activity_type = str(row.get('Activity Type', '')).strip().lower()
-    description = str(row.get('Activity Description', '')).strip()
-    intimacy_level = str(row.get('Intimacy Level', '')).strip().upper()
-    audience_target = str(row.get('audienceTarget', row.get('Audience Tag', ''))).strip()
+    # Extract and validate core fields
+    activity_type_raw = row.get('Activity Type')
+    if not activity_type_raw:
+        return None
+    activity_type = str(activity_type_raw).strip().lower()
+    
+    description_raw = row.get('Activity Description')
+    if not description_raw:
+        return None
+    description = str(description_raw).strip()
+    
+    intimacy_level_raw = row.get('Intimacy Level')
+    intimacy_level = str(intimacy_level_raw).strip().upper() if intimacy_level_raw else ''
+    
+    # Get audienceTarget (column F) - this is the source of truth
+    audience_target_raw = row.get('audienceTarget')
+    if not audience_target_raw:
+        # Fallback to legacy Audience Tag only if audienceTarget is truly empty
+        audience_target_raw = row.get('Audience Tag')
+    audience_target = str(audience_target_raw).strip() if audience_target_raw else ''
     
     # Validate activity type
     if activity_type not in ['truth', 'dare']:
         return None
     
-    # Validate description
-    if not description:
+    # Validate description (must be non-empty)
+    if not description or len(description) < 3:
         return None
     
     # Map intimacy level to intensity and rating
@@ -370,10 +417,13 @@ def import_activities_from_file(
             batch = rows[i:i+batch_size]
             
             for row_num, row in enumerate(batch, start=i+1):
-                activity_data = parse_activity_row(row, enriched_data)
+                activity_data = parse_activity_row(row, enriched_data, row_num)
                 
                 if not activity_data:
-                    print(f"⚠️  Row {row_num}: Invalid or empty row, skipping")
+                    # Only log in verbose mode or if there's actual content
+                    if row.get('Activity Description'):
+                        desc_preview = str(row.get('Activity Description', ''))[:40]
+                        print(f"⚠️  Row {row_num}: Could not parse - {desc_preview}...")
                     skipped_count += 1
                     continue
                 
@@ -404,15 +454,16 @@ def import_activities_from_file(
                     else:
                         added_count += 1
                     
-                    # Show sample of first few activities
+                    # Show sample of first few activities with detailed extraction
                     if added_count + updated_count <= 5:
                         print(f"\nRow {row_num}: {activity_data['type'].upper()} - {activity_data['script']['steps'][0]['do'][:60]}...")
                         print(f"  UID: {activity_uid[:16]}...")
-                        print(f"  Audience: {activity_data['audience_scope']}, Rating: {activity_data['rating']}, Intensity: {activity_data['intensity']}")
+                        print(f"  Raw audienceTarget: '{row.get('audienceTarget', 'MISSING')}' → Mapped: '{activity_data['audience_scope']}'")
+                        print(f"  Rating: {activity_data['rating']}, Intensity: {activity_data['intensity']}")
                         print(f"  Boundaries: {activity_data['hard_boundaries']}")
                         print(f"  Anatomy: active={active_parts}, partner={partner_parts}")
                         if activity_data.get('power_role'):
-                            print(f"  AI Tags: power={activity_data['power_role']}, prefs={activity_data['preference_keys']}")
+                            print(f"  AI Tags: power={activity_data['power_role']}, prefs={activity_data['preference_keys'][:3] if activity_data['preference_keys'] else []}")
                 
                 else:
                     # Upsert: check if exists by UID
@@ -489,9 +540,11 @@ def import_activities_from_file(
                 print(f"  {boundary}: {count}")
         
         if enriched_data:
-            enriched_count = sum(1 for data in [parse_activity_row(r, enriched_data) for r in rows] 
+            enriched_count = sum(1 for data in [parse_activity_row(r, enriched_data, 0) for r in rows] 
                                if data and data.get('power_role'))
             print(f"\nAI Enrichment: {enriched_count}/{len(rows)} activities have AI tags")
+        else:
+            print(f"\nAI Enrichment: Not loaded (no enriched_activities.json found)")
         
         print("=" * 70)
         
