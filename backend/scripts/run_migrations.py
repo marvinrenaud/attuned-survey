@@ -54,14 +54,19 @@ def run_migration_file(filepath: Path, dry_run: bool = False) -> bool:
                     db.session.execute(text(stmt))
             
             db.session.commit()
-        
-        print(f"✅ Successfully executed {filepath.name}")
-        return True
+            
+            print(f"✅ Successfully executed {filepath.name}")
+            return True
     
     except Exception as e:
         print(f"❌ Error executing {filepath.name}: {str(e)}")
-        if not dry_run:
-            db.session.rollback()
+        # Rollback must happen inside app context
+        try:
+            with app.app_context():
+                if not dry_run:
+                    db.session.rollback()
+        except:
+            pass  # Rollback already happened or context issue
         return False
 
 

@@ -11,13 +11,16 @@ SET anatomy = '{"anatomy_self": ["penis", "vagina", "breasts"], "anatomy_prefere
 WHERE anatomy = '{}'::jsonb OR anatomy IS NULL;
 
 -- Add check constraint to ensure anatomy structure is valid
-ALTER TABLE profiles 
-  ADD CONSTRAINT IF NOT EXISTS chk_anatomy_structure 
-  CHECK (
-    jsonb_typeof(anatomy) = 'object' AND
-    anatomy ? 'anatomy_self' AND
-    anatomy ? 'anatomy_preference' AND
-    jsonb_typeof(anatomy->'anatomy_self') = 'array' AND
-    jsonb_typeof(anatomy->'anatomy_preference') = 'array'
-  );
+DO $$ BEGIN
+    ALTER TABLE profiles 
+      ADD CONSTRAINT chk_anatomy_structure 
+      CHECK (
+        jsonb_typeof(anatomy) = 'object' AND
+        anatomy ? 'anatomy_self' AND
+        anatomy ? 'anatomy_preference' AND
+        jsonb_typeof(anatomy->'anatomy_self') = 'array' AND
+        jsonb_typeof(anatomy->'anatomy_preference') = 'array'
+      );
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
 
