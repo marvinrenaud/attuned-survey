@@ -20057,5 +20057,242 @@
     ],
     "requires_consent_negotiation": true,
     "enriched_at": "2025-10-17T20:08:11.684041"
+  },
+  "821": {
+    "row_id": 821,
+    "type": "dare",
+    "description": "Leave your mark. Give your partner a love bite somewhere only the two of you will know about.",
+    "intimacy_level": "L7",
+    "intimacy_rating": "X",
+    "audience_tag": "audienceall",
+    "power_role": "top",
+    "preference_keys": [
+      "kissing",
+      "sensory_play",
+      "dominance"
+    ],
+    "domains": [
+      "sensual",
+      "power"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-11-10T19:45:31.717824"
+  },
+  "822": {
+    "row_id": 822,
+    "type": "truth",
+    "description": "Describe your most intense fantasy that involves more than just the two of you.",
+    "intimacy_level": "L8",
+    "intimacy_rating": "X",
+    "audience_tag": "audienceall",
+    "power_role": "switch",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "roleplay",
+      "group_play",
+      "exploration"
+    ],
+    "domains": [
+      "power",
+      "exploration",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "edgy",
+      "playful"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-11-10T19:45:32.677367"
+  },
+  "823": {
+    "row_id": 823,
+    "type": "truth",
+    "description": "Reveal one of your secret, slightly embarrassing guilty pleasures.",
+    "intimacy_level": "L1",
+    "intimacy_rating": "G",
+    "audience_tag": "audienceall",
+    "power_role": "neutral",
+    "preference_keys": [
+      "dominance",
+      "submission",
+      "control"
+    ],
+    "domains": [
+      "connection",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:33.593682"
+  },
+  "824": {
+    "row_id": 824,
+    "type": "dare",
+    "description": "For the next 10 seconds, recreate your very first kiss with all the awkwardness or fire it had.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "audienceall",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:34.614565"
+  },
+  "825": {
+    "row_id": 825,
+    "type": "dare",
+    "description": "Shower your partner with affection, kissing their forehead, both cheeks, and the tip of their nose.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "audienceall",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "loving"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:35.673809"
+  },
+  "826": {
+    "row_id": 826,
+    "type": "dare",
+    "description": "Take your partner's hand, plant a soft kiss in their palm, and press it against your cheek.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "audienceall",
+    "power_role": "neutral",
+    "preference_keys": [
+      "kissing",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "romantic"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:36.481192"
+  },
+  "827": {
+    "row_id": 827,
+    "type": "dare",
+    "description": "Give your partner a light, teasing kiss on their neck or collarbone, just enough to make them shiver.",
+    "intimacy_level": "L2",
+    "intimacy_rating": "G",
+    "audience_tag": "audienceall",
+    "power_role": "top",
+    "preference_keys": [
+      "kissing",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "playful"
+    ],
+    "intensity_modifiers": [
+      "gentle",
+      "teasing"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:37.321603"
+  },
+  "828": {
+    "row_id": 828,
+    "type": "dare",
+    "description": "Sneak off to the bathroom, take a suggestive selfie that leaves something to the imagination, and text it to your partner.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "audienceall",
+    "power_role": "top",
+    "preference_keys": [
+      "control",
+      "dominance",
+      "sensory_play"
+    ],
+    "domains": [
+      "playful",
+      "power",
+      "sensual"
+    ],
+    "intensity_modifiers": [
+      "playful",
+      "teasing"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-11-10T19:45:38.245026"
+  },
+  "829": {
+    "row_id": 829,
+    "type": "dare",
+    "description": "Gently take your partner's wrist and slowly kiss the delicate skin on the inside for five seconds.",
+    "intimacy_level": "L4",
+    "intimacy_rating": "R",
+    "audience_tag": "audienceall",
+    "power_role": "top",
+    "preference_keys": [
+      "kissing",
+      "sensory_play"
+    ],
+    "domains": [
+      "sensual",
+      "connection"
+    ],
+    "intensity_modifiers": [
+      "gentle"
+    ],
+    "requires_consent_negotiation": false,
+    "enriched_at": "2025-11-10T19:45:39.017159"
+  },
+  "830": {
+    "row_id": 830,
+    "type": "truth",
+    "description": "Describe your favorite sex position and what, specifically, you love about the way it feels.",
+    "intimacy_level": "L5",
+    "intimacy_rating": "R",
+    "audience_tag": "audienceall",
+    "power_role": "neutral",
+    "preference_keys": [
+      "penetration",
+      "oral",
+      "kissing"
+    ],
+    "domains": [
+      "sensual",
+      "exploration"
+    ],
+    "intensity_modifiers": [
+      "intense",
+      "romantic"
+    ],
+    "requires_consent_negotiation": true,
+    "enriched_at": "2025-11-10T19:45:39.860460"
   }
 }
