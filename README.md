@@ -2,7 +2,7 @@
 
 A comprehensive web application for discovering intimacy profiles through a scientifically-grounded survey. Built with React and Flask.
 
-**Version**: v0.4 Survey | v0.5 Compatibility  
+**Version**: v0.4 Survey | v0.5 Compatibility | v2.0 Activity Bank  
 **Status**: ✅ Production Deployed
 
 ![Attuned Logo](frontend/public/AttunedLogo.png)
@@ -25,12 +25,18 @@ Results include:
 ## Features
 
 - ✅ **54-question survey** (streamlined from 71) across 3 sections
+- ✅ **Anatomy-based filtering** (Penis, Vagina, Breasts preferences)
 - ✅ **Arousal profiling** (SES/SIS Dual Control Model)
-- ✅ **Explicit power dynamics** (Top/Bottom/Switch determination)
+- ✅ **Explicit power dynamics** (Top/Bottom/Switch determination with D/s vs S/M)
+- ✅ **8-key boundary taxonomy** (Impact, Restraints, Breath, Degradation, Public, Recording, Anal, Watersports)
+- ✅ **850 AI-enriched activities** (100% coverage with Groq)
+- ✅ **Audience scope filtering** (Couples/Groups/All)
+- ✅ **Directional preference matching** (Give/Receive pairs)
 - ✅ **Real-time validation** and progress tracking
 - ✅ **Session persistence** (resume incomplete surveys)
 - ✅ **Domain-based results** (5 key dimensions + power orientation)
 - ✅ **Advanced compatibility** (asymmetric matching for all power dynamics)
+- ✅ **Activity versioning** (Active/archived with source tracking)
 - ✅ **Admin panel** for viewing submissions and managing baselines
 - ✅ **Test suite** for algorithm validation
 - ✅ **Data export** (CSV and JSON formats)

@@ -1,22 +1,23 @@
 # Activity Personalization System - Implementation Status
 
-**Branch:** `feat/activity-personalization`  
-**Status:** 95% Complete - Blocked by local database connection issue  
-**Last Updated:** October 18, 2025
+**Branch:** `activity_cleanup` (merged to main)  
+**Status:** ✅ 100% Complete - Deployed and Operational  
+**Last Updated:** November 10, 2025
 
 ---
 
 ## 🎯 What We Built
 
-### Complete AI-Powered Activity Personalization System
+### Complete AI-Powered Activity Personalization System with Enhanced Filtering
 
-**Goal:** Intelligently rank and select activities from 819-activity bank based on player preferences and power dynamics, using Groq AI to analyze and tag each activity.
+**Goal:** Intelligently rank and select activities from 850-activity bank based on player preferences, power dynamics, anatomy, boundaries, and audience scope, using Groq AI to analyze and tag each activity.
 
 **Approach:**
-1. Use Groq to extract metadata from activity descriptions
-2. Score activities based on: Mutual Interest (50%) + Power Alignment (30%) + Domain Fit (20%)
-3. Filter and rank candidates, select best match
-4. Respect power dynamics (Top/Bottom/Switch compatibility)
+1. Filter by audience scope (couples/groups/all), anatomy requirements, and hard boundaries
+2. Use Groq to extract metadata: power_role, directional preference_keys, domains, intensity_modifiers
+3. Score activities based on: Mutual Interest (50%) + Power Alignment (30%) + Domain Fit (20%)
+4. Filter and rank candidates, select best match
+5. Respect power dynamics (Top/Bottom compatibility with D/s vs S/M distinction)
 
 ---
 
@@ -46,23 +47,28 @@
 
 ### **2. Batch Enrichment Script** (`backend/scripts/enrich_activities.py`)
 
-**Status:** ✅ WORKING & TESTED
+**Status:** ✅ ENHANCED & FULLY OPERATIONAL
 
 **Features:**
-- Processes 819 activities from CSV with Groq
+- Processes activities from CSV or XLSX with Groq
+- XLSX support with sheet selection
 - Progress tracking with ETA
 - Resume capability (saves every 50 activities)
 - Automatic retry on interruption
 - Rate limiting to respect API limits
+- Refined D/s vs S/M prompt (7 iterations)
+- Survey-matched directional preference keys
 
-**Test Results:**
-- Successfully enriched 820 activities ✅
-- Generated `enriched_activities.json` (10,177 lines) ✅
-- All activities tagged with power roles and preferences ✅
+**Latest Results:**
+- Successfully enriched 850 activities ✅
+- Generated `enriched_activities_v2.json` ✅
+- 100% enrichment coverage ✅
+- Power distribution: 78% neutral, 11% top, 11% bottom ✅
+- Directional keys (give/receive) working correctly ✅
 
 **Files:**
-- `backend/scripts/enrich_activities.py`
-- `backend/scripts/enriched_activities.json` (output)
+- `backend/scripts/enrich_activities.py` (enhanced with XLSX)
+- `backend/scripts/enriched_activities_v2.json` (850 activities)
 
 **Sample Output:**
 ```json
@@ -175,9 +181,53 @@ Average of both players' domain scores for activity's domains
 
 ---
 
-## 🚧 Current Blocker
+## 🆕 Activity Rebaseline (November 2025)
 
-### **Database Connection Issue (Local Development Only)**
+### **Complete Activity Bank Overhaul**
+
+**Status:** ✅ COMPLETE
+
+**What Changed:**
+- Rebaselined from `Consolidated_ToD_Activities (20).xlsx` with 850 activities
+- Implemented 8-key boundary taxonomy (reduced from 12+)
+- Added anatomy filters (penis, vagina, breasts) for both players
+- Added audience scope filtering (couples/groups/all)
+- Implemented versioning system (is_active, archived_at, source_version)
+- Enhanced all 850 activities with refined AI tags (100% coverage)
+- Archived 820 legacy activities (preserved but inactive)
+
+**8-Key Boundary Taxonomy:**
+1. hardBoundaryImpact - Impact play
+2. hardBoundaryRestrain - Bondage and restraints
+3. hardBoundaryBreath - Breath play
+4. hardBoundaryDegrade - Degradation
+5. hardBoundaryPublic - Public play
+6. hardBoundaryRecord - Recording
+7. hardBoundaryAnal - Anal
+8. hardBoundaryWatersports - Watersports/scat play
+
+**Enrichment Quality:**
+- D/s vs S/M distinction (psychological power vs sensation play)
+- Directional preference keys (give/receive pairs match survey)
+- 78% neutral, 11% top, 11% bottom distribution
+- Survey-matched keys only (no unmapped terms)
+
+**Frontend Updates:**
+- Survey: Anatomy questions replace sex/orientation
+- Boundaries: Updated to 8-key taxonomy
+- Result page: Shows anatomy preferences
+- Gameplay: Rich metadata display (power role, preferences, domains, boundaries)
+
+**Documentation:**
+- See `ACTIVITY_REBASELINE_COMPLETE.md` for full details
+- All validation checks passed (7/7)
+- Ready for production use
+
+---
+
+## 🚧 Previous Blocker (RESOLVED)
+
+### **Database Connection Issue (Local Development Only)** - FIXED
 
 **Problem:**
 - Cannot connect to Supabase from local machine
