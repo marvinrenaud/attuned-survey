@@ -1,5 +1,8 @@
 .PHONY: activities-rebaseline activities-test activities-rollback reports-dir help
 
+# Python from venv (relative to backend directory)
+PYTHON := venv/bin/python
+
 # Default target
 help:
 	@echo "Attuned Activity Rebaseline - Available Targets"
@@ -23,22 +26,22 @@ activities-rebaseline: reports-dir
 	@echo "========================================================================"
 	@echo ""
 	@echo "==> Step 1: Running database migrations..."
-	cd backend && python scripts/run_migrations.py --apply
+	cd backend && $(PYTHON) scripts/run_migrations.py --apply
 	@echo ""
 	@echo "==> Step 2: Migrating boundary taxonomy..."
-	cd backend && python scripts/migrate_boundary_taxonomy.py --apply
+	cd backend && $(PYTHON) scripts/migrate_boundary_taxonomy.py --apply
 	@echo ""
 	@echo "==> Step 3: Importing activities from XLSX..."
-	cd backend && python scripts/import_activities.py \
+	cd backend && $(PYTHON) scripts/import_activities.py \
 		--xlsx "../Consolidated_ToD_Activities (20).xlsx" \
 		--sheet "Consolidated Activities" \
 		--apply | tee ../reports/import_summary.txt
 	@echo ""
 	@echo "==> Step 4: Validating database schema and data..."
-	cd backend && python scripts/verify_schema.py | tee ../reports/validation_report.txt
+	cd backend && $(PYTHON) scripts/verify_schema.py | tee ../reports/validation_report.txt
 	@echo ""
 	@echo "==> Step 5: Running diagnostics..."
-	cd backend && python scripts/run_diagnostics.py | tee ../reports/diagnostics.txt
+	cd backend && $(PYTHON) scripts/run_diagnostics.py | tee ../reports/diagnostics.txt
 	@echo ""
 	@echo "========================================================================"
 	@echo "✅ Rebaseline complete! Check reports/ directory for details."
@@ -51,16 +54,16 @@ activities-test:
 	@echo "========================================================================"
 	@echo ""
 	@echo "==> Testing migration dry-run..."
-	cd backend && python scripts/run_migrations.py --dry-run
+	cd backend && $(PYTHON) scripts/run_migrations.py --dry-run
 	@echo ""
 	@echo "==> Testing import dry-run..."
-	cd backend && python scripts/import_activities.py \
+	cd backend && $(PYTHON) scripts/import_activities.py \
 		--xlsx "../Consolidated_ToD_Activities (20).xlsx" \
 		--sheet "Consolidated Activities" \
 		--dry-run
 	@echo ""
 	@echo "==> Testing boundary migration dry-run..."
-	cd backend && python scripts/migrate_boundary_taxonomy.py --dry-run
+	cd backend && $(PYTHON) scripts/migrate_boundary_taxonomy.py --dry-run
 	@echo ""
 	@echo "========================================================================"
 	@echo "✅ All tests completed!"
@@ -74,7 +77,7 @@ activities-rollback:
 	@echo ""
 	@echo "Press Ctrl+C to cancel, or Enter to continue..."
 	@read confirm
-	cd backend && python scripts/run_migrations.py --rollback --apply
+	cd backend && $(PYTHON) scripts/run_migrations.py --rollback --apply
 	@echo ""
 	@echo "✅ Rollback complete"
 
