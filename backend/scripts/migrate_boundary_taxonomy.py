@@ -150,7 +150,28 @@ def run_migration(dry_run: bool = True) -> dict:
         print("\n[DRY RUN MODE] - No changes will be committed\n")
     
     with app.app_context():
-        profiles = Profile.query.all()
+        # Try to query profiles - handle case where migrations not yet applied
+        try:
+            profiles = Profile.query.all()
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "column" in error_msg and ("does not exist" in error_msg or "anatomy" in error_msg):
+                print("⚠️  Database schema not yet updated")
+                print("   The 'anatomy' column doesn't exist in the profiles table yet.")
+                print("   This is expected if migrations haven't been applied.")
+                print("\n💡 Run migrations first:")
+                print("   python scripts/run_migrations.py --apply")
+                print("\n✓ Boundary migration script is ready to run after migrations\n")
+                print("=" * 70)
+                return {
+                    'total_profiles': 0,
+                    'profiles_with_boundaries': 0,
+                    'profiles_migrated': 0,
+                    'note': 'Schema not yet updated - migrations not applied'
+                }
+            else:
+                # Different error - re-raise
+                raise
         
         print(f"Found {len(profiles)} profiles to check\n")
         
