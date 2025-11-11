@@ -1,0 +1,13 @@
+=== BASELINE DOCUMENTATION ===
+Branch: compatibility_algo_fixes
+Date: Mon Nov 10 20:33:13 EST 2025
+
+Files with old activity keys:
+backend/src/llm/__pycache__/activity_analyzer.cpython-311.pyc
+backend/src/llm/activity_analyzer.py
+frontend/src/data/questions.csv
+frontend/src/lib/matching/__tests__/testProfiles.js
+frontend/src/lib/matching/categoryMap.js
+frontend/src/lib/scoring/activityConverter.js
+frontend/src/lib/scoring/activityTags.js
+frontend/src/lib/scoring/domainCalculator.js

@@ -79,10 +79,12 @@ export function calculateDomainScores(activities, truthTopics) {
     activities.power_exchange?.blindfold_give,
     activities.power_exchange?.orgasm_control_receive,
     activities.power_exchange?.orgasm_control_give,
-    activities.power_exchange?.protocols_follow,
+    activities.power_exchange?.protocols_receive,
     activities.power_exchange?.protocols_give,
-    activities.verbal_roleplay?.commands,
-    activities.verbal_roleplay?.begging
+    activities.verbal_roleplay?.commands_receive,
+    activities.verbal_roleplay?.commands_give,
+    activities.verbal_roleplay?.begging_receive,
+    activities.verbal_roleplay?.begging_give
   ].filter(v => v !== undefined);
   
   const power = Math.round(mean(powerItems) * 100);
@@ -90,11 +92,11 @@ export function calculateDomainScores(activities, truthTopics) {
   // EXPLORATION: Novelty and risk
   const explorationItems = [
     activities.verbal_roleplay?.roleplay,
-    activities.display_performance?.stripping_me,
+    activities.display_performance?.stripping_self,
     activities.display_performance?.watching_strip,
-    activities.display_performance?.watched_solo_pleasure,
+    activities.display_performance?.solo_pleasure_self,
     activities.display_performance?.watching_solo_pleasure,
-    activities.display_performance?.dancing,
+    activities.display_performance?.dancing_self,
     activities.physical_touch?.spitting_receive,
     activities.physical_touch?.spitting_give,
     activities.physical_touch?.watersports_receive,

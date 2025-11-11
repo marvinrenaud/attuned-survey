@@ -93,8 +93,57 @@ function calculateAsymmetricDirectionalJaccard(topCategory, bottomCategory) {
           secondaryMatches += 0.5; // 50% credit for "willing but not needed"
         }
       }
-    } 
-    else if (!key.endsWith('_receive')) {
+    }
+    // Handle _self/_watching pairs (display/performance activities)
+    else if (key.endsWith('_self')) {
+      const watchingKey = key.replace('_self', '_watching');
+      const topWatchingVal = topCategory[watchingKey] || 0;
+      const bottomWatchingVal = bottomCategory[watchingKey] || 0;
+      
+      // PRIMARY: Bottom performs/displays (_self) → Top watches (_watching)
+      if (bottomVal >= 0.5 || topWatchingVal >= 0.5) {
+        primaryPotential++;
+        if (bottomVal >= 0.5 && topWatchingVal >= 0.5) {
+          primaryMatches++;
+        }
+      }
+      
+      // SECONDARY: Top performs/displays (_self) → Bottom watches (_watching)
+      if (topVal >= 0.5 || bottomWatchingVal >= 0.5) {
+        secondaryPotential++;
+        if (topVal >= 0.5 && bottomWatchingVal >= 0.5) {
+          secondaryMatches++;
+        } else if (topVal >= 0.5 && bottomWatchingVal < 0.5) {
+          secondaryMatches += 0.5;  // Partial credit
+        }
+      }
+    }
+    // Handle watching_strip and watching_solo_pleasure (they pair with _self activities)
+    else if (key === 'watching_strip' || key === 'watching_solo_pleasure') {
+      // These pair with stripping_self and solo_pleasure_self respectively
+      const selfKey = key === 'watching_strip' ? 'stripping_self' : 'solo_pleasure_self';
+      const topSelfVal = topCategory[selfKey] || 0;
+      const bottomSelfVal = bottomCategory[selfKey] || 0;
+      
+      // PRIMARY: Bottom performs (_self) → Top watches (this key)
+      if (bottomSelfVal >= 0.5 || topVal >= 0.5) {
+        primaryPotential++;
+        if (bottomSelfVal >= 0.5 && topVal >= 0.5) {
+          primaryMatches++;
+        }
+      }
+      
+      // SECONDARY: Top performs (_self) → Bottom watches (this key)
+      if (topSelfVal >= 0.5 || bottomVal >= 0.5) {
+        secondaryPotential++;
+        if (topSelfVal >= 0.5 && bottomVal >= 0.5) {
+          secondaryMatches++;
+        } else if (topSelfVal >= 0.5 && bottomVal < 0.5) {
+          secondaryMatches += 0.5;  // Partial credit
+        }
+      }
+    }
+    else if (!key.endsWith('_receive') && !key.endsWith('_watching')) {
       // Non-directional activities (e.g., dirty_talk, moaning, roleplay)
       if (topVal >= 0.5 && bottomVal >= 0.5) {
         nonDirectionalMatches++;

@@ -102,7 +102,9 @@ def calculate_activity_overlap(
                       (orientation_a == 'Bottom' and orientation_b == 'Top')
     
     # Activities that use complementary logic
-    complementary_activities = ['receiving', 'giving', 'being_watched', 'watching']
+    # Note: This is a simplified approach. Frontend uses more sophisticated asymmetric directional Jaccard.
+    # Directional patterns: _give/_receive, _self/_watching
+    complementary_activities = ['receiving', 'giving', 'being_watched', 'watching', '_self', '_watching']
     
     yes_yes_count = 0  # Both >= 0.7
     one_yes_count = 0  # One >= 0.7, other >= 0.3
@@ -114,8 +116,15 @@ def calculate_activity_overlap(
         score_a = activities_a.get(activity, 0.0)
         score_b = activities_b.get(activity, 0.0)
         
+        # Check if activity uses directional/complementary logic
+        is_directional = (activity in complementary_activities or 
+                         activity.endswith('_self') or 
+                         activity.endswith('_watching') or
+                         activity.endswith('_give') or
+                         activity.endswith('_receive'))
+        
         # Apply complementary logic if applicable
-        if is_complementary and activity in complementary_activities:
+        if is_complementary and is_directional:
             # For Top/Bottom, high+low can be good for certain activities
             if (score_a >= 0.7 and score_b >= 0.3) or (score_a >= 0.3 and score_b >= 0.7):
                 one_yes_count += 1

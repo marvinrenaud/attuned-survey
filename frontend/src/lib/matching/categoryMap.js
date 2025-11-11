@@ -152,24 +152,29 @@ export function getActivityName(activityKey) {
     'blindfold_give': 'Blindfold/sensory deprivation (giving)',
     'orgasm_control_receive': 'Orgasm control (receiving)',
     'orgasm_control_give': 'Orgasm control (giving)',
-    'protocols_follow': 'Following protocols/commands',
+    'protocols_receive': 'Following protocols/commands',
     'protocols_give': 'Giving protocols/commands',
 
     // Verbal & roleplay
     'dirty_talk': 'Dirty talk',
     'moaning': 'Moaning/vocal encouragement',
     'roleplay': 'Roleplay scenarios',
-    'commands': 'Commands',
-    'begging': 'Begging/pleading',
+    'commands_receive': 'Receiving commands',
+    'commands_give': 'Giving commands',
+    'begging_receive': 'Begging/pleading',
+    'begging_give': 'Hearing partner beg',
 
     // Display & performance
-    'stripping_me': 'Stripping (performing)',
+    'stripping_self': 'Stripping (performing)',
     'watching_strip': 'Watching partner strip',
-    'watched_solo_pleasure': 'Being watched (solo)',
+    'solo_pleasure_self': 'Being watched (solo)',
     'watching_solo_pleasure': 'Watching partner (solo)',
-    'posing': 'Posing for viewing',
-    'dancing': 'Sensual dancing',
-    'revealing_clothing': 'Revealing clothing/lingerie'
+    'posing_self': 'Posing for viewing',
+    'posing_watching': 'Watching partner pose',
+    'dancing_self': 'Sensual dancing',
+    'dancing_watching': 'Watching partner dance',
+    'revealing_clothing_self': 'Wearing revealing clothing',
+    'revealing_clothing_watching': 'Viewing partner in revealing clothing'
   };
 
   return nameMap[activityKey] || activityKey;

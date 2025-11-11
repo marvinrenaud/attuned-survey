@@ -79,17 +79,17 @@ export function generateActivityTags(activities, boundaries) {
   // Roleplay
   tags.open_to_roleplay = 
     hasInterest(activities.verbal_roleplay?.roleplay) ||
-    hasInterest(activities.power_exchange?.protocols_follow) ||
+    hasInterest(activities.power_exchange?.protocols_receive) ||
     hasInterest(activities.power_exchange?.protocols_give);
 
   // Display/performance
   tags.open_to_display = 
-    hasInterest(activities.display_performance?.stripping_me) ||
+    hasInterest(activities.display_performance?.stripping_self) ||
     hasInterest(activities.display_performance?.watching_strip) ||
-    hasInterest(activities.display_performance?.watched_solo_pleasure) ||
+    hasInterest(activities.display_performance?.solo_pleasure_self) ||
     hasInterest(activities.display_performance?.watching_solo_pleasure) ||
-    hasInterest(activities.display_performance?.posing) ||
-    hasInterest(activities.display_performance?.dancing);
+    hasInterest(activities.display_performance?.posing_self) ||
+    hasInterest(activities.display_performance?.dancing_self);
 
   // Group/multi-partner activities
   // Gated by boundaries - if not explicitly blocked, assume open (or check specific activities)

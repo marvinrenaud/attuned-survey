@@ -70,24 +70,29 @@ export function convertActivities(answers) {
   activities.power_exchange.blindfold_give = convertYMN(answers['B16b']);
   activities.power_exchange.orgasm_control_receive = convertYMN(answers['B17a']);
   activities.power_exchange.orgasm_control_give = convertYMN(answers['B17b']);
-  activities.power_exchange.protocols_follow = convertYMN(answers['B18a']);
+  activities.power_exchange.protocols_receive = convertYMN(answers['B18a']);
   activities.power_exchange.protocols_give = convertYMN(answers['B18b']);
 
-  // Verbal & Roleplay: B19-B23 (5 items - non-directional)
+  // Verbal & Roleplay: B19-B23 (7 items - mixed directional and non-directional)
   activities.verbal_roleplay.dirty_talk = convertYMN(answers['B19']);
   activities.verbal_roleplay.moaning = convertYMN(answers['B20']);
   activities.verbal_roleplay.roleplay = convertYMN(answers['B21']);
-  activities.verbal_roleplay.commands = convertYMN(answers['B22']);
-  activities.verbal_roleplay.begging = convertYMN(answers['B23']);
+  activities.verbal_roleplay.commands_receive = convertYMN(answers['B22a']);
+  activities.verbal_roleplay.commands_give = convertYMN(answers['B22b']);
+  activities.verbal_roleplay.begging_receive = convertYMN(answers['B23a']);
+  activities.verbal_roleplay.begging_give = convertYMN(answers['B23b']);
 
-  // Display & Performance: B24-B28 (7 items - partially directional)
-  activities.display_performance.stripping_me = convertYMN(answers['B24a']);
+  // Display & Performance: B24-B28 (directional pairs using _self/_watching pattern)
+  activities.display_performance.stripping_self = convertYMN(answers['B24a']);
   activities.display_performance.watching_strip = convertYMN(answers['B24b']);
-  activities.display_performance.watched_solo_pleasure = convertYMN(answers['B25a']);
+  activities.display_performance.solo_pleasure_self = convertYMN(answers['B25a']);
   activities.display_performance.watching_solo_pleasure = convertYMN(answers['B25b']);
-  activities.display_performance.posing = convertYMN(answers['B26']);
-  activities.display_performance.dancing = convertYMN(answers['B27']);
-  activities.display_performance.revealing_clothing = convertYMN(answers['B28']);
+  activities.display_performance.posing_self = convertYMN(answers['B26']);
+  activities.display_performance.posing_watching = 0;  // No survey question, default to 0
+  activities.display_performance.dancing_self = convertYMN(answers['B27']);
+  activities.display_performance.dancing_watching = 0;  // No survey question, default to 0
+  activities.display_performance.revealing_clothing_self = convertYMN(answers['B28']);
+  activities.display_performance.revealing_clothing_watching = 0;  // No survey question, default to 0
 
   return activities;
 }

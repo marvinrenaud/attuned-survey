@@ -74,24 +74,29 @@ export const profileBBH = {
       blindfold_give: 1,
       orgasm_control_receive: 1,
       orgasm_control_give: 1,
-      protocols_follow: 0,
+      protocols_receive: 0,
       protocols_give: 1
     },
     verbal_roleplay: {
       dirty_talk: 1,
       moaning: 1,
       roleplay: 0.5,
-      commands: 1,
-      begging: 0
+      commands_receive: 0,
+      commands_give: 1,
+      begging_receive: 0,
+      begging_give: 1
     },
     display_performance: {
-      stripping_me: 0,
+      stripping_self: 0,
       watching_strip: 1,
-      watched_solo_pleasure: 0.5,
+      solo_pleasure_self: 0.5,
       watching_solo_pleasure: 1,
-      posing: 0,
-      dancing: 0,
-      revealing_clothing: 0
+      posing_self: 0,
+      posing_watching: 1,
+      dancing_self: 0,
+      dancing_watching: 0,
+      revealing_clothing_self: 0,
+      revealing_clothing_watching: 0
     }
   },
   truth_topics: {
@@ -193,24 +198,29 @@ export const profileQuickCheck = {
       blindfold_give: 0,
       orgasm_control_receive: 1,
       orgasm_control_give: 1,
-      protocols_follow: 1,
+      protocols_receive: 1,
       protocols_give: 0
     },
     verbal_roleplay: {
       dirty_talk: 1,
       moaning: 1,
       roleplay: 1,
-      commands: 1,
-      begging: 1
+      commands_receive: 1,
+      commands_give: 0,
+      begging_receive: 1,
+      begging_give: 0
     },
     display_performance: {
-      stripping_me: 1,
+      stripping_self: 1,
       watching_strip: 0.5,
-      watched_solo_pleasure: 1,
+      solo_pleasure_self: 1,
       watching_solo_pleasure: 1,
-      posing: 1,
-      dancing: 1,
-      revealing_clothing: 1
+      posing_self: 1,
+      posing_watching: 0,
+      dancing_self: 1,
+      dancing_watching: 0,
+      revealing_clothing_self: 1,
+      revealing_clothing_watching: 0
     }
   },
   truth_topics: {
@@ -293,15 +303,17 @@ export const profileSwitchA = {
       restraints_receive: 1, restraints_give: 1,
       blindfold_receive: 1, blindfold_give: 1,
       orgasm_control_receive: 0.5, orgasm_control_give: 0.5,
-      protocols_follow: 0.5, protocols_give: 0.5
+      protocols_receive: 0.5, protocols_give: 0.5
     },
     verbal_roleplay: {
-      dirty_talk: 1, moaning: 1, roleplay: 0.5, commands: 1, begging: 0.5
+      dirty_talk: 1, moaning: 1, roleplay: 0.5, commands_receive: 0.5, commands_give: 0.5, begging_receive: 0.5, begging_give: 0.5
     },
     display_performance: {
-      stripping_me: 1, watching_strip: 1,
-      watched_solo_pleasure: 0.5, watching_solo_pleasure: 1,
-      posing: 0.5, dancing: 0.5, revealing_clothing: 1
+      stripping_self: 1, watching_strip: 1,
+      solo_pleasure_self: 0.5, watching_solo_pleasure: 1,
+      posing_self: 0.5, posing_watching: 1,
+      dancing_self: 0.5, dancing_watching: 0.5,
+      revealing_clothing_self: 1, revealing_clothing_watching: 1
     }
   },
   truth_topics: {

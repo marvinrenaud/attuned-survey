@@ -132,9 +132,13 @@
 
 **B21.** Roleplay scenarios (boss/employee, strangers, teacher/student, etc.)
 
-**B22.** Giving or receiving commands
+**B22a.** Receiving/following commands during intimate play (I follow)
 
-**B23.** Begging or pleading (in play)
+**B22b.** Giving commands during intimate play (I give)
+
+**B23a.** Begging or pleading - me doing the begging (I beg)
+
+**B23b.** Begging or pleading - hearing my partner beg (I hear/enjoy)
 
 ### Display & Performance (Questions B24-B28)
 

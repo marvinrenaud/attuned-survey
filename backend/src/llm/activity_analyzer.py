@@ -34,10 +34,12 @@ PREFERENCE_KEYS = [
     'restraints_give', 'restraints_receive',
     'blindfold_give', 'blindfold_receive',
     'orgasm_control_give', 'orgasm_control_receive',
-    'protocols_give', 'protocols_follow',
+    'protocols_give', 'protocols_receive',
     
-    # Verbal & Roleplay (non-directional)
-    'dirty_talk', 'moaning', 'roleplay', 'commands', 'begging', 'confession',
+    # Verbal & Roleplay (mixed directional and non-directional)
+    'dirty_talk', 'moaning', 'roleplay', 'confession',
+    'commands_receive', 'commands_give',
+    'begging_receive', 'begging_give',
     
     # Display & Performance
     'stripping_self', 'watching_strip',
@@ -166,8 +168,9 @@ EXTRACT THESE FIELDS:
    Oral: oral_sex_give, oral_sex_receive, oral_body_give, oral_body_receive
    Anal: anal_give, anal_receive, rimming_give, rimming_receive
    Power: restraints_give, restraints_receive, blindfold_give, blindfold_receive,
-          orgasm_control_give, orgasm_control_receive, protocols_give, protocols_follow
-   Verbal: dirty_talk, moaning, roleplay, commands, begging, confession
+          orgasm_control_give, orgasm_control_receive, protocols_give, protocols_receive
+   Verbal: dirty_talk, moaning, roleplay, confession, commands_receive, commands_give,
+           begging_receive, begging_give
    Display: stripping_self, watching_strip, solo_pleasure_self, watching_solo_pleasure,
             posing, dancing, revealing_clothing, exhibitionism
    General: kissing, penetration, impact_play
