@@ -20,6 +20,9 @@ def score_mutual_interest(
     """
     Score how well activity matches both players' preferences (0-1).
     
+    Recognizes directional pairs (_give/_receive, _self/_watching) where
+    complementary preferences (A gives, B receives) should score high.
+    
     Args:
         activity_preference_keys: List of preference keys from activity
         player_a_activities: Player A's activity preferences {key: score}
@@ -33,10 +36,105 @@ def score_mutual_interest(
         return 0.5
     
     scores = []
+    processed_keys = set()
     
     for pref_key in activity_preference_keys:
+        if pref_key in processed_keys:
+            continue
+        
         score_a = player_a_activities.get(pref_key, 0.5)  # Default neutral
         score_b = player_b_activities.get(pref_key, 0.5)
+        
+        # Check for directional pairs
+        is_directional_pair = False
+        complementary_score = None
+        
+        # Check for _give/_receive pairs
+        if pref_key.endswith('_give'):
+            receive_key = pref_key.replace('_give', '_receive')
+            if receive_key in activity_preference_keys:
+                processed_keys.add(pref_key)
+                processed_keys.add(receive_key)
+                is_directional_pair = True
+                
+                # Get complementary scores
+                score_a_receive = player_a_activities.get(receive_key, 0.5)
+                score_b_receive = player_b_activities.get(receive_key, 0.5)
+                
+                # A gives, B receives OR B gives, A receives
+                comp1 = min(score_a, score_b_receive)  # A gives → B receives
+                comp2 = min(score_b, score_a_receive)  # B gives → A receives
+                complementary_score = max(comp1, comp2)  # Best complementary match
+        
+        # Check for _self/_watching pairs
+        elif pref_key.endswith('_self'):
+            # Try standard pattern first (_self → _watching)
+            watching_key = pref_key.replace('_self', '_watching')
+            
+            # Special cases: stripping_self pairs with watching_strip (not stripping_watching)
+            if pref_key == 'stripping_self':
+                watching_key = 'watching_strip'
+            elif pref_key == 'solo_pleasure_self':
+                watching_key = 'watching_solo_pleasure'
+            
+            if watching_key in activity_preference_keys:
+                processed_keys.add(pref_key)
+                processed_keys.add(watching_key)
+                is_directional_pair = True
+                
+                # Get complementary scores
+                score_a_watching = player_a_activities.get(watching_key, 0.5)
+                score_b_watching = player_b_activities.get(watching_key, 0.5)
+                
+                # A performs, B watches OR B performs, A watches
+                comp1 = min(score_a, score_b_watching)  # A performs → B watches
+                comp2 = min(score_b, score_a_watching)  # B performs → A watches
+                complementary_score = max(comp1, comp2)  # Best complementary match
+        
+        # Special cases: watching_strip pairs with stripping_self
+        elif pref_key == 'watching_strip':
+            self_key = 'stripping_self'
+            if self_key in activity_preference_keys:
+                processed_keys.add(pref_key)
+                processed_keys.add(self_key)
+                is_directional_pair = True
+                
+                score_a_self = player_a_activities.get(self_key, 0.5)
+                score_b_self = player_b_activities.get(self_key, 0.5)
+                
+                comp1 = min(score_a, score_b_self)  # A watches → B performs
+                comp2 = min(score_b, score_a_self)  # B watches → A performs
+                complementary_score = max(comp1, comp2)
+        
+        elif pref_key == 'watching_solo_pleasure':
+            self_key = 'solo_pleasure_self'
+            if self_key in activity_preference_keys:
+                processed_keys.add(pref_key)
+                processed_keys.add(self_key)
+                is_directional_pair = True
+                
+                score_a_self = player_a_activities.get(self_key, 0.5)
+                score_b_self = player_b_activities.get(self_key, 0.5)
+                
+                comp1 = min(score_a, score_b_self)
+                comp2 = min(score_b, score_a_self)
+                complementary_score = max(comp1, comp2)
+        
+        # If we found a directional pair, use complementary score
+        if is_directional_pair and complementary_score is not None:
+            # Map complementary score to recommendation score
+            if complementary_score >= 0.7:
+                scores.append(1.0)  # Perfect complementary match
+            elif complementary_score >= 0.5:
+                scores.append(0.8)  # Good complementary match
+            elif complementary_score >= 0.3:
+                scores.append(0.6)  # Acceptable
+            else:
+                scores.append(0.3)  # Weak match
+            continue
+        
+        # Non-directional or single key: use standard logic
+        processed_keys.add(pref_key)
         
         # Mutual "yes" (both >= 0.7) = Perfect match
         if score_a >= 0.7 and score_b >= 0.7:

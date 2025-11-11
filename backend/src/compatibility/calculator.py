@@ -83,6 +83,208 @@ def calculate_domain_similarity(
     return sum(similarities) / len(similarities) if similarities else 0.5
 
 
+def calculate_asymmetric_directional_jaccard(
+    top_activities: Dict[str, float],
+    bottom_activities: Dict[str, float]
+) -> float:
+    """
+    Asymmetric directional Jaccard for Top/Bottom pairs.
+    
+    Mirrors frontend/src/lib/matching/compatibilityMapper.js logic.
+    
+    Recognizes complementary pairs:
+    - _give/_receive (e.g., spanking_give with spanking_receive)
+    - _self/_watching (e.g., stripping_self with watching_strip)
+    - Special cases like watching_strip with stripping_self
+    
+    Primary axis (80% weight): Does Top want to GIVE what Bottom wants to RECEIVE?
+    Secondary axis (20% weight): Does Bottom want to GIVE what Top wants to RECEIVE?
+    """
+    keys = set(list(top_activities.keys()) + list(bottom_activities.keys()))
+    
+    primary_matches = 0
+    primary_potential = 0
+    secondary_matches = 0
+    secondary_potential = 0
+    non_directional_matches = 0
+    non_directional_potential = 0
+    
+    processed_keys = set()
+    
+    for key in keys:
+        if key in processed_keys:
+            continue
+            
+        top_val = top_activities.get(key, 0)
+        bottom_val = bottom_activities.get(key, 0)
+        
+        # Handle _give/_receive pairs
+        if key.endswith('_give'):
+            processed_keys.add(key)
+            receive_key = key.replace('_give', '_receive')
+            processed_keys.add(receive_key)
+            
+            bottom_receive_val = bottom_activities.get(receive_key, 0)
+            top_receive_val = top_activities.get(receive_key, 0)
+            
+            # PRIMARY: Top gives → Bottom receives
+            if top_val >= 0.5 or bottom_receive_val >= 0.5:
+                primary_potential += 1
+                if top_val >= 0.5 and bottom_receive_val >= 0.5:
+                    primary_matches += 1
+            
+            # SECONDARY: Bottom gives → Top receives
+            if bottom_val >= 0.5 or top_receive_val >= 0.5:
+                secondary_potential += 1
+                if bottom_val >= 0.5 and top_receive_val >= 0.5:
+                    secondary_matches += 1
+                elif bottom_val >= 0.5 and top_receive_val < 0.5:
+                    secondary_matches += 0.5  # Partial credit
+        
+        # Handle _self/_watching pairs
+        elif key.endswith('_self'):
+            processed_keys.add(key)
+            watching_key = key.replace('_self', '_watching')
+            processed_keys.add(watching_key)
+            
+            top_watching_val = top_activities.get(watching_key, 0)
+            bottom_watching_val = bottom_activities.get(watching_key, 0)
+            
+            # PRIMARY: Bottom performs → Top watches
+            if bottom_val >= 0.5 or top_watching_val >= 0.5:
+                primary_potential += 1
+                if bottom_val >= 0.5 and top_watching_val >= 0.5:
+                    primary_matches += 1
+            
+            # SECONDARY: Top performs → Bottom watches
+            if top_val >= 0.5 or bottom_watching_val >= 0.5:
+                secondary_potential += 1
+                if top_val >= 0.5 and bottom_watching_val >= 0.5:
+                    secondary_matches += 1
+                elif top_val >= 0.5 and bottom_watching_val < 0.5:
+                    secondary_matches += 0.5  # Partial credit
+        
+        # Handle special cases: watching_strip pairs with stripping_self
+        elif key == 'watching_strip':
+            processed_keys.add(key)
+            self_key = 'stripping_self'
+            processed_keys.add(self_key)
+            
+            top_self_val = top_activities.get(self_key, 0)
+            bottom_self_val = bottom_activities.get(self_key, 0)
+            
+            # PRIMARY: Bottom performs → Top watches
+            if bottom_self_val >= 0.5 or top_val >= 0.5:
+                primary_potential += 1
+                if bottom_self_val >= 0.5 and top_val >= 0.5:
+                    primary_matches += 1
+            
+            # SECONDARY: Top performs → Bottom watches
+            if top_self_val >= 0.5 or bottom_val >= 0.5:
+                secondary_potential += 1
+                if top_self_val >= 0.5 and bottom_val >= 0.5:
+                    secondary_matches += 1
+                elif top_self_val >= 0.5 and bottom_val < 0.5:
+                    secondary_matches += 0.5
+        
+        # Handle special case: watching_solo_pleasure pairs with solo_pleasure_self
+        elif key == 'watching_solo_pleasure':
+            processed_keys.add(key)
+            self_key = 'solo_pleasure_self'
+            processed_keys.add(self_key)
+            
+            top_self_val = top_activities.get(self_key, 0)
+            bottom_self_val = bottom_activities.get(self_key, 0)
+            
+            # PRIMARY: Bottom performs → Top watches
+            if bottom_self_val >= 0.5 or top_val >= 0.5:
+                primary_potential += 1
+                if bottom_self_val >= 0.5 and top_val >= 0.5:
+                    primary_matches += 1
+            
+            # SECONDARY: Top performs → Bottom watches
+            if top_self_val >= 0.5 or bottom_val >= 0.5:
+                secondary_potential += 1
+                if top_self_val >= 0.5 and bottom_val >= 0.5:
+                    secondary_matches += 1
+                elif top_self_val >= 0.5 and bottom_val < 0.5:
+                    secondary_matches += 0.5
+        
+        # Non-directional activities (don't end with _receive, _watching, or already processed)
+        elif not key.endswith('_receive') and not key.endswith('_watching'):
+            processed_keys.add(key)
+            
+            if top_val >= 0.5 and bottom_val >= 0.5:
+                non_directional_matches += 1
+            if top_val >= 0.5 or bottom_val >= 0.5:
+                non_directional_potential += 1
+    
+    # Weight primary axis more heavily (80%) than secondary (20%)
+    total_matches = (primary_matches * 0.8) + (secondary_matches * 0.2) + non_directional_matches
+    total_potential = (primary_potential * 0.8) + (secondary_potential * 0.2) + non_directional_potential
+    
+    if total_potential == 0:
+        return 0
+    
+    return total_matches / total_potential
+
+
+def calculate_same_pole_jaccard(
+    activities_a: Dict[str, float],
+    activities_b: Dict[str, float]
+) -> float:
+    """
+    Same-pole Jaccard for Top/Top or Bottom/Bottom pairs.
+    
+    For these pairs, matching on giving/receiving is actually INCOMPATIBLE.
+    Only compatible if one or both are versatile (can switch roles within activity).
+    
+    Mirrors frontend/src/lib/matching/compatibilityMapper.js calculateSamePoleJaccard()
+    """
+    keys = set(list(activities_a.keys()) + list(activities_b.keys()))
+    
+    compatible_interactions = 0
+    total_possible_interactions = 0
+    
+    for key in keys:
+        val_a = activities_a.get(key, 0)
+        val_b = activities_b.get(key, 0)
+        
+        if key.endswith('_give'):
+            receive_key = key.replace('_give', '_receive')
+            receive_a = activities_a.get(receive_key, 0)
+            receive_b = activities_b.get(receive_key, 0)
+            
+            # For same-pole pairs, both wanting same role is incompatible
+            if val_a >= 0.5 or val_b >= 0.5:
+                total_possible_interactions += 1
+                
+                # Only way it works: versatility (can do both roles)
+                # A versatile (give AND receive), B not → Minimal credit
+                if (val_a >= 0.5 and receive_a >= 0.5) and (val_b >= 0.5 and receive_b < 0.5):
+                    compatible_interactions += 0.1
+                # B versatile, A not → Minimal credit
+                elif (val_a >= 0.5 and receive_a < 0.5) and (val_b >= 0.5 and receive_b >= 0.5):
+                    compatible_interactions += 0.1
+                # Both versatile → Slight credit
+                elif (val_a >= 0.5 and receive_a >= 0.5) and (val_b >= 0.5 and receive_b >= 0.5):
+                    compatible_interactions += 0.2
+                # Else: Both want same role, no versatility = 0 (incompatible)
+        
+        elif not key.endswith('_receive'):
+            # Non-directional activities get REDUCED credit for same-pole pairs
+            # Power incompatibility affects everything
+            if val_a >= 0.5 and val_b >= 0.5:
+                compatible_interactions += 0.3  # Reduced from 1.0
+            if val_a >= 0.5 or val_b >= 0.5:
+                total_possible_interactions += 1
+    
+    if total_possible_interactions == 0:
+        return 0
+    
+    return compatible_interactions / total_possible_interactions
+
+
 def calculate_activity_overlap(
     activities_a: Dict[str, float],
     activities_b: Dict[str, float],
@@ -92,57 +294,53 @@ def calculate_activity_overlap(
     """
     Calculate activity overlap (0-1).
     
-    Focus on mutual "Yes" activities (score >= 0.7).
     Uses asymmetric matching for Top/Bottom pairs.
+    Uses same-pole Jaccard for Top/Top or Bottom/Bottom pairs.
+    Uses standard Jaccard for Switch pairs or mixed combinations.
     """
     orientation_a = power_a.get('orientation', 'Switch')
     orientation_b = power_b.get('orientation', 'Switch')
     
-    is_complementary = (orientation_a == 'Top' and orientation_b == 'Bottom') or \
-                      (orientation_a == 'Bottom' and orientation_b == 'Top')
+    is_top_bottom = (orientation_a == 'Top' and orientation_b == 'Bottom') or \
+                    (orientation_a == 'Bottom' and orientation_b == 'Top')
     
-    # Activities that use complementary logic
-    # Note: This is a simplified approach. Frontend uses more sophisticated asymmetric directional Jaccard.
-    # Directional patterns: _give/_receive, _self/_watching
-    complementary_activities = ['receiving', 'giving', 'being_watched', 'watching', '_self', '_watching']
+    is_same_pole = (orientation_a == 'Top' and orientation_b == 'Top') or \
+                   (orientation_a == 'Bottom' and orientation_b == 'Bottom')
     
-    yes_yes_count = 0  # Both >= 0.7
-    one_yes_count = 0  # One >= 0.7, other >= 0.3
-    total_activities = 0
+    # For Top/Bottom pairs, use asymmetric directional Jaccard
+    if is_top_bottom:
+        # Determine who is Top and who is Bottom
+        if orientation_a == 'Top':
+            return calculate_asymmetric_directional_jaccard(activities_a, activities_b)
+        else:
+            return calculate_asymmetric_directional_jaccard(activities_b, activities_a)
     
+    # For same-pole pairs, use same-pole Jaccard
+    if is_same_pole:
+        return calculate_same_pole_jaccard(activities_a, activities_b)
+    
+    # For Switch pairs or mixed, use standard Jaccard
     all_activities = set(list(activities_a.keys()) + list(activities_b.keys()))
+    
+    mutual_yes = 0
+    at_least_one_yes = 0
     
     for activity in all_activities:
         score_a = activities_a.get(activity, 0.0)
         score_b = activities_b.get(activity, 0.0)
         
-        # Check if activity uses directional/complementary logic
-        is_directional = (activity in complementary_activities or 
-                         activity.endswith('_self') or 
-                         activity.endswith('_watching') or
-                         activity.endswith('_give') or
-                         activity.endswith('_receive'))
+        # Both interested (>= 0.5)
+        if score_a >= 0.5 and score_b >= 0.5:
+            mutual_yes += 1
         
-        # Apply complementary logic if applicable
-        if is_complementary and is_directional:
-            # For Top/Bottom, high+low can be good for certain activities
-            if (score_a >= 0.7 and score_b >= 0.3) or (score_a >= 0.3 and score_b >= 0.7):
-                one_yes_count += 1
-        else:
-            # Normal logic
-            if score_a >= 0.7 and score_b >= 0.7:
-                yes_yes_count += 1
-            elif (score_a >= 0.7 and score_b >= 0.3) or (score_a >= 0.3 and score_b >= 0.7):
-                one_yes_count += 1
-        
-        total_activities += 1
+        # At least one interested
+        if score_a >= 0.5 or score_b >= 0.5:
+            at_least_one_yes += 1
     
-    if total_activities == 0:
+    if at_least_one_yes == 0:
         return 0.5
     
-    # Weight Yes/Yes higher than one-Yes
-    overlap = (yes_yes_count + one_yes_count * 0.5) / total_activities
-    return min(1.0, overlap)
+    return mutual_yes / at_least_one_yes
 
 
 def calculate_truth_overlap(
