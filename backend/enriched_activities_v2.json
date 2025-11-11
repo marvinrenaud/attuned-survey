@@ -709,7 +709,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "orgasm_control_receive",
-      "begging"
+      "begging_receive"
     ],
     "domains": [
       "power",
@@ -1356,7 +1356,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "roleplay",
-      "commands"
+      "commands_receive"
     ],
     "domains": [
       "power",
@@ -1633,7 +1633,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "exhibitionism",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "exploration",
@@ -3258,7 +3258,7 @@
     "audience_tag": "audienceall",
     "power_role": "top",
     "preference_keys": [
-      "commands",
+      "commands_give",
       "roleplay"
     ],
     "domains": [
@@ -3926,7 +3926,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "dirty_talk",
-      "begging"
+      "begging_receive"
     ],
     "domains": [
       "power",
@@ -4062,7 +4062,7 @@
     "audience_tag": "audienceall",
     "power_role": "top",
     "preference_keys": [
-      "posing",
+      "posing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -5058,7 +5058,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "orgasm_control_receive",
-      "begging"
+      "begging_receive"
     ],
     "domains": [
       "power",
@@ -5236,7 +5236,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -5261,7 +5261,7 @@
     "preference_keys": [
       "stripping_self",
       "exhibitionism",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "exploration",
@@ -6053,7 +6053,7 @@
     "preference_keys": [
       "exhibitionism",
       "stripping_self",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "exploration",
@@ -6166,7 +6166,7 @@
     "preference_keys": [
       "stripping_self",
       "exhibitionism",
-      "dancing"
+      "dancing_self"
     ],
     "domains": [
       "playful",
@@ -6233,7 +6233,7 @@
     "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -6256,7 +6256,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -6280,7 +6280,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "stripping_self"
     ],
     "domains": [
@@ -6531,7 +6531,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "restraints_receive",
-      "dancing",
+      "dancing_self",
       "stripping_self"
     ],
     "domains": [
@@ -7783,7 +7783,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -7807,7 +7807,7 @@
     "preference_keys": [
       "exhibitionism",
       "stripping_self",
-      "dancing"
+      "dancing_self"
     ],
     "domains": [
       "playful",
@@ -8474,7 +8474,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "dancing",
+      "dancing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -8840,7 +8840,7 @@
     "audience_tag": "audienceall",
     "power_role": "neutral",
     "preference_keys": [
-      "posing",
+      "posing_self",
       "exhibitionism"
     ],
     "domains": [
@@ -9604,7 +9604,7 @@
     "power_role": "neutral",
     "preference_keys": [
       "exhibitionism",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "playful",
@@ -11322,7 +11322,7 @@
     "power_role": "neutral",
     "preference_keys": [
       "exhibitionism",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "exploration",
@@ -11724,7 +11724,7 @@
     "power_role": "bottom",
     "preference_keys": [
       "dirty_talk",
-      "begging"
+      "begging_receive"
     ],
     "domains": [
       "power",
@@ -12615,7 +12615,7 @@
     "preference_keys": [
       "stripping_self",
       "exhibitionism",
-      "posing"
+      "posing_self"
     ],
     "domains": [
       "playful",
@@ -15136,7 +15136,7 @@
     "audience_tag": "audienceall",
     "power_role": "top",
     "preference_keys": [
-      "commands",
+      "commands_give",
       "roleplay"
     ],
     "domains": [
