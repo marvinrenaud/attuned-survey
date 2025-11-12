@@ -2,23 +2,45 @@
 
 Flask API server for the Attuned intimacy profile survey.
 
+**Version:** v0.6 (Compatibility Algorithm)  
+**Last Updated:** November 12, 2025
+
 ## Tech Stack
 
 - **Flask 3.1** - Web framework
 - **Python 3.11** - Runtime
+- **SQLAlchemy** - ORM
+- **PostgreSQL** (Supabase) - Database
 - **Flask-CORS** - Cross-origin support
-- **JSON files** - Data storage (MVP)
+- **Groq AI** - Activity generation and enrichment
 
 ## Project Structure
 
 ```
 src/
-├── main.py          # Flask application entry point
-├── routes/          # API endpoints
-│   └── survey.py    # Survey CRUD operations
-└── database/        # Data storage
-    ├── submissions.json  # All survey submissions
-    └── baseline.json     # Baseline submission ID
+├── main.py              # Flask application entry point
+├── extensions.py        # Flask extensions (db, cors)
+├── config.py            # Configuration
+├── models/              # Database models
+│   ├── profile.py       # User profiles
+│   ├── activity.py      # Activity bank
+│   ├── session.py       # Game sessions
+│   └── ...
+├── routes/              # API endpoints
+│   ├── survey.py        # Survey submissions
+│   ├── user.py          # User/profile management
+│   └── recommendations.py  # Activity recommendations
+├── compatibility/       # Compatibility algorithm
+│   └── calculator.py    # v0.6 asymmetric matching
+├── recommender/         # Activity recommendation engine
+│   ├── scoring.py       # Preference-based scoring
+│   ├── picker.py        # Activity selection
+│   └── ...
+├── llm/                 # AI integration
+│   ├── generator.py     # Groq activity generation
+│   └── activity_analyzer.py  # Activity enrichment
+└── db/                  # Database access
+    └── repository.py    # Query helpers
 ```
 
 ## Development
@@ -181,6 +203,40 @@ Edit `src/main.py`:
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
 ```
+
+## Compatibility Calculation (v0.6)
+
+The backend includes a sophisticated compatibility algorithm:
+
+**Components:**
+- **Power Complement** (20% weight) - Top/Bottom pairing
+- **Domain Similarity** (25% weight) - Interest alignment
+- **Activity Overlap** (45% weight) - Mutual activities
+- **Truth Overlap** (10% weight) - Communication comfort
+
+**Algorithm Types:**
+- **Asymmetric Directional Jaccard** - For Top/Bottom pairs (recognizes complementary _give/_receive and _self/_watching pairs)
+- **Same-Pole Jaccard** - For Top/Top or Bottom/Bottom pairs (penalizes incompatible role preferences)
+- **Standard Jaccard** - For Switch/Switch or mixed pairs
+
+See `src/compatibility/calculator.py` for implementation.
+
+## Activity Recommendations
+
+AI-powered activity recommendations using Groq:
+
+**Scoring Components:**
+- **Mutual Interest** (50%) - Matches player preferences
+- **Power Alignment** (30%) - Fits power dynamics
+- **Domain Fit** (20%) - Aligns with domains
+
+**Features:**
+- Anatomy-based filtering
+- Boundary-aware selection
+- Intensity progression (warmup → peak → afterglow)
+- Bank-first with AI fallback
+
+See `src/recommender/scoring.py` and `src/llm/generator.py`.
 
 ## Error Handling
 

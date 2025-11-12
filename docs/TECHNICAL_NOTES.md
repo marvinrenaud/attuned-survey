@@ -1,8 +1,8 @@
-# Technical Implementation Notes (v0.4/v0.5)
+# Technical Implementation Notes (v0.4/v0.6)
 
-**Last Updated**: October 15, 2025  
+**Last Updated**: November 12, 2025  
 **Survey Version**: v0.4  
-**Compatibility Version**: v0.5
+**Compatibility Version**: v0.6
 
 ---
 
@@ -31,10 +31,52 @@ User → Survey → Frontend Calculation → API → Database → Results Displa
                      ↓
         [Arousal, Power, Domains, Activities, Truth, Boundaries]
                      ↓
-              Compatibility Mapper (v0.5)
+              Compatibility Mapper (v0.6)
                      ↓
         [Asymmetric/Same-Pole/Standard Jaccard Selection]
 ```
+
+---
+
+## v0.6 Compatibility Algorithm Improvements (November 2025)
+
+### Bug Fixes
+
+**1. Display/Performance Activities** (+4.6 points)
+- **Issue:** Activities like stripping, posing, dancing weren't recognized as complementary
+- **Root Cause:** Inconsistent naming (frontend: `stripping_me`, backend: `stripping_self`) and missing directional matching
+- **Fix:** Aligned to `_self/_watching` pattern, added directional pair recognition
+- **Result:** Display category improved from 28.6% to ~95%
+
+**2. Protocols Naming** (+0.7 points)
+- **Issue:** `protocols_follow` didn't pair with `protocols_give` in matching algorithm
+- **Fix:** Renamed to `protocols_receive` for consistency with _give/_receive convention
+- **Result:** Protocol preferences now properly recognized as complementary
+
+**3. Commands/Begging Survey Design** (+1.5 points)
+- **Issue:** Single Y/M/N questions created ambiguity for directional activities
+- **Fix:** Split B22 → B22a/b (commands receive/give), B23 → B23a/b (begging do/hear)
+- **Result:** Clear directional preferences for Top/Bottom matching
+
+### Algorithm Enhancements
+
+**Python Backend:**
+- Added complete `calculate_asymmetric_directional_jaccard()` mirroring JavaScript
+- Added `calculate_same_pole_jaccard()` for Top/Top and Bottom/Bottom pairs
+- Updated `score_mutual_interest()` in recommender to recognize complementary pairs
+
+**Activity Key Patterns:**
+- **Directional pairs:** `_give/_receive` (e.g., spanking_give/spanking_receive)
+- **Display pairs:** `_self/_watching` (e.g., stripping_self/watching_strip)
+- **Special cases:** watching_strip pairs with stripping_self, watching_solo_pleasure pairs with solo_pleasure_self
+
+### Validation Results
+
+**Test Users (Top 100/0 + Bottom 17/100):**
+- Before: 64% (Moderate compatibility)
+- After: 94% (Exceptional compatibility)
+- Improvement: +30 percentage points
+- Activity overlap: 29% → 95%
 
 ---
 

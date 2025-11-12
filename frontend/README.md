@@ -2,6 +2,9 @@
 
 React application for the Attuned intimacy profile survey.
 
+**Version:** v0.6 (Compatibility Algorithm)  
+**Last Updated:** November 12, 2025
+
 ## Tech Stack
 
 - **React 18** with hooks
@@ -25,12 +28,14 @@ src/
 │   └── Admin.jsx    # Admin panel
 ├── lib/             # Business logic
 │   ├── scoring/     # Scoring algorithms
-│   │   ├── traitCalculator.js
-│   │   ├── dialCalculator.js
-│   │   └── archetypeCalculator.js
-│   ├── matching/    # Compatibility matching
-│   │   ├── categoryMap.js
-│   │   └── overlapHelper.js
+│   │   ├── profileCalculator.js    # Main profile calculator
+│   │   ├── powerCalculator.js      # Power dynamics
+│   │   ├── domainCalculator.js     # Domain scores
+│   │   ├── activityConverter.js    # Activity key mapping
+│   │   └── ...
+│   ├── matching/    # Compatibility matching (v0.6)
+│   │   ├── compatibilityMapper.js  # Asymmetric algorithm
+│   │   └── categoryMap.js          # Activity display names
 │   ├── storage/     # Data persistence
 │   │   └── apiStore.js
 │   └── surveyData.js # Survey data loader

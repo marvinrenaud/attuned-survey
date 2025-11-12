@@ -2,8 +2,9 @@
 
 A comprehensive web application for discovering intimacy profiles through a scientifically-grounded survey. Built with React and Flask.
 
-**Version**: v0.4 Survey | v0.5 Compatibility | v2.0 Activity Bank  
-**Status**: ✅ Production Deployed
+**Version**: v0.4 Survey | v0.6 Compatibility | v2.0 Activity Bank  
+**Status**: ✅ Production Ready (compatibility fixes complete)  
+**Last Updated**: November 12, 2025
 
 ![Attuned Logo](frontend/public/AttunedLogo.png)
 
@@ -21,6 +22,20 @@ Results include:
 - **Power Orientation** (Top/Bottom/Switch with confidence level)
 - **Five Domain Scores** (Sensation, Connection, Power, Exploration, Verbal)
 - **Advanced Compatibility Matching** (Asymmetric algorithm for all power dynamics)
+
+## Recent Updates (v0.6 - November 2025)
+
+**Compatibility Algorithm Improvements:**
+- ✅ Fixed display activity matching (stripping, posing, dancing now recognized as complementary)
+- ✅ Fixed protocols naming consistency (protocols_follow → protocols_receive)
+- ✅ Split commands/begging into directional pairs (_give/_receive) for clarity
+- ✅ Improved Top/Bottom matching accuracy: +6-30 percentage points
+- ✅ Backend Python calculator now fully matches frontend JavaScript algorithm
+- ✅ Activity recommendations properly score complementary pairs
+
+**Validation:** Tested with real users showing score improvement from 64% to 94%.
+
+See [COMPATIBILITY_ALGORITHM_FIX_SUMMARY.md](COMPATIBILITY_ALGORITHM_FIX_SUMMARY.md) for complete details.
 
 ## Features
 
