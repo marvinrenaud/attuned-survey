@@ -469,14 +469,14 @@ function QuestionItem({ item, value, onChange }) {
   if (item.type === 'checklist') {
     // C1: Hard boundaries checklist (8-key taxonomy)
     const options = [
-      { value: 'hardBoundaryImpact', label: 'Impact play' },
-      { value: 'hardBoundaryRestrain', label: 'Bondage and Restraints' },
-      { value: 'hardBoundaryBreath', label: 'Breath Play' },
+      { value: 'hardBoundaryImpact', label: 'Impact Play' },
+      { value: 'hardBoundaryRestrain', label: 'Restraints' },
+      { value: 'hardBoundaryBreath', label: 'Breath Play / Choking' },
       { value: 'hardBoundaryDegrade', label: 'Degradation' },
       { value: 'hardBoundaryPublic', label: 'Public Play' },
-      { value: 'hardBoundaryRecord', label: 'Recording' },
+      { value: 'hardBoundaryRecord', label: 'Recording (Pics, Videos)' },
       { value: 'hardBoundaryAnal', label: 'Anal' },
-      { value: 'hardBoundaryWatersports', label: 'Watersports / scat play' }
+      { value: 'hardBoundaryWatersports', label: 'Watersports' }
     ];
     
     const selected = Array.isArray(value) ? value : (value ? value.split(',').map(s => s.trim()) : []);

@@ -73,5 +73,3 @@ B33,Truth Topics,chooseYMN,"Insecurities or vulnerabilities about intimacy.","Y=
 B34,Truth Topics,chooseYMN,"Boundaries and limits.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""boundaries""}"
 B35,Truth Topics,chooseYMN,"Fantasies about the future with my partner.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""future_fantasies"",""facet"":""ROMANTIC""}"
 B36,Truth Topics,chooseYMN,"What makes me feel most desired or wanted.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""feeling_desired"",""facet"":""ROMANTIC""}"
-C1,Boundaries & Safety,checklist,"Select ANY of the following that are hard boundaries (absolutely not interested).","Check all that apply","{""boundary"":""hard_limits"",""options"":[""impact_play"",""restraints_bondage"",""breath_play"",""degradation_humiliation"",""public_activities"",""recording"",""roleplay"",""multi_partner"",""toys_props"",""anal_activities"",""watersports"",""other""]}"
-C2,Boundaries & Safety,text,"Any other specific activities, scenarios, topics, or contexts you want to ensure are avoided?","Free text","{""boundary"":""additional_notes""}"

@@ -219,6 +219,10 @@ def create_recommendations():
                     'roles': {'active_player': actor, 'partner_player': partner},
                     'script': script,
                     'tags': best_candidate.tags or [],
+                    'power_role': best_candidate.power_role,
+                    'preference_keys': best_candidate.preference_keys or [],
+                    'domains': best_candidate.domains or [],
+                    'hard_boundaries': best_candidate.hard_boundaries or [],
                     'provenance': {
                         'source': 'bank',
                         'template_id': best_candidate.activity_id
@@ -294,6 +298,10 @@ def create_recommendations():
                         'roles': repaired.get('roles', {'active_player': 'A', 'partner_player': 'B'}),
                         'script': repaired.get('script'),
                         'tags': repaired.get('tags', []),
+                        'power_role': repaired.get('power_role'),
+                        'preference_keys': repaired.get('preference_keys', []),
+                        'domains': repaired.get('domains', []),
+                        'hard_boundaries': repaired.get('hard_boundaries', []),
                         'provenance': repaired.get('provenance', {'source': 'bank', 'template_id': None}),
                         'checks': repaired.get('checks', {})
                     }
