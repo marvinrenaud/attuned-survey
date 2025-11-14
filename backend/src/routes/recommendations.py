@@ -284,7 +284,9 @@ def create_recommendations():
                         player_anatomy=player_anatomy,
                         limit=20
                     )],
-                    all_hard_limits
+                    all_hard_limits,
+                    used_fallback_keys,  # Pass tracking
+                    used_activity_ids    # Pass tracking
                 )
                 
                 if repaired:
@@ -310,7 +312,19 @@ def create_recommendations():
                     # Keep the failed item but log it
                     logger.error(f"Could not repair activity {seq}")
             
-            # 7. Add to list
+            # 7. Check for duplicates before adding (safety net)
+            activity_text = activity_item['script']['steps'][0]['do']
+            existing_texts = [a['script']['steps'][0]['do'] for a in activities]
+            
+            if activity_text in existing_texts:
+                logger.warning(
+                    f"Duplicate activity detected at seq {seq}: {activity_text[:50]}...",
+                    extra={"request_id": request_id, "seq": seq}
+                )
+                # Skip this duplicate and try to get another
+                continue
+            
+            # 8. Add to list
             activities.append(activity_item)
             
             # Update counters

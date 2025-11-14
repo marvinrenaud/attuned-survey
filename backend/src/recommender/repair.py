@@ -13,7 +13,9 @@ def fast_repair(
     intensity_min: int,
     intensity_max: int,
     candidates: List[dict],
-    hard_limits: Optional[List[str]] = None
+    hard_limits: Optional[List[str]] = None,
+    used_fallback_keys: Optional[set] = None,
+    used_activity_ids: Optional[set] = None
 ) -> Optional[dict]:
     """
     Attempt to repair a failed activity by finding a suitable replacement.
@@ -34,11 +36,15 @@ def fast_repair(
         intensity_max: Maximum intensity for this step
         candidates: List of candidate activities from database
         hard_limits: List of hard limit keys to avoid
+        used_fallback_keys: Set of fallback keys already used (prevents duplicates)
+        used_activity_ids: Set of activity IDs already used (prevents duplicates)
     
     Returns:
         Repaired activity dict or None if repair failed
     """
     hard_limits = hard_limits or []
+    used_fallback_keys = used_fallback_keys or set()
+    used_activity_ids = used_activity_ids or set()
     
     # Strategy 1: Same intensity window + same type
     matches = [
@@ -46,11 +52,15 @@ def fast_repair(
         if c.get('type') == activity_type
         and intensity_min <= c.get('intensity', 0) <= intensity_max
         and c.get('rating') == rating
+        and c.get('activity_id') not in used_activity_ids
         and not has_hard_limit_conflict(c, hard_limits)
     ]
     
     if matches:
         logger.info(f"Repair: Found {len(matches)} exact matches for {activity_type} intensity {intensity_min}-{intensity_max}")
+        # Mark this activity as used
+        if matches[0].get('activity_id'):
+            used_activity_ids.add(matches[0]['activity_id'])
         return matches[0]
     
     # Strategy 2: Neighbor intensity (±1)
@@ -62,11 +72,15 @@ def fast_repair(
         if c.get('type') == activity_type
         and neighbor_min <= c.get('intensity', 0) <= neighbor_max
         and c.get('rating') == rating
+        and c.get('activity_id') not in used_activity_ids
         and not has_hard_limit_conflict(c, hard_limits)
     ]
     
     if matches:
         logger.info(f"Repair: Found {len(matches)} neighbor intensity matches")
+        # Mark this activity as used
+        if matches[0].get('activity_id'):
+            used_activity_ids.add(matches[0]['activity_id'])
         return matches[0]
     
     # Strategy 3: Any intensity, same type
@@ -74,15 +88,19 @@ def fast_repair(
         c for c in candidates
         if c.get('type') == activity_type
         and c.get('rating') == rating
+        and c.get('activity_id') not in used_activity_ids
         and not has_hard_limit_conflict(c, hard_limits)
     ]
     
     if matches:
         logger.warning(f"Repair: Using any intensity match (desperation mode)")
+        # Mark this activity as used
+        if matches[0].get('activity_id'):
+            used_activity_ids.add(matches[0]['activity_id'])
         return matches[0]
     
-    # Strategy 4: Safe fallback templates
-    fallback = get_safe_fallback(activity_type, seq, rating, intensity_min, intensity_max)
+    # Strategy 4: Safe fallback templates (pass tracking to prevent duplicates)
+    fallback = get_safe_fallback(activity_type, seq, rating, intensity_min, intensity_max, used_fallback_keys)
     if fallback:
         logger.warning(f"Repair: Using safe fallback template")
         return fallback

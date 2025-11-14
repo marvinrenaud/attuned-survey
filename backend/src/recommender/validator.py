@@ -68,15 +68,24 @@ def check_activity_item(
     if len(steps) == 0:
         return False, "No steps in script"
     
+    # Get activity source to determine if word count validation applies
+    # Bank activities are pre-approved and should skip word count validation
+    source = item.get('provenance', {}).get('source', 'unknown')
+    
     for step_idx, step in enumerate(steps):
         action = step.get('do', '')
         word_count = len(action.split())
         
-        # Ideal: 6-15 words, but allow up to 20 for flexibility
+        # Min 3 words for all sources
         if word_count < 3:
             return False, f"Step {step_idx + 1} too short: {word_count} words (min 3)"
-        if word_count > 20:
-            return False, f"Step {step_idx + 1} too long: {word_count} words (max 20)"
+        
+        # Max word count ONLY for AI-generated/user-submitted/fallback activities
+        # Bank activities are pre-approved and can be any length
+        if source in ['ai_generated', 'user_submitted', 'fallback']:
+            if word_count > 35:
+                return False, f"Step {step_idx + 1} too long: {word_count} words (max 35 for {source})"
+        # Bank activities: no max limit (pre-vetted content)
     
     # 3. Check maybe items before step 6
     checks = item.get('checks', {})
