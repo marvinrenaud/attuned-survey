@@ -178,7 +178,24 @@ def create_recommendations():
             # 2. Get intensity window (rating-aware)
             intensity_min, intensity_max = get_intensity_window(seq, target_activities, rating)
             
-            # 3. Try to find from bank FIRST (bank-first priority, fallback as last resort)
+            # 3. Determine actor FIRST (before candidate selection for correct anatomy filtering)
+            actor = 'A' if seq % 2 == 1 else 'B'
+            partner = 'B' if actor == 'A' else 'A'
+            
+            # 4. Create dynamic anatomy mapping based on which player is active
+            # This ensures anatomy requirements are checked against the correct player
+            if actor == 'A':
+                current_player_anatomy = {
+                    'active_anatomy': a_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts']),
+                    'partner_anatomy': b_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts'])
+                }
+            else:  # actor == 'B'
+                current_player_anatomy = {
+                    'active_anatomy': b_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts']),
+                    'partner_anatomy': a_anatomy.get('anatomy_self', ['penis', 'vagina', 'breasts'])
+                }
+            
+            # 5. Try to find from bank FIRST (bank-first priority, fallback as last resort)
             activity_item = None
             
             # Always try bank first (removed bank_ratio limitation)
@@ -191,7 +208,7 @@ def create_recommendations():
                 player_b_profile=player_b_profile,
                 session_mode=session_mode,
                 player_boundaries=all_hard_limits,
-                player_anatomy=player_anatomy,
+                player_anatomy=current_player_anatomy,  # Use dynamic anatomy for this step
                 excluded_ids=used_activity_ids,  # Prevent duplicates
                 top_n=30  # Consider top 30 candidates for better variety
             )
@@ -200,11 +217,8 @@ def create_recommendations():
                 # Mark this activity as used
                 used_activity_ids.add(best_candidate.activity_id)
                 
-                # Alternate actors: odd steps = A, even steps = B
-                actor = 'A' if seq % 2 == 1 else 'B'
-                partner = 'B' if actor == 'A' else 'A'
-                
-                # Update script with alternating actor
+                # Actor already determined above - just use it
+                # Update script with the actor
                 script = best_candidate.script.copy() if best_candidate.script else {'steps': []}
                 if script.get('steps'):
                     for step in script['steps']:
