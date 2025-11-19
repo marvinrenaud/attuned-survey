@@ -21,6 +21,7 @@ from .models.session import Session
 from .models.activity import Activity
 from .models.session_activity import SessionActivity
 from .models.compatibility import Compatibility
+from .models.user import User
 
 
 def create_app() -> Flask:
@@ -137,6 +138,21 @@ def create_app() -> Flask:
     from .routes.survey import bp as survey_bp  # noqa: WPS433 (local import)
     from .routes.recommendations import bp as recommendations_bp  # noqa: WPS433 (local import)
     from .routes.user import user_bp  # noqa: WPS433 (local import)
+    
+    # New MVP routes
+    try:
+        from .routes.auth import auth_bp  # noqa: WPS433
+        from .routes.partners import partners_bp  # noqa: WPS433
+        from .routes.subscriptions import subscriptions_bp  # noqa: WPS433
+        from .routes.profile_sharing import profile_sharing_bp  # noqa: WPS433
+        
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(partners_bp)
+        app.register_blueprint(subscriptions_bp)
+        app.register_blueprint(profile_sharing_bp)
+        app.logger.info("✅ MVP routes registered")
+    except Exception as e:
+        app.logger.warning(f"⚠️ Could not register MVP routes: {e}")
 
     app.register_blueprint(survey_bp)
     app.register_blueprint(recommendations_bp)
@@ -151,6 +167,7 @@ app = create_app()
 __all__ = [
     "app",
     "db",
+    "User",
     "SurveyBaseline",
     "SurveySubmission",
     "Profile",
