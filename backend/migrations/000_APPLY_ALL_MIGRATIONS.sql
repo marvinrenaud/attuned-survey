@@ -319,14 +319,21 @@ $$ LANGUAGE plpgsql;
 
 -- Running Migration 008: RLS Policies...
 
--- Enable RLS
+-- Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE survey_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE survey_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE session_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_activity_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partner_connections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE remembered_partners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE push_notification_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscription_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE anonymous_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_generation_logs ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
 CREATE POLICY users_select_own ON users FOR SELECT USING (auth.uid() = id);
@@ -363,6 +370,50 @@ CREATE POLICY partner_connections_insert_own ON partner_connections FOR INSERT W
 CREATE POLICY remembered_partners_select_own ON remembered_partners FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY remembered_partners_insert_own ON remembered_partners FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY remembered_partners_delete_own ON remembered_partners FOR DELETE USING (auth.uid() = user_id);
+
+-- Push notification tokens policies
+CREATE POLICY push_tokens_select_own ON push_notification_tokens FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY push_tokens_insert_own ON push_notification_tokens FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY push_tokens_delete_own ON push_notification_tokens FOR DELETE USING (auth.uid() = user_id);
+
+-- Subscription transactions policies (read-only for users)
+CREATE POLICY subscription_transactions_select_own ON subscription_transactions FOR SELECT USING (auth.uid() = user_id);
+
+-- Anonymous sessions policies (anonymous users only)
+CREATE POLICY anonymous_sessions_select_all ON anonymous_sessions FOR SELECT USING (true);
+CREATE POLICY anonymous_sessions_insert_all ON anonymous_sessions FOR INSERT WITH CHECK (true);
+CREATE POLICY anonymous_sessions_update_all ON anonymous_sessions FOR UPDATE USING (true);
+
+-- AI generation logs policies (users can read their session logs)
+CREATE POLICY ai_logs_select_own ON ai_generation_logs FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM sessions s
+        WHERE s.session_id = ai_generation_logs.session_id
+        AND auth.uid() IN (s.primary_user_id, s.partner_user_id, s.session_owner_user_id)
+    )
+);
+
+-- Activities table policy (all users can read approved activities)
+CREATE POLICY activities_select_approved ON activities FOR SELECT USING (approved = true AND is_active = true);
+
+-- Session activities policies
+CREATE POLICY session_activities_select_own ON session_activities FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM sessions s
+        WHERE s.session_id = session_activities.session_id
+        AND auth.uid() IN (s.primary_user_id, s.partner_user_id, s.session_owner_user_id)
+    )
+);
+
+-- Survey submissions policies
+CREATE POLICY survey_submissions_select_own ON survey_submissions FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM profiles p
+        WHERE p.submission_id = survey_submissions.submission_id
+        AND p.user_id = auth.uid()
+    )
+);
+CREATE POLICY survey_submissions_insert_all ON survey_submissions FOR INSERT WITH CHECK (true);
 
 -- Migration 008 complete ✓
 
