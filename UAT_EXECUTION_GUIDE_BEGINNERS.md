@@ -34,10 +34,10 @@ Tests that your backend API can create new users in the database.
 ```bash
 cd /Users/mr/Documents/attuned-survey/backend
 source venv/bin/activate
-export DATABASE_URL="your-actual-supabase-connection-string"
-export GROQ_API_KEY="your-groq-key-if-you-have-one"
-python src/main.py
+python run_backend.py
 ```
+
+**Note:** Your `.env` file should already have DATABASE_URL and GROQ_API_KEY set.
 
 **WHAT TO EXPECT:**
 You'll see output like:
