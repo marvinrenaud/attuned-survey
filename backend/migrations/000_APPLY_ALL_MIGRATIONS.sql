@@ -18,16 +18,16 @@
 --
 -- ============================================================================
 
-\echo '================================================'
-\echo 'Starting MVP Migration'
-\echo 'This will add: Users, Auth, Partner System, Subscriptions, RLS'
-\echo '================================================'
+-- ================================================
+-- Starting MVP Migration
+-- This will add: Users, Auth, Partner System, Subscriptions, RLS
+-- ================================================
 
 -- ============================================================================
 -- MIGRATION 003: User Authentication & Survey Auto-Save
 -- ============================================================================
 
-\echo 'Running Migration 003: User Authentication...'
+-- Running Migration 003: User Authentication...
 
 -- Create enums
 DO $$ BEGIN
@@ -120,13 +120,13 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS survey_version TEXT NOT NULL DEFAU
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON profiles(user_id) WHERE user_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_profiles_anonymous_session ON profiles(anonymous_session_id) WHERE anonymous_session_id IS NOT NULL;
 
-\echo 'Migration 003 complete ✓'
+-- Migration 003 complete ✓
 
 -- ============================================================================
 -- MIGRATION 004: Partner Connection System
 -- ============================================================================
 
-\echo 'Running Migration 004: Partner System...'
+-- Running Migration 004: Partner System...
 
 DO $$ BEGIN
     CREATE TYPE connection_status_enum AS ENUM ('pending', 'accepted', 'declined', 'expired');
@@ -178,13 +178,13 @@ CREATE TABLE IF NOT EXISTS push_notification_tokens (
 
 CREATE INDEX IF NOT EXISTS idx_push_tokens_user ON push_notification_tokens(user_id);
 
-\echo 'Migration 004 complete ✓'
+-- Migration 004 complete ✓
 
 -- ============================================================================
 -- MIGRATION 005: Update Sessions
 -- ============================================================================
 
-\echo 'Running Migration 005: Session Updates...'
+-- Running Migration 005: Session Updates...
 
 DO $$ BEGIN
     CREATE TYPE intimacy_level_enum AS ENUM ('G', 'R', 'X');
@@ -205,13 +205,13 @@ ALTER TABLE sessions ADD COLUMN IF NOT EXISTS connection_confirmed_at TIMESTAMPT
 CREATE INDEX IF NOT EXISTS idx_sessions_primary_user ON sessions(primary_user_id) WHERE primary_user_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_sessions_partner_user ON sessions(partner_user_id) WHERE partner_user_id IS NOT NULL;
 
-\echo 'Migration 005 complete ✓'
+-- Migration 005 complete ✓
 
 -- ============================================================================
 -- MIGRATION 006: Activity Tracking & Subscriptions
 -- ============================================================================
 
-\echo 'Running Migration 006: Activity Tracking...'
+-- Running Migration 006: Activity Tracking...
 
 DO $$ BEGIN
     CREATE TYPE activity_type_enum AS ENUM ('truth', 'dare');
@@ -280,13 +280,13 @@ CREATE TABLE IF NOT EXISTS subscription_transactions (
 
 CREATE INDEX IF NOT EXISTS idx_subscription_user ON subscription_transactions(user_id);
 
-\echo 'Migration 006 complete ✓'
+-- Migration 006 complete ✓
 
 -- ============================================================================
 -- MIGRATION 007: Anonymous Session Management
 -- ============================================================================
 
-\echo 'Running Migration 007: Anonymous Sessions...'
+-- Running Migration 007: Anonymous Sessions...
 
 CREATE TABLE IF NOT EXISTS anonymous_sessions (
     session_id TEXT PRIMARY KEY,
@@ -311,13 +311,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-\echo 'Migration 007 complete ✓'
+-- Migration 007 complete ✓
 
 -- ============================================================================
 -- MIGRATION 008: Row Level Security Policies
 -- ============================================================================
 
-\echo 'Running Migration 008: RLS Policies...'
+-- Running Migration 008: RLS Policies...
 
 -- Enable RLS
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -364,38 +364,38 @@ CREATE POLICY remembered_partners_select_own ON remembered_partners FOR SELECT U
 CREATE POLICY remembered_partners_insert_own ON remembered_partners FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY remembered_partners_delete_own ON remembered_partners FOR DELETE USING (auth.uid() = user_id);
 
-\echo 'Migration 008 complete ✓'
+-- Migration 008 complete ✓
 
 -- ============================================================================
 -- MIGRATION COMPLETE
 -- ============================================================================
 
-\echo '================================================'
-\echo 'MVP Migration Complete! ✓'
-\echo '================================================'
-\echo ''
-\echo 'New tables created:'
-\echo '  - users'
-\echo '  - survey_progress'
-\echo '  - partner_connections'
-\echo '  - remembered_partners'
-\echo '  - push_notification_tokens'
-\echo '  - user_activity_history'
-\echo '  - ai_generation_logs'
-\echo '  - subscription_transactions'
-\echo '  - anonymous_sessions'
-\echo ''
-\echo 'Existing tables updated:'
-\echo '  - profiles (added user_id, anonymous support)'
-\echo '  - sessions (added partner model fields)'
-\echo '  - survey_submissions (added versioning)'
-\echo ''
-\echo 'Next steps:'
-\echo '  1. Check Table Editor to verify new tables'
-\echo '  2. Run test data script: python scripts/setup_test_users.py'
-\echo '  3. Test API endpoints'
-\echo '  4. Execute UAT test cases'
-\echo ''
-\echo 'To rollback: Run 000_ROLLBACK_ALL_MIGRATIONS.sql'
-\echo '================================================'
+-- ================================================
+-- MVP Migration Complete! ✓
+-- ================================================
+--
+-- New tables created:
+--   - users
+--   - survey_progress
+--   - partner_connections
+--   - remembered_partners
+--   - push_notification_tokens
+--   - user_activity_history
+--   - ai_generation_logs
+--   - subscription_transactions
+--   - anonymous_sessions
+--
+-- Existing tables updated:
+--   - profiles (added user_id, anonymous support)
+--   - sessions (added partner model fields)
+--   - survey_submissions (added versioning)
+--
+-- Next steps:
+--   1. Check Table Editor to verify new tables
+--   2. Run test data script: python scripts/setup_test_users.py
+--   3. Test API endpoints
+--   4. Execute UAT test cases
+--
+-- To rollback: Run 000_ROLLBACK_ALL_MIGRATIONS.sql
+-- ================================================
 
