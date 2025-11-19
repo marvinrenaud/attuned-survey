@@ -37,15 +37,17 @@ def test_user_endpoints():
             
             # Test POST /users (create user)
             user_data = {
-                'username': 'testuser',
-                'email': 'test@example.com'
+                'id': '550e8400-e29b-41d4-a716-446655440001',
+                'display_name': 'testuser',
+                'email': 'test@example.com',
+                'auth_provider': 'email'
             }
             response = client.post('/users', 
                                  data=json.dumps(user_data),
                                  content_type='application/json')
             assert response.status_code == 201
             data = json.loads(response.data)
-            assert data['username'] == 'testuser'
+            assert data['display_name'] == 'testuser'
             assert data['email'] == 'test@example.com'
             assert 'id' in data
             user_id = data['id']
@@ -56,20 +58,20 @@ def test_user_endpoints():
             assert response.status_code == 200
             data = json.loads(response.data)
             assert len(data) == 1
-            assert data[0]['username'] == 'testuser'
+            assert data[0]['display_name'] == 'testuser'
             print("✓ GET /users returns user list")
             
             # Test GET /users/<id> (get single user)
             response = client.get(f'/users/{user_id}')
             assert response.status_code == 200
             data = json.loads(response.data)
-            assert data['username'] == 'testuser'
+            assert data['display_name'] == 'testuser'
             assert data['email'] == 'test@example.com'
             print("✓ GET /users/<id> returns single user")
             
             # Test PUT /users/<id> (update user)
             update_data = {
-                'username': 'updateduser',
+                'display_name': 'updateduser',
                 'email': 'updated@example.com'
             }
             response = client.put(f'/users/{user_id}',
@@ -77,7 +79,7 @@ def test_user_endpoints():
                                 content_type='application/json')
             assert response.status_code == 200
             data = json.loads(response.data)
-            assert data['username'] == 'updateduser'
+            assert data['display_name'] == 'updateduser'
             assert data['email'] == 'updated@example.com'
             print("✓ PUT /users/<id> updates user")
             
@@ -108,23 +110,25 @@ def test_user_endpoints_error_handling():
             User.query.delete()
             db.session.commit()
             
-            # Test POST /users with invalid data (missing fields)
-            invalid_data = {'username': 'testuser'}  # missing email
+            # Test POST /users with invalid data (missing email)
+            invalid_data = {'display_name': 'testuser'}  # missing email and id
             response = client.post('/users',
                                  data=json.dumps(invalid_data),
                                  content_type='application/json')
-            # Should handle gracefully (either 400 or create with defaults)
+            # Should return 400 (email required)
+            assert response.status_code == 400
             print(f"✓ POST /users handles invalid data (status: {response.status_code})")
             
-            # Test PUT /users/<id> with non-existent user
-            response = client.put('/users/99999',
-                                data=json.dumps({'username': 'test'}),
+            # Test PUT /users/<id> with non-existent user (UUID)
+            fake_uuid = '550e8400-e29b-41d4-a716-446655449999'
+            response = client.put(f'/users/{fake_uuid}',
+                                data=json.dumps({'display_name': 'test'}),
                                 content_type='application/json')
             assert response.status_code == 404
             print("✓ PUT /users/<id> returns 404 for non-existent user")
             
             # Test DELETE /users/<id> with non-existent user
-            response = client.delete('/users/99999')
+            response = client.delete(f'/users/{fake_uuid}')
             assert response.status_code == 404
             print("✓ DELETE /users/<id> returns 404 for non-existent user")
 
@@ -151,8 +155,10 @@ def test_user_endpoints_with_existing_data():
             
             # Create a user
             user_data = {
-                'username': 'testuser2',
-                'email': 'test2@example.com'
+                'id': '550e8400-e29b-41d4-a716-446655440002',
+                'display_name': 'testuser2',
+                'email': 'test2@example.com',
+                'auth_provider': 'email'
             }
             response = client.post('/users',
                                  data=json.dumps(user_data),

@@ -57,12 +57,16 @@ def test_user_model_with_app_context():
         print(f"✓ User.query works - found {len(users)} users")
         
         # Test creating a user
-        test_user = User(username='testuser', email='test@example.com')
+        test_user = User(
+            id='550e8400-e29b-41d4-a716-446655440099',
+            email='test@example.com',
+            display_name='testuser'
+        )
         db.session.add(test_user)
         db.session.commit()
         
         # Verify user was created
-        created_user = User.query.filter_by(username='testuser').first()
+        created_user = User.query.filter_by(display_name='testuser').first()
         assert created_user is not None
         assert created_user.email == 'test@example.com'
         print("✓ User creation works")
@@ -84,9 +88,13 @@ def test_user_model_with_app_context():
         print("✓ User deletion works")
         
         # Test to_dict method
-        test_user2 = User(username='testuser2', email='test2@example.com')
+        test_user2 = User(
+            id='550e8400-e29b-41d4-a716-446655440098',
+            email='test2@example.com',
+            display_name='testuser2'
+        )
         user_dict = test_user2.to_dict()
-        assert user_dict['username'] == 'testuser2'
+        assert user_dict['display_name'] == 'testuser2'
         assert user_dict['email'] == 'test2@example.com'
         assert 'id' in user_dict
         print("✓ User.to_dict() works")
