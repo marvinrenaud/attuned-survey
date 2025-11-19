@@ -1,5 +1,6 @@
 """Profile model - links to survey submissions and stores derived profile data."""
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from ..extensions import db
 
 
@@ -8,6 +9,9 @@ class Profile(db.Model):
     __tablename__ = "profiles"
     
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Link to authenticated user (NEW - Migration 003)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
     
     # Link to survey submission
     submission_id = db.Column(
@@ -18,8 +22,14 @@ class Profile(db.Model):
         index=True
     )
     
+    # Anonymous support (NEW - Migration 003)
+    is_anonymous = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    anonymous_session_id = db.Column(db.String(255), nullable=True, index=True)
+    last_accessed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
     # Profile metadata
     profile_version = db.Column(db.String(16), default="0.4", nullable=False)
+    survey_version = db.Column(db.String(16), default="0.4", nullable=False)  # NEW - Migration 003
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
@@ -47,10 +57,15 @@ class Profile(db.Model):
         """Convert profile to dictionary format."""
         return {
             'id': self.id,
+            'user_id': str(self.user_id) if self.user_id else None,
             'submission_id': self.submission_id,
+            'is_anonymous': self.is_anonymous,
+            'anonymous_session_id': self.anonymous_session_id,
             'profile_version': self.profile_version,
+            'survey_version': self.survey_version,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
+            'last_accessed_at': self.last_accessed_at.isoformat() if self.last_accessed_at else None,
             'power_dynamic': self.power_dynamic,
             'arousal_propensity': self.arousal_propensity,
             'domain_scores': self.domain_scores,
