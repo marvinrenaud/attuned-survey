@@ -42,8 +42,8 @@ python run_backend.py
 **WHAT TO EXPECT:**
 You'll see output like:
 ```
- * Running on http://127.0.0.1:5000
- * Running on http://localhost:5000
+🚀 Starting Attuned Survey Backend...
+📍 Server will be available at: http://localhost:5001
 ```
 
 **IMPORTANT:** Leave this terminal window open! The backend needs to keep running.
@@ -66,7 +66,7 @@ On Mac:
 
 **COMMAND TO TYPE (all one line, or copy/paste):**
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:5001/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "id": "550e8400-e29b-41d4-a716-111111111111",
@@ -80,6 +80,8 @@ curl -X POST http://localhost:5000/api/auth/register \
     }
   }'
 ```
+
+**NOTE:** Port is 5001 (not 5000) when using run_backend.py
 
 **WHAT TO EXPECT:**
 You should see a response like:
@@ -475,7 +477,7 @@ Scroll to the bottom of `UAT_TEST_CASES.md` (around line 580) and fill in the ta
 1. Download Postman (free): https://www.postman.com/downloads/
 2. Create new request:
    - Method: POST
-   - URL: http://localhost:5000/api/auth/register
+   - URL: http://localhost:5001/api/auth/register
    - Headers: Content-Type = application/json
    - Body → raw → JSON:
    ```json
