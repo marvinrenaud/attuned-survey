@@ -631,6 +631,73 @@ WHERE email = 'no-demo-user@example.com';
 
 ---
 
+## UAT-012: Anatomy Boolean Fields
+**Priority:** HIGH  
+**Objective:** Verify anatomy stored as booleans and gates work correctly
+
+### Steps:
+1. Create user with anatomy booleans:
+```sql
+INSERT INTO users (id, email, display_name, profile_completed,
+                   has_penis, has_vagina, has_breasts,
+                   likes_penis, likes_vagina, likes_breasts)
+VALUES (
+  gen_random_uuid(),
+  'anatomy-bool-test@example.com',
+  'Anatomy Test User',
+  true,
+  true, false, false,  -- Has penis
+  false, true, true    -- Likes vagina + breasts
+);
+```
+
+2. Verify anatomy stored correctly:
+```sql
+SELECT email, has_penis, has_vagina, has_breasts, 
+       likes_penis, likes_vagina, likes_breasts
+FROM users
+WHERE email = 'anatomy-bool-test@example.com';
+-- Should show: has_penis=true, likes_vagina=true, likes_breasts=true
+```
+
+3. Test constraint enforcement (should fail):
+```sql
+-- Try to set profile_completed=true without anatomy
+UPDATE users
+SET profile_completed = true,
+    has_penis = false,
+    has_vagina = false,
+    has_breasts = false
+WHERE email = 'anatomy-bool-test@example.com';
+-- Should fail with constraint violation
+```
+
+4. Test helper methods:
+```python
+from backend.src.models.user import User
+user = User.query.filter_by(email='anatomy-bool-test@example.com').first()
+
+anatomy_self = user.get_anatomy_self_array()
+# Should return: ['penis']
+
+anatomy_pref = user.get_anatomy_preference_array()
+# Should return: ['vagina', 'breasts']
+```
+
+### Expected Results:
+- ✅ Boolean columns store anatomy correctly
+- ✅ Constraints enforce at least one selection
+- ✅ Helper methods convert to arrays correctly
+- ✅ FlutterFlow can bind to boolean fields
+
+### Pass Criteria:
+- [ ] Anatomy booleans set correctly via SQL
+- [ ] Constraints prevent invalid states
+- [ ] Helper methods return correct arrays
+- [ ] profile_completed gate works with anatomy
+
+---
+
 ## Test Execution Summary
 
 ### Pre-Flight Checklist

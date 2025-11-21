@@ -214,49 +214,89 @@ def delete_user(user_id):
 def complete_demographics(user_id):
     """
     Mark demographics as complete (FR-04).
-    Required fields: name, anatomy_self, anatomy_preference
     
-    This gates game access - users must complete demographics before playing.
+    Accepts EITHER boolean format (preferred) OR array format (backward compat).
     
-    Expected payload:
+    New format (booleans):
     {
         "name": "Display Name",
-        "anatomy_self": ["penis", "vagina", "breasts"],
-        "anatomy_preference": ["penis", "vagina", "breasts"],
+        "has_penis": true,
+        "has_vagina": false,
+        "has_breasts": true,
+        "likes_penis": true,
+        "likes_vagina": true,
+        "likes_breasts": false,
         "gender": "woman" (optional),
         "sexual_orientation": "bisexual" (optional),
         "relationship_structure": "open" (optional)
+    }
+    
+    Old format (arrays - backward compatible):
+    {
+        "name": "Display Name",
+        "anatomy_self": ["penis", "vagina"],
+        "anatomy_preference": ["breasts"]
     }
     """
     try:
         data = request.get_json()
         
-        # Validate required fields
-        required_fields = ['name', 'anatomy_self', 'anatomy_preference']
-        missing_fields = [f for f in required_fields if f not in data]
-        
-        if missing_fields:
-            return jsonify({
-                'error': f'Missing required fields: {", ".join(missing_fields)}'
-            }), 400
-        
-        # Validate anatomy is array
-        if not isinstance(data['anatomy_self'], list) or not isinstance(data['anatomy_preference'], list):
-            return jsonify({'error': 'anatomy_self and anatomy_preference must be arrays'}), 400
+        # Validate name is present
+        if 'name' not in data:
+            return jsonify({'error': 'Missing required field: name'}), 400
         
         user = User.query.filter_by(id=user_id).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
-        # Update user with demographics
+        # Update user name
         user.display_name = data['name']
+        
+        # Handle EITHER boolean format OR array format
+        if 'has_penis' in data or 'likes_penis' in data:
+            # New boolean format
+            user.has_penis = data.get('has_penis', False)
+            user.has_vagina = data.get('has_vagina', False)
+            user.has_breasts = data.get('has_breasts', False)
+            user.likes_penis = data.get('likes_penis', False)
+            user.likes_vagina = data.get('likes_vagina', False)
+            user.likes_breasts = data.get('likes_breasts', False)
+            
+        elif 'anatomy_self' in data or 'anatomy_preference' in data:
+            # Old array format - convert to booleans
+            anatomy_self = data.get('anatomy_self', [])
+            anatomy_pref = data.get('anatomy_preference', [])
+            
+            user.has_penis = 'penis' in anatomy_self
+            user.has_vagina = 'vagina' in anatomy_self
+            user.has_breasts = 'breasts' in anatomy_self
+            user.likes_penis = 'penis' in anatomy_pref
+            user.likes_vagina = 'vagina' in anatomy_pref
+            user.likes_breasts = 'breasts' in anatomy_pref
+            
+            # Also store in demographics for backward compat
+            updated_demographics = {
+                **user.demographics,
+                'anatomy_self': anatomy_self,
+                'anatomy_preference': anatomy_pref
+            }
+        else:
+            return jsonify({'error': 'Missing anatomy fields (either booleans or arrays)'}), 400
+        
+        # Validate at least one "has" selected
+        if not (user.has_penis or user.has_vagina or user.has_breasts):
+            return jsonify({'error': 'Must select at least one anatomy option (what you have)'}), 400
+        
+        # Validate at least one "likes" selected
+        if not (user.likes_penis or user.likes_vagina or user.likes_breasts):
+            return jsonify({'error': 'Must select at least one anatomy preference (what you like)'}), 400
         
         # Build demographics object (merge with existing)
         updated_demographics = {
             **user.demographics,
-            'anatomy_self': data['anatomy_self'],
-            'anatomy_preference': data['anatomy_preference']
+            'anatomy_self': user.get_anatomy_self_array(),  # Keep in sync
+            'anatomy_preference': user.get_anatomy_preference_array()
         }
         
         # Add optional demographics
@@ -279,7 +319,18 @@ def complete_demographics(user_id):
             'profile_completed': True,
             'onboarding_completed': user.onboarding_completed,
             'can_play': True,
-            'has_personalization': user.onboarding_completed
+            'has_personalization': user.onboarding_completed,
+            # Return both formats for compatibility
+            'anatomy': {
+                'has_penis': user.has_penis,
+                'has_vagina': user.has_vagina,
+                'has_breasts': user.has_breasts,
+                'likes_penis': user.likes_penis,
+                'likes_vagina': user.likes_vagina,
+                'likes_breasts': user.likes_breasts,
+                'anatomy_self': user.get_anatomy_self_array(),
+                'anatomy_preference': user.get_anatomy_preference_array()
+            }
         }), 200
         
     except Exception as e:

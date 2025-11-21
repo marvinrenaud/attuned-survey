@@ -10,6 +10,7 @@ from ..models.activity import Activity
 from ..models.session_activity import SessionActivity
 from ..models.compatibility import Compatibility
 from ..models.survey import SurveySubmission
+from ..models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,48 @@ logger = logging.getLogger(__name__)
 # ==============================================================================
 # Profile Operations
 # ==============================================================================
+
+def sync_user_anatomy_to_profile(user_id: str) -> bool:
+    """
+    Sync anatomy booleans from users table to profiles.anatomy JSONB.
+    
+    Called whenever:
+    - Profile is created
+    - User updates anatomy
+    - Survey is completed
+    
+    Args:
+        user_id: User UUID
+    
+    Returns:
+        True if sync successful, False if user or profile not found
+    """
+    try:
+        user = User.query.filter_by(id=user_id).first()
+        profile = Profile.query.filter_by(user_id=user_id).first()
+        
+        if not user:
+            logger.warning(f"User not found for anatomy sync: {user_id}")
+            return False
+        
+        if not profile:
+            logger.info(f"No profile found for user {user_id} - will sync when profile created")
+            return False
+        
+        # Sync anatomy from user booleans to profile JSONB
+        profile.anatomy = {
+            'anatomy_self': user.get_anatomy_self_array(),
+            'anatomy_preference': user.get_anatomy_preference_array()
+        }
+        
+        db.session.commit()
+        logger.info(f"Synced anatomy for user {user_id} to profile {profile.id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to sync anatomy for user {user_id}: {e}")
+        db.session.rollback()
+        return False
 
 def get_or_create_profile(submission_id: str) -> Profile:
     """

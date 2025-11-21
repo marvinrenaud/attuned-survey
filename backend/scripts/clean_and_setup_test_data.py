@@ -81,6 +81,8 @@ def create_test_users_sql(app):
                     subscription_tier, daily_activity_count,
                     demographics, profile_sharing_setting,
                     notification_preferences, profile_completed, onboarding_completed,
+                    has_penis, has_vagina, has_breasts,
+                    likes_penis, likes_vagina, likes_breasts,
                     last_login_at, daily_activity_reset_at
                 ) VALUES
                 (
@@ -90,11 +92,13 @@ def create_test_users_sql(app):
                     'email',
                     'premium',
                     0,
-                    '{"gender": "woman", "sexual_orientation": "bisexual", "relationship_structure": "open", "anatomy_self": ["vagina", "breasts"], "anatomy_preference": ["penis", "vagina"]}'::jsonb,
+                    '{"gender": "woman", "sexual_orientation": "bisexual", "relationship_structure": "open"}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
                     true,
                     true,
+                    false, true, true,  -- Alice has: vagina, breasts
+                    true, true, false,  -- Alice likes: penis, vagina
                     NOW(),
                     NOW()
                 ),
@@ -105,11 +109,13 @@ def create_test_users_sql(app):
                     'google',
                     'free',
                     20,
-                    '{"gender": "man", "sexual_orientation": "straight", "relationship_structure": "monogamous", "anatomy_self": ["penis"], "anatomy_preference": ["vagina", "breasts"]}'::jsonb,
+                    '{"gender": "man", "sexual_orientation": "straight", "relationship_structure": "monogamous"}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
                     true,
                     true,
+                    true, false, false,  -- Bob has: penis
+                    false, true, true,   -- Bob likes: vagina, breasts
                     NOW(),
                     NOW()
                 ),
@@ -120,11 +126,13 @@ def create_test_users_sql(app):
                     'apple',
                     'free',
                     0,
-                    '{"gender": "non-binary", "sexual_orientation": "bisexual", "relationship_structure": "rather_not_say", "anatomy_self": ["penis", "breasts"], "anatomy_preference": ["penis", "vagina", "breasts"]}'::jsonb,
+                    '{"gender": "non-binary", "sexual_orientation": "bisexual", "relationship_structure": "rather_not_say"}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
                     true,
                     true,
+                    true, false, true,  -- Charlie has: penis, breasts
+                    true, true, true,   -- Charlie likes: all
                     NOW(),
                     NOW()
                 ),
@@ -135,11 +143,13 @@ def create_test_users_sql(app):
                     'facebook',
                     'free',
                     25,
-                    '{"gender": "woman", "sexual_orientation": "gay", "relationship_structure": "monogamous", "anatomy_self": ["vagina"], "anatomy_preference": ["vagina"]}'::jsonb,
+                    '{"gender": "woman", "sexual_orientation": "gay", "relationship_structure": "monogamous"}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
                     true,
                     true,
+                    false, true, false,  -- Diana has: vagina
+                    false, true, false,  -- Diana likes: vagina
                     NOW(),
                     NOW()
                 ),
@@ -155,6 +165,8 @@ def create_test_users_sql(app):
                     '{}'::jsonb,
                     false,
                     false,
+                    false, false, false,  -- Eve has: none (incomplete)
+                    false, false, false,  -- Eve likes: none (incomplete)
                     NOW(),
                     NOW()
                 );

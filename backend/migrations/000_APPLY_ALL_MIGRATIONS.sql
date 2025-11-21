@@ -446,6 +446,54 @@ COMMENT ON COLUMN users.onboarding_completed IS
 -- Migration 009 complete ✓
 
 -- ============================================================================
+-- MIGRATION 010: Add Anatomy Boolean Fields
+-- ============================================================================
+
+-- Running Migration 010: Anatomy Booleans...
+
+-- Add anatomy boolean columns
+ALTER TABLE users ADD COLUMN IF NOT EXISTS has_penis BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS has_vagina BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS has_breasts BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_penis BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_vagina BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_breasts BOOLEAN NOT NULL DEFAULT false;
+
+-- Add partial indexes
+CREATE INDEX IF NOT EXISTS idx_users_has_penis ON users(has_penis) WHERE has_penis = true;
+CREATE INDEX IF NOT EXISTS idx_users_has_vagina ON users(has_vagina) WHERE has_vagina = true;
+CREATE INDEX IF NOT EXISTS idx_users_has_breasts ON users(has_breasts) WHERE has_breasts = true;
+CREATE INDEX IF NOT EXISTS idx_users_likes_penis ON users(likes_penis) WHERE likes_penis = true;
+CREATE INDEX IF NOT EXISTS idx_users_likes_vagina ON users(likes_vagina) WHERE likes_vagina = true;
+CREATE INDEX IF NOT EXISTS idx_users_likes_breasts ON users(likes_breasts) WHERE likes_breasts = true;
+
+-- Add constraints
+DO $$ BEGIN
+    ALTER TABLE users ADD CONSTRAINT chk_anatomy_self_required
+      CHECK (has_penis = true OR has_vagina = true OR has_breasts = true OR profile_completed = false);
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    ALTER TABLE users ADD CONSTRAINT chk_anatomy_preference_required
+      CHECK (likes_penis = true OR likes_vagina = true OR likes_breasts = true OR profile_completed = false);
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+-- Migrate existing anatomy data
+UPDATE users
+SET 
+  has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
+  has_vagina = (demographics->'anatomy_self' @> '["vagina"]'::jsonb),
+  has_breasts = (demographics->'anatomy_self' @> '["breasts"]'::jsonb),
+  likes_penis = (demographics->'anatomy_preference' @> '["penis"]'::jsonb),
+  likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
+  likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
+WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
+
+-- Migration 010 complete ✓
+
+-- ============================================================================
 -- MIGRATION COMPLETE
 -- ============================================================================
 

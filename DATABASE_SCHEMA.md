@@ -32,6 +32,14 @@
 | auth_provider | auth_provider_enum | NOT NULL, DEFAULT 'email' | email, google, apple, facebook |
 | display_name | TEXT | NULL | User's display name |
 | demographics | JSONB | NOT NULL, DEFAULT '{}' | {gender, orientation, relationship_structure} |
+| **Anatomy - What User Has (NEW - Migration 010)** ||||
+| has_penis | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User has penis anatomy |
+| has_vagina | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User has vagina anatomy |
+| has_breasts | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User has breasts anatomy |
+| **Anatomy - What User Likes (NEW - Migration 010)** ||||
+| likes_penis | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User likes penis in partners |
+| likes_vagina | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User likes vagina in partners |
+| likes_breasts | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User likes breasts in partners |
 | subscription_tier | subscription_tier_enum | NOT NULL, DEFAULT 'free' | free, premium |
 | subscription_expires_at | TIMESTAMPTZ | NULL | Subscription expiry date |
 | daily_activity_count | INTEGER | NOT NULL, DEFAULT 0 | Activities used today (for free tier) |
@@ -49,6 +57,12 @@
 - `idx_users_email` on (email)
 - `idx_users_subscription_tier` on (subscription_tier)
 - `idx_users_profile_completed` on (profile_completed)
+- `idx_users_has_penis` on (has_penis) WHERE has_penis = true (partial)
+- `idx_users_has_vagina` on (has_vagina) WHERE has_vagina = true (partial)
+- `idx_users_has_breasts` on (has_breasts) WHERE has_breasts = true (partial)
+- `idx_users_likes_penis` on (likes_penis) WHERE likes_penis = true (partial)
+- `idx_users_likes_vagina` on (likes_vagina) WHERE likes_vagina = true (partial)
+- `idx_users_likes_breasts` on (likes_breasts) WHERE likes_breasts = true (partial)
 
 **Triggers:**
 - `update_users_updated_at` - Auto-updates updated_at on changes
@@ -62,9 +76,32 @@
 | Full Onboarding | TRUE | TRUE | ✅ YES | ✅ YES (personalized) | Play with full features |
 
 **Business Logic:**
-- **Can play?** → `profile_completed = TRUE` required
+- **Can play?** → `profile_completed = TRUE` required (needs name + anatomy)
 - **Get personalized activities?** → `onboarding_completed = TRUE` required  
 - **Survey is optional** → Users can play without it (generic activities)
+
+**Anatomy Logic:**
+- Stored as 6 booleans in users table (FlutterFlow-friendly)
+- Synced to profiles.anatomy JSONB for activity generation
+- At least one "has" and one "likes" required when profile_completed=true
+- Constraints: `chk_anatomy_self_required`, `chk_anatomy_preference_required`
+
+**Example Queries:**
+```sql
+-- Find users with penis who like vagina
+SELECT * FROM users WHERE has_penis = true AND likes_vagina = true;
+
+-- Find users open to all anatomy
+SELECT * FROM users WHERE likes_penis = true AND likes_vagina = true AND likes_breasts = true;
+
+-- Get user's anatomy as arrays
+SELECT 
+  email,
+  ARRAY(SELECT unnest(ARRAY['penis']) WHERE has_penis) ||
+  ARRAY(SELECT unnest(ARRAY['vagina']) WHERE has_vagina) ||
+  ARRAY(SELECT unnest(ARRAY['breasts']) WHERE has_breasts) AS anatomy_self
+FROM users;
+```
 
 ---
 

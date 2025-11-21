@@ -19,6 +19,16 @@ class User(db.Model):
     display_name = db.Column(db.String(255))
     demographics = db.Column(JSONB, nullable=False, default=dict)  # {gender, orientation, relationship_structure}
     
+    # Anatomy - What user has (NEW - Migration 010)
+    has_penis = db.Column(db.Boolean, nullable=False, default=False)
+    has_vagina = db.Column(db.Boolean, nullable=False, default=False)
+    has_breasts = db.Column(db.Boolean, nullable=False, default=False)
+    
+    # Anatomy - What user likes in partners (NEW - Migration 010)
+    likes_penis = db.Column(db.Boolean, nullable=False, default=False)
+    likes_vagina = db.Column(db.Boolean, nullable=False, default=False)
+    likes_breasts = db.Column(db.Boolean, nullable=False, default=False)
+    
     # Subscription
     subscription_tier = db.Column(db.String(20), nullable=False, default='free')  # free, premium
     subscription_expires_at = db.Column(db.DateTime)
@@ -41,6 +51,28 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.email}>'
+    
+    def get_anatomy_self_array(self):
+        """Convert has_* booleans to array for backward compatibility."""
+        anatomy = []
+        if self.has_penis:
+            anatomy.append('penis')
+        if self.has_vagina:
+            anatomy.append('vagina')
+        if self.has_breasts:
+            anatomy.append('breasts')
+        return anatomy
+    
+    def get_anatomy_preference_array(self):
+        """Convert likes_* booleans to array for backward compatibility."""
+        anatomy = []
+        if self.likes_penis:
+            anatomy.append('penis')
+        if self.likes_vagina:
+            anatomy.append('vagina')
+        if self.likes_breasts:
+            anatomy.append('breasts')
+        return anatomy
 
     def to_dict(self):
         return {
@@ -49,6 +81,14 @@ class User(db.Model):
             'auth_provider': self.auth_provider,
             'display_name': self.display_name,
             'demographics': self.demographics,
+            'has_penis': self.has_penis,
+            'has_vagina': self.has_vagina,
+            'has_breasts': self.has_breasts,
+            'likes_penis': self.likes_penis,
+            'likes_vagina': self.likes_vagina,
+            'likes_breasts': self.likes_breasts,
+            'anatomy_self': self.get_anatomy_self_array(),  # Computed for backward compat
+            'anatomy_preference': self.get_anatomy_preference_array(),  # Computed for backward compat
             'subscription_tier': self.subscription_tier,
             'subscription_expires_at': self.subscription_expires_at.isoformat() if self.subscription_expires_at else None,
             'daily_activity_count': self.daily_activity_count,
