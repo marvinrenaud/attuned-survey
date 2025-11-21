@@ -19,8 +19,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_breasts BOOLEAN NOT NULL DEFAUL
 -- Migrate Existing Data FIRST (Before Constraints)
 -- ============================================================================
 
--- Extract anatomy from demographics JSONB and set boolean flags
--- THIS MUST HAPPEN BEFORE CONSTRAINTS ARE ADDED
+-- Step 1: Extract anatomy from demographics JSONB (if present)
 UPDATE users
 SET 
   has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
@@ -30,6 +29,15 @@ SET
   likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
   likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
 WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
+
+-- Step 2: Handle users with profile_completed=true but NO anatomy data
+-- Set profile_completed=false for them (they need to complete profile again)
+UPDATE users
+SET profile_completed = false
+WHERE profile_completed = true
+AND has_penis = false 
+AND has_vagina = false 
+AND has_breasts = false;
 
 -- ============================================================================
 -- Add Partial Indexes (After Data Migration)
