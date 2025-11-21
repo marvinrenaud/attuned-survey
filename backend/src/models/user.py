@@ -30,7 +30,8 @@ class User(db.Model):
     notification_preferences = db.Column(JSONB, nullable=False, default=dict)
     
     # Status
-    onboarding_completed = db.Column(db.Boolean, nullable=False, default=False)
+    demographics_completed = db.Column(db.Boolean, nullable=False, default=False, index=True)  # NEW: Can user play?
+    onboarding_completed = db.Column(db.Boolean, nullable=False, default=False)  # Survey completed?
     last_login_at = db.Column(db.DateTime)
     oauth_metadata = db.Column(JSONB)
     
@@ -54,6 +55,7 @@ class User(db.Model):
             'daily_activity_reset_at': self.daily_activity_reset_at.isoformat() if self.daily_activity_reset_at else None,
             'profile_sharing_setting': self.profile_sharing_setting,
             'notification_preferences': self.notification_preferences,
+            'demographics_completed': self.demographics_completed,
             'onboarding_completed': self.onboarding_completed,
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,

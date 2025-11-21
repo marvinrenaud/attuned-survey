@@ -210,6 +210,84 @@ def delete_user(user_id):
         return jsonify({'error': 'Deletion failed'}), 500
 
 
+@auth_bp.route('/user/<user_id>/complete-demographics', methods=['POST'])
+def complete_demographics(user_id):
+    """
+    Mark demographics as complete (FR-04).
+    Required fields: name, anatomy_self, anatomy_preference
+    
+    This gates game access - users must complete demographics before playing.
+    
+    Expected payload:
+    {
+        "name": "Display Name",
+        "anatomy_self": ["penis", "vagina", "breasts"],
+        "anatomy_preference": ["penis", "vagina", "breasts"],
+        "gender": "woman" (optional),
+        "sexual_orientation": "bisexual" (optional),
+        "relationship_structure": "open" (optional)
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'anatomy_self', 'anatomy_preference']
+        missing_fields = [f for f in required_fields if f not in data]
+        
+        if missing_fields:
+            return jsonify({
+                'error': f'Missing required fields: {", ".join(missing_fields)}'
+            }), 400
+        
+        # Validate anatomy is array
+        if not isinstance(data['anatomy_self'], list) or not isinstance(data['anatomy_preference'], list):
+            return jsonify({'error': 'anatomy_self and anatomy_preference must be arrays'}), 400
+        
+        user = User.query.filter_by(id=user_id).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Update user with demographics
+        user.display_name = data['name']
+        
+        # Build demographics object (merge with existing)
+        updated_demographics = {
+            **user.demographics,
+            'anatomy_self': data['anatomy_self'],
+            'anatomy_preference': data['anatomy_preference']
+        }
+        
+        # Add optional demographics
+        if 'gender' in data:
+            updated_demographics['gender'] = data['gender']
+        if 'sexual_orientation' in data:
+            updated_demographics['sexual_orientation'] = data['sexual_orientation']
+        if 'relationship_structure' in data:
+            updated_demographics['relationship_structure'] = data['relationship_structure']
+        
+        user.demographics = updated_demographics
+        user.demographics_completed = True
+        
+        db.session.commit()
+        
+        current_app.logger.info(f"Demographics completed for user: {user.email}")
+        
+        return jsonify({
+            'success': True,
+            'demographics_completed': True,
+            'onboarding_completed': user.onboarding_completed,
+            'can_play': True,
+            'has_personalization': user.onboarding_completed
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Complete demographics failed: {str(e)}")
+        return jsonify({'error': 'Failed to complete demographics'}), 500
+
+
 @auth_bp.route('/validate-token', methods=['POST'])
 def validate_token():
     """

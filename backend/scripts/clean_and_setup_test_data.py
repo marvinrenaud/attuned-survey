@@ -80,7 +80,7 @@ def create_test_users_sql(app):
                     id, email, display_name, auth_provider, 
                     subscription_tier, daily_activity_count,
                     demographics, profile_sharing_setting,
-                    notification_preferences, onboarding_completed,
+                    notification_preferences, demographics_completed, onboarding_completed,
                     last_login_at, daily_activity_reset_at
                 ) VALUES
                 (
@@ -90,9 +90,10 @@ def create_test_users_sql(app):
                     'email',
                     'premium',
                     0,
-                    '{"gender": "woman", "sexual_orientation": "bisexual", "relationship_structure": "open"}'::jsonb,
+                    '{"gender": "woman", "sexual_orientation": "bisexual", "relationship_structure": "open", "anatomy_self": ["vagina", "breasts"], "anatomy_preference": ["penis", "vagina"]}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
+                    true,
                     true,
                     NOW(),
                     NOW()
@@ -104,9 +105,10 @@ def create_test_users_sql(app):
                     'google',
                     'free',
                     20,
-                    '{"gender": "man", "sexual_orientation": "straight", "relationship_structure": "monogamous"}'::jsonb,
+                    '{"gender": "man", "sexual_orientation": "straight", "relationship_structure": "monogamous", "anatomy_self": ["penis"], "anatomy_preference": ["vagina", "breasts"]}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
+                    true,
                     true,
                     NOW(),
                     NOW()
@@ -118,9 +120,10 @@ def create_test_users_sql(app):
                     'apple',
                     'free',
                     0,
-                    '{"gender": "non-binary", "sexual_orientation": "bisexual", "relationship_structure": "rather_not_say"}'::jsonb,
+                    '{"gender": "non-binary", "sexual_orientation": "bisexual", "relationship_structure": "rather_not_say", "anatomy_self": ["penis", "breasts"], "anatomy_preference": ["penis", "vagina", "breasts"]}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
+                    true,
                     true,
                     NOW(),
                     NOW()
@@ -132,9 +135,10 @@ def create_test_users_sql(app):
                     'facebook',
                     'free',
                     25,
-                    '{"gender": "woman", "sexual_orientation": "gay", "relationship_structure": "monogamous"}'::jsonb,
+                    '{"gender": "woman", "sexual_orientation": "gay", "relationship_structure": "monogamous", "anatomy_self": ["vagina"], "anatomy_preference": ["vagina"]}'::jsonb,
                     'overlapping_only',
                     '{}'::jsonb,
+                    true,
                     true,
                     NOW(),
                     NOW()
@@ -150,6 +154,7 @@ def create_test_users_sql(app):
                     'overlapping_only',
                     '{}'::jsonb,
                     false,
+                    false,
                     NOW(),
                     NOW()
                 );
@@ -157,11 +162,11 @@ def create_test_users_sql(app):
             
             db.session.commit()
             
-            print("   Created: Alice (Premium, Top)")
-            print("   Created: Bob (Free near limit, Bottom)")
-            print("   Created: Charlie (Free, Switch)")
-            print("   Created: Diana (Free at limit)")
-            print("   Created: Eve (Incomplete onboarding)")
+            print("   Created: Alice (Premium, demographics + survey complete)")
+            print("   Created: Bob (Free near limit, demographics + survey complete)")
+            print("   Created: Charlie (Free, demographics + survey complete)")
+            print("   Created: Diana (Free at limit, demographics + survey complete)")
+            print("   Created: Eve (New user, no demographics or survey)")
             print("✅ Created 5 test users")
             
         except Exception as e:
@@ -183,15 +188,19 @@ def verify_test_data(app):
         
         # Show user details
         result = db.session.execute(db.text("""
-            SELECT email, display_name, subscription_tier, daily_activity_count 
+            SELECT email, display_name, subscription_tier, demographics_completed, onboarding_completed
             FROM users 
             WHERE email LIKE '%@test.com'
             ORDER BY email
         """))
         
         print("\n   Test user details:")
+        print(f"     {'Email':<20} | {'Name':<25} | {'Tier':<10} | Demographics | Survey")
+        print("     " + "-" * 85)
         for row in result:
-            print(f"     - {row[0]:<20} | {row[1]:<25} | {row[2]:<10} | {row[3]} activities")
+            demo_status = '✅' if row[3] else '❌'
+            survey_status = '✅' if row[4] else '❌'
+            print(f"     {row[0]:<20} | {row[1]:<25} | {row[2]:<10} | {demo_status:<12} | {survey_status}")
 
 
 def main():

@@ -566,6 +566,71 @@ curl http://localhost:5000/api/profile-sharing/partner-profile/ALICE_ID/CHARLIE_
 
 ---
 
+## UAT-011: Demographics Completion Gate
+**Priority:** HIGH  
+**Objective:** Verify users must complete demographics before playing
+
+### Steps:
+1. Create user without demographics:
+```sql
+INSERT INTO users (id, email, display_name, demographics_completed, onboarding_completed)
+VALUES (
+  gen_random_uuid(),
+  'no-demo-user@example.com',
+  NULL,
+  false,
+  false
+);
+```
+
+2. Verify user state:
+```sql
+SELECT email, display_name, demographics_completed, onboarding_completed
+FROM users
+WHERE email = 'no-demo-user@example.com';
+-- Should show: demographics_completed = false, onboarding_completed = false
+```
+
+3. Attempt to play (application logic should block):
+```
+# Application check:
+if user.demographics_completed == false:
+    # Block game access
+    # Show demographics form
+```
+
+4. Complete demographics:
+```sql
+UPDATE users 
+SET 
+  display_name = 'Demo User',
+  demographics = '{"anatomy_self": ["penis"], "anatomy_preference": ["vagina"]}'::jsonb,
+  demographics_completed = true
+WHERE email = 'no-demo-user@example.com';
+```
+
+5. Verify can now play:
+```sql
+SELECT email, demographics_completed 
+FROM users
+WHERE email = 'no-demo-user@example.com';
+-- Should show: demographics_completed = true
+```
+
+### Expected Results:
+- ✅ User without demographics has flag = FALSE
+- ✅ User with demographics has flag = TRUE
+- ✅ Application logic blocks play when FALSE
+- ✅ Application logic allows play when TRUE
+
+### Pass Criteria:
+- [ ] New user has demographics_completed = FALSE
+- [ ] Flag can be set to TRUE
+- [ ] Application logic respects the flag
+- [ ] Clear error messages when blocked
+
+---
+
 ## Test Execution Summary
 
 ### Pre-Flight Checklist
