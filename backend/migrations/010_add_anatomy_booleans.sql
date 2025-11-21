@@ -16,7 +16,23 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_vagina BOOLEAN NOT NULL DEFAULT
 ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_breasts BOOLEAN NOT NULL DEFAULT false;
 
 -- ============================================================================
--- Add Partial Indexes (Only Index TRUE Values for Performance)
+-- Migrate Existing Data FIRST (Before Constraints)
+-- ============================================================================
+
+-- Extract anatomy from demographics JSONB and set boolean flags
+-- THIS MUST HAPPEN BEFORE CONSTRAINTS ARE ADDED
+UPDATE users
+SET 
+  has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
+  has_vagina = (demographics->'anatomy_self' @> '["vagina"]'::jsonb),
+  has_breasts = (demographics->'anatomy_self' @> '["breasts"]'::jsonb),
+  likes_penis = (demographics->'anatomy_preference' @> '["penis"]'::jsonb),
+  likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
+  likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
+WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
+
+-- ============================================================================
+-- Add Partial Indexes (After Data Migration)
 -- ============================================================================
 
 CREATE INDEX IF NOT EXISTS idx_users_has_penis ON users(has_penis) WHERE has_penis = true;
@@ -27,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_users_likes_vagina ON users(likes_vagina) WHERE l
 CREATE INDEX IF NOT EXISTS idx_users_likes_breasts ON users(likes_breasts) WHERE likes_breasts = true;
 
 -- ============================================================================
--- Add Constraints (At Least One Selection Required)
+-- Add Constraints (After Data Migration)
 -- ============================================================================
 
 -- Constraint: Must select at least one "has" option (unless profile not completed)
@@ -43,21 +59,6 @@ DO $$ BEGIN
       CHECK (likes_penis = true OR likes_vagina = true OR likes_breasts = true OR profile_completed = false);
 EXCEPTION WHEN duplicate_object THEN null;
 END $$;
-
--- ============================================================================
--- Migrate Existing Data from demographics JSONB to Boolean Columns
--- ============================================================================
-
--- Extract anatomy from demographics JSONB and set boolean flags
-UPDATE users
-SET 
-  has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
-  has_vagina = (demographics->'anatomy_self' @> '["vagina"]'::jsonb),
-  has_breasts = (demographics->'anatomy_self' @> '["breasts"]'::jsonb),
-  likes_penis = (demographics->'anatomy_preference' @> '["penis"]'::jsonb),
-  likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
-  likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
-WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
 
 -- ============================================================================
 -- Add Documentation Comments
