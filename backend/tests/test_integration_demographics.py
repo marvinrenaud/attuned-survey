@@ -1,5 +1,5 @@
 """
-Integration tests for demographics_completed feature.
+Integration tests for profile_completed feature.
 Tests Phase 9 requirements from the plan.
 Tests complete end-to-end user journeys.
 """
@@ -28,7 +28,7 @@ class TestUserJourneys:
         
         # Step 2: Verify initial state (both FALSE)
         user = User.query.filter_by(id=user_id).first()
-        assert user.demographics_completed == False
+        assert user.profile_completed == False
         assert user.onboarding_completed == False
         
         # Step 3: Complete demographics
@@ -41,11 +41,11 @@ class TestUserJourneys:
         
         # Step 4: Verify demographics flag set
         user = User.query.filter_by(id=user_id).first()
-        assert user.demographics_completed == True
+        assert user.profile_completed == True
         assert user.onboarding_completed == False
         
         # Step 5: User can now create session (demographics gate passed)
-        can_play = user.demographics_completed
+        can_play = user.profile_completed
         assert can_play == True
         
         # Step 6: Activity generation would use generic (no survey)
@@ -77,7 +77,7 @@ class TestUserJourneys:
         assert response.status_code == 200
         
         user = User.query.filter_by(id=user_id).first()
-        assert user.demographics_completed == True
+        assert user.profile_completed == True
         
         # Step 3: Complete survey (simulate)
         user.onboarding_completed = True
@@ -100,11 +100,11 @@ class TestUserJourneys:
         
         # Step 4: Verify both flags TRUE
         user = User.query.filter_by(id=user_id).first()
-        assert user.demographics_completed == True
+        assert user.profile_completed == True
         assert user.onboarding_completed == True
         
         # Step 5: User can create session with personalization
-        can_play = user.demographics_completed
+        can_play = user.profile_completed
         has_personalization = user.onboarding_completed
         assert can_play == True
         assert has_personalization == True
@@ -121,11 +121,11 @@ class TestUserJourneys:
         
         if user:
             # Verify user is ready
-            assert user.demographics_completed == True
+            assert user.profile_completed == True
             assert user.onboarding_completed == True
             
             # Can immediately start game
-            can_play = user.demographics_completed
+            can_play = user.profile_completed
             has_personalization = user.onboarding_completed
             assert can_play == True
             assert has_personalization == True
@@ -142,14 +142,14 @@ class TestCrossFeatureIntegration:
         user = User(
             id=str(uuid.uuid4()),
             email='no-demo-partner@example.com',
-            demographics_completed=False
+            profile_completed=False
         )
         db_session.add(user)
         db_session.commit()
         
-        # Application logic should check demographics_completed before allowing
+        # Application logic should check profile_completed before allowing
         # partner invitation
-        can_invite_partner = user.demographics_completed
+        can_invite_partner = user.profile_completed
         assert can_invite_partner == False
     
     def test_subscription_checks_after_demographics(self, db_session):
@@ -162,13 +162,13 @@ class TestCrossFeatureIntegration:
             email='sub-check-order@example.com',
             subscription_tier='free',
             daily_activity_count=10,
-            demographics_completed=False
+            profile_completed=False
         )
         db_session.add(user)
         db_session.commit()
         
         # Check order: demographics first, then subscription
-        if not user.demographics_completed:
+        if not user.profile_completed:
             # Should block here (demographics gate)
             can_play = False
         elif user.subscription_tier == 'free' and user.daily_activity_count >= 25:

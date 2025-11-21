@@ -8,7 +8,7 @@
 
 ## Summary
 
-Successfully added `demographics_completed` field to clarify user readiness states:
+Successfully added `profile_completed` field to clarify user readiness states:
 
 1. **Demographics Complete** (name + anatomy) → Can play games
 2. **Onboarding Complete** (demographics + survey) → Get personalized recommendations
@@ -18,7 +18,7 @@ Successfully added `demographics_completed` field to clarify user readiness stat
 ## ✅ Deliverables
 
 ### Database (Migration 009)
-- ✅ Added `demographics_completed` field to users table
+- ✅ Added `profile_completed` field to users table
 - ✅ Added index for performance
 - ✅ Backfilled existing test users
 - ✅ Created rollback script
@@ -55,14 +55,14 @@ Successfully added `demographics_completed` field to clarify user readiness stat
 
 ## User States Defined
 
-| State | demographics_completed | onboarding_completed | Can Play? | Personalization? |
+| State | profile_completed | onboarding_completed | Can Play? | Personalization? |
 |-------|----------------------|---------------------|-----------|------------------|
 | Just Registered | FALSE | FALSE | ❌ NO | ❌ NO |
 | Demographics Done | TRUE | FALSE | ✅ YES | ❌ NO (generic) |
 | Full Onboarding | TRUE | TRUE | ✅ YES | ✅ YES (personalized) |
 
 **Business Logic:**
-- Gate 1: `demographics_completed = TRUE` required to play
+- Gate 1: `profile_completed = TRUE` required to play
 - Gate 2: `onboarding_completed = TRUE` required for personalization
 - Survey is optional but recommended
 
@@ -90,7 +90,7 @@ Successfully added `demographics_completed` field to clarify user readiness stat
 ```json
 {
   "success": true,
-  "demographics_completed": true,
+  "profile_completed": true,
   "onboarding_completed": false,
   "can_play": true,
   "has_personalization": false
@@ -129,7 +129,7 @@ users table: 15 columns
 ### After Migration 009
 ```
 users table: 16 columns
-- demographics_completed (can play?)
+- profile_completed (can play?)
 - onboarding_completed (has personalization?)
 ```
 
@@ -152,7 +152,7 @@ psql $DATABASE_URL -f backend/migrations/009_add_demographics_field.sql
 **1. Registration Flow**
 ```
 After Supabase Auth signup:
-→ Check: demographics_completed
+→ Check: profile_completed
 → If FALSE: Show demographics form
 → If TRUE: Continue to home/survey
 ```
@@ -169,14 +169,14 @@ Collect:
 
 On submit:
 → POST /api/auth/user/{id}/complete-demographics
-→ On success: demographics_completed = TRUE
+→ On success: profile_completed = TRUE
 → Redirect: Home or Survey prompt
 ```
 
 **3. Game Access Check**
 ```
 Before session creation:
-→ Check: user.demographics_completed
+→ Check: user.profile_completed
 → If FALSE: Block + show demographics form
 → If TRUE: Allow game access
 ```
@@ -205,7 +205,7 @@ psql $DATABASE_URL -f backend/migrations/rollback_009.sql
 ```
 
 This removes:
-- demographics_completed column
+- profile_completed column
 - Associated index
 - No data loss (other fields preserved)
 
@@ -217,7 +217,7 @@ Before deploying to production:
 
 - [ ] Migration 009 executed successfully
 - [ ] Field visible in Supabase Table Editor
-- [ ] Test users have demographics_completed=true (except Eve)
+- [ ] Test users have profile_completed=true (except Eve)
 - [ ] API endpoint POST /complete-demographics works
 - [ ] Functional tests pass (17/17)
 - [ ] Regression tests pass (9/9)

@@ -1,32 +1,32 @@
--- Migration 009: Add demographics_completed Field
--- Clarifies user readiness states: demographics (can play) vs onboarding (personalized)
+-- Migration 009: Add profile_completed Field
+-- Clarifies user readiness states: profile (can play) vs onboarding (personalized)
 
 -- ============================================================================
--- Add demographics_completed Field to Users Table
+-- Add profile_completed Field to Users Table
 -- ============================================================================
 
--- Add demographics_completed field
+-- Add profile_completed field
 ALTER TABLE users 
-  ADD COLUMN IF NOT EXISTS demographics_completed BOOLEAN NOT NULL DEFAULT false;
+  ADD COLUMN IF NOT EXISTS profile_completed BOOLEAN NOT NULL DEFAULT false;
 
 -- Add index for performance (frequently queried for game access)
-CREATE INDEX IF NOT EXISTS idx_users_demographics_completed 
-  ON users(demographics_completed);
+CREATE INDEX IF NOT EXISTS idx_users_profile_completed 
+  ON users(profile_completed);
 
 -- ============================================================================
 -- Backfill Existing Test Users
 -- ============================================================================
 
--- Update existing test users (they have demographics)
+-- Update existing test users (they have profile info)
 UPDATE users 
-SET demographics_completed = true
+SET profile_completed = true
 WHERE email LIKE '%@test.com';
 
 -- ============================================================================
 -- Add Documentation Comments
 -- ============================================================================
 
-COMMENT ON COLUMN users.demographics_completed IS 
+COMMENT ON COLUMN users.profile_completed IS 
   'TRUE when user provided name + anatomy_self + anatomy_preference (minimum to play games)';
 
 COMMENT ON COLUMN users.onboarding_completed IS 
@@ -37,17 +37,17 @@ COMMENT ON COLUMN users.onboarding_completed IS
 -- ============================================================================
 
 -- State 1: Just Registered
---   demographics_completed = FALSE, onboarding_completed = FALSE
+--   profile_completed = FALSE, onboarding_completed = FALSE
 --   Can Play: NO, Personalization: NO
---   Action: Redirect to demographics form
+--   Action: Redirect to profile form
 
--- State 2: Demographics Complete
---   demographics_completed = TRUE, onboarding_completed = FALSE
+-- State 2: Profile Complete
+--   profile_completed = TRUE, onboarding_completed = FALSE
 --   Can Play: YES (generic activities), Personalization: NO
 --   Action: Allow play, prompt for survey
 
 -- State 3: Full Onboarding Complete
---   demographics_completed = TRUE, onboarding_completed = TRUE
+--   profile_completed = TRUE, onboarding_completed = TRUE
 --   Can Play: YES, Personalization: YES (personalized activities)
 --   Action: Full access
 

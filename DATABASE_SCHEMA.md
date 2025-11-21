@@ -38,7 +38,7 @@
 | daily_activity_reset_at | TIMESTAMPTZ | DEFAULT NOW() | Last daily counter reset |
 | profile_sharing_setting | profile_sharing_enum | NOT NULL, DEFAULT 'overlapping_only' | all_responses, overlapping_only, demographics_only |
 | notification_preferences | JSONB | NOT NULL, DEFAULT '{}' | Push notification settings |
-| demographics_completed | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | Has user provided name + anatomy? (gates game access) |
+| profile_completed | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | Has user provided name + anatomy? (gates game access) |
 | onboarding_completed | BOOLEAN | NOT NULL, DEFAULT false | Has user completed full survey? (enables personalization) |
 | last_login_at | TIMESTAMPTZ | NULL | Last login timestamp |
 | oauth_metadata | JSONB | NULL | Provider-specific metadata |
@@ -48,21 +48,21 @@
 **Indexes:**
 - `idx_users_email` on (email)
 - `idx_users_subscription_tier` on (subscription_tier)
-- `idx_users_demographics_completed` on (demographics_completed)
+- `idx_users_profile_completed` on (profile_completed)
 
 **Triggers:**
 - `update_users_updated_at` - Auto-updates updated_at on changes
 
 **User Readiness States:**
 
-| State | demographics_completed | onboarding_completed | Can Play? | Personalization? | Next Action |
+| State | profile_completed | onboarding_completed | Can Play? | Personalization? | Next Action |
 |-------|----------------------|---------------------|-----------|------------------|-------------|
 | Just Registered | FALSE | FALSE | ❌ NO | ❌ NO | Complete demographics form |
 | Demographics Done | TRUE | FALSE | ✅ YES | ❌ NO (generic) | Take survey (optional) |
 | Full Onboarding | TRUE | TRUE | ✅ YES | ✅ YES (personalized) | Play with full features |
 
 **Business Logic:**
-- **Can play?** → `demographics_completed = TRUE` required
+- **Can play?** → `profile_completed = TRUE` required
 - **Get personalized activities?** → `onboarding_completed = TRUE` required  
 - **Survey is optional** → Users can play without it (generic activities)
 

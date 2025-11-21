@@ -573,7 +573,7 @@ curl http://localhost:5000/api/profile-sharing/partner-profile/ALICE_ID/CHARLIE_
 ### Steps:
 1. Create user without demographics:
 ```sql
-INSERT INTO users (id, email, display_name, demographics_completed, onboarding_completed)
+INSERT INTO users (id, email, display_name, profile_completed, onboarding_completed)
 VALUES (
   gen_random_uuid(),
   'no-demo-user@example.com',
@@ -585,16 +585,16 @@ VALUES (
 
 2. Verify user state:
 ```sql
-SELECT email, display_name, demographics_completed, onboarding_completed
+SELECT email, display_name, profile_completed, onboarding_completed
 FROM users
 WHERE email = 'no-demo-user@example.com';
--- Should show: demographics_completed = false, onboarding_completed = false
+-- Should show: profile_completed = false, onboarding_completed = false
 ```
 
 3. Attempt to play (application logic should block):
 ```
 # Application check:
-if user.demographics_completed == false:
+if user.profile_completed == false:
     # Block game access
     # Show demographics form
 ```
@@ -605,16 +605,16 @@ UPDATE users
 SET 
   display_name = 'Demo User',
   demographics = '{"anatomy_self": ["penis"], "anatomy_preference": ["vagina"]}'::jsonb,
-  demographics_completed = true
+  profile_completed = true
 WHERE email = 'no-demo-user@example.com';
 ```
 
 5. Verify can now play:
 ```sql
-SELECT email, demographics_completed 
+SELECT email, profile_completed 
 FROM users
 WHERE email = 'no-demo-user@example.com';
--- Should show: demographics_completed = true
+-- Should show: profile_completed = true
 ```
 
 ### Expected Results:
@@ -624,7 +624,7 @@ WHERE email = 'no-demo-user@example.com';
 - ✅ Application logic allows play when TRUE
 
 ### Pass Criteria:
-- [ ] New user has demographics_completed = FALSE
+- [ ] New user has profile_completed = FALSE
 - [ ] Flag can be set to TRUE
 - [ ] Application logic respects the flag
 - [ ] Clear error messages when blocked

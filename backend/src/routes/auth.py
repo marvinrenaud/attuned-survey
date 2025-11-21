@@ -268,15 +268,15 @@ def complete_demographics(user_id):
             updated_demographics['relationship_structure'] = data['relationship_structure']
         
         user.demographics = updated_demographics
-        user.demographics_completed = True
+        user.profile_completed = True
         
         db.session.commit()
         
-        current_app.logger.info(f"Demographics completed for user: {user.email}")
+        current_app.logger.info(f"Profile completed for user: {user.email}")
         
         return jsonify({
             'success': True,
-            'demographics_completed': True,
+            'profile_completed': True,
             'onboarding_completed': user.onboarding_completed,
             'can_play': True,
             'has_personalization': user.onboarding_completed

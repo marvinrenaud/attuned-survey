@@ -1,5 +1,5 @@
 """
-Regression tests for demographics_completed field addition.
+Regression tests for profile_completed field addition.
 Tests Phase 8 requirements from the plan.
 Ensures existing functionality is not broken by migration 009.
 """
@@ -18,7 +18,7 @@ class TestDatabaseRegression:
         if response.status_code == 200:
             data = response.get_json()
             assert 'email' in data['user']
-            assert 'demographics_completed' in data['user']  # New field present
+            assert 'profile_completed' in data['user']  # New field present
     
     def test_foreign_key_relationships_intact(self, db_session):
         """Test foreign key relationships still work."""
@@ -30,7 +30,7 @@ class TestDatabaseRegression:
         user = User(
             id=str(uuid.uuid4()),
             email='fk-test@example.com',
-            demographics_completed=True
+            profile_completed=True
         )
         db_session.add(user)
         db_session.commit()
@@ -77,17 +77,17 @@ class TestAPIRegression:
         assert response.status_code == 201
         data = response.get_json()
         assert data['success'] == True
-        assert 'demographics_completed' in data['user']
-        assert data['user']['demographics_completed'] == False  # Default
+        assert 'profile_completed' in data['user']
+        assert data['user']['profile_completed'] == False  # Default
     
     def test_get_user_returns_new_field(self, client):
-        """Test GET /api/auth/user/:id returns demographics_completed."""
+        """Test GET /api/auth/user/:id returns profile_completed."""
         # Use existing test user
         response = client.get('/api/auth/user/550e8400-e29b-41d4-a716-446655440001')
         
         if response.status_code == 200:
             data = response.get_json()
-            assert 'demographics_completed' in data['user']
+            assert 'profile_completed' in data['user']
     
     def test_update_user_can_update_both_flags(self, client, db_session):
         """Test PATCH /api/auth/user/:id can update both flags."""
@@ -97,7 +97,7 @@ class TestAPIRegression:
         user = User(
             id=user_id,
             email='patch-test@example.com',
-            demographics_completed=False,
+            profile_completed=False,
             onboarding_completed=False
         )
         db_session.add(user)
@@ -112,20 +112,20 @@ class TestAPIRegression:
         assert response.status_code in [200, 404]  # 404 if route not found is okay
     
     def test_user_model_to_dict_includes_new_field(self, db_session):
-        """Test User.to_dict() includes demographics_completed."""
+        """Test User.to_dict() includes profile_completed."""
         from backend.src.models.user import User
         
         user = User(
             id=str(uuid.uuid4()),
             email='to-dict-test@example.com',
-            demographics_completed=True
+            profile_completed=True
         )
         db_session.add(user)
         db_session.commit()
         
         user_dict = user.to_dict()
-        assert 'demographics_completed' in user_dict
-        assert user_dict['demographics_completed'] == True
+        assert 'profile_completed' in user_dict
+        assert user_dict['profile_completed'] == True
 
 
 class TestDataIntegrity:
@@ -143,7 +143,7 @@ class TestDataIntegrity:
         db_session.commit()
         
         # Verify defaults
-        assert user.demographics_completed == False
+        assert user.profile_completed == False
         assert user.onboarding_completed == False
         assert user.subscription_tier == 'free'
         assert user.daily_activity_count == 0
@@ -198,7 +198,7 @@ class TestBackwardCompatibility:
         """Test that API calls without new field still work."""
         user_id = str(uuid.uuid4())
         
-        # Old-style registration (without demographics_completed in request)
+        # Old-style registration (without profile_completed in request)
         response = client.post('/api/auth/register', json={
             'id': user_id,
             'email': 'backward-compat@example.com'

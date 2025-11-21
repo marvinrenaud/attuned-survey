@@ -421,23 +421,23 @@ CREATE POLICY survey_submissions_insert_all ON survey_submissions FOR INSERT WIT
 -- MIGRATION 009: Add Demographics Completed Field
 -- ============================================================================
 
--- Running Migration 009: Demographics Field...
+-- Running Migration 009: Profile Completed Field...
 
--- Add demographics_completed field
+-- Add profile_completed field
 ALTER TABLE users 
-  ADD COLUMN IF NOT EXISTS demographics_completed BOOLEAN NOT NULL DEFAULT false;
+  ADD COLUMN IF NOT EXISTS profile_completed BOOLEAN NOT NULL DEFAULT false;
 
 -- Add index for performance
-CREATE INDEX IF NOT EXISTS idx_users_demographics_completed 
-  ON users(demographics_completed);
+CREATE INDEX IF NOT EXISTS idx_users_profile_completed 
+  ON users(profile_completed);
 
--- Update existing test users (they have demographics)
+-- Update existing test users (they have profile info)
 UPDATE users 
-SET demographics_completed = true
+SET profile_completed = true
 WHERE email LIKE '%@test.com';
 
 -- Add documentation comments
-COMMENT ON COLUMN users.demographics_completed IS 
+COMMENT ON COLUMN users.profile_completed IS 
   'TRUE when user provided name + anatomy_self + anatomy_preference (minimum to play games)';
 
 COMMENT ON COLUMN users.onboarding_completed IS 

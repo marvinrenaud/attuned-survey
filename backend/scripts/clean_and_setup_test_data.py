@@ -80,7 +80,7 @@ def create_test_users_sql(app):
                     id, email, display_name, auth_provider, 
                     subscription_tier, daily_activity_count,
                     demographics, profile_sharing_setting,
-                    notification_preferences, demographics_completed, onboarding_completed,
+                    notification_preferences, profile_completed, onboarding_completed,
                     last_login_at, daily_activity_reset_at
                 ) VALUES
                 (
@@ -188,7 +188,7 @@ def verify_test_data(app):
         
         # Show user details
         result = db.session.execute(db.text("""
-            SELECT email, display_name, subscription_tier, demographics_completed, onboarding_completed
+            SELECT email, display_name, subscription_tier, profile_completed, onboarding_completed
             FROM users 
             WHERE email LIKE '%@test.com'
             ORDER BY email

@@ -2,10 +2,10 @@
 
 ## Overview
 
-This document covers all test cases for the `demographics_completed` field addition (Migration 009).
+This document covers all test cases for the `profile_completed` field addition (Migration 009).
 
 **Feature:** Two-stage user onboarding  
-**Database Change:** Added `demographics_completed` field to `users` table  
+**Database Change:** Added `profile_completed` field to `users` table  
 **Purpose:** Gate game access separately from survey completion
 
 ---
@@ -123,7 +123,7 @@ See `UAT_TEST_CASES.md` → UAT-011: Demographics Completion Gate
 **Workaround:** RLS policies validated, will work with Supabase Auth  
 **Impact:** Low - Configuration verified correct
 
-### Issue 2: Anonymous users don't use demographics_completed
+### Issue 2: Anonymous users don't use profile_completed
 **Description:** Anonymous users bypass user table entirely  
 **Expected:** This is by design  
 **Impact:** None - Feature works as intended
@@ -134,9 +134,9 @@ See `UAT_TEST_CASES.md` → UAT-011: Demographics Completion Gate
 
 ### Test Users Created
 
-All test users updated with demographics_completed flag:
+All test users updated with profile_completed flag:
 
-| Email | demographics_completed | onboarding_completed | Use Case |
+| Email | profile_completed | onboarding_completed | Use Case |
 |-------|----------------------|---------------------|----------|
 | alice@test.com | TRUE | TRUE | Full access user |
 | bob@test.com | TRUE | TRUE | Full access, near limit |
@@ -179,14 +179,14 @@ psql $DATABASE_URL -f backend/migrations/rollback_009.sql
 
 # Verify field removed
 psql $DATABASE_URL -c "\d users"
-# Should NOT show demographics_completed
+# Should NOT show profile_completed
 
 # Re-run migration
 psql $DATABASE_URL -f backend/migrations/009_add_demographics_field.sql
 
 # Verify field exists again
 psql $DATABASE_URL -c "\d users"
-# Should show demographics_completed
+# Should show profile_completed
 ```
 
 ### Test 3: All Existing UAT Tests Still Pass
@@ -208,7 +208,7 @@ All should still PASS after migration 009.
 
 **Setup:**
 ```sql
-INSERT INTO users (id, email, display_name, demographics_completed, onboarding_completed)
+INSERT INTO users (id, email, display_name, profile_completed, onboarding_completed)
 VALUES (gen_random_uuid(), 'demo-only@test.com', 'Demo User', true, false);
 ```
 
@@ -229,7 +229,7 @@ VALUES (gen_random_uuid(), 'demo-only@test.com', 'Demo User', true, false);
 **Setup:**
 ```sql
 -- User with both flags
-INSERT INTO users (id, email, demographics_completed, onboarding_completed)
+INSERT INTO users (id, email, profile_completed, onboarding_completed)
 VALUES (gen_random_uuid(), 'full@test.com', true, true);
 ```
 
@@ -250,7 +250,7 @@ VALUES (gen_random_uuid(), 'full@test.com', true, true);
 **Setup:**
 ```sql
 -- User without demographics
-INSERT INTO users (id, email, demographics_completed, onboarding_completed)
+INSERT INTO users (id, email, profile_completed, onboarding_completed)
 VALUES (gen_random_uuid(), 'incomplete@test.com', false, false);
 ```
 
@@ -291,7 +291,7 @@ VALUES (gen_random_uuid(), 'incomplete@test.com', false, false);
 **Test:** Check demographics flag query speed
 ```sql
 EXPLAIN ANALYZE 
-SELECT * FROM users WHERE demographics_completed = true;
+SELECT * FROM users WHERE profile_completed = true;
 ```
 
 **Expected:** < 10ms for indexed query
@@ -299,7 +299,7 @@ SELECT * FROM users WHERE demographics_completed = true;
 **Test:** Check game access validation speed
 ```sql
 EXPLAIN ANALYZE
-SELECT demographics_completed, onboarding_completed 
+SELECT profile_completed, onboarding_completed 
 FROM users 
 WHERE id = '550e8400-e29b-41d4-a716-446655440001'::uuid;
 ```
@@ -320,7 +320,7 @@ WHERE id = '550e8400-e29b-41d4-a716-446655440001'::uuid;
 **Cause:** Index creation failed  
 **Fix:** Manually create index:
 ```sql
-CREATE INDEX idx_users_demographics_completed ON users(demographics_completed);
+CREATE INDEX idx_users_profile_completed ON users(profile_completed);
 ```
 
 ### Test Failure: Default value wrong
@@ -329,7 +329,7 @@ CREATE INDEX idx_users_demographics_completed ON users(demographics_completed);
 **Fix:** Verify column definition:
 ```sql
 \d users
--- Should show: demographics_completed | boolean | not null | false
+-- Should show: profile_completed | boolean | not null | false
 ```
 
 ---
