@@ -470,6 +470,14 @@ SET
   likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
 WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
 
+-- Handle users with profile_completed=true but no anatomy
+UPDATE users
+SET profile_completed = false
+WHERE profile_completed = true
+AND has_penis = false 
+AND has_vagina = false 
+AND has_breasts = false;
+
 -- Add partial indexes
 CREATE INDEX IF NOT EXISTS idx_users_has_penis ON users(has_penis) WHERE has_penis = true;
 CREATE INDEX IF NOT EXISTS idx_users_has_vagina ON users(has_vagina) WHERE has_vagina = true;
