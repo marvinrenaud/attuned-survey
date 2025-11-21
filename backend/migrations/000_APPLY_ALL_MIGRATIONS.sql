@@ -459,6 +459,17 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_penis BOOLEAN NOT NULL DEFAULT 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_vagina BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS likes_breasts BOOLEAN NOT NULL DEFAULT false;
 
+-- Migrate existing anatomy data FIRST (before constraints)
+UPDATE users
+SET 
+  has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
+  has_vagina = (demographics->'anatomy_self' @> '["vagina"]'::jsonb),
+  has_breasts = (demographics->'anatomy_self' @> '["breasts"]'::jsonb),
+  likes_penis = (demographics->'anatomy_preference' @> '["penis"]'::jsonb),
+  likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
+  likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
+WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
+
 -- Add partial indexes
 CREATE INDEX IF NOT EXISTS idx_users_has_penis ON users(has_penis) WHERE has_penis = true;
 CREATE INDEX IF NOT EXISTS idx_users_has_vagina ON users(has_vagina) WHERE has_vagina = true;
@@ -467,7 +478,7 @@ CREATE INDEX IF NOT EXISTS idx_users_likes_penis ON users(likes_penis) WHERE lik
 CREATE INDEX IF NOT EXISTS idx_users_likes_vagina ON users(likes_vagina) WHERE likes_vagina = true;
 CREATE INDEX IF NOT EXISTS idx_users_likes_breasts ON users(likes_breasts) WHERE likes_breasts = true;
 
--- Add constraints
+-- Add constraints (after data migration)
 DO $$ BEGIN
     ALTER TABLE users ADD CONSTRAINT chk_anatomy_self_required
       CHECK (has_penis = true OR has_vagina = true OR has_breasts = true OR profile_completed = false);
@@ -479,17 +490,6 @@ DO $$ BEGIN
       CHECK (likes_penis = true OR likes_vagina = true OR likes_breasts = true OR profile_completed = false);
 EXCEPTION WHEN duplicate_object THEN null;
 END $$;
-
--- Migrate existing anatomy data
-UPDATE users
-SET 
-  has_penis = (demographics->'anatomy_self' @> '["penis"]'::jsonb),
-  has_vagina = (demographics->'anatomy_self' @> '["vagina"]'::jsonb),
-  has_breasts = (demographics->'anatomy_self' @> '["breasts"]'::jsonb),
-  likes_penis = (demographics->'anatomy_preference' @> '["penis"]'::jsonb),
-  likes_vagina = (demographics->'anatomy_preference' @> '["vagina"]'::jsonb),
-  likes_breasts = (demographics->'anatomy_preference' @> '["breasts"]'::jsonb)
-WHERE demographics ? 'anatomy_self' OR demographics ? 'anatomy_preference';
 
 -- Migration 010 complete ✓
 
