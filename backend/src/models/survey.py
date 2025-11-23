@@ -26,3 +26,27 @@ class SurveyBaseline(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
+
+
+class SurveyQuestion(db.Model):
+    """Survey question definitions."""
+    __tablename__ = "survey_questions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.String(32), nullable=False)  # e.g., "A1", "B1a", "C1"
+    survey_version = db.Column(db.String(16), nullable=False, default='0.4')  # Version of survey
+    chapter = db.Column(db.String(128), nullable=False)  # e.g., "Arousal & Power", "Physical Touch"
+    question_type = db.Column(db.String(32), nullable=False)  # e.g., "likert7", "chooseYMN"
+    prompt = db.Column(db.Text, nullable=False)  # The actual question text
+    options = db.Column(db.Text, nullable=True)  # e.g., "1=Strongly disagree ... 7=Strongly agree"
+    maps = db.Column(db.JSON, nullable=True)  # Metadata: {"factor":"SE"}, {"category":"physical_touch",...}
+    display_order = db.Column(db.Integer, nullable=True)  # Order within chapter
+    is_active = db.Column(db.Boolean, nullable=False, default=True)  # Can disable questions
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint('survey_version', 'question_id', name='uq_survey_questions_version_id'),
+    )

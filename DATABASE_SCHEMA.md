@@ -1,9 +1,9 @@
 # Attuned Database Schema - Complete Reference
 
 **Version:** MVP 1.0  
-**Last Updated:** November 19, 2025  
+**Last Updated:** December 2025  
 **Database:** PostgreSQL 15+ (Supabase)  
-**Total Tables:** 16
+**Total Tables:** 17
 
 ---
 
@@ -155,7 +155,51 @@ FROM users;
 **Indexes:**
 - `idx_survey_progress_user_id` on (user_id) WHERE user_id IS NOT NULL
 - `idx_survey_progress_anonymous` on (anonymous_session_id) WHERE anonymous_session_id IS NOT NULL
+- `idx_survey_progress_status` on (status)
+- `idx_survey_progress_version` on (survey_version)
 - Unique: (user_id, survey_version) WHERE status='in_progress'
+- Unique: (anonymous_session_id, survey_version) WHERE status='in_progress'
+
+**Triggers:**
+- `update_survey_progress_last_saved_at` - Auto-updates last_saved_at when answers or current_question change
+
+---
+
+### survey_questions
+**Purpose:** Survey question definitions (source of truth for survey questions)
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Auto-increment ID |
+| question_id | VARCHAR(32) | NOT NULL | Question identifier (e.g., "A1", "B1a", "C1") |
+| survey_version | VARCHAR(16) | NOT NULL, DEFAULT '0.4' | Survey version this question belongs to |
+| chapter | VARCHAR(128) | NOT NULL | Chapter name (e.g., "Arousal & Power", "Physical Touch") |
+| question_type | VARCHAR(32) | NOT NULL | Question type (e.g., "likert7", "chooseYMN", "checklist", "text") |
+| prompt | TEXT | NOT NULL | The actual question text |
+| options | TEXT | NULL | Options description (e.g., "1=Strongly disagree ... 7=Strongly agree") |
+| maps | JSONB | NULL | Metadata mapping (e.g., {"factor":"SE"}, {"category":"physical_touch",...}) |
+| display_order | INTEGER | NULL | Display order within chapter |
+| is_active | BOOLEAN | NOT NULL, DEFAULT true | Whether question is active (can be disabled) |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Question creation timestamp |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Last update timestamp |
+
+**Constraints:**
+- Unique: (survey_version, question_id) - One question ID per survey version
+
+**Indexes:**
+- `idx_survey_questions_version` on (survey_version)
+- `idx_survey_questions_chapter` on (chapter)
+- `idx_survey_questions_type` on (question_type)
+- `idx_survey_questions_active` on (is_active) WHERE is_active = true
+- `idx_survey_questions_display_order` on (survey_version, chapter, display_order)
+- Unique: (survey_version, question_id)
+
+**Triggers:**
+- `update_survey_questions_updated_at` - Auto-updates updated_at on changes
+
+**Data Source:**
+- Imported from `frontend/src/data/questions.csv` via `backend/scripts/import_survey_questions.py`
+- Currently contains 74 questions for survey version 0.4
 
 ---
 
@@ -585,6 +629,17 @@ users (Supabase Auth)
 ├─→ subscription_transactions (1:N) via user_id
 ├─→ sessions (1:N) via primary_user_id, partner_user_id, session_owner_user_id
 
+survey_submissions
+├─→ survey_progress (1:1) via survey_progress_id
+├─→ profiles (1:1) via submission_id
+
+survey_progress
+├─→ users (N:1) via user_id (optional, NULL for anonymous)
+├─→ survey_submissions (1:1) via survey_progress_id
+
+survey_questions
+└─→ (standalone reference table, no foreign keys)
+
 profiles
 ├─→ survey_submissions (1:1) via submission_id
 ├─→ anonymous_sessions (1:1) via profile_id
@@ -814,6 +869,14 @@ WHERE u.email = 'bob@test.com';
 ---
 
 **Schema Version:** 1.0  
-**Last Updated:** November 19, 2025  
+**Last Updated:** December 2025  
 **Maintained By:** Attuned Engineering Team
+
+---
+
+## Recent Updates
+
+**December 2025:**
+- Added `survey_questions` table for survey question definitions
+- Questions imported from CSV source of truth (`frontend/src/data/questions.csv`)
 
