@@ -515,7 +515,7 @@ function QuestionItem({ item, value, onChange }) {
   }
 
   if (item.type === 'text') {
-    // C2: Additional notes
+    // Text input type (not currently used in survey)
     return (
       <div data-testid={`item-${item.id}`}>
         <Label className="text-base font-medium text-text-primary mb-3 block">

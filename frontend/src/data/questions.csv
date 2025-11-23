@@ -73,3 +73,4 @@ B33,Truth Topics,chooseYMN,"Insecurities or vulnerabilities about intimacy.","Y=
 B34,Truth Topics,chooseYMN,"Boundaries and limits.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""boundaries""}"
 B35,Truth Topics,chooseYMN,"Fantasies about the future with my partner.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""future_fantasies"",""facet"":""ROMANTIC""}"
 B36,Truth Topics,chooseYMN,"What makes me feel most desired or wanted.","Y=Yes,M=Maybe,N=No","{""category"":""truth_topics"",""topic"":""feeling_desired"",""facet"":""ROMANTIC""}"
+C1,Boundaries & Safety,checklist,"Which activities are hard boundaries for you?","Select all that apply","{""category"":""boundaries"",""type"":""hard_limits""}"

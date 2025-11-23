@@ -26,12 +26,9 @@ function extractBoundaries(answers) {
     hardLimits = c1.split(',').map(s => s.trim()).filter(Boolean);
   }
 
-  // C2: Additional notes (free text)
-  const additionalNotes = (answers['C2'] || '').toString().trim();
-
   return {
     hard_limits: hardLimits,
-    additional_notes: additionalNotes
+    additional_notes: ""  // C2 removed - always empty
   };
 }
 
@@ -98,7 +95,7 @@ export function calculateProfile(userId, answers) {
   // 5. Calculate Domain Scores
   const domainScores = calculateDomainScores(activities, truthTopics);
 
-  // 6. Extract Boundaries (C1-C2)
+  // 6. Extract Boundaries (C1)
   const boundaries = extractBoundaries(answers);
 
   // 7. Extract Anatomy (D1-D2)

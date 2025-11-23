@@ -74,17 +74,12 @@
       "id": "C",
       "name": "Boundaries & Safety",
       "type": "mixed",
-      "count": 2,
+      "count": 1,
       "items": [
         {
           "id": "C1",
           "type": "checklist",
           "name": "Hard boundaries"
-        },
-        {
-          "id": "C2",
-          "type": "text",
-          "name": "Additional notes"
         }
       ]
     }

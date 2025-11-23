@@ -100,9 +100,14 @@ export function calculateTraits(answers, items) {
 
 /**
  * Extract boundary flags from answers (v0.3.x with legacy compatibility)
- * Assumptions (v0.3.x):
+ * 
+ * NOTE: This function is LEGACY code for v0.3.x and is NOT currently used.
+ * The current v0.4 system uses profileCalculator.js with the 8-key boundary taxonomy.
+ * This file is retained for reference only.
+ * 
+ * Legacy v0.3.x Assumptions:
  * - C1: numeric 0..100 impact cap (default 100 if blank)
- * - C2: comma-separated "hard no" tokens (normalized to kebab-case)
+ * - C2: comma-separated "hard no" tokens (normalized to kebab-case) [DEPRECATED in v0.4]
  * - C4: "Recording is OK" (Y/N). noRecording = true when C4 is N/NO/FALSE/0.
  *
  * Legacy shims:

@@ -169,8 +169,8 @@ export function validateChapter(items, answers) {
   for (const item of items) {
     const answer = answers[item.id];
 
-    // Boundaries (C1, C2) can be empty
-    if (item.id === 'C1' || item.id === 'C2') {
+    // Boundaries (C1) can be empty
+    if (item.id === 'C1') {
       continue;
     }
 
