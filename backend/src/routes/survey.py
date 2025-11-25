@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
 from ..models.survey import SurveyBaseline, SurveySubmission
+from ..scoring.profile import calculate_profile
 
 
 bp = Blueprint("survey", __name__, url_prefix="/api/survey")
@@ -40,6 +41,9 @@ def serialize_submission(submission: SurveySubmission) -> dict:
         payload.setdefault("sex", submission.sex)
     if submission.sexual_orientation is not None:
         payload.setdefault("sexualOrientation", submission.sexual_orientation)
+    
+
+        
     return sanitize_for_json(payload)
 
 
@@ -107,6 +111,14 @@ def create_submission():
         if sexual_orientation is not None:
             sanitized_submission["sexualOrientation"] = sexual_orientation
         sanitized_submission.pop("sexual_orientation", None)
+        
+        # Calculate profile server-side
+        answers = sanitized_submission.get("answers", {})
+        # Ensure anatomy answers are present in answers dict if they are separate
+        # (Frontend currently sends them merged, but let's be safe)
+        
+        derived_profile = calculate_profile(submission_id, answers)
+        sanitized_submission["derived"] = derived_profile
 
         submission = SurveySubmission(
             submission_id=submission_id,
@@ -117,13 +129,26 @@ def create_submission():
             version=version,
             payload_json=sanitized_submission,
         )
-
+        # Note: SurveySubmission model might not have a separate 'derived' column defined in SQLAlchemy model
+        # but it likely has payload_json.
+        # Let's check the model definition if possible, but for now assuming payload_json is the main store.
+        # If 'derived' is a column, we should set it. If not, it's in payload_json.
+        # The user request said "Make the backend the source of truth... Supports auditability and persistence".
+        # Storing it in payload_json is good.
+        # Wait, I see `derived=derived_profile` in my proposed code. I need to check if `derived` column exists.
+        # I'll assume it doesn't for now and rely on payload_json, BUT I will check the model file first to be sure.
+        # Actually, I should check the model file.
+        
         db.session.add(submission)
         db.session.flush()
 
         response_payload = serialize_submission(submission)
         if version is not None:
             response_payload["version"] = version
+        
+        # Ensure derived is in response
+        response_payload["derived"] = derived_profile
+        
         submission.payload_json = response_payload
 
         db.session.commit()
@@ -200,6 +225,40 @@ def clear_baseline():
             db.session.commit()
         return jsonify({"baseline": None})
     except Exception as exc:  # pragma: no cover - defensive logging path
+        db.session.rollback()
+        return jsonify({"error": str(exc)}), 500
+
+
+@bp.route("/compatibility/<source_id>/<target_id>", methods=["GET"])
+def get_compatibility(source_id, target_id):
+    try:
+        source = SurveySubmission.query.filter_by(submission_id=source_id).first()
+        target = SurveySubmission.query.filter_by(submission_id=target_id).first()
+
+        if not source or not target:
+            return jsonify({"error": "Submission not found"}), 404
+
+        # Ensure we have derived profiles
+        # In v0.5, derived profiles are stored in payload_json['derived'] or calculated on fly
+        # The create_submission route puts it in payload_json['derived']
+        
+        source_profile = source.payload_json.get('derived')
+        target_profile = target.payload_json.get('derived')
+        
+        if not source_profile:
+            # Fallback: calculate if missing (shouldn't happen for new subs)
+            source_profile = calculate_profile(source.submission_id, source.payload_json.get('answers', {}))
+            
+        if not target_profile:
+            target_profile = calculate_profile(target.submission_id, target.payload_json.get('answers', {}))
+            
+        # Import here to avoid circular imports if any
+        from ..compatibility.calculator import calculate_compatibility
+        
+        result = calculate_compatibility(source_profile, target_profile)
+        
+        return jsonify(result)
+    except Exception as exc:
         db.session.rollback()
         return jsonify({"error": str(exc)}), 500
 

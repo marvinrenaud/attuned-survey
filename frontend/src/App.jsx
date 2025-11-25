@@ -5,7 +5,6 @@ import Survey from './pages/Survey';
 import Result from './pages/Result';
 import Privacy from './pages/Privacy';
 import Admin from './pages/Admin';
-import TestCompatibility from './pages/TestCompatibility';
 import Gameplay from './pages/Gameplay';
 
 function App() {
@@ -18,7 +17,6 @@ function App() {
         <Route path="/gameplay" element={<Gameplay />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/admin/*" element={<Admin />} />
-        <Route path="/test-compatibility" element={<TestCompatibility />} />
       </Routes>
     </BrowserRouter>
   );

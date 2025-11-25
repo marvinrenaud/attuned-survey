@@ -16,25 +16,25 @@ function getApiRoot() {
     console.log('📍 [getApiRoot] Using VITE_API_URL:', import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
-  
+
   // Priority 2: Development mode → localhost
   // This is more reliable than hostname detection because Vite sets MODE explicitly
   if (import.meta.env?.MODE === 'development') {
     console.log('✅ [getApiRoot] MODE=development → Using localhost:5001');
     return 'http://localhost:5001';
   }
-  
+
   // Priority 3: Runtime hostname detection (fallback)
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     console.log('🔍 [getApiRoot] Checking hostname:', hostname);
-    
+
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
       console.log('✅ [getApiRoot] Hostname is localhost → Using localhost:5001');
       return 'http://localhost:5001';
     }
   }
-  
+
   // Priority 4: Production backend
   console.log('🌐 [getApiRoot] Defaulting to PRODUCTION backend');
   return 'https://attuned-backend.onrender.com';
@@ -54,13 +54,13 @@ export async function getAllSubmissions() {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-    
+
     const response = await fetch(`${API_BASE}/submissions`, {
       signal: controller.signal
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -86,13 +86,13 @@ export async function getSubmission(id) {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-    
+
     const response = await fetch(`${API_BASE}/submissions/${id}`, {
       signal: controller.signal
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         return null;
@@ -125,16 +125,16 @@ export async function saveSubmission(submission) {
         ...submission,
       }),
     });
-    
+
     if (!response.ok) {
       let message = `HTTP error! status: ${response.status}`;
       try {
         const text = await response.text();
         if (text) message += ` - ${text}`;
-      } catch {}
+      } catch { }
       throw new Error(message);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error saving submission:', error);
@@ -171,11 +171,11 @@ export async function setBaseline(submissionId) {
       },
       body: JSON.stringify({ id: submissionId }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data.baseline;
   } catch (error) {
@@ -192,11 +192,11 @@ export async function clearBaseline() {
     const response = await fetch(`${API_BASE}/baseline`, {
       method: 'DELETE',
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return true;
   } catch (error) {
     console.error('Error clearing baseline:', error);
@@ -234,12 +234,12 @@ export async function exportData() {
  */
 export async function generateRecommendations(payload) {
   try {
-    console.log('Generating recommendations...', { 
-      player_a: payload.player_a?.submission_id, 
+    console.log('Generating recommendations...', {
+      player_a: payload.player_a?.submission_id,
       player_b: payload.player_b?.submission_id,
-      target: payload.session?.target_activities 
+      target: payload.session?.target_activities
     });
-    
+
     const response = await fetch(`${API_ROOT}/api/recommendations`, {
       method: 'POST',
       headers: {
@@ -247,20 +247,20 @@ export async function generateRecommendations(payload) {
       },
       body: JSON.stringify(payload),
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Recommendations error:', errorText);
       throw new Error(`Failed to generate recommendations: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('✅ Recommendations generated:', {
       session_id: data.session_id,
       activity_count: data.activities?.length,
       stats: data.stats
     });
-    
+
     return data;
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -276,14 +276,14 @@ export async function generateRecommendations(payload) {
 export async function getSessionActivities(sessionId) {
   try {
     const response = await fetch(`${API_ROOT}/api/recommendations/${sessionId}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         return null;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching session activities:', error);
@@ -300,7 +300,7 @@ export async function getSessionActivities(sessionId) {
 export async function calculateCompatibility(submissionIdA, submissionIdB) {
   try {
     console.log('Calculating compatibility...', { submissionIdA, submissionIdB });
-    
+
     const response = await fetch(`${API_ROOT}/api/compatibility`, {
       method: 'POST',
       headers: {
@@ -311,19 +311,19 @@ export async function calculateCompatibility(submissionIdA, submissionIdB) {
         submission_id_b: submissionIdB,
       }),
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Compatibility calculation error:', errorText);
       throw new Error(`Failed to calculate compatibility: ${response.status}`);
     }
-    
+
     const data = await response.json();
     console.log('✅ Compatibility calculated:', {
       score: data.overall_compatibility?.score,
       interpretation: data.overall_compatibility?.interpretation
     });
-    
+
     return data;
   } catch (error) {
     console.error('Error calculating compatibility:', error);
@@ -340,16 +340,16 @@ export async function calculateCompatibility(submissionIdA, submissionIdB) {
 export async function getCompatibility(submissionIdA, submissionIdB) {
   try {
     const response = await fetch(
-      `${API_ROOT}/api/compatibility/${submissionIdA}/${submissionIdB}`
+      `${API_BASE}/compatibility/${submissionIdA}/${submissionIdB}`
     );
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         return null;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('Error fetching compatibility:', error);
