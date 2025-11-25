@@ -453,8 +453,8 @@ export default function Result() {
                         <span
                           key={activity}
                           className={`px-3 py-1 rounded-full text-sm ${value === 1.0
-                              ? 'bg-accent-sage/20 text-accent-sage'
-                              : 'bg-tertiary/50 text-text-secondary'
+                            ? 'bg-accent-sage/20 text-accent-sage'
+                            : 'bg-tertiary/50 text-text-secondary'
                             }`}
                         >
                           {getActivityName(activity)} {value === 0.5 ? '(Maybe)' : ''}
@@ -603,17 +603,17 @@ export default function Result() {
                   </div>
 
                   {/* Boundary Conflicts */}
-                  {baselineMatch.compatibility.breakdown.boundary_conflicts.length > 0 && (
+                  {baselineMatch.compatibility.boundary_conflicts?.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2 text-red-600">⚠️ Boundary Conflicts</h4>
                       <div className="bg-red-50 p-3 rounded-lg">
                         <p className="text-sm text-red-800 mb-2">
-                          {baselineMatch.compatibility.breakdown.boundary_conflicts.length} potential conflict(s) detected
+                          {baselineMatch.compatibility.boundary_conflicts.length} potential conflict(s) detected
                         </p>
                         <ul className="text-sm text-red-700 list-disc list-inside">
-                          {baselineMatch.compatibility.breakdown.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
+                          {baselineMatch.compatibility.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
                             <li key={idx}>
-                              {conflict.player}'s boundary: {conflict.boundary.replace(/_/g, ' ')}
+                              {conflict.description}
                             </li>
                           ))}
                         </ul>
