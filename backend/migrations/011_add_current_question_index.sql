@@ -31,7 +31,7 @@ BEGIN
   IF answers_type = 'array' THEN
     answer_count := COALESCE(jsonb_array_length(NEW.answers), 0);
   ELSIF answers_type = 'object' THEN
-    answer_count := COALESCE(jsonb_object_length(NEW.answers), 0);
+    SELECT COUNT(*) INTO answer_count FROM jsonb_object_keys(NEW.answers);
   ELSE
     answer_count := 0;
   END IF;
@@ -57,7 +57,7 @@ UPDATE survey_progress
 SET current_question_index = CASE
   WHEN answers IS NULL THEN NULL
   WHEN jsonb_typeof(answers) = 'array' THEN jsonb_array_length(answers) + 1
-  WHEN jsonb_typeof(answers) = 'object' THEN jsonb_object_length(answers) + 1
+  WHEN jsonb_typeof(answers) = 'object' THEN (SELECT COUNT(*) FROM jsonb_object_keys(answers)) + 1
   ELSE NULL
 END;
 
