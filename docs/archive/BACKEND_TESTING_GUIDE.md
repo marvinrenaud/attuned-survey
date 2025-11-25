@@ -17,8 +17,8 @@ Edit `.env` and set these critical values:
 # Your existing Supabase database URL
 DATABASE_URL=postgresql://postgres.[your-project]:[password]@aws-0-us-east-2.pooler.supabase.co:5432/postgres
 
-# Groq API key (already provided)
-GROQ_API_KEY=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
+# Groq API key
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ### Step 2: Activate Virtual Environment & Install Dependencies

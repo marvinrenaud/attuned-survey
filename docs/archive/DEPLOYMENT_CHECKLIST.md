@@ -61,7 +61,7 @@ Your backend is hosted on Render (attuned-backend.onrender.com).
 Make sure these are set in Render dashboard:
 ```
 DATABASE_URL = [Your Supabase connection string]
-GROQ_API_KEY = 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
+GROQ_API_KEY = your_groq_api_key_here
 GROQ_MODEL = llama-3.3-70b-versatile
 ```
 
@@ -118,7 +118,7 @@ source venv/bin/activate
 
 # Set DATABASE_URL to production Supabase
 export DATABASE_URL="your_production_supabase_url"
-export GROQ_API_KEY="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"
+export GROQ_API_KEY="your_groq_api_key_here"
 
 # Import activities
 python scripts/import_activities.py /path/to/your/activities.csv --clear

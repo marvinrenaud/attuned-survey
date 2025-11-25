@@ -38,8 +38,8 @@ if [ -z "$DATABASE_URL" ]; then
     exit 1
 fi
 
-# GROQ_API_KEY is already known
-GROQ_API_KEY="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"
+# GROQ_API_KEY - Set this to your actual Groq API key
+GROQ_API_KEY="your_groq_api_key_here"
 
 # Create .env file
 cat > .env << EOF
