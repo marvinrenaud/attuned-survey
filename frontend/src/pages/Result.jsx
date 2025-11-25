@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Edit, Home, Heart, AlertCircle, Play } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getSubmission, getBaseline, generateRecommendations } from '../lib/storage/apiStore';
-import { calculateCompatibility } from '../lib/matching/compatibilityMapper';
+import { getSubmission, getBaseline, generateRecommendations, getCompatibility } from '../lib/storage/apiStore';
 import { getCategoryName, getActivityName } from '../lib/matching/categoryMap';
 
 const DEBUG_RESULTS = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
@@ -28,7 +27,7 @@ export default function Result() {
     const loadData = async () => {
       try {
         const submissionId = location.state?.submissionId;
-        
+
         if (!submissionId) {
           console.error('No submission ID in location state');
           setError('No submission ID provided');
@@ -38,21 +37,21 @@ export default function Result() {
 
         console.log(`Loading submission: ${submissionId} (attempt ${retryCount + 1})`);
         console.log('Fetching from backend...');
-        
+
         // Retry logic: try up to 3 times with delays
         let sub = null;
         const maxRetries = 3;
-        
+
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
           if (attempt > 0) {
             console.log(`Retry attempt ${attempt}/${maxRetries}...`);
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
           }
-          
+
           console.log(`  Calling getSubmission(${submissionId})...`);
           sub = await getSubmission(submissionId);
           console.log(`  Response received:`, sub ? 'Success' : 'Null response');
-          
+
           if (sub) {
             console.log('✅ Submission loaded successfully', { id: sub.id, version: sub.version });
             break;
@@ -60,7 +59,7 @@ export default function Result() {
             console.warn(`Attempt ${attempt + 1}: Submission not found or fetch failed`);
           }
         }
-        
+
         if (!sub) {
           console.error(`Failed to load submission after ${maxRetries + 1} attempts`);
           setError(`Could not load your results. The submission may not have been saved properly.`);
@@ -79,36 +78,36 @@ export default function Result() {
             // Check if both profiles are v0.4
             const currentIsV04 = sub.version === '0.4' || sub.derived?.profile_version === '0.4';
             const baselineIsV04 = baseline.version === '0.4' || baseline.derived?.profile_version === '0.4';
-            
-            console.log('Version check:', { 
-              current: currentIsV04 ? 'v0.4' : 'v0.3.1', 
-              baseline: baselineIsV04 ? 'v0.4' : 'v0.3.1' 
+
+            console.log('Version check:', {
+              current: currentIsV04 ? 'v0.4' : 'v0.3.1',
+              baseline: baselineIsV04 ? 'v0.4' : 'v0.3.1'
             });
 
-            if (currentIsV04 && baselineIsV04 && baseline.derived && sub.derived) {
-              console.log('✅ Both profiles are v0.4, calculating compatibility...');
+            if (currentIsV04 && baselineIsV04) {
+              console.log('✅ Both profiles are v0.4, fetching compatibility...');
               try {
-                const compatibility = calculateCompatibility(sub.derived, baseline.derived);
+                const compatibility = await getCompatibility(sub.id, baseline.id);
                 dbg('Compatibility result:', compatibility);
                 setBaselineMatch({ baseline, compatibility });
-                console.log('✅ Compatibility calculated:', compatibility.overall_compatibility);
+                console.log('✅ Compatibility fetched:', compatibility.overall_compatibility);
               } catch (matchError) {
-                console.error('Error calculating compatibility:', matchError);
+                console.error('Error fetching compatibility:', matchError);
                 // Set baseline without compatibility for display
                 setBaselineMatch({ baseline, compatibility: null, error: matchError.message });
               }
             } else {
               // Version mismatch or missing data
               console.warn('⚠️ Version mismatch or missing data - cannot calculate compatibility');
-              setBaselineMatch({ 
-                baseline, 
-                compatibility: null, 
-                versionMismatch: !currentIsV04 || !baselineIsV04 
+              setBaselineMatch({
+                baseline,
+                compatibility: null,
+                versionMismatch: !currentIsV04 || !baselineIsV04
               });
             }
           }
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error('Error loading result data:', err);
@@ -130,7 +129,7 @@ export default function Result() {
 
     try {
       console.log('Starting game session...');
-      
+
       // Generate recommendations for 25 activities
       const payload = {
         player_a: { submission_id: submission.id },
@@ -145,16 +144,16 @@ export default function Result() {
       };
 
       const recommendationsData = await generateRecommendations(payload);
-      
+
       console.log('✅ Game session created:', recommendationsData.session_id);
-      
+
       // Navigate to gameplay page with session ID
-      navigate('/gameplay', { 
-        state: { 
+      navigate('/gameplay', {
+        state: {
           sessionId: recommendationsData.session_id,
           playerA: submission,
           playerB: baselineMatch.baseline
-        } 
+        }
       });
     } catch (err) {
       console.error('Error starting game:', err);
@@ -194,18 +193,18 @@ export default function Result() {
           <CardContent className="space-y-4">
             <Alert variant="destructive">
               <AlertDescription>
-                {error.includes('timeout') 
-                  ? 'Backend is taking longer than expected. The database may be slow. Please try again.' 
+                {error.includes('timeout')
+                  ? 'Backend is taking longer than expected. The database may be slow. Please try again.'
                   : error.includes('500')
-                  ? 'Backend database encountered an error. Please try again in a moment.'
-                  : error.includes('No submission ID')
-                  ? 'No submission ID provided. Please complete the survey first.'
-                  : error}
+                    ? 'Backend database encountered an error. Please try again in a moment.'
+                    : error.includes('No submission ID')
+                      ? 'No submission ID provided. Please complete the survey first.'
+                      : error}
               </AlertDescription>
             </Alert>
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                {error.includes('No submission ID') 
+                {error.includes('No submission ID')
                   ? 'You need to complete a survey to see results.'
                   : 'Your submission may have been saved. Try reloading or check the admin panel.'}
               </p>
@@ -233,7 +232,7 @@ export default function Result() {
   }
 
   const { derived } = submission;
-  
+
   // Check if this is a v0.4 profile
   if (!derived || !derived.profile_version || derived.profile_version !== '0.4') {
     return (
@@ -259,13 +258,13 @@ export default function Result() {
     );
   }
 
-  const { 
-    arousal_propensity, 
-    power_dynamic, 
-    domain_scores, 
+  const {
+    arousal_propensity,
+    power_dynamic,
+    domain_scores,
     boundaries,
     activities,
-    truth_topics 
+    truth_topics
   } = derived;
 
   return (
@@ -366,19 +365,19 @@ export default function Result() {
                 <h3 className="text-xl font-semibold">{power_dynamic.orientation}</h3>
                 <span className="text-sm text-gray-600">{power_dynamic.interpretation}</span>
               </div>
-              
+
               {/* Visual slider for power dynamic */}
               <div className="relative h-12 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 rounded-lg mb-4">
-                <div 
+                <div
                   className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-gray-800 rounded-full border-2 border-white shadow-lg"
                   style={{
-                    left: power_dynamic.orientation === 'Switch' 
-                      ? '50%' 
+                    left: power_dynamic.orientation === 'Switch'
+                      ? '50%'
                       : power_dynamic.orientation === 'Top'
-                      ? `${50 - power_dynamic.confidence * 50}%`
-                      : power_dynamic.orientation === 'Bottom'
-                      ? `${50 + power_dynamic.confidence * 50}%`
-                      : '50%',
+                        ? `${50 - power_dynamic.confidence * 50}%`
+                        : power_dynamic.orientation === 'Bottom'
+                          ? `${50 + power_dynamic.confidence * 50}%`
+                          : '50%',
                     transform: 'translate(-50%, -50%)'
                   }}
                 />
@@ -445,19 +444,18 @@ export default function Result() {
               {Object.entries(activities).map(([category, categoryActivities]) => {
                 const interested = Object.entries(categoryActivities).filter(([_, val]) => val >= 0.5);
                 if (interested.length === 0) return null;
-                
+
                 return (
                   <div key={category} className="border-t pt-3 first:border-t-0 first:pt-0">
                     <h4 className="font-medium mb-2 capitalize">{getCategoryName(category)}</h4>
                     <div className="flex flex-wrap gap-2">
                       {interested.map(([activity, value]) => (
-                        <span 
+                        <span
                           key={activity}
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            value === 1.0 
-                              ? 'bg-accent-sage/20 text-accent-sage' 
+                          className={`px-3 py-1 rounded-full text-sm ${value === 1.0
+                              ? 'bg-accent-sage/20 text-accent-sage'
                               : 'bg-tertiary/50 text-text-secondary'
-                          }`}
+                            }`}
                         >
                           {getActivityName(activity)} {value === 0.5 ? '(Maybe)' : ''}
                         </span>
@@ -541,7 +539,7 @@ export default function Result() {
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               {/* Error during calculation */}
               {baselineMatch.error && !baselineMatch.versionMismatch && (
                 <Alert variant="destructive" className="mb-4">
@@ -555,91 +553,91 @@ export default function Result() {
               {/* Successful compatibility calculation */}
               {baselineMatch.compatibility && (
                 <div className="space-y-6">
-                {/* Overall Score */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium text-lg">Overall Compatibility</span>
-                    <span className="text-lg font-semibold text-primary">
-                      {baselineMatch.compatibility.overall_compatibility.score}%
-                    </span>
-                  </div>
-                  <Progress value={baselineMatch.compatibility.overall_compatibility.score} />
-                  <p className="text-sm text-gray-600 mt-1">
-                    {baselineMatch.compatibility.overall_compatibility.interpretation}
-                  </p>
-                </div>
-
-                {/* Breakdown */}
-                <div>
-                  <h4 className="font-medium mb-3">Compatibility Breakdown</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Power Complement</span>
-                        <span>{baselineMatch.compatibility.breakdown.power_complement}%</span>
-                      </div>
-                      <Progress value={baselineMatch.compatibility.breakdown.power_complement} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Domain Similarity</span>
-                        <span>{baselineMatch.compatibility.breakdown.domain_similarity}%</span>
-                      </div>
-                      <Progress value={baselineMatch.compatibility.breakdown.domain_similarity} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Activity Overlap</span>
-                        <span>{baselineMatch.compatibility.breakdown.activity_overlap}%</span>
-                      </div>
-                      <Progress value={baselineMatch.compatibility.breakdown.activity_overlap} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1 text-sm">
-                        <span>Truth Topics</span>
-                        <span>{baselineMatch.compatibility.breakdown.truth_overlap}%</span>
-                      </div>
-                      <Progress value={baselineMatch.compatibility.breakdown.truth_overlap} className="h-2" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Boundary Conflicts */}
-                {baselineMatch.compatibility.breakdown.boundary_conflicts.length > 0 && (
+                  {/* Overall Score */}
                   <div>
-                    <h4 className="font-medium mb-2 text-red-600">⚠️ Boundary Conflicts</h4>
-                    <div className="bg-red-50 p-3 rounded-lg">
-                      <p className="text-sm text-red-800 mb-2">
-                        {baselineMatch.compatibility.breakdown.boundary_conflicts.length} potential conflict(s) detected
-                      </p>
-                      <ul className="text-sm text-red-700 list-disc list-inside">
-                        {baselineMatch.compatibility.breakdown.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
-                          <li key={idx}>
-                            {conflict.player}'s boundary: {conflict.boundary.replace(/_/g, ' ')}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium text-lg">Overall Compatibility</span>
+                      <span className="text-lg font-semibold text-primary">
+                        {baselineMatch.compatibility.overall_compatibility.score}%
+                      </span>
                     </div>
+                    <Progress value={baselineMatch.compatibility.overall_compatibility.score} />
+                    <p className="text-sm text-gray-600 mt-1">
+                      {baselineMatch.compatibility.overall_compatibility.interpretation}
+                    </p>
                   </div>
-                )}
 
-                {/* Mutual Activities */}
-                {baselineMatch.compatibility.mutual_activities && (
+                  {/* Breakdown */}
                   <div>
-                    <h4 className="font-medium mb-2">Shared Interests</h4>
-                    <div className="space-y-2">
-                      {Object.entries(baselineMatch.compatibility.mutual_activities).map(([category, acts]) => {
-                        if (!acts || acts.length === 0) return null;
-                        return (
-                          <div key={category}>
-                            <span className="text-sm font-medium capitalize">{getCategoryName(category)}: </span>
-                            <span className="text-sm text-gray-600">{acts.length} shared activities</span>
-                          </div>
-                        );
-                      })}
+                    <h4 className="font-medium mb-3">Compatibility Breakdown</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <span>Power Complement</span>
+                          <span>{baselineMatch.compatibility.breakdown.power_complement}%</span>
+                        </div>
+                        <Progress value={baselineMatch.compatibility.breakdown.power_complement} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <span>Domain Similarity</span>
+                          <span>{baselineMatch.compatibility.breakdown.domain_similarity}%</span>
+                        </div>
+                        <Progress value={baselineMatch.compatibility.breakdown.domain_similarity} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <span>Activity Overlap</span>
+                          <span>{baselineMatch.compatibility.breakdown.activity_overlap}%</span>
+                        </div>
+                        <Progress value={baselineMatch.compatibility.breakdown.activity_overlap} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1 text-sm">
+                          <span>Truth Topics</span>
+                          <span>{baselineMatch.compatibility.breakdown.truth_overlap}%</span>
+                        </div>
+                        <Progress value={baselineMatch.compatibility.breakdown.truth_overlap} className="h-2" />
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Boundary Conflicts */}
+                  {baselineMatch.compatibility.breakdown.boundary_conflicts.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2 text-red-600">⚠️ Boundary Conflicts</h4>
+                      <div className="bg-red-50 p-3 rounded-lg">
+                        <p className="text-sm text-red-800 mb-2">
+                          {baselineMatch.compatibility.breakdown.boundary_conflicts.length} potential conflict(s) detected
+                        </p>
+                        <ul className="text-sm text-red-700 list-disc list-inside">
+                          {baselineMatch.compatibility.breakdown.boundary_conflicts.slice(0, 3).map((conflict, idx) => (
+                            <li key={idx}>
+                              {conflict.player}'s boundary: {conflict.boundary.replace(/_/g, ' ')}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mutual Activities */}
+                  {baselineMatch.compatibility.mutual_activities && (
+                    <div>
+                      <h4 className="font-medium mb-2">Shared Interests</h4>
+                      <div className="space-y-2">
+                        {Object.entries(baselineMatch.compatibility.mutual_activities).map(([category, acts]) => {
+                          if (!acts || acts.length === 0) return null;
+                          return (
+                            <div key={category}>
+                              <span className="text-sm font-medium capitalize">{getCategoryName(category)}: </span>
+                              <span className="text-sm text-gray-600">{acts.length} shared activities</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -652,11 +650,11 @@ export default function Result() {
             <Home className="w-4 h-4 mr-2" />
             Home
           </Button>
-          
+
           {/* Start Game button - only show if baseline match exists */}
           {baselineMatch?.baseline && baselineMatch?.compatibility && (
-            <Button 
-              onClick={handleStartGame} 
+            <Button
+              onClick={handleStartGame}
               disabled={startingGame}
               className="bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark"
             >
@@ -664,7 +662,7 @@ export default function Result() {
               {startingGame ? 'Starting Game...' : 'Start Game'}
             </Button>
           )}
-          
+
           <Button onClick={() => navigate('/admin')} variant="outline">
             <Edit className="w-4 h-4 mr-2" />
             Admin Panel

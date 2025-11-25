@@ -8,16 +8,10 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getSurveyChapters, validateChapter, getSchema } from '../lib/surveyData';
-import { calculateProfile } from '../lib/scoring/profileCalculator';
 import { saveSubmission, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../lib/storage/apiStore';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-const DEBUG_SURVEY = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
-function sdbg(...args) {
-  if (DEBUG_SURVEY) console.log('[SURVEY DEBUG]', ...args);
-}
 
 const ANATOMY_OPTIONS = [
   { value: 'penis', label: 'Penis' },
@@ -28,19 +22,6 @@ const ANATOMY_OPTIONS = [
 export default function Survey() {
   const navigate = useNavigate();
   const [chapters] = useState(getSurveyChapters());
-  try {
-    const chaptersForLog = getSurveyChapters();
-    const flat = [];
-    for (const ch of chaptersForLog) {
-      for (const it of (ch?.items || [])) {
-        flat.push({ chapter: ch?.title || ch?.name, id: it?.id, type: it?.type, text: it?.text });
-      }
-    }
-    sdbg('RENDER_ORDER', flat.length, 'items');
-    console.table(flat.slice(0, 200));
-  } catch (e) {
-    sdbg('Failed to log render order', e);
-  }
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [name, setName] = useState('');
@@ -65,7 +46,7 @@ export default function Survey() {
       setAnatomySelf(session.anatomySelf || []);
       setAnatomyPreference(session.anatomyPreference || []);
       const hasDemographics = Boolean(
-        (session.name && session.name.trim()) && 
+        (session.name && session.name.trim()) &&
         session.anatomySelf && session.anatomySelf.length > 0 &&
         session.anatomyPreference && session.anatomyPreference.length > 0
       );
@@ -143,53 +124,63 @@ export default function Survey() {
   const handleSubmit = async () => {
     // Prevent double submission
     if (isSubmitting) {
-      console.log('Submission already in progress, ignoring duplicate click');
+      console.warn('[Survey] Submission already in progress, ignoring duplicate click');
       return;
     }
 
     setIsSubmitting(true);
     setErrors([]);
-    
+
     try {
-      console.log('Starting survey submission...');
-      
-      // Calculate profile using v0.4 calculator
       const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      console.log('Calculating v0.4 profile...');
-      
+
+      console.group('🚀 [Survey] Starting Submission');
+      console.log('Submission ID:', uniqueId);
+      console.log('Respondent Name:', name);
+
       // Add anatomy answers to survey answers (D1, D2)
       const answersWithAnatomy = {
         ...answers,
         D1: anatomySelf,
         D2: anatomyPreference
       };
-      
-      const profile = calculateProfile(uniqueId, answersWithAnatomy);
-      console.log('Profile calculated:', {
-        arousal: profile.arousal_propensity,
-        power: profile.power_dynamic.orientation,
-        domains: profile.domain_scores,
-        anatomy: profile.anatomy
+
+      console.log('📦 Payload prepared:', {
+        answerCount: Object.keys(answers).length,
+        anatomySelf,
+        anatomyPreference
       });
-      
+
       const submission = {
         id: uniqueId,
         name,
         createdAt: new Date().toISOString(),
-        answers: answersWithAnatomy,
-        derived: profile
+        answers: answersWithAnatomy
       };
 
-      console.log('Submitting to API...', { id: submission.id, name: submission.name });
+      console.time('⏱️ API Submission');
       const savedSubmission = await saveSubmission(submission);
-      console.log('✅ Submission saved successfully:', savedSubmission.id);
-      
+      console.timeEnd('⏱️ API Submission');
+
+      console.log('✅ Submission successful!', savedSubmission);
+
+      if (savedSubmission.derived) {
+        console.groupCollapsed('📊 Derived Profile (Backend Calculated)');
+        console.log('Arousal:', savedSubmission.derived.arousal_propensity);
+        console.log('Power:', savedSubmission.derived.power_dynamic);
+        console.log('Domains:', savedSubmission.derived.domain_scores);
+        console.groupEnd();
+      } else {
+        console.warn('⚠️ No derived profile returned from backend');
+      }
+      console.groupEnd();
+
       clearCurrentSession();
-      console.log('Navigating to results page...');
-      
+
+      // Navigate with the saved submission ID
       navigate('/result', { state: { submissionId: savedSubmission.id } });
     } catch (error) {
-      console.error('❌ Error submitting survey:', error);
+      console.error('❌ [Survey] Submission Failed:', error);
       setErrors([`Failed to submit survey: ${error.message}. Please try again.`]);
       setIsSubmitting(false);
     }
@@ -219,7 +210,7 @@ export default function Survey() {
                 onKeyPress={(e) => e.key === 'Enter' && handleNameSubmit()}
               />
             </div>
-            
+
             <div>
               <Label className="text-base font-semibold">What anatomy do you have to play with?</Label>
               <p className="text-sm text-text-secondary mb-3">Select all that apply</p>
@@ -248,7 +239,7 @@ export default function Survey() {
                 ))}
               </div>
             </div>
-            
+
             <div>
               <Label className="text-base font-semibold">What anatomy do you like to play with in partners?</Label>
               <p className="text-sm text-text-secondary mb-3">Select all that apply</p>
@@ -478,9 +469,9 @@ function QuestionItem({ item, value, onChange }) {
       { value: 'hardBoundaryAnal', label: 'Anal' },
       { value: 'hardBoundaryWatersports', label: 'Watersports' }
     ];
-    
+
     const selected = Array.isArray(value) ? value : (value ? value.split(',').map(s => s.trim()) : []);
-    
+
     const handleToggle = (option) => {
       const newSelected = selected.includes(option)
         ? selected.filter(s => s !== option)
@@ -567,21 +558,19 @@ function QuestionItem({ item, value, onChange }) {
         </Label>
         <div className="space-y-3">
           {choose2Options.map((option) => (
-            <div 
+            <div
               key={option.value}
-              className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
-                value === option.value 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-gray-200 hover:border-primary'
-              }`}
+              className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${value === option.value
+                ? 'border-primary bg-primary/5'
+                : 'border-gray-200 hover:border-primary'
+                }`}
               onClick={() => onChange(option.value)}
             >
               <div className="flex items-start space-x-3">
-                <div className={`w-4 h-4 rounded-full border-2 mt-1 flex items-center justify-center ${
-                  value === option.value 
-                    ? 'border-primary bg-primary' 
-                    : 'border-gray-300'
-                }`}>
+                <div className={`w-4 h-4 rounded-full border-2 mt-1 flex items-center justify-center ${value === option.value
+                  ? 'border-primary bg-primary'
+                  : 'border-gray-300'
+                  }`}>
                   {value === option.value && (
                     <div className="w-2 h-2 rounded-full bg-white"></div>
                   )}

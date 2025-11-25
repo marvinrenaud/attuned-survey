@@ -51,7 +51,7 @@ def calculate_domain_similarity(
     """
     Calculate domain similarity (0-1).
     
-    For complementary power dynamics (Top/Bottom), some domains use complementary logic.
+    For complementary power dynamics (Top/Bottom), divergence in exploration/verbal is beneficial.
     """
     orientation_a = power_a.get('orientation', 'Switch')
     orientation_b = power_b.get('orientation', 'Switch')
@@ -59,28 +59,42 @@ def calculate_domain_similarity(
     is_complementary = (orientation_a == 'Top' and orientation_b == 'Bottom') or \
                       (orientation_a == 'Bottom' and orientation_b == 'Top')
     
-    # Domains that use complementary logic for Top/Bottom pairs
-    complementary_domains = ['dominance', 'submission', 'service']
+    # Calculate distances (0-1)
+    # Normalize scores to 0-1 if they are 0-100
+    def norm(s): return s / 100.0 if s > 1.0 else s
     
-    similarities = []
+    sensation_dist = 1.0 - abs(norm(domains_a.get('sensation', 0)) - norm(domains_b.get('sensation', 0)))
+    connection_dist = 1.0 - abs(norm(domains_a.get('connection', 0)) - norm(domains_b.get('connection', 0)))
+    power_dist = 1.0 - abs(norm(domains_a.get('power', 0)) - norm(domains_b.get('power', 0)))
     
-    for domain in domains_a:
-        if domain not in domains_b:
-            continue
+    if is_complementary:
+        # For complementary pairs, use minimum threshold approach for exploration/verbal
+        exp_a = domains_a.get('exploration', 0)
+        exp_b = domains_b.get('exploration', 0)
+        verb_a = domains_a.get('verbal', 0)
+        verb_b = domains_b.get('verbal', 0)
         
-        score_a = domains_a[domain]
-        score_b = domains_b[domain]
+        # Ensure 0-100 scale for threshold check
+        if exp_a <= 1.0: exp_a *= 100
+        if exp_b <= 1.0: exp_b *= 100
+        if verb_a <= 1.0: verb_a *= 100
+        if verb_b <= 1.0: verb_b *= 100
         
-        if is_complementary and domain in complementary_domains:
-            # Complementary: high + low = good
-            similarity = 1.0 - abs(score_a - (1.0 - score_b))
-        else:
-            # Normal: similar = good
-            similarity = 1.0 - abs(score_a - score_b)
+        min_exploration = min(exp_a, exp_b)
+        min_verbal = min(verb_a, verb_b)
         
-        similarities.append(similarity)
-    
-    return sum(similarities) / len(similarities) if similarities else 0.5
+        # If minimum is 50+, score is 1.0 (no penalty)
+        # If minimum is below 50, scale proportionally
+        exploration_score = 1.0 if min_exploration >= 50 else min_exploration / 50.0
+        verbal_score = 1.0 if min_verbal >= 50 else min_verbal / 50.0
+        
+        return (sensation_dist + connection_dist + power_dist + exploration_score + verbal_score) / 5.0
+    else:
+        # For Switch/Switch or same-pole pairs, use standard distance
+        exploration_dist = 1.0 - abs(norm(domains_a.get('exploration', 0)) - norm(domains_b.get('exploration', 0)))
+        verbal_dist = 1.0 - abs(norm(domains_a.get('verbal', 0)) - norm(domains_b.get('verbal', 0)))
+        
+        return (sensation_dist + connection_dist + power_dist + exploration_dist + verbal_dist) / 5.0
 
 
 def calculate_asymmetric_directional_jaccard(
@@ -95,7 +109,6 @@ def calculate_asymmetric_directional_jaccard(
     Recognizes complementary pairs:
     - _give/_receive (e.g., spanking_give with spanking_receive)
     - _self/_watching (e.g., stripping_self with watching_strip)
-    - Special cases like watching_strip with stripping_self
     
     Primary axis (80% weight): Does Top want to GIVE what Bottom wants to RECEIVE?
     Secondary axis (20% weight): Does Bottom want to GIVE what Top wants to RECEIVE?
@@ -115,6 +128,7 @@ def calculate_asymmetric_directional_jaccard(
         if key in processed_keys:
             continue
             
+        print(f"Processing key: {key}")
         top_val = top_activities.get(key, 0)
         bottom_val = bottom_activities.get(key, 0)
         
@@ -141,8 +155,12 @@ def calculate_asymmetric_directional_jaccard(
                 elif bottom_val >= 0.5 and top_receive_val < 0.5:
                     secondary_matches += 0.5  # Partial credit
         
-        # Handle _self/_watching pairs
+        # Handle _self/_watching pairs (Display & Performance)
         elif key.endswith('_self'):
+            # Skip special cases handled elsewhere
+            if key in ['stripping_self', 'solo_pleasure_self']:
+                continue
+                
             processed_keys.add(key)
             watching_key = key.replace('_self', '_watching')
             processed_keys.add(watching_key)
@@ -210,7 +228,7 @@ def calculate_asymmetric_directional_jaccard(
                 elif top_self_val >= 0.5 and bottom_val < 0.5:
                     secondary_matches += 0.5
         
-        # Non-directional activities (don't end with _receive, _watching, or already processed)
+        # Non-directional activities
         elif not key.endswith('_receive') and not key.endswith('_watching'):
             processed_keys.add(key)
             
@@ -260,22 +278,17 @@ def calculate_same_pole_jaccard(
                 total_possible_interactions += 1
                 
                 # Only way it works: versatility (can do both roles)
-                # A versatile (give AND receive), B not → Minimal credit
                 if (val_a >= 0.5 and receive_a >= 0.5) and (val_b >= 0.5 and receive_b < 0.5):
-                    compatible_interactions += 0.1
-                # B versatile, A not → Minimal credit
+                    compatible_interactions += 0.3
                 elif (val_a >= 0.5 and receive_a < 0.5) and (val_b >= 0.5 and receive_b >= 0.5):
-                    compatible_interactions += 0.1
-                # Both versatile → Slight credit
+                    compatible_interactions += 0.3
                 elif (val_a >= 0.5 and receive_a >= 0.5) and (val_b >= 0.5 and receive_b >= 0.5):
-                    compatible_interactions += 0.2
-                # Else: Both want same role, no versatility = 0 (incompatible)
+                    compatible_interactions += 0.5
         
-        elif not key.endswith('_receive'):
-            # Non-directional activities get REDUCED credit for same-pole pairs
-            # Power incompatibility affects everything
+        elif not key.endswith('_receive') and not key.endswith('_watching'):
+            # Non-directional activities
             if val_a >= 0.5 and val_b >= 0.5:
-                compatible_interactions += 0.3  # Reduced from 1.0
+                compatible_interactions += 1.0 # v0.5 uses 1.0 for non-directional in same-pole
             if val_a >= 0.5 or val_b >= 0.5:
                 total_possible_interactions += 1
     
@@ -286,17 +299,13 @@ def calculate_same_pole_jaccard(
 
 
 def calculate_activity_overlap(
-    activities_a: Dict[str, float],
-    activities_b: Dict[str, float],
+    activities_a: Dict[str, Any],
+    activities_b: Dict[str, Any],
     power_a: Dict[str, Any],
     power_b: Dict[str, Any]
 ) -> float:
     """
-    Calculate activity overlap (0-1).
-    
-    Uses asymmetric matching for Top/Bottom pairs.
-    Uses same-pole Jaccard for Top/Top or Bottom/Bottom pairs.
-    Uses standard Jaccard for Switch pairs or mixed combinations.
+    Calculate activity overlap (0-1) by averaging category scores.
     """
     orientation_a = power_a.get('orientation', 'Switch')
     orientation_b = power_b.get('orientation', 'Switch')
@@ -307,40 +316,46 @@ def calculate_activity_overlap(
     is_same_pole = (orientation_a == 'Top' and orientation_b == 'Top') or \
                    (orientation_a == 'Bottom' and orientation_b == 'Bottom')
     
-    # For Top/Bottom pairs, use asymmetric directional Jaccard
-    if is_top_bottom:
-        # Determine who is Top and who is Bottom
-        if orientation_a == 'Top':
-            return calculate_asymmetric_directional_jaccard(activities_a, activities_b)
+    categories = list(activities_a.keys())
+    scores = []
+    
+    for category in categories:
+        cat_a = activities_a.get(category, {})
+        cat_b = activities_b.get(category, {})
+        
+        # Ensure we have dicts (in case of flat structure mixed in, though we expect categorized)
+        if not isinstance(cat_a, dict): cat_a = {}
+        if not isinstance(cat_b, dict): cat_b = {}
+        
+        score = 0.0
+        
+        has_directional = category in [
+            'physical_touch', 'oral', 'anal', 'power_exchange', 'display_performance', 'verbal_roleplay'
+        ]
+        
+        if is_top_bottom and has_directional:
+            if orientation_a == 'Top':
+                score = calculate_asymmetric_directional_jaccard(cat_a, cat_b)
+            else:
+                score = calculate_asymmetric_directional_jaccard(cat_b, cat_a)
+        elif is_same_pole and has_directional:
+            score = calculate_same_pole_jaccard(cat_a, cat_b)
         else:
-            return calculate_asymmetric_directional_jaccard(activities_b, activities_a)
+            # Standard Jaccard
+            keys = set(list(cat_a.keys()) + list(cat_b.keys()))
+            mutual = 0
+            potential = 0
+            for k in keys:
+                va = cat_a.get(k, 0)
+                vb = cat_b.get(k, 0)
+                if va >= 0.5 and vb >= 0.5: mutual += 1
+                if va >= 0.5 or vb >= 0.5: potential += 1
+            
+            score = mutual / potential if potential > 0 else 0.5
+            
+        scores.append(score)
     
-    # For same-pole pairs, use same-pole Jaccard
-    if is_same_pole:
-        return calculate_same_pole_jaccard(activities_a, activities_b)
-    
-    # For Switch pairs or mixed, use standard Jaccard
-    all_activities = set(list(activities_a.keys()) + list(activities_b.keys()))
-    
-    mutual_yes = 0
-    at_least_one_yes = 0
-    
-    for activity in all_activities:
-        score_a = activities_a.get(activity, 0.0)
-        score_b = activities_b.get(activity, 0.0)
-        
-        # Both interested (>= 0.5)
-        if score_a >= 0.5 and score_b >= 0.5:
-            mutual_yes += 1
-        
-        # At least one interested
-        if score_a >= 0.5 or score_b >= 0.5:
-            at_least_one_yes += 1
-    
-    if at_least_one_yes == 0:
-        return 0.5
-    
-    return mutual_yes / at_least_one_yes
+    return sum(scores) / len(scores) if scores else 0.5
 
 
 def calculate_truth_overlap(
@@ -374,6 +389,43 @@ def calculate_truth_overlap(
     return sum(overlaps) / len(overlaps) if overlaps else 0.5
 
 
+
+# Map hard limit IDs to activity substrings/keys
+# Based on official boundary-to-activity mapping documentation
+HARD_LIMIT_MAP = {
+    # 1. Impact Play
+    'hardBoundaryImpact': ['spanking', 'slapping', 'biting'],
+    'impact_play': ['spanking', 'slapping', 'biting'],
+    
+    # 2. Bondage/Restraints
+    'hardBoundaryRestrain': ['restraints', 'blindfold'],
+    'restraints_bondage': ['restraints', 'blindfold'],
+    
+    # 3. Breath Play
+    'hardBoundaryBreath': ['choking'],
+    'breath_play': ['choking'],
+    
+    # 4. Degradation/Humiliation
+    'hardBoundaryDegrade': ['degradation', 'humiliation'],
+    'degradation_humiliation': ['degradation', 'humiliation'],
+    
+    # 5. Public Play
+    'hardBoundaryPublic': ['exhibitionism', 'voyeurism', 'public_play'],
+    'public_activities': ['exhibitionism', 'voyeurism', 'public_play'],
+    
+    # 6. Recording
+    'hardBoundaryRecord': ['recording', 'photos', 'videos'],
+    'recording': ['recording', 'photos', 'videos'],
+    
+    # 7. Anal Activities
+    'hardBoundaryAnal': ['anal', 'rimming'],
+    'anal_activities': ['anal', 'rimming'],
+    
+    # 8. Watersports/Scat
+    'hardBoundaryWatersports': ['watersports', 'scat'],
+    'watersports': ['watersports', 'scat'],
+}
+
 def check_boundary_conflicts(
     player_a: Dict[str, Any],
     player_b: Dict[str, Any]
@@ -393,24 +445,38 @@ def check_boundary_conflicts(
     hard_limits_a = set(boundaries_a.get('hard_limits', []))
     hard_limits_b = set(boundaries_b.get('hard_limits', []))
     
-    # Check if one player's Yes conflicts with other's hard limit
-    for activity, score_a in activities_a.items():
-        if score_a >= 0.7:  # Player A wants this
-            if activity in hard_limits_b:  # Player B hard limit
-                conflicts.append({
+    def check_conflicts(activities, hard_limits, player_name_wants, player_name_limits):
+        local_conflicts = []
+        for limit_id in hard_limits:
+            restricted_keys = HARD_LIMIT_MAP.get(limit_id, [])
+            if not restricted_keys:
+                continue
+            
+            conflicting_activities = []
+            for act_key, score in activities.items():
+                if score >= 0.7:
+                    # Check if activity matches any restricted key substring
+                    for restricted in restricted_keys:
+                        if restricted in act_key:
+                            conflicting_activities.append(act_key)
+                            break
+            
+            if conflicting_activities:
+                activities_str = ", ".join(conflicting_activities)
+                local_conflicts.append({
                     'type': 'hard_limit_conflict',
-                    'activity': activity,
-                    'description': f'Player A wants {activity}, but it\'s Player B\'s hard limit'
+                    'activity': activities_str,
+                    'limit_id': limit_id,
+                    'description': f'{player_name_wants} wants {activities_str}, but {player_name_limits} has hard limit: {limit_id}'
                 })
+                
+        return local_conflicts
+
+    # Check A wants vs B limits
+    conflicts.extend(check_conflicts(activities_a, hard_limits_b, "Player A", "Player B"))
     
-    for activity, score_b in activities_b.items():
-        if score_b >= 0.7:  # Player B wants this
-            if activity in hard_limits_a:  # Player A hard limit
-                conflicts.append({
-                    'type': 'hard_limit_conflict',
-                    'activity': activity,
-                    'description': f'Player B wants {activity}, but it\'s Player A\'s hard limit'
-                })
+    # Check B wants vs A limits
+    conflicts.extend(check_conflicts(activities_b, hard_limits_a, "Player B", "Player A"))
     
     return conflicts
 
@@ -463,6 +529,20 @@ def interpret_compatibility(score: int) -> str:
         return 'Challenging compatibility'
 
 
+def flatten_activities(activities: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Flatten nested activities dictionary into a single level.
+    """
+    flat = {}
+    for key, value in activities.items():
+        if isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                flat[subkey] = subvalue
+        else:
+            flat[key] = value
+    return flat
+
+
 def calculate_compatibility(
     player_a: Dict[str, Any],
     player_b: Dict[str, Any],
@@ -474,21 +554,24 @@ def calculate_compatibility(
     Args:
         player_a: Player A's complete profile
         player_b: Player B's complete profile
-        weights: Optional custom weights (default: power=0.20, domain=0.25, activity=0.45, truth=0.10)
+        weights: Optional custom weights (default: power=0.15, domain=0.25, activity=0.40, truth=0.20)
     
     Returns:
         Complete compatibility result dict
     """
     if weights is None:
-        weights = {'power': 0.20, 'domain': 0.25, 'activity': 0.45, 'truth': 0.10}
+        weights = {'power': 0.15, 'domain': 0.25, 'activity': 0.40, 'truth': 0.20}
     
     # Extract components
     power_a = player_a.get('power_dynamic', {})
     power_b = player_b.get('power_dynamic', {})
     domains_a = player_a.get('domain_scores', {})
     domains_b = player_b.get('domain_scores', {})
+    
+    # Use categorized activities directly for overlap calculation
     activities_a = player_a.get('activities', {})
     activities_b = player_b.get('activities', {})
+    
     truth_topics_a = player_a.get('truth_topics', {})
     truth_topics_b = player_b.get('truth_topics', {})
     boundaries_a = player_a.get('boundaries', {})
@@ -506,9 +589,11 @@ def calculate_compatibility(
     
     adjusted_truth_overlap = truth_overlap * 0.5 if is_same_pole else truth_overlap
     
-    # Boundary conflicts
-    player_a_proxy = {'activities': activities_a, 'boundaries': boundaries_a}
-    player_b_proxy = {'activities': activities_b, 'boundaries': boundaries_b}
+    # Boundary conflicts (need flat activities for this check)
+    flat_a = flatten_activities(activities_a)
+    flat_b = flatten_activities(activities_b)
+    player_a_proxy = {'activities': flat_a, 'boundaries': boundaries_a}
+    player_b_proxy = {'activities': flat_b, 'boundaries': boundaries_b}
     boundary_conflicts = check_boundary_conflicts(player_a_proxy, player_b_proxy)
     
     # Calculate weighted overall score
@@ -526,9 +611,9 @@ def calculate_compatibility(
     # Convert to percentage
     overall_percentage = round(overall_score * 100)
     
-    # Identify mutual interests
-    mutual_activities = identify_mutual_activities(activities_a, activities_b)
-    growth_opportunities = identify_growth_opportunities(activities_a, activities_b)
+    # Identify mutual interests (using flat activities)
+    mutual_activities = identify_mutual_activities(flat_a, flat_b)
+    growth_opportunities = identify_growth_opportunities(flat_a, flat_b)
     
     # Mutual truth topics
     mutual_truth_topics = []
