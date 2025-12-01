@@ -42,7 +42,7 @@ cd /Users/mr/Documents/attuned-survey
 
 # OR manually create .env with:
 # DATABASE_URL=your_supabase_connection_string
-# GROQ_API_KEY=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
+# GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ### 2. Install Backend Dependencies
