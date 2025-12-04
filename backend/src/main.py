@@ -53,13 +53,17 @@ def create_app() -> Flask:
     # Only apply PostgreSQL-specific settings for PostgreSQL databases
     if db_url.startswith("postgresql://"):
         app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_size": 5,              # Connection pool size
-            "pool_recycle": 300,         # Recycle connections after 5 minutes
+            "pool_size": 10,             # Increased pool size
+            "pool_recycle": 60,          # Recycle connections after 1 minute (Supabase closes idle conns fast)
             "pool_pre_ping": True,       # Verify connections before using them
-            "max_overflow": 2,           # Allow extra connections when pool full
+            "max_overflow": 5,           # Allow extra connections when pool full
             "pool_timeout": 30,          # Wait up to 30 seconds for a connection
             "connect_args": {
-                "connect_timeout": 30,   # Connection timeout in seconds
+                "connect_timeout": 10,
+                "keepalives": 1,
+                "keepalives_idle": 30,
+                "keepalives_interval": 10,
+                "keepalives_count": 5,
             }
         }
     else:

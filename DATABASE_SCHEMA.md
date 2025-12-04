@@ -120,6 +120,7 @@ FROM users;
 | sexual_orientation | VARCHAR(64) | NULL | Respondent orientation |
 | version | VARCHAR(16) | NULL | Survey version identifier |
 | survey_version | TEXT | NOT NULL, DEFAULT '0.4' | Explicit survey version (NEW) |
+| user_id | UUID | FK → users.id, NULL | Authenticated user (NEW - Migration 012) |
 | survey_progress_id | INTEGER | FK → survey_progress.id, NULL | Link to progress record (NEW) |
 | payload_json | JSONB | NOT NULL | Complete survey data and derived profile |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Submission timestamp |
