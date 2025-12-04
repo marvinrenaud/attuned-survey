@@ -148,12 +148,16 @@ def create_app() -> Flask:
         from .routes.auth import auth_bp  # noqa: WPS433
         from .routes.partners import partners_bp  # noqa: WPS433
         from .routes.subscriptions import subscriptions_bp  # noqa: WPS433
-        from .routes.profile_sharing import profile_sharing_bp  # noqa: WPS433
+        from .routes.profile_sharing import profile_sharing_bp
+        from .routes.process_submission import process_submission_bp
+        from .routes.sync_user import sync_user_bp  # noqa: WPS433
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(partners_bp)
         app.register_blueprint(subscriptions_bp)
         app.register_blueprint(profile_sharing_bp)
+        app.register_blueprint(process_submission_bp)
+        app.register_blueprint(sync_user_bp)
         app.logger.info("✅ MVP routes registered")
     except Exception as e:
         app.logger.warning(f"⚠️ Could not register MVP routes: {e}")

@@ -1,5 +1,6 @@
 """Database models for survey data."""
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 
 from ..extensions import db
 
@@ -9,6 +10,7 @@ class SurveySubmission(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.String(128), unique=True, nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
     respondent_id = db.Column(db.String(128), index=True, nullable=True)
     name = db.Column(db.String(256), nullable=True)
     sex = db.Column(db.String(32), nullable=True)

@@ -6,6 +6,7 @@ import sys
 import os
 from datetime import datetime, timedelta
 import uuid
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -47,9 +48,12 @@ def db_session(app):
         transaction = connection.begin()
         
         # Bind session to connection
-        session = db.create_scoped_session(
-            options={"bind": connection, "binds": {}}
-        )
+        # Bind session to connection
+        session_factory = sessionmaker(bind=connection)
+        session = scoped_session(session_factory)
+        
+        # Save old session
+        old_session = db.session
         db.session = session
         
         yield session
@@ -58,6 +62,7 @@ def db_session(app):
         transaction.rollback()
         connection.close()
         session.remove()
+        db.session = old_session
 
 
 @pytest.fixture
