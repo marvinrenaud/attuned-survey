@@ -158,6 +158,10 @@ def create_app() -> Flask:
         app.register_blueprint(profile_sharing_bp)
         app.register_blueprint(process_submission_bp)
         app.register_blueprint(sync_user_bp)
+        
+        from .routes.notifications import notifications_bp
+        app.register_blueprint(notifications_bp)
+        
         app.logger.info("✅ MVP routes registered")
     except Exception as e:
         app.logger.warning(f"⚠️ Could not register MVP routes: {e}")

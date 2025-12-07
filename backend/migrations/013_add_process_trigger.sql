@@ -5,7 +5,7 @@ create extension if not exists pg_net;
 create or replace function handle_new_submission()
 returns trigger as $$
 declare
-  backend_url text := 'https://attuned-survey-1.onrender.com'; -- REPLACE WITH YOUR BACKEND URL
+  backend_url text := 'https://attuned-backend.onrender.com'; -- REPLACE WITH YOUR BACKEND URL
   api_key text := 'YOUR_API_KEY'; -- Optional: Add API key if needed
 begin
   -- Make HTTP POST request to backend
@@ -30,7 +30,7 @@ create trigger on_submission_created
 create or replace function handle_user_update()
 returns trigger as $$
 declare
-  backend_url text := 'https://attuned-survey-1.onrender.com'; -- REPLACE WITH YOUR BACKEND URL
+  backend_url text := 'https://attuned-backend.onrender.com'; -- REPLACE WITH YOUR BACKEND URL
 begin
   -- Only trigger if anatomy fields changed
   if (old.has_penis is distinct from new.has_penis) or

@@ -10,7 +10,7 @@ from ..models.user import User
 # Import PartnerConnection and RememberedPartner models
 # These will need to be created based on the migrations
 try:
-    from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum
+    from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, or_
     from sqlalchemy.orm import relationship
     
     class PartnerConnection(db.Model):
@@ -209,6 +209,39 @@ def decline_connection(connection_id):
         db.session.rollback()
         current_app.logger.error(f"Decline connection failed: {str(e)}")
         return jsonify({'error': 'Failed to decline connection'}), 500
+
+
+@partners_bp.route('/connections/<user_id>', methods=['GET'])
+def get_connections(user_id):
+    """
+    Get all partner connections for a user (pending, accepted, declined, expired).
+    """
+    try:
+        # Get user to find their email
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        # Find connections where:
+        # 1. User is the requester
+        # 2. User is the recipient (by email)
+        # 3. User is the recipient (by ID - for accepted ones)
+        connections = PartnerConnection.query.filter(
+            or_(
+                PartnerConnection.requester_user_id == user_id,
+                PartnerConnection.recipient_email == user.email,
+                PartnerConnection.recipient_user_id == user_id
+            )
+        ).order_by(PartnerConnection.created_at.desc()).all()
+        
+        return jsonify({
+            'connections': [c.to_dict() for c in connections]
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Get connections failed: {str(e)}")
+        return jsonify({'error': 'Failed to retrieve connections'}), 500
+
 
 
 @partners_bp.route('/remembered/<user_id>', methods=['GET'])

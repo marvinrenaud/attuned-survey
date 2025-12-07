@@ -527,3 +527,93 @@ def get_compatibility(submission_id_a, submission_id_b):
         logger.error(f"Failed to get compatibility: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+
+@bp.route("/recommendations/<session_id>/activities/<activity_id>/feedback", methods=["POST"])
+def submit_activity_feedback(session_id, activity_id):
+    """
+    Submit feedback for an activity (FR-37).
+    
+    Expected payload:
+    {
+        "user_id": "uuid",
+        "feedback_type": "like" | "dislike" | "neutral",
+        "feedback_executed": boolean,
+        "anonymous_session_id": "string" (optional, if user_id not provided)
+    }
+    """
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        anonymous_session_id = data.get('anonymous_session_id')
+        feedback_type = data.get('feedback_type')
+        feedback_executed = data.get('feedback_executed')
+        
+        if not user_id and not anonymous_session_id:
+            return jsonify({'error': 'Must provide either user_id or anonymous_session_id'}), 400
+            
+        if feedback_type and feedback_type not in ['like', 'dislike', 'neutral']:
+            return jsonify({'error': 'Invalid feedback_type'}), 400
+            
+        # Verify session exists
+        session = repository.get_session(session_id)
+        if not session:
+            return jsonify({'error': 'Session not found'}), 404
+            
+        # Import model here to avoid circular imports
+        from ..models.activity_history import UserActivityHistory
+        
+        # Check if history record already exists for this session/activity
+        # We want to update it if it does, or create new if not
+        query = UserActivityHistory.query.filter_by(
+            session_id=session_id,
+            activity_id=activity_id
+        )
+        
+        if user_id:
+            query = query.filter_by(user_id=user_id)
+        else:
+            query = query.filter_by(anonymous_session_id=anonymous_session_id)
+            
+        history = query.first()
+        
+        if history:
+            # Update existing
+            if feedback_type:
+                history.feedback_type = feedback_type
+            if feedback_executed is not None:
+                history.feedback_executed = feedback_executed
+            # Update timestamp to reflect latest interaction? 
+            # Maybe not, presented_at should stay original.
+        else:
+            # Create new record
+            # Note: Ideally this record is created when activity is presented, 
+            # but for now we create it on feedback if missing.
+            
+            # Get activity type from DB or session
+            # For simplicity, we'll query the activity to get its type
+            activity = repository.get_activity(activity_id)
+            activity_type = activity.type if activity else 'unknown'
+            
+            history = UserActivityHistory(
+                user_id=user_id,
+                anonymous_session_id=anonymous_session_id,
+                session_id=session_id,
+                activity_id=activity_id,
+                activity_type=activity_type,
+                feedback_type=feedback_type,
+                feedback_executed=feedback_executed,
+                was_skipped=False # Assumed not skipped if giving feedback
+            )
+            db.session.add(history)
+            
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'history': history.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Feedback submission failed: {str(e)}")
+        return jsonify({'error': 'Failed to submit feedback'}), 500
