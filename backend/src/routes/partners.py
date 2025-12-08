@@ -21,6 +21,7 @@ try:
         requester_display_name = Column(Text)  # Added via migration
         recipient_email = Column(Text, nullable=False)
         recipient_user_id = Column(String(36), ForeignKey('users.id'))
+        recipient_display_name = Column(Text)  # Added via migration
         status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', name='connection_status_enum'), nullable=False, default='pending')
         connection_token = Column(Text, unique=True, nullable=False)
         expires_at = Column(DateTime, nullable=False)
@@ -34,6 +35,7 @@ try:
                 'requester_display_name': self.requester_display_name,
                 'recipient_email': self.recipient_email,
                 'recipient_user_id': str(self.recipient_user_id) if self.recipient_user_id else None,
+                'recipient_display_name': self.recipient_display_name,
                 'status': self.status,
                 'connection_token': self.connection_token,
                 'expires_at': self.expires_at.isoformat() if self.expires_at else None,
