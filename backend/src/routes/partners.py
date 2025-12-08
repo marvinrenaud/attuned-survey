@@ -18,6 +18,7 @@ try:
         
         id = Column(Integer, primary_key=True)
         requester_user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+        requester_display_name = Column(Text)  # Added via migration
         recipient_email = Column(Text, nullable=False)
         recipient_user_id = Column(String(36), ForeignKey('users.id'))
         status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', name='connection_status_enum'), nullable=False, default='pending')
@@ -30,6 +31,7 @@ try:
             return {
                 'id': self.id,
                 'requester_user_id': str(self.requester_user_id),
+                'requester_display_name': self.requester_display_name,
                 'recipient_email': self.recipient_email,
                 'recipient_user_id': str(self.recipient_user_id) if self.recipient_user_id else None,
                 'status': self.status,
