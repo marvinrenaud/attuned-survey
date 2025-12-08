@@ -142,16 +142,20 @@ def accept_connection(connection_id):
     }
     """
     try:
-        data = request.get_json()
+        data = request.get_json() or {}  # Handle empty body
         recipient_id = data.get('recipient_user_id')
-        
-        if not recipient_id:
-            return jsonify({'error': 'Missing recipient_user_id'}), 400
         
         connection = PartnerConnection.query.filter_by(id=connection_id).first()
         
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
+            
+        # Fallback to DB if recipient_id not provided
+        if not recipient_id:
+            if connection.recipient_user_id:
+                recipient_id = str(connection.recipient_user_id)
+            else:
+                return jsonify({'error': 'Missing recipient_user_id (and not found in record)'}), 400
         
         # Check if expired
         if connection.expires_at < datetime.utcnow():

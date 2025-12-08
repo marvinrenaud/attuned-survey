@@ -17,7 +17,24 @@
 | :--- | :--- | :--- |
 | `POST` | `/connect` | Send a connection request to another user by email. |
 | `GET` | `/connections/<user_id>` | Get all connection requests (sent and received) for a user. |
-| `POST` | `/connections/<connection_id>/accept` | Accept a connection request. |
+**Endpoint:** `POST /api/partners/connections/<connection_id>/accept`
+
+**Description:** Accept a pending connection request.
+
+**Request Body:**
+```json
+{
+  "recipient_user_id": "uuid" // Optional if user already exists in system
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Connection accepted",
+  "connection": { ... }
+}
+```
 | `POST` | `/connections/<connection_id>/decline` | Decline a connection request. |
 | `GET` | `/remembered/<user_id>` | Get list of remembered partners (quick reconnect). |
 | `DELETE` | `/remembered/<user_id>/<partner_id>` | Remove a remembered partner. |
