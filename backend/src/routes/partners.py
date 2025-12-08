@@ -96,10 +96,15 @@ def create_connection_request():
         # Generate connection token
         connection_token = str(uuid.uuid4())
         
+        # Check if recipient exists
+        recipient = User.query.filter_by(email=recipient_email).first()
+        recipient_id = recipient.id if recipient else None
+        
         # Create connection request
         connection = PartnerConnection(
             requester_user_id=requester_id,
             recipient_email=recipient_email,
+            recipient_user_id=recipient_id,
             status='pending',
             connection_token=connection_token,
             expires_at=datetime.utcnow() + timedelta(minutes=5)  # FR-56: 5 minute expiry
