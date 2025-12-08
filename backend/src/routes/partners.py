@@ -12,6 +12,7 @@ from ..models.user import User
 try:
     from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, or_
     from sqlalchemy.orm import relationship
+    from sqlalchemy.dialects.postgresql import UUID
     
     class PartnerConnection(db.Model):
         __tablename__ = 'partner_connections'
@@ -46,8 +47,8 @@ try:
         __tablename__ = 'remembered_partners'
         
         id = Column(Integer, primary_key=True)
-        user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-        partner_user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+        user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
+        partner_user_id = Column(UUID(as_uuid=True), nullable=False)
         partner_name = Column(Text, nullable=False)
         partner_email = Column(Text, nullable=False)
         last_played_at = Column(DateTime, default=datetime.utcnow)
@@ -145,7 +146,21 @@ def accept_connection(connection_id):
         data = request.get_json() or {}  # Handle empty body
         recipient_id = data.get('recipient_user_id')
         
-        connection = PartnerConnection.query.filter_by(id=connection_id).first()
+        # Validate format if provided
+        if recipient_id:
+            try:
+                uuid.UUID(recipient_id)
+            except ValueError:
+                return jsonify({'error': 'Invalid recipient_user_id format'}), 400
+        
+        # Validate connection_id format (it's an integer in the DB model, but route treats it as string?)
+        # Wait, in the model `id` is Integer. So `connection_id` passed in URL must be castable to int.
+        try:
+            connection_id_int = int(connection_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid connection_id format'}), 400
+
+        connection = PartnerConnection.query.filter_by(id=connection_id_int).first()
         
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
@@ -157,8 +172,20 @@ def accept_connection(connection_id):
             else:
                 return jsonify({'error': 'Missing recipient_user_id (and not found in record)'}), 400
         
+        # Check if already accepted
+        if connection.status == 'accepted':
+             return jsonify({
+                'message': 'Connection already accepted',
+                'connection': connection.to_dict()
+             }), 200
+
         # Check if expired
-        if connection.expires_at < datetime.utcnow():
+        # Ensure safe comparison between naive and aware datetimes
+        expires_at = connection.expires_at
+        if expires_at.tzinfo:
+            expires_at = expires_at.replace(tzinfo=None)
+            
+        if expires_at < datetime.utcnow():
             connection.status = 'expired'
             db.session.commit()
             return jsonify({'error': 'Connection request expired'}), 410
@@ -168,24 +195,39 @@ def accept_connection(connection_id):
         connection.recipient_user_id = recipient_id
         
         # Add to remembered partners for both users
-        requester_partner = RememberedPartner(
-            user_id=connection.requester_user_id,
-            partner_user_id=recipient_id,
-            partner_name=User.query.get(recipient_id).display_name or 'Partner',
-            partner_email=connection.recipient_email,
-            last_played_at=datetime.utcnow()
-        )
+        # Note: RememberedPartner.user_id and partner_user_id are UUIDs, but PartnerConnection stores strings.
+        # We must cast strings to UUIDs.
         
-        recipient_partner = RememberedPartner(
-            user_id=recipient_id,
-            partner_user_id=connection.requester_user_id,
-            partner_name=User.query.get(connection.requester_user_id).display_name or 'Partner',
-            partner_email=User.query.get(connection.requester_user_id).email,
-            last_played_at=datetime.utcnow()
-        )
+        # For Requester
+        requester_uuid = uuid.UUID(str(connection.requester_user_id))
+        recipient_uuid = uuid.UUID(str(recipient_id))
         
-        db.session.add(requester_partner)
-        db.session.add(recipient_partner)
+        # Check if already exists (idempotency)
+        if not RememberedPartner.query.filter_by(user_id=requester_uuid, partner_user_id=recipient_uuid).first():
+            rp1 = RememberedPartner(
+                user_id=requester_uuid,
+                partner_user_id=recipient_uuid,
+                partner_name=connection.recipient_display_name or connection.recipient_email,
+                partner_email=connection.recipient_email,
+                last_played_at=datetime.utcnow()
+            )
+            db.session.add(rp1)
+        
+        # For Recipient
+        # Fetch requester details for recipient's remembered partner entry
+        requester = User.query.filter_by(id=connection.requester_user_id).first()
+        
+        # Check if already exists (idempotency)
+        if not RememberedPartner.query.filter_by(user_id=recipient_uuid, partner_user_id=requester_uuid).first():
+            rp2 = RememberedPartner(
+                user_id=recipient_uuid,
+                partner_user_id=requester_uuid,
+                partner_name=connection.requester_display_name or "Partner",
+                partner_email=requester.email if requester else "Unknown",
+                last_played_at=datetime.utcnow()
+            )
+            db.session.add(rp2)
+            
         db.session.commit()
         
         return jsonify({
@@ -279,13 +321,17 @@ def get_remembered_partners(user_id):
         return jsonify({'error': 'Failed to retrieve partners'}), 500
 
 
-@partners_bp.route('/remembered/<partner_id>', methods=['DELETE'])
-def remove_remembered_partner(partner_id):
+@partners_bp.route('/remembered/<user_id>/<partner_user_id>', methods=['DELETE'])
+def remove_remembered_partner(user_id, partner_user_id):
     """
     Remove a partner from remembered list (FR-61).
     """
     try:
-        partner = RememberedPartner.query.filter_by(id=partner_id).first()
+        # Find the entry where user_id remembers partner_user_id
+        partner = RememberedPartner.query.filter_by(
+            user_id=user_id,
+            partner_user_id=partner_user_id
+        ).first()
         
         if not partner:
             return jsonify({'error': 'Partner not found'}), 404
