@@ -77,6 +77,7 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': str(self.id),
+            'submission_id': self.submission.submission_id if self.submission else None,
             'email': self.email,
             'auth_provider': self.auth_provider,
             'display_name': self.display_name,

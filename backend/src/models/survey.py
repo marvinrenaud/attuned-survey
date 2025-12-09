@@ -19,6 +19,9 @@ class SurveySubmission(db.Model):
     payload_json = db.Column(db.JSON, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+    # Relationship to User
+    user = db.relationship("User", backref=db.backref("submission", uselist=False))
+
 
 class SurveyBaseline(db.Model):
     __tablename__ = "survey_baseline"
