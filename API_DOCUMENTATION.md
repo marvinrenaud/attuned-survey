@@ -6,7 +6,17 @@
 | :--- | :--- | :--- |
 | `POST` | `/register` | Register a new user after Supabase Auth signup. |
 | `POST` | `/login` | Update last login timestamp. |
-| `GET` | `/user/<user_id>` | Get user details. |
+| `GET` | `/user/<user_id>` | Get user details.
+```json
+{
+    "user": {
+        "id": "uuid",
+        "submission_id": "string", // Linked survey submission ID
+        "email": "user@example.com"
+        // ... other fields
+    }
+}
+```
 | `PATCH` | `/user/<user_id>` | Update user profile (display name, demographics, etc.). |
 | `DELETE` | `/user/<user_id>` | Delete user account and all associated data. |
 | `POST` | `/user/<user_id>/complete-demographics` | Mark demographics as complete (onboarding). |
