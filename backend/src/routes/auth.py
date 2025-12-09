@@ -6,6 +6,7 @@ from datetime import datetime
 from ..extensions import db
 from ..models.user import User
 from ..models.profile import Profile
+from ..models.survey import SurveySubmission
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -312,6 +313,9 @@ def complete_demographics(user_id):
         
         db.session.commit()
         
+        # Check if this completes onboarding
+        check_and_update_onboarding_status(user)
+        
         current_app.logger.info(f"Profile completed for user: {user.email}")
         
         return jsonify({
@@ -352,4 +356,27 @@ def validate_token():
         'valid': True,
         'message': 'Token validation should be handled by Supabase Auth'
     }), 200
+
+
+def check_and_update_onboarding_status(user):
+    """
+    Check if user has completed both profile (demographics) and survey.
+    If so, set onboarding_completed = True.
+    """
+    # 1. Check Profile Completeness (managed by complete_demographics)
+    if not user.profile_completed:
+        return False
+        
+    # 2. Check Survey Completeness (SurveySubmission exists)
+    submission = SurveySubmission.query.filter_by(user_id=user.id).first()
+    if not submission:
+        return False
+        
+    # Both complete -> Update status
+    if not user.onboarding_completed:
+        user.onboarding_completed = True
+        db.session.commit()
+        current_app.logger.info(f"Onboarding marked as complete for user: {user.id}")
+        
+    return True
 

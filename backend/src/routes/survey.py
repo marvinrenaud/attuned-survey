@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
 from ..models.survey import SurveyBaseline, SurveySubmission
+from ..models.user import User
 from ..scoring.profile import calculate_profile
 
 
@@ -120,9 +121,21 @@ def create_submission():
         derived_profile = calculate_profile(submission_id, answers)
         sanitized_submission["derived"] = derived_profile
 
+        # Try to parse respondent_id as user_id UUID
+        user_id_val = None
+        if respondent_id:
+            try:
+                # Check if it's a valid UUID
+                import uuid
+                uuid_obj = uuid.UUID(respondent_id)
+                user_id_val = uuid_obj
+            except ValueError:
+                pass
+
         submission = SurveySubmission(
             submission_id=submission_id,
             respondent_id=respondent_id,
+            user_id=user_id_val,
             name=name,
             sex=sex,
             sexual_orientation=sexual_orientation,
@@ -152,6 +165,16 @@ def create_submission():
         submission.payload_json = response_payload
 
         db.session.commit()
+        
+        # Check and update onboarding status
+        # Logic duplicated from auth.py to avoid circular imports
+        if submission.user_id:
+            user = User.query.get(submission.user_id)
+            if user and user.profile_completed and not user.onboarding_completed:
+                user.onboarding_completed = True
+                db.session.commit()
+                current_app.logger.info(f"Onboarding marked as complete for user: {user.id}")
+
         return jsonify(response_payload), 201
     except IntegrityError:
         db.session.rollback()
