@@ -64,6 +64,11 @@ class Session(db.Model):
     
     # Rules and configuration (JSON for flexibility)
     rules = db.Column(db.JSON, nullable=True)  # {avoid_maybe_until: 6, etc.}
+
+    # NEW Gameplay Fields (Migration 006)
+    players = db.Column(JSONB, nullable=True)  # List of player objects
+    game_settings = db.Column(JSONB, nullable=True)  # {intimacy_level, mode, etc.}
+    current_turn_state = db.Column(JSONB, nullable=True)  # {status, primary_idx, etc.}
     
     # Relationships
     player_a_profile = db.relationship('Profile', foreign_keys=[player_a_profile_id], backref='sessions_as_a')
@@ -102,5 +107,9 @@ class Session(db.Model):
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
             'rules': self.rules,
+            # New Gameplay Fields
+            'players': self.players,
+            'game_settings': self.game_settings,
+            'current_turn_state': self.current_turn_state,
         }
 

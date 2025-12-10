@@ -65,6 +65,13 @@
 | `POST` | `/compatibility` | Calculate compatibility between two players. |
 | `GET` | `/compatibility/<sub_a>/<sub_b>` | Get stored compatibility result. |
 
+## Gameplay (`/api/game`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/start` | Start a new N-player game session. |
+| `POST` | `/<session_id>/next` | Advance turn, rotate players, and get next activity. |
+
 ## Survey (`/api/survey`)
 
 | Method | Endpoint | Description |

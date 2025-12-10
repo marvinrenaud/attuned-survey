@@ -365,6 +365,10 @@ FROM users;
 | rules | JSONB | NULL | Game rules configuration |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Session start |
 | completed_at | TIMESTAMPTZ | NULL | Session end |
+| **Just-in-Time Gameplay (NEW)** |||
+| players | JSONB | NULL | List of players `[{id, name, anatomy}]` |
+| game_settings | JSONB | NULL | `{intimacy_level, mode, include_dare}` |
+| current_turn_state | JSONB | NULL | `{status, step, primary_idx}` |
 
 **Supports 4 User Combinations:**
 1. Authenticated primary + Authenticated partner
