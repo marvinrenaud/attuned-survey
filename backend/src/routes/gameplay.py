@@ -6,7 +6,7 @@ import logging
 import uuid
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 from flask import Blueprint, jsonify, request
@@ -58,7 +58,7 @@ def _check_daily_limit(user_id: str) -> dict:
         }
         
     # Reset if needed
-    if user.daily_activity_reset_at and user.daily_activity_reset_at < datetime.utcnow():
+    if user.daily_activity_reset_at and user.daily_activity_reset_at < datetime.now(timezone.utc):
         # This logic should ideally be in a central service or model method
         # But for now we rely on the subscription route logic or duplicate it here
         # Actually, let's just check the count vs limit. 
