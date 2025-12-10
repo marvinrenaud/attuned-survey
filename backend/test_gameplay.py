@@ -81,7 +81,7 @@ class TestGameplayEndpoints(unittest.TestCase):
         # Mock Activity
         mock_activity_instance = MagicMock()
         mock_activity_instance.id = "act_1"
-        mock_activity_instance.description = "Kiss your partner."
+        mock_activity_instance.script = {"steps": [{"actor": "A", "do": "Kiss your partner."}]}
         mock_activity_instance.intensity = 1
         mock_activity.query.filter_by.return_value.order_by.return_value.first.return_value = mock_activity_instance
 

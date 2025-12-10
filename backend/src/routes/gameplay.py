@@ -301,14 +301,26 @@ def next_turn(session_id):
         if not candidate:
             # Fallback
             candidate = Activity(
-                description="Tell your partner something you love about them.",
+                script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
                 type="truth",
                 intensity=1
             )
             
         # 4. Text Resolution
+        try:
+            # Robust extraction from script JSON
+            script = candidate.script
+            if not script or 'steps' not in script or not script['steps']:
+                raise ValueError("Activity script is missing or empty")
+                
+            activity_text = script['steps'][0].get('do', "Perform the activity.")
+            
+        except Exception as e:
+            logger.error(f"Failed to extract activity text: {e}")
+            activity_text = "Perform a mystery activity with your partner."
+            
         resolved_text = resolve_activity_text(
-            candidate.description,
+            activity_text,
             primary_player["name"],
             secondary_player["name"]
         )
