@@ -35,9 +35,9 @@ def get_profile_ui(user_id):
         # --- Arousal Charts ---
         arousal = derived.get('arousal_propensity', {})
         arousal_ui = {
-            "sexual_excitation": int(arousal.get('sexual_excitation', 0) * 100),
-            "inhibition_performance": int(arousal.get('inhibition_performance', 0) * 100),
-            "inhibition_consequence": int(arousal.get('inhibition_consequence', 0) * 100)
+            "sexual_excitation": arousal.get('sexual_excitation', 0.0),
+            "inhibition_performance": arousal.get('inhibition_performance', 0.0),
+            "inhibition_consequence": arousal.get('inhibition_consequence', 0.0)
         }
 
         # --- Power Dynamic ---
@@ -114,7 +114,7 @@ def get_profile_ui(user_id):
             "user_id": user_id,
             "submission_id": submission.submission_id,
             "general": {
-                "arousal": arousal_ui,
+                "arousal_profile": arousal_ui,
                 "power": power_ui,
                 "domains": domain_ui,
                 "boundaries": boundaries_ui

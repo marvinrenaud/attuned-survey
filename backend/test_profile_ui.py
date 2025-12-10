@@ -96,7 +96,7 @@ def test_profile_ui_endpoint(mock_submission_cls, mock_user_cls, client):
     assert data["submission_id"] == submission_id
     
     # General
-    assert data["general"]["arousal"]["sexual_excitation"] == 100
+    assert data["general"]["arousal_profile"]["sexual_excitation"] == 1.0
     assert data["general"]["power"]["label"] == "Switch"
     assert data["general"]["power"]["top_percentage"] == 50
     assert data["general"]["power"]["bottom_percentage"] == 50
