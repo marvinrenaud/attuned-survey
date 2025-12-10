@@ -1,6 +1,6 @@
 """Subscription management and validation routes."""
 from flask import Blueprint, jsonify, request, current_app
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..extensions import db
 from ..models.user import User
@@ -22,7 +22,7 @@ def validate_subscription(user_id):
         
         is_premium = (
             user.subscription_tier == 'premium' and
-            (user.subscription_expires_at is None or user.subscription_expires_at > datetime.utcnow())
+            (user.subscription_expires_at is None or user.subscription_expires_at > datetime.now(timezone.utc))
         )
         
         return jsonify({
@@ -60,9 +60,9 @@ def check_daily_limit(user_id):
             }), 200
         
         # Check if reset is needed
-        if user.daily_activity_reset_at < datetime.utcnow() - timedelta(days=1):
+        if user.daily_activity_reset_at < datetime.now(timezone.utc) - timedelta(days=1):
             user.daily_activity_count = 0
-            user.daily_activity_reset_at = datetime.utcnow()
+            user.daily_activity_reset_at = datetime.now(timezone.utc)
             db.session.commit()
         
         daily_limit = 25  # FR-25: configurable limit
