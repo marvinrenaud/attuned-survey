@@ -151,6 +151,7 @@ def create_app() -> Flask:
         from .routes.profile_sharing import profile_sharing_bp
         from .routes.process_submission import process_submission_bp
         from .routes.sync_user import sync_user_bp  # noqa: WPS433
+        from .routes.profile_ui import profile_ui_bp # noqa: WPS433
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(partners_bp)
@@ -158,6 +159,7 @@ def create_app() -> Flask:
         app.register_blueprint(profile_sharing_bp)
         app.register_blueprint(process_submission_bp)
         app.register_blueprint(sync_user_bp)
+        app.register_blueprint(profile_ui_bp)
         
         from .routes.notifications import notifications_bp
         app.register_blueprint(notifications_bp)
