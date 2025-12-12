@@ -240,6 +240,12 @@ def start_game():
             settings["selection_mode"] = settings["selection_mode"].upper()
         if "player_order_mode" in settings:
             settings["player_order_mode"] = settings["player_order_mode"].upper()
+            
+        # Normalize boolean settings
+        if "include_dare" in settings:
+            val = settings["include_dare"]
+            if isinstance(val, str):
+                settings["include_dare"] = val.lower() == "true"
         
         # Basic validation
         if not player_ids:
