@@ -354,6 +354,10 @@ def next_turn(session_id):
         action = data.get("action", "NEXT")
         selected_type = data.get("selected_type")
         
+        # Normalize selected_type
+        if selected_type == "null":
+            selected_type = None
+        
         # Determine Flow
         response = _advance_turn(session, selected_type)
         
