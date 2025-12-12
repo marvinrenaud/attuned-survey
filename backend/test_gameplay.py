@@ -21,8 +21,9 @@ class TestGameplayEndpoints(unittest.TestCase):
 
     @patch('backend.src.routes.gameplay.Session')
     @patch('backend.src.routes.gameplay.User')
+    @patch('backend.src.routes.gameplay.Activity')
     @patch('backend.src.routes.gameplay.db')
-    def test_start_game(self, mock_db, mock_user, mock_session_cls):
+    def test_start_game(self, mock_db, mock_activity, mock_user, mock_session_cls):
         # Mock User
         mock_user_instance = MagicMock()
         mock_user_instance.id = "12345678-1234-5678-1234-567812345678"
@@ -30,14 +31,35 @@ class TestGameplayEndpoints(unittest.TestCase):
         mock_user_instance.get_anatomy_self_array.return_value = ["vagina"]
         mock_user_instance.subscription_tier = "free"
         mock_user_instance.daily_activity_count = 0
-        mock_user_instance.daily_activity_reset_at = None # Fix datetime comparison
+        mock_user_instance.daily_activity_reset_at = None 
         mock_user.query.filter_by.return_value.first.return_value = mock_user_instance
         mock_user.query.get.return_value = mock_user_instance
 
         # Mock Session creation
         mock_session_instance = MagicMock()
         mock_session_instance.session_id = "sess_123"
+        # Mock players and settings for _advance_turn
+        mock_session_instance.players = [
+            {"id": "u1", "name": "Alice", "anatomy": ["vagina"]},
+            {"id": "u2", "name": "Bob", "anatomy": ["penis"]}
+        ]
+        mock_session_instance.game_settings = {
+            "intimacy_level": 3,
+            "player_order_mode": "SEQUENTIAL",
+            "selection_mode": "RANDOM"
+        }
+        mock_session_instance.current_turn_state = {"status": "INIT", "primary_player_idx": -1, "step": 0}
         mock_session_cls.return_value = mock_session_instance
+
+        # Mock Activity for _advance_turn
+        mock_activity_instance = MagicMock()
+        mock_activity_instance.id = "act_1"
+        mock_activity_instance.script = {"steps": [{"actor": "A", "do": "Kiss your partner."}]}
+        mock_activity_instance.intensity = 1
+        mock_activity.query.filter_by.return_value.order_by.return_value.first.return_value = mock_activity_instance
+        
+        # Mock db.func.random
+        mock_db.func.random.return_value = "RANDOM"
 
         payload = {
             "player_ids": ["12345678-1234-5678-1234-567812345678", "87654321-4321-8765-4321-876543218765"],

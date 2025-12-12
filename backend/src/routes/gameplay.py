@@ -82,6 +82,136 @@ def _increment_daily_count(user_id: str):
         user.daily_activity_count += 1
         db.session.commit()
 
+def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Advance the session to the next turn.
+    Handles step increment, player rotation, activity selection, and state update.
+    Returns the response dictionary.
+    """
+    settings = session.game_settings or {}
+    players = session.players or []
+    state = session.current_turn_state or {}
+    
+    # 1. Increment Step
+    current_step = state.get("step", 0) + 1
+    
+    # Infinite Loop Logic
+    # Effective step for intensity calculation (1-25)
+    effective_step = (current_step - 1) % 25 + 1
+    
+    # 2. Player Rotation
+    current_idx = state.get("primary_player_idx", -1)
+    primary_idx, secondary_idx = _get_next_player_indices(
+        current_idx, len(players), settings.get("player_order_mode", "SEQUENTIAL")
+    )
+    
+    primary_player = players[primary_idx]
+    secondary_player = players[secondary_idx]
+    
+    # 3. Activity Selection
+    # If MANUAL and we just finished a card (no selected_type provided), 
+    # we stop and ask for selection.
+    if settings.get("selection_mode") == "MANUAL" and not selected_type:
+        # Transition to WAITING state
+        new_state = {
+            "status": "WAITING_FOR_SELECTION",
+            "primary_player_idx": primary_idx,
+            "step": current_step
+        }
+        session.current_turn_state = new_state
+        flag_modified(session, "current_turn_state")
+        db.session.commit()
+        
+        return {
+            "session_id": session.session_id,
+            "current_turn": {
+                "status": "WAITING_FOR_SELECTION",
+                "primary_player": primary_player
+            }
+        }
+
+    # Generate Card (RANDOM mode or MANUAL+SELECTED)
+    activity_type = selected_type if selected_type else random.choice(["truth", "dare"])
+    if activity_type.lower() == "dare" and not settings.get("include_dare", True):
+        activity_type = "truth"
+        
+    # Get Intensity
+    intimacy_level = settings.get("intimacy_level", 3)
+    rating = 'R'
+    if intimacy_level <= 2: rating = 'G'
+    elif intimacy_level >= 5: rating = 'X'
+    
+    intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
+    
+    # Find Activity
+    # HACK: Direct DB query for MVP speed. 
+    # In production, use repository.find_best_activity_candidate
+    candidate = Activity.query.filter_by(
+        type=activity_type.lower(),
+        rating=rating
+    ).order_by(db.func.random()).first()
+    
+    if not candidate:
+        # Fallback
+        candidate = Activity(
+            script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
+            type="truth",
+            intensity=1
+        )
+        
+    # 4. Text Resolution
+    try:
+        script = candidate.script
+        if not script or 'steps' not in script or not script['steps']:
+            raise ValueError("Activity script is missing or empty")
+            
+        activity_text = script['steps'][0].get('do', "Perform the activity.")
+        
+    except Exception as e:
+        logger.error(f"Failed to extract activity text: {e}")
+        activity_text = "Perform a mystery activity with your partner."
+        
+    resolved_text = resolve_activity_text(
+        activity_text,
+        primary_player["name"],
+        secondary_player["name"]
+    )
+    
+    # 5. Update State
+    new_state = {
+        "status": "SHOW_CARD",
+        "primary_player_idx": primary_idx,
+        "step": current_step,
+        "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback"
+    }
+    session.current_turn_state = new_state
+    flag_modified(session, "current_turn_state")
+    
+    db.session.commit()
+    
+    # Response
+    phase = get_phase_name(effective_step, 25)
+    
+    return {
+        "session_id": session.session_id,
+        "progress": {
+            "current_step": current_step,
+            "total_steps": 25,
+            "intensity_phase": phase.capitalize()
+        },
+        "current_turn": {
+            "status": "SHOW_CARD",
+            "card": {
+                "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback",
+                "type": activity_type.upper(),
+                "primary_player": primary_player["name"],
+                "secondary_players": [secondary_player["name"]],
+                "display_text": resolved_text,
+                "intensity_rating": candidate.intensity
+            }
+        }
+    }
+
 # --- Routes ---
 
 @gameplay_bp.route("/start", methods=["POST"])
@@ -176,21 +306,14 @@ def start_game():
             "limit_status": limit_status,
             "current_turn": {
                 "status": "WAITING_FOR_SELECTION" if settings.get("selection_mode") == "MANUAL" else "SHOW_CARD",
-                # If RANDOM, we could generate immediately, but client will likely call /next to start.
-                # Let's stick to the plan: 
-                # "If selection_mode is RANDOM: Generate and return the first card immediately."
             }
         }
         
         if settings.get("selection_mode") == "RANDOM":
-            # Auto-trigger first turn
-            # We can reuse the next logic by calling it internally or redirecting client.
-            # For simplicity, let's tell client to call /next to start the first card.
-            # Or we can implement the logic here.
-            # Let's return "READY_TO_START" or similar, or just let them call next.
-            # The prompt said: "Generate and return the first card immediately."
-            # So we should probably call the generation logic.
-            pass # We'll implement this if strictly needed, but client calling /next is cleaner.
+            # Auto-trigger first turn to avoid "Skipped Turn" bug
+            response = _advance_turn(session)
+            # Add limit status back to response
+            response["limit_status"] = limit_status
             
         return jsonify(response), 200
         
@@ -219,151 +342,10 @@ def next_turn(session_id):
         action = data.get("action", "NEXT")
         selected_type = data.get("selected_type")
         
-        settings = session.game_settings or {}
-        players = session.players or []
-        state = session.current_turn_state or {}
-        
-        # Validate Manual Mode
-        if settings.get("selection_mode") == "MANUAL" and not selected_type and action == "NEXT":
-             # If we are in WAITING state, we need a type.
-             # If we are in SHOW_CARD state (clicking Next), we go to WAITING state.
-             pass
-
         # Determine Flow
-        # 1. Increment Step
-        current_step = state.get("step", 0) + 1
+        response = _advance_turn(session, selected_type)
         
-        # Infinite Loop Logic
-        # Effective step for intensity calculation (1-25)
-        effective_step = (current_step - 1) % 25 + 1
-        
-        # 2. Player Rotation
-        current_idx = state.get("primary_player_idx", -1)
-        primary_idx, secondary_idx = _get_next_player_indices(
-            current_idx, len(players), settings.get("player_order_mode", "SEQUENTIAL")
-        )
-        
-        primary_player = players[primary_idx]
-        secondary_player = players[secondary_idx]
-        
-        # 3. Activity Selection
-        # If MANUAL and we just finished a card, we might need to stop and ask for selection.
-        if settings.get("selection_mode") == "MANUAL" and not selected_type:
-            # We are transitioning to WAITING state
-            new_state = {
-                "status": "WAITING_FOR_SELECTION",
-                "primary_player_idx": primary_idx, # Pre-assign who will choose
-                "step": current_step
-            }
-            session.current_turn_state = new_state
-            flag_modified(session, "current_turn_state")
-            db.session.commit()
-            
-            return jsonify({
-                "session_id": session.session_id,
-                "current_turn": {
-                    "status": "WAITING_FOR_SELECTION",
-                    "primary_player": primary_player
-                }
-            })
-
-        # If we are here, we are generating a card (RANDOM mode or MANUAL+SELECTED)
-        activity_type = selected_type if selected_type else random.choice(["truth", "dare"])
-        if activity_type.lower() == "dare" and not settings.get("include_dare", True):
-            activity_type = "truth"
-            
-        # Get Intensity
-        # Map 1-5 intimacy level to rating G/R/X? 
-        # The prompt said "intimacy_level: (Int 1-5)". 
-        # Existing logic uses G/R/X. We need a mapping.
-        # 1-2: G, 3-4: R, 5: X
-        intimacy_level = settings.get("intimacy_level", 3)
-        rating = 'R'
-        if intimacy_level <= 2: rating = 'G'
-        elif intimacy_level >= 5: rating = 'X'
-        
-        intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
-        
-        # Find Activity (Mocking repository call for now, assuming we'd add a method)
-        # We need to filter by anatomy.
-        # primary_player['anatomy'] vs activity requirements.
-        # For MVP, let's pick a random one from the DB that matches type/rating.
-        # In production, use `repository.find_best_activity_candidate`.
-        
-        # HACK: Direct DB query for MVP speed
-        # We need to filter by anatomy in the query or post-filter.
-        # Let's just grab a random one for now to demonstrate the flow.
-        candidate = Activity.query.filter_by(
-            type=activity_type.lower(),
-            rating=rating
-        ).order_by(db.func.random()).first()
-        
-        if not candidate:
-            # Fallback
-            candidate = Activity(
-                script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
-                type="truth",
-                intensity=1
-            )
-            
-        # 4. Text Resolution
-        try:
-            # Robust extraction from script JSON
-            script = candidate.script
-            if not script or 'steps' not in script or not script['steps']:
-                raise ValueError("Activity script is missing or empty")
-                
-            activity_text = script['steps'][0].get('do', "Perform the activity.")
-            
-        except Exception as e:
-            logger.error(f"Failed to extract activity text: {e}")
-            activity_text = "Perform a mystery activity with your partner."
-            
-        resolved_text = resolve_activity_text(
-            activity_text,
-            primary_player["name"],
-            secondary_player["name"]
-        )
-        
-        # 5. Update State
-        new_state = {
-            "status": "SHOW_CARD",
-            "primary_player_idx": primary_idx,
-            "step": current_step,
-            "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback"
-        }
-        session.current_turn_state = new_state
-        flag_modified(session, "current_turn_state")
-        
-        # Increment Limit (if free)
-        # Assuming owner is the one playing? Or primary player?
-        # Usually the session owner pays the credits.
-        # We'll skip this check for the exact moment to avoid complexity in this snippet.
-        
-        db.session.commit()
-        
-        # Response
-        phase = get_phase_name(effective_step, 25)
-        
-        return jsonify({
-            "session_id": session.session_id,
-            "progress": {
-                "current_step": current_step,
-                "total_steps": 25, # It's infinite, but we show the arc
-                "intensity_phase": phase.capitalize()
-            },
-            "current_turn": {
-                "status": "SHOW_CARD",
-                "card": {
-                    "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback",
-                    "type": activity_type.upper(),
-                    "primary_player": primary_player["name"],
-                    "secondary_players": [secondary_player["name"]],
-                    "display_text": resolved_text,
-                    "intensity_rating": candidate.intensity
-                }
-            }
-        })
+        return jsonify(response)
         
     except Exception as e:
         logger.error(f"Next turn failed: {str(e)}")
