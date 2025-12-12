@@ -53,7 +53,7 @@ class TestGameplayEndpoints(unittest.TestCase):
 
         # Mock Activity for _advance_turn
         mock_activity_instance = MagicMock()
-        mock_activity_instance.id = "act_1"
+        mock_activity_instance.activity_id = 101 # Integer ID
         mock_activity_instance.script = {"steps": [{"actor": "A", "do": "Kiss your partner."}]}
         mock_activity_instance.intensity = 1
         mock_activity.query.filter_by.return_value.order_by.return_value.first.return_value = mock_activity_instance
@@ -102,7 +102,7 @@ class TestGameplayEndpoints(unittest.TestCase):
 
         # Mock Activity
         mock_activity_instance = MagicMock()
-        mock_activity_instance.id = "act_1"
+        mock_activity_instance.activity_id = 101
         mock_activity_instance.script = {"steps": [{"actor": "A", "do": "Kiss your partner."}]}
         mock_activity_instance.intensity = 1
         mock_activity.query.filter_by.return_value.order_by.return_value.first.return_value = mock_activity_instance
@@ -136,7 +136,7 @@ class TestGameplayEndpoints(unittest.TestCase):
         # Mock Session
         mock_session = MagicMock()
         mock_session.session_id = "sess_123" # Fix missing session_id
-        mock_session.players = [{"name": "Alice"}, {"name": "Bob"}]
+        mock_session.players = [{"id": "u1", "name": "Alice"}, {"id": "u2", "name": "Bob"}]
         mock_session.game_settings = {"selection_mode": "MANUAL", "player_order_mode": "SEQUENTIAL"}
         mock_session.current_turn_state = {"status": "SHOW_CARD", "primary_player_idx": 0, "step": 1}
         mock_session_cls.query.get.return_value = mock_session

@@ -182,7 +182,7 @@ def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict
         "status": "SHOW_CARD",
         "primary_player_idx": primary_idx,
         "step": current_step,
-        "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback"
+        "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback"
     }
     session.current_turn_state = new_state
     flag_modified(session, "current_turn_state")
@@ -202,7 +202,7 @@ def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict
         "current_turn": {
             "status": "SHOW_CARD",
             "card": {
-                "card_id": str(candidate.id) if hasattr(candidate, 'id') else "fallback",
+                "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
                 "type": activity_type.upper(),
                 "primary_player": primary_player["name"],
                 "secondary_players": [secondary_player["name"]],
