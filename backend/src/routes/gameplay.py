@@ -235,6 +235,12 @@ def start_game():
         player_ids = data.get("player_ids", [])
         settings = data.get("settings", {})
         
+        # Normalize settings to uppercase
+        if "selection_mode" in settings:
+            settings["selection_mode"] = settings["selection_mode"].upper()
+        if "player_order_mode" in settings:
+            settings["player_order_mode"] = settings["player_order_mode"].upper()
+        
         # Basic validation
         if not player_ids:
             return jsonify({"error": "No players provided"}), 400
