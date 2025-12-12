@@ -82,60 +82,67 @@ def _increment_daily_count(user_id: str):
         user.daily_activity_count += 1
         db.session.commit()
 
-def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict[str, Any]:
+def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: Optional[str] = None) -> Dict[str, Any]:
     """
-    Advance the session to the next turn.
-    Handles step increment, player rotation, activity selection, and state update.
-    Returns the response dictionary.
+    Generate data for a single turn without committing to DB.
+    Used for batch generation.
     """
     settings = session.game_settings or {}
     players = session.players or []
     state = session.current_turn_state or {}
     
-    # 1. Increment Step
-    current_step = state.get("step", 0) + 1
+    # Calculate Step
+    # If we are generating ahead, we need to know the base step + offset
+    # Current step in DB is the *last committed* step.
+    # If queue is empty, next step is current_step + 1.
+    # If queue has N items, next step is current_step + 1 + N.
+    # But here we just take an offset.
+    
+    # We need to know the "current" state to calculate rotation.
+    # This is tricky for batching because we need to simulate the state evolution.
+    # For MVP, let's assume we can calculate based on (current_step + offset).
+    
+    base_step = state.get("step", 0)
+    # If the queue exists, the "effective" current step for generation is 
+    # the step of the last item in the queue.
+    queue = state.get("queue", [])
+    if queue and step_offset == 0:
+        # If we are just appending, we start from the end of the queue
+        last_item = queue[-1]
+        base_step = last_item.get("step", base_step)
+    
+    target_step = base_step + 1 + step_offset
     
     # Infinite Loop Logic
-    # Effective step for intensity calculation (1-25)
-    effective_step = (current_step - 1) % 25 + 1
+    effective_step = (target_step - 1) % 25 + 1
     
-    # 2. Player Rotation
-    current_idx = state.get("primary_player_idx", -1)
-    primary_idx, secondary_idx = _get_next_player_indices(
-        current_idx, len(players), settings.get("player_order_mode", "SEQUENTIAL")
-    )
+    # Player Rotation
+    # We need to calculate rotation based on the step number.
+    # If SEQUENTIAL: index = (step - 1) % num_players
+    # If RANDOM: we just pick random.
+    
+    num_players = len(players)
+    if num_players == 0:
+        return {} # Should not happen
+        
+    if settings.get("player_order_mode") == "SEQUENTIAL":
+        # 0-based index for step 1 is 0.
+        primary_idx = (target_step - 1) % num_players
+    else:
+        # RANDOM
+        primary_idx = random.randint(0, num_players - 1)
+        
+    secondary_idx = (primary_idx + 1) % num_players
     
     primary_player = players[primary_idx]
     secondary_player = players[secondary_idx]
     
-    # 3. Activity Selection
-    # If MANUAL and we just finished a card (no selected_type provided), 
-    # we stop and ask for selection.
-    if settings.get("selection_mode") == "MANUAL" and not selected_type:
-        # Transition to WAITING state
-        new_state = {
-            "status": "WAITING_FOR_SELECTION",
-            "primary_player_idx": primary_idx,
-            "step": current_step
-        }
-        session.current_turn_state = new_state
-        flag_modified(session, "current_turn_state")
-        db.session.commit()
-        
-        return {
-            "session_id": session.session_id,
-            "current_turn": {
-                "status": "WAITING_FOR_SELECTION",
-                "primary_player": primary_player
-            }
-        }
-
-    # Generate Card (RANDOM mode or MANUAL+SELECTED)
+    # Activity Selection
     activity_type = selected_type if selected_type else random.choice(["truth", "dare"])
     if activity_type.lower() == "dare" and not settings.get("include_dare", True):
         activity_type = "truth"
         
-    # Get Intensity
+    # Intensity
     intimacy_level = settings.get("intimacy_level", 3)
     rating = 'R'
     if intimacy_level <= 2: rating = 'G'
@@ -144,29 +151,25 @@ def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict
     intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
     
     # Find Activity
-    # HACK: Direct DB query for MVP speed. 
-    # In production, use repository.find_best_activity_candidate
     candidate = Activity.query.filter_by(
         type=activity_type.lower(),
         rating=rating
     ).order_by(db.func.random()).first()
     
     if not candidate:
-        # Fallback
         candidate = Activity(
             script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
             type="truth",
             intensity=1
         )
+        # Mock ID for fallback if needed, or handle in response
         
-    # 4. Text Resolution
+    # Text Resolution
     try:
         script = candidate.script
         if not script or 'steps' not in script or not script['steps']:
             raise ValueError("Activity script is missing or empty")
-            
         activity_text = script['steps'][0].get('do', "Perform the activity.")
-        
     except Exception as e:
         logger.error(f"Failed to extract activity text: {e}")
         activity_text = "Perform a mystery activity with your partner."
@@ -177,40 +180,73 @@ def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict
         secondary_player["name"]
     )
     
-    # 5. Update State
-    new_state = {
+    # Return Turn Object (not full response)
+    return {
         "status": "SHOW_CARD",
         "primary_player_idx": primary_idx,
-        "step": current_step,
-        "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback"
-    }
-    session.current_turn_state = new_state
-    flag_modified(session, "current_turn_state")
-    
-    db.session.commit()
-    
-    # Response
-    phase = get_phase_name(effective_step, 25)
-    
-    return {
-        "session_id": session.session_id,
-        "progress": {
-            "current_step": current_step,
-            "total_steps": 25,
-            "intensity_phase": phase.capitalize()
+        "step": target_step,
+        "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
+        "card": {
+            "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
+            "type": activity_type.upper(),
+            "primary_player": primary_player["name"],
+            "secondary_players": [secondary_player["name"]],
+            "display_text": resolved_text,
+            "intensity_rating": candidate.intensity
         },
-        "current_turn": {
-            "status": "SHOW_CARD",
-            "card": {
-                "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
-                "type": activity_type.upper(),
-                "primary_player": primary_player["name"],
-                "secondary_players": [secondary_player["name"]],
-                "display_text": resolved_text,
-                "intensity_rating": candidate.intensity
-            }
+        "progress": {
+            "current_step": target_step,
+            "total_steps": 25,
+            "intensity_phase": get_phase_name(effective_step, 25).capitalize()
         }
     }
+
+def _fill_queue(session: Session, target_size: int = 3) -> List[Dict[str, Any]]:
+    """
+    Ensure the session queue has `target_size` items.
+    Updates session.current_turn_state but caller must commit.
+    Returns the updated queue.
+    """
+    state = session.current_turn_state or {}
+    queue = state.get("queue", [])
+    
+    # If queue is missing (migration), init it
+    if queue is None: queue = []
+    
+    current_size = len(queue)
+    if current_size >= target_size:
+        return queue
+        
+    needed = target_size - current_size
+    
+    # Generate needed items
+    # We pass offset=0 because _generate_turn_data looks at the *end* of the queue
+    # to determine the next step.
+    for _ in range(needed):
+        turn_data = _generate_turn_data(session)
+        # We only store essential data in the queue to keep DB size small?
+        # Or store the full card for fast retrieval.
+        # Let's store the full object needed for frontend.
+        queue.append(turn_data)
+        
+    # Update State
+    state["queue"] = queue
+    # Also update the "current" pointers to reflect the HEAD of the queue?
+    # Actually, the "current turn" displayed to the user is queue[0].
+    # But `current_turn_state` usually tracks what is *active*.
+    # So `state['step']` should probably match `queue[0]['step']`.
+    
+    if queue:
+        head = queue[0]
+        state["status"] = head["status"]
+        state["primary_player_idx"] = head["primary_player_idx"]
+        state["step"] = head["step"]
+        state["card_id"] = head["card_id"]
+        
+    session.current_turn_state = state
+    flag_modified(session, "current_turn_state")
+    
+    return queue
 
 # --- Routes ---
 
@@ -218,30 +254,18 @@ def _advance_turn(session: Session, selected_type: Optional[str] = None) -> Dict
 def start_game():
     """
     Start a new game session.
-    
-    Payload:
-    {
-        "player_ids": ["uuid1", "uuid2"], (or anonymous objects)
-        "settings": {
-            "intimacy_level": 1-5,
-            "player_order_mode": "SEQUENTIAL" | "RANDOM",
-            "selection_mode": "RANDOM" | "MANUAL",
-            "include_dare": true/false
-        }
-    }
+    Returns a queue of 3 cards.
     """
     try:
         data = request.get_json()
         player_ids = data.get("player_ids", [])
         settings = data.get("settings", {})
         
-        # Normalize settings to uppercase
+        # Normalize settings
         if "selection_mode" in settings:
             settings["selection_mode"] = settings["selection_mode"].upper()
         if "player_order_mode" in settings:
             settings["player_order_mode"] = settings["player_order_mode"].upper()
-            
-        # Normalize boolean settings
         if "include_dare" in settings:
             val = settings["include_dare"]
             if isinstance(val, str):
@@ -251,19 +275,14 @@ def start_game():
         if not player_ids:
             return jsonify({"error": "No players provided"}), 400
             
-        # Check limit for the requesting user (assuming first player is owner/requester)
-        # In a real app, we'd use the auth token user_id.
-        # For now, we'll check the first player if they are a registered user.
-        # If anonymous, we might skip or use IP-based? MVP: Skip check for anon.
+        # Check limit (1 credit for start)
         limit_status = {"limit_reached": False}
         owner_id = None
         
-        # Resolve players (Mocking resolution for now, assuming IDs are passed)
-        # In reality, we'd fetch User objects or use provided anonymous data.
+        # Resolve players
         players = []
         for pid in player_ids:
-            # Try to find user
-            user = User.query.filter_by(id=pid).first() if len(pid) > 10 else None # Simple UUID check
+            user = User.query.filter_by(id=pid).first() if len(pid) > 10 else None
             if user:
                 if not owner_id: owner_id = user.id
                 players.append({
@@ -272,11 +291,10 @@ def start_game():
                     "anatomy": user.get_anatomy_self_array()
                 })
             else:
-                # Anonymous / Mock
                 players.append({
                     "id": pid,
                     "name": f"Player {pid[:4]}",
-                    "anatomy": ["penis"] # Default fallback
+                    "anatomy": ["penis"]
                 })
         
         if owner_id:
@@ -293,41 +311,36 @@ def start_game():
             game_settings=settings,
             current_turn_state={
                 "status": "INIT",
-                "primary_player_idx": -1, # Will increment to 0 on first turn
-                "step": 0
+                "primary_player_idx": -1,
+                "step": 0,
+                "queue": [] # Init empty queue
             },
-            # Legacy fields required by DB constraint (using dummy IDs or first player)
-            # We need to handle the foreign keys if we want to be strict.
-            # For this MVP refactor, we might need to relax constraints or use dummy profiles.
-            # Assuming we can use nullable fields if we updated the model, 
-            # but the model has nullable=False for player_a_profile_id.
-            # We might need to fetch/create dummy profiles for legacy compat.
-            # For now, let's assume we can pass 0 or 1 if constraints allow, 
-            # or we need to actually find profiles.
-            # HACK: Use existing profile IDs if possible, or 1.
             player_a_profile_id=1, 
             player_b_profile_id=1
         )
         
         db.session.add(session)
+        # Commit first to get session_id (needed?) No, but good practice.
         db.session.commit()
         
-        # Initial Response
-        response = {
+        # Fill Queue (Batch of 3)
+        queue = _fill_queue(session, target_size=3)
+        
+        # Charge 1 Credit for the first card
+        if owner_id:
+            _increment_daily_count(owner_id)
+            # Re-check limit status after increment
+            limit_status = _check_daily_limit(owner_id)
+            
+        db.session.commit()
+        
+        # Response
+        return jsonify({
             "session_id": session.session_id,
             "limit_status": limit_status,
-            "current_turn": {
-                "status": "WAITING_FOR_SELECTION" if settings.get("selection_mode") == "MANUAL" else "SHOW_CARD",
-            }
-        }
-        
-        if settings.get("selection_mode") == "RANDOM":
-            # Auto-trigger first turn to avoid "Skipped Turn" bug
-            response = _advance_turn(session)
-            # Add limit status back to response
-            response["limit_status"] = limit_status
-            
-        return jsonify(response), 200
+            "queue": queue, # Return full queue
+            "current_turn": queue[0] if queue else {} # Legacy support / convenience
+        }), 200
         
     except Exception as e:
         logger.error(f"Start game failed: {str(e)}")
@@ -337,39 +350,52 @@ def start_game():
 def next_turn(session_id):
     """
     Advance to next turn.
-    
-    Payload:
-    {
-        "action": "NEXT" | "SKIP",
-        "selected_type": "TRUTH" | "DARE" (Optional)
-    }
+    Consumes the played card, increments credit, replenishes queue.
     """
-    start_time = time.time()
     try:
         session = Session.query.get(session_id)
         if not session:
             return jsonify({"error": "Session not found"}), 404
             
         data = request.get_json()
-        action = data.get("action", "NEXT")
-        selected_type = data.get("selected_type")
+        # action = data.get("action", "NEXT") # Not used yet, but good for feedback
         
-        # Normalize selected_type
-        if selected_type == "null":
-            selected_type = None
+        # 1. Consume the current card (Head of queue)
+        state = session.current_turn_state or {}
+        queue = state.get("queue", [])
         
-        # Determine Flow
-        response = _advance_turn(session, selected_type)
+        if queue:
+            # The card at index 0 was just "played"
+            queue.pop(0)
+            state["queue"] = queue
+            session.current_turn_state = state
+            flag_modified(session, "current_turn_state")
+            
+            # Charge 1 Credit for the played card
+            players = session.players or []
+            if players:
+                owner_id = players[0].get("id")
+                if len(owner_id) > 10:
+                    _increment_daily_count(owner_id)
         
-        # Add limit status
-        # Assuming first player is owner/requester as in start_game
+        # 2. Replenish Queue (Add 1 to end)
+        queue = _fill_queue(session, target_size=3)
+        db.session.commit()
+        
+        # 3. Response
+        limit_status = {}
         players = session.players or []
         if players:
             owner_id = players[0].get("id")
-            # Check if it's a valid UUID (not anonymous)
             if len(owner_id) > 10:
                 limit_status = _check_daily_limit(owner_id)
-                response["limit_status"] = limit_status
+        
+        response = {
+            "session_id": session.session_id,
+            "limit_status": limit_status,
+            "queue": queue,
+            "current_turn": queue[0] if queue else {}
+        }
         
         return jsonify(response)
         
