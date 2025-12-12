@@ -357,6 +357,16 @@ def next_turn(session_id):
         # Determine Flow
         response = _advance_turn(session, selected_type)
         
+        # Add limit status
+        # Assuming first player is owner/requester as in start_game
+        players = session.players or []
+        if players:
+            owner_id = players[0].get("id")
+            # Check if it's a valid UUID (not anonymous)
+            if len(owner_id) > 10:
+                limit_status = _check_daily_limit(owner_id)
+                response["limit_status"] = limit_status
+        
         return jsonify(response)
         
     except Exception as e:
