@@ -120,6 +120,7 @@ def get_profile_ui(user_id):
         # 4. Construct Final Response
         response = {
             "user_id": user_id,
+            "display_name": user.display_name,
             "submission_id": profile.submission_id,
             "general": {
                 "arousal_profile": arousal_ui,
