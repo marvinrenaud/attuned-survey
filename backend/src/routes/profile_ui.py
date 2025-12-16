@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, current_app
 from ..models.user import User
 from ..models.survey import SurveySubmission
+from ..models.profile import Profile
 from ..scoring.profile import calculate_profile
 from ..scoring.display_names import (
     DOMAIN_DISPLAY_NAMES,
@@ -15,20 +16,27 @@ profile_ui_bp = bp
 @bp.route("/<user_id>/profile-ui", methods=["GET"])
 def get_profile_ui(user_id):
     try:
-        # 1. Fetch User and Submission
+        # 1. Fetch User
         user = User.query.get(user_id)
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        submission = SurveySubmission.query.filter_by(user_id=user_id).order_by(SurveySubmission.created_at.desc()).first()
+        # 2. Fetch Latest Profile
+        # We query the Profile table directly as it contains the derived data
+        profile = Profile.query.filter_by(user_id=user_id).order_by(Profile.created_at.desc()).first()
         
-        if not submission:
-            return jsonify({"error": "No survey submission found"}), 404
+        if not profile:
+            return jsonify({"error": "No profile found"}), 404
 
-        # 2. Get Derived Profile (use payload or calculate)
-        derived = submission.payload_json.get('derived')
-        if not derived:
-            derived = calculate_profile(submission.submission_id, submission.payload_json.get('answers', {}))
+        # 3. Use Profile Data
+        # The profile object already has the derived data as attributes/columns
+        derived = {
+            'arousal_propensity': profile.arousal_propensity,
+            'power_dynamic': profile.power_dynamic,
+            'domain_scores': profile.domain_scores,
+            'activities': profile.activities,
+            'boundaries': profile.boundaries
+        }
 
         # 3. Transform Data for UI
 
@@ -112,7 +120,7 @@ def get_profile_ui(user_id):
         # 4. Construct Final Response
         response = {
             "user_id": user_id,
-            "submission_id": submission.submission_id,
+            "submission_id": profile.submission_id,
             "general": {
                 "arousal_profile": arousal_ui,
                 "power": power_ui,
