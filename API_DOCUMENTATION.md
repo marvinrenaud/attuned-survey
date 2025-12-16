@@ -20,6 +20,28 @@
 | `PATCH` | `/user/<user_id>` | Update user profile (display name, demographics, etc.). |
 | `DELETE` | `/user/<user_id>` | Delete user account and all associated data. |
 | `POST` | `/user/<user_id>/complete-demographics` | Mark demographics as complete (onboarding). |
+| `GET` | `/users/<user_id>/profile-ui` | Get derived profile data formatted for UI. |
+
+### User Profile UI
+`GET /api/users/<user_id>/profile-ui`
+
+Returns the calculated profile data (arousal, power, domains, etc.) formatted for the frontend.
+
+**Response:**
+```json
+{
+  "user_id": "uuid",
+  "display_name": "User Name", // Added for personalization
+  "submission_id": "sub_123",
+  "general": {
+    "arousal_profile": { ... },
+    "power": { ... },
+    "domains": [ ... ],
+    "boundaries": [ ... ]
+  },
+  "interests": [ ... ]
+}
+```
 
 ## Partner Connections (`/api/partners`)
 
@@ -160,6 +182,35 @@ Advance to the next turn. Consumes the current card (head of queue) and generate
 | `GET` | `/submissions` | Get all survey submissions. |
 | `POST` | `/submissions` | Submit a new survey response. |
 | `GET` | `/submissions/<submission_id>` | Get a specific submission. |
+| `POST` | `/submit` | **Atomic Submission**: Submit survey, calculate profile, and update user status. |
+
+### Atomic Survey Submission
+`POST /api/survey/submit`
+
+Submits survey answers, calculates the profile, updates the user's onboarding status, and marks the survey progress as complete in a single atomic transaction.
+
+**Headers:**
+- `Authorization`: `Bearer <JWT>`
+
+**Request Body:**
+```json
+{
+  "survey_version": "0.4",
+  "answers": {
+    "A1": 5,
+    "B1a": "Y",
+    ...
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Survey submitted successfully",
+  "profile_id": 123
+}
+```
 
 ## Profile Sharing (`/api/profile-sharing`)
 
