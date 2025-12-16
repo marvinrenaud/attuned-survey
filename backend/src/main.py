@@ -163,6 +163,9 @@ def create_app() -> Flask:
         app.register_blueprint(profile_ui_bp)
         app.register_blueprint(gameplay_bp)
         
+        from .routes.survey_submit import survey_submit_bp
+        app.register_blueprint(survey_submit_bp)
+        
         from .routes.notifications import notifications_bp
         app.register_blueprint(notifications_bp)
         

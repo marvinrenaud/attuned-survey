@@ -15,7 +15,8 @@ class SurveySubmission(db.Model):
     name = db.Column(db.String(256), nullable=True)
     sex = db.Column(db.String(32), nullable=True)
     sexual_orientation = db.Column(db.String(64), nullable=True)
-    version = db.Column(db.String(16), nullable=True)
+    survey_version = db.Column(db.String(16), nullable=True)
+    survey_progress_id = db.Column(db.Integer, db.ForeignKey('survey_progress.id', ondelete='SET NULL'), nullable=True)
     payload_json = db.Column(db.JSON, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
@@ -55,3 +56,24 @@ class SurveyQuestion(db.Model):
     __table_args__ = (
         db.UniqueConstraint('survey_version', 'question_id', name='uq_survey_questions_version_id'),
     )
+
+
+class SurveyProgress(db.Model):
+    """Tracks in-progress survey drafts."""
+    __tablename__ = "survey_progress"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
+    anonymous_session_id = db.Column(db.Text, nullable=True, index=True)
+    survey_version = db.Column(db.Text, nullable=False, default='0.4')
+    status = db.Column(db.String(32), nullable=False, default='in_progress')  # Enum: in_progress, completed, abandoned
+    current_question = db.Column(db.Text, nullable=True)
+    completion_percentage = db.Column(db.Integer, nullable=False, default=0)
+    answers = db.Column(db.JSON, nullable=False, default=dict)
+    started_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    last_saved_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    current_question_index = db.Column(db.Integer, nullable=True)
+
+    # Relationships
+    # Note: SurveySubmission has a FK to this table, but we don't strictly need the backref here yet.
