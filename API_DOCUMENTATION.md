@@ -92,6 +92,40 @@ Returns the calculated profile data (arousal, power, domains, etc.) formatted fo
 | `POST` | `/` | Calculate compatibility between two players. |
 | `GET` | `/<sub_a>/<sub_b>` | Get stored compatibility result. |
 
+### Compatibility Scoring
+`GET /api/compatibility/<user_id>/<partner_id>`
+
+Returns the calculated compatibility score and details between a user and their partner. The response is filtered according to the partner's privacy settings:
+- `demographics_only`: Returns only the overall score and interpretation.
+- `overlapping_only`: Returns score, detailed breakdown, mutual interests/topics, and filtered overlapping profile data.
+- `all_responses`: Returns score, detailed breakdown, and full partner profile.
+
+**Response (Example - Overlapping Only):**
+```json
+{
+  "overall_compatibility": {
+    "score": 85,
+    "interpretation": "Exceptional compatibility"
+  },
+  "sharing_setting": "overlapping_only",
+  "calculation_date": "2023-10-27T10:00:00",
+  "breakdown": {
+    "power_complement": 90,
+    "domain_similarity": 60,
+    "activity_overlap": 80,
+    "truth_overlap": 70
+  },
+  "mutual_activities": ["kissing", "cuddling"],
+  "growth_opportunities": ["massage"],
+  "mutual_truth_topics": ["fantasies"],
+  "blocked_activities": {
+    "reason": "hard_boundaries",
+    "activities": ["choking"]
+  },
+  "boundary_conflicts": []
+}
+```
+
 ## Gameplay (`/api/game`)
 
 | Method | Endpoint | Description |

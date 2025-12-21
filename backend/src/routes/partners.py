@@ -14,6 +14,11 @@ try:
     from sqlalchemy.orm import relationship
     from sqlalchemy.dialects.postgresql import UUID
     
+    # Import Compatibility model and calculator
+    from ..models.compatibility import Compatibility
+    from ..compatibility.calculator import calculate_compatibility
+    from ..models.profile import Profile
+    
     class PartnerConnection(db.Model):
         __tablename__ = 'partner_connections'
         
@@ -215,7 +220,7 @@ def accept_connection(connection_id):
         
         # For Recipient
         # Fetch requester details for recipient's remembered partner entry
-        requester = User.query.filter_by(id=connection.requester_user_id).first()
+        requester = User.query.filter_by(id=requester_uuid).first()
         
         # Check if already exists (idempotency)
         if not RememberedPartner.query.filter_by(user_id=recipient_uuid, partner_user_id=requester_uuid).first():
@@ -229,6 +234,65 @@ def accept_connection(connection_id):
             db.session.add(rp2)
             
         db.session.commit()
+
+        # --- TRIGGER COMPATIBILITY CALCULATION ---
+        try:
+            # Fetch profiles for both users
+            requester_profile = Profile.query.filter_by(user_id=requester_uuid).order_by(Profile.created_at.desc()).first()
+            recipient_profile = Profile.query.filter_by(user_id=recipient_uuid).order_by(Profile.created_at.desc()).first()
+            
+            if requester_profile and recipient_profile:
+                current_app.logger.info(f"Calculating compatibility for {requester_uuid} and {recipient_uuid}")
+                
+                # Prepare profile data for calculator
+                profile_a_data = requester_profile.to_dict()
+                profile_b_data = recipient_profile.to_dict()
+                
+                # Calculate scores
+                result = calculate_compatibility(profile_a_data, profile_b_data)
+                
+                # Determine ordered IDs for storage (low ID first)
+                if requester_profile.id < recipient_profile.id:
+                    p1_id, p2_id = requester_profile.id, recipient_profile.id
+                else:
+                    p1_id, p2_id = recipient_profile.id, requester_profile.id
+                
+                # Check for existing record
+                compat_record = Compatibility.query.filter_by(player_a_id=p1_id, player_b_id=p2_id).first()
+                
+                if not compat_record:
+                    compat_record = Compatibility(
+                        player_a_id=p1_id,
+                        player_b_id=p2_id
+                    )
+                
+                # Update record
+                compat_record.overall_score = float(result['overall_compatibility']['score']) / 100.0
+                compat_record.overall_percentage = int(result['overall_compatibility']['score'])
+                compat_record.interpretation = result['overall_compatibility']['interpretation']
+                compat_record.breakdown = result['breakdown']
+                compat_record.mutual_activities = result['mutual_activities']
+                compat_record.growth_opportunities = result['growth_opportunities']
+                compat_record.mutual_truth_topics = result['mutual_truth_topics']
+                compat_record.blocked_activities = result['blocked_activities']
+                compat_record.boundary_conflicts = result['boundary_conflicts']
+                compat_record.calculation_version = result['compatibility_version']
+                compat_record.created_at = datetime.utcnow()
+                
+                db.session.add(compat_record)
+                db.session.commit()
+                current_app.logger.info(f"Compatibility calculated: {compat_record.overall_percentage}%")
+                
+            else:
+                 current_app.logger.warning("Could not calculate compatibility: One or both profiles missing")
+
+        except Exception as calc_error:
+            # Don't fail the connection acceptance if calculation fails
+            current_app.logger.error(f"Compatibility calculation failed: {calc_error}")
+            db.session.rollback()  # Rollback only calculation part if needed, but connection was already committed above logic check.
+            # Actually, `db.session.commit()` was called at line 236. So we are in a new transaction implicitly or need to manage it.
+            # Best to keep it separate.
+
         
         return jsonify({
             'success': True,
