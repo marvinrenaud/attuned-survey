@@ -127,5 +127,7 @@ def get_compatibility(user_id, partner_id):
         return jsonify(response), 200
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         current_app.logger.error(f"Get compatibility failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve compatibility'}), 500
+        return jsonify({'error': 'Failed to retrieve compatibility (v2)', 'details': str(e)}), 500
