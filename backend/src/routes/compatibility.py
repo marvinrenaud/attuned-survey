@@ -1,6 +1,7 @@
 """Compatibility routes for retrieving scores."""
 from flask import Blueprint, jsonify, current_app
 from sqlalchemy import or_
+import uuid
 
 from ..extensions import db
 from ..models.user import User
@@ -18,6 +19,7 @@ def get_compatibility(user_id, partner_id):
     Respects partner's profile sharing settings.
     """
     try:
+        current_app.logger.info(f"Compatibility request for {user_id} and {partner_id}")
         # 1. Verify connection exists (active or accepted)
         connection = PartnerConnection.query.filter(
             or_(
@@ -37,9 +39,17 @@ def get_compatibility(user_id, partner_id):
         sharing_setting = partner.profile_sharing_setting
         
         # 3. Fetch Compatibility Record
+        # 3. Fetch Compatibility Record
         # Determine order (lower ID first)
-        req_profile = Profile.query.filter_by(user_id=user_id).order_by(Profile.created_at.desc()).first()
-        partner_profile = Profile.query.filter_by(user_id=partner_id).order_by(Profile.created_at.desc()).first()
+        # Ensure UUIDs are used for Profile lookup (safeguard against string/uuid mismatches)
+        try:
+            u_uuid = uuid.UUID(str(user_id))
+            p_uuid = uuid.UUID(str(partner_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid UUID format'}), 400
+             
+        req_profile = Profile.query.filter_by(user_id=u_uuid).order_by(Profile.created_at.desc()).first()
+        partner_profile = Profile.query.filter_by(user_id=p_uuid).order_by(Profile.created_at.desc()).first()
         
         if not req_profile or not partner_profile:
              return jsonify({'error': 'Profiles not found'}), 404
