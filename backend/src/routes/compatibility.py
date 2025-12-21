@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, current_app
 from sqlalchemy import or_
 import uuid
+import re
 
 from ..extensions import db
 from ..models.user import User
@@ -17,14 +18,25 @@ def get_compatibility(user_id, partner_id):
     try:
         current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
         
-        # 0. Sanitize Inputs
+    try:
+        current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
+        
+        # 0. Sanitize Inputs using Regex Extraction (Nuclear Option)
+        # Finds a 32-char hex string (with optional dashes) anywhere in the input
+        uuid_pattern = re.compile(r'[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}', re.IGNORECASE)
+        
+        def extract_uuid_safe(val, label):
+            s_val = str(val)
+            match = uuid_pattern.search(s_val)
+            if not match:
+                # Log the exact ascii values to debug hidden chars if this fails
+                ascii_debug = [ord(c) for c in s_val]
+                raise ValueError(f"No valid UUID pattern found in input. Ascii: {ascii_debug}")
+            return uuid.UUID(match.group())
+
         try:
-            # Clean inputs: remove whitespace and potential surrounding quotes
-            u_clean = str(user_id).strip().strip('"').strip("'")
-            p_clean = str(partner_id).strip().strip('"').strip("'")
-            
-            u_uuid = uuid.UUID(u_clean)
-            p_uuid = uuid.UUID(p_clean)
+            u_uuid = extract_uuid_safe(user_id, "User")
+            p_uuid = extract_uuid_safe(partner_id, "Partner")
             
             # Canonical strings for querying PartnerConnection (model uses String)
             u_str = str(u_uuid)
@@ -137,4 +149,4 @@ def get_compatibility(user_id, partner_id):
         import traceback
         traceback.print_exc()
         current_app.logger.error(f"Get compatibility failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve compatibility (v4)', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to retrieve compatibility (v5)', 'details': str(e)}), 500
