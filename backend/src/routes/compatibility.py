@@ -15,19 +15,24 @@ compatibility_bp = Blueprint('compatibility', __name__, url_prefix='/api/compati
 @compatibility_bp.route('/<user_id>/<partner_id>', methods=['GET'])
 def get_compatibility(user_id, partner_id):
     try:
-        current_app.logger.info(f"Compatibility request for {user_id} and {partner_id}")
+        current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
         
         # 0. Sanitize Inputs
         try:
-            u_uuid = uuid.UUID(str(user_id))
-            p_uuid = uuid.UUID(str(partner_id))
+            # Clean inputs: remove whitespace and potential surrounding quotes
+            u_clean = str(user_id).strip().strip('"').strip("'")
+            p_clean = str(partner_id).strip().strip('"').strip("'")
+            
+            u_uuid = uuid.UUID(u_clean)
+            p_uuid = uuid.UUID(p_clean)
             
             # Canonical strings for querying PartnerConnection (model uses String)
             u_str = str(u_uuid)
             p_str = str(p_uuid)
             
-        except ValueError:
-             return jsonify({'error': 'Invalid UUID format'}), 400
+        except ValueError as val_err:
+             current_app.logger.error(f"Invalid UUID input: User='{user_id}', Partner='{partner_id}'. Error: {val_err}")
+             return jsonify({'error': f"Invalid UUID format: {str(val_err)}", 'received_user': str(user_id), 'received_partner': str(partner_id)}), 400
              
         # 1. Verify connection exists (active or accepted)
         # Use sanitized strings to prevent "invalid input syntax" DB errors
@@ -42,7 +47,7 @@ def get_compatibility(user_id, partner_id):
             return jsonify({'error': 'No active connection found'}), 403
             
         # 2. Get Partner's settings
-        partner = User.query.filter_by(id=partner_id).first()
+        partner = User.query.filter_by(id=p_uuid).first()
         if not partner:
             return jsonify({'error': 'Partner not found'}), 404
             
@@ -132,4 +137,4 @@ def get_compatibility(user_id, partner_id):
         import traceback
         traceback.print_exc()
         current_app.logger.error(f"Get compatibility failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve compatibility (v3)', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to retrieve compatibility (v4)', 'details': str(e)}), 500
