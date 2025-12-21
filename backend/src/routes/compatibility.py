@@ -14,17 +14,27 @@ compatibility_bp = Blueprint('compatibility', __name__, url_prefix='/api/compati
 
 @compatibility_bp.route('/<user_id>/<partner_id>', methods=['GET'])
 def get_compatibility(user_id, partner_id):
-    """
-    Get compatibility score and breakdown for a user and partner.
-    Respects partner's profile sharing settings.
-    """
     try:
         current_app.logger.info(f"Compatibility request for {user_id} and {partner_id}")
+        
+        # 0. Sanitize Inputs
+        try:
+            u_uuid = uuid.UUID(str(user_id))
+            p_uuid = uuid.UUID(str(partner_id))
+            
+            # Canonical strings for querying PartnerConnection (model uses String)
+            u_str = str(u_uuid)
+            p_str = str(p_uuid)
+            
+        except ValueError:
+             return jsonify({'error': 'Invalid UUID format'}), 400
+             
         # 1. Verify connection exists (active or accepted)
+        # Use sanitized strings to prevent "invalid input syntax" DB errors
         connection = PartnerConnection.query.filter(
             or_(
-                (PartnerConnection.requester_user_id == user_id) & (PartnerConnection.recipient_user_id == partner_id),
-                (PartnerConnection.requester_user_id == partner_id) & (PartnerConnection.recipient_user_id == user_id)
+                (PartnerConnection.requester_user_id == u_str) & (PartnerConnection.recipient_user_id == p_str),
+                (PartnerConnection.requester_user_id == p_str) & (PartnerConnection.recipient_user_id == u_str)
             )
         ).filter_by(status='accepted').first()
         
@@ -39,15 +49,7 @@ def get_compatibility(user_id, partner_id):
         sharing_setting = partner.profile_sharing_setting
         
         # 3. Fetch Compatibility Record
-        # 3. Fetch Compatibility Record
         # Determine order (lower ID first)
-        # Ensure UUIDs are used for Profile lookup (safeguard against string/uuid mismatches)
-        try:
-            u_uuid = uuid.UUID(str(user_id))
-            p_uuid = uuid.UUID(str(partner_id))
-        except ValueError:
-             return jsonify({'error': 'Invalid UUID format'}), 400
-             
         req_profile = Profile.query.filter_by(user_id=u_uuid).order_by(Profile.created_at.desc()).first()
         partner_profile = Profile.query.filter_by(user_id=p_uuid).order_by(Profile.created_at.desc()).first()
         
@@ -130,4 +132,4 @@ def get_compatibility(user_id, partner_id):
         import traceback
         traceback.print_exc()
         current_app.logger.error(f"Get compatibility failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve compatibility (v2)', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to retrieve compatibility (v3)', 'details': str(e)}), 500
