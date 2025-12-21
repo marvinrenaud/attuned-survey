@@ -17,8 +17,6 @@ compatibility_bp = Blueprint('compatibility', __name__, url_prefix='/api/compati
 def get_compatibility(user_id, partner_id):
     try:
         current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
-        
-    try:
         current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
         
         # 0. Sanitize Inputs using Regex Extraction (Nuclear Option)
