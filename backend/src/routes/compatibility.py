@@ -258,10 +258,10 @@ def get_compatibility_ui(user_id, partner_id):
 
         comparison_scores = {
             "overall_score": compat_record.overall_percentage,
-            "power_score": safe_val(breakdown.get('power', 0)),
-            "domain_score": safe_val(breakdown.get('domain', 0)),
-            "activity_score": safe_val(breakdown.get('activity', 0)),
-            "truth_score": safe_val(breakdown.get('truth', 0))
+            "power_score": safe_val(breakdown.get('power_complement', 0)),
+            "domain_score": safe_val(breakdown.get('domain_similarity', 0)),
+            "activity_score": safe_val(breakdown.get('activity_overlap', 0)),
+            "truth_score": safe_val(breakdown.get('truth_overlap', 0))
         }
         
         # Power Overlap

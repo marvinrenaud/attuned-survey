@@ -117,7 +117,7 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
             overall_percentage=85,
             interpretation="Great",
             created_at=MagicMock(isoformat=lambda: "2023-01-01"),
-            breakdown={'power': 90, 'domain': 80, 'activity': 70, 'truth': 60},
+            breakdown={'power_complement': 90, 'domain_similarity': 80, 'activity_overlap': 70, 'truth_overlap': 60},
             mutual_activities=[], 
             mutual_truth_topics=[],
             blocked_activities=[],
@@ -142,6 +142,13 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
         self.assertIn('user_score', domains[0])
         self.assertIn('partner_score', domains[0])
         self.assertEqual(domains[0]['user_score'], 10) # check value
+        
+        # 1b. Comparison Scores
+        scores = data['compatibility_summary']['comparison_scores']
+        self.assertEqual(scores['power_score'], 90, "Power score should match breakdown")
+        self.assertEqual(scores['domain_score'], 80, "Domain score should match breakdown")
+        self.assertEqual(scores['activity_score'], 70, "Activity score should match breakdown")
+        self.assertEqual(scores['truth_score'], 60, "Truth score should match breakdown")
         
         # 2. Flattened Arousal
         arousal = data['comparison_data']['arousal']
