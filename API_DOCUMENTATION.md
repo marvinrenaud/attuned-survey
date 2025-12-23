@@ -126,6 +126,60 @@ Returns the calculated compatibility score and details between a user and their 
 }
 ```
 
+### Compatibility UI (Optimized)
+`GET /api/compatibility/<user_id>/<partner_id>/ui`
+
+Returns a flattened, null-safe response designed for the frontend summary page.
+- **Strict Domain Order**: Sensation, Connection, Power, Exploration, Verbal.
+- **Smart Matching**: "Giving" and "Receiving" pairs are marked as "mutual".
+- **Conflict Detection**: Checks "Hard Limits" against partner interests.
+
+**Response:**
+```json
+{
+  "compatibility_summary": {
+    "overall_score": 85,
+    "comparison_scores": {
+      "power_score": 90,
+      "domain_score": 60,
+      "activity_score": 80,
+      "truth_score": 70
+    },
+    "sharing_setting": "overlapping_only"
+  },
+  "comparison_data": {
+    "domains": [
+      { "domain": "Sensation", "user_score": 64, "partner_score": 70 },
+      ...
+    ],
+    "power_overlap": {
+      "user_label": "Bottom",
+      "partner_label": "Top",
+      "complement_score": 90
+    },
+    "arousal": {
+      "user_sexual_excitation": 0.5,
+      "partner_sexual_excitation": 0.6
+      // ...
+    }
+  },
+  "interests_comparison": [
+    {
+      "section": "Physical Touch",
+      "tags": [
+        { "name": "Massage (Receiving)", "status": "mutual" },
+        { "name": "Spanking", "status": "conflict" }
+      ]
+    }
+  ],
+  "partner_profile": {
+     // Standard profile-ui structure (General, Power, Domains, Interests)
+     "general": { ... },
+     "interests": [ ... ]
+  }
+}
+```
+
 ## Gameplay (`/api/game`)
 
 | Method | Endpoint | Description |
