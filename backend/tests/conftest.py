@@ -61,7 +61,8 @@ def db_session(app):
     """Create database session for testing."""
     with app.app_context():
         connection = db.engine.connect()
-        transaction = connection.begin()
+        transaction = connection.begin_nested() # Start nested transaction for rollback safety
+
         
         # Bind session to connection
         session_factory = sessionmaker(bind=connection)

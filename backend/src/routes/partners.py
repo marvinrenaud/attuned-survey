@@ -28,7 +28,7 @@ try:
         recipient_email = Column(Text, nullable=False)
         recipient_user_id = Column(String(36), ForeignKey('users.id'))
         recipient_display_name = Column(Text)  # Added via migration
-        status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', name='connection_status_enum'), nullable=False, default='pending')
+        status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', 'disconnected', name='connection_status_enum'), nullable=False, default='pending')
         connection_token = Column(Text, unique=True, nullable=False)
         expires_at = Column(DateTime, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow)
@@ -97,7 +97,13 @@ def create_connection_request():
             return jsonify({'error': 'Missing required fields'}), 400
         
         # Check if requester exists
-        requester = User.query.filter_by(id=requester_id).first()
+        # Cast to UUID for query safety (SQLAlchemy with SQLite strictness)
+        try:
+            requester_uuid = uuid.UUID(str(requester_id))
+        except ValueError:
+            return jsonify({'error': 'Invalid requester_user_id format'}), 400
+
+        requester = User.query.filter_by(id=requester_uuid).first()
         if not requester:
             return jsonify({'error': 'Requester not found'}), 404
         
@@ -108,11 +114,56 @@ def create_connection_request():
         recipient = User.query.filter_by(email=recipient_email).first()
         recipient_id = recipient.id if recipient else None
         
+        # Check for existing active connections
+        # We need to check both directions if we know the recipient_id
+        # If we only know email, we check connections to that email
+        
+        existing_query = PartnerConnection.query.filter(
+            or_(
+                # Case 1: I sent request to their email
+                (PartnerConnection.requester_user_id == requester_id) & (PartnerConnection.recipient_email == recipient_email),
+                # Case 2: They sent request to me (if we know their ID) - harder with just email lookup
+                # But we can try to look up active connections where I am recipient and they are requester
+                (PartnerConnection.recipient_user_id == requester_id) & (PartnerConnection.recipient_email == requester.email)  # Approximation
+            )
+        )
+        
+        # If we found the recipient user account, we can be more precise
+        if recipient_id:
+            # Prepare string IDs for PartnerConnection (String) columns
+            req_id_str = str(requester_id)
+            rec_id_str = str(recipient_id)
+            
+            existing_query = PartnerConnection.query.filter(
+                or_(
+                    # Forward: Me -> Them
+                    (PartnerConnection.requester_user_id == req_id_str) & (PartnerConnection.recipient_user_id == rec_id_str),
+                    (PartnerConnection.requester_user_id == req_id_str) & (PartnerConnection.recipient_email == recipient_email),
+                    
+                    # Backward: Them -> Me
+                    (PartnerConnection.requester_user_id == rec_id_str) & (PartnerConnection.recipient_user_id == req_id_str)
+                )
+            )
+
+        existing_connections = existing_query.filter(
+            PartnerConnection.status.in_(['pending', 'accepted'])
+        ).all()
+        
+        for conn in existing_connections:
+            if conn.status == 'accepted':
+                return jsonify({'error': 'You are already connected to this user'}), 400
+            
+            if conn.status == 'pending':
+                if str(conn.requester_user_id) == str(requester_id):
+                    return jsonify({'error': 'You have already sent a request to this user'}), 400
+                else:
+                    return jsonify({'error': 'You have a pending request from this user. Please check your received requests.'}), 400
+
         # Create connection request
         connection = PartnerConnection(
-            requester_user_id=requester_id,
+            requester_user_id=str(requester_id),
             recipient_email=recipient_email,
-            recipient_user_id=recipient_id,
+            recipient_user_id=str(recipient_id) if recipient_id else None,
             status='pending',
             connection_token=connection_token,
             expires_at=datetime.utcnow() + timedelta(minutes=5)  # FR-56: 5 minute expiry
@@ -337,7 +388,12 @@ def get_connections(user_id):
     """
     try:
         # Get user to find their email
-        user = User.query.get(user_id)
+        try:
+             user_uuid = uuid.UUID(str(user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid user_id format'}), 400
+
+        user = User.query.get(user_uuid)
         if not user:
             return jsonify({'error': 'User not found'}), 404
             
@@ -370,8 +426,14 @@ def get_remembered_partners(user_id):
     Returns up to 10 most recent partners.
     """
     try:
+        # Cast user_id to UUID for RememberedPartner query
+        try:
+            user_uuid = uuid.UUID(str(user_id))
+        except ValueError:
+            return jsonify({'error': 'Invalid user_id format'}), 400
+
         partners = RememberedPartner.query\
-            .filter_by(user_id=user_id)\
+            .filter_by(user_id=user_uuid)\
             .order_by(RememberedPartner.last_played_at.desc())\
             .limit(10)\
             .all()
@@ -391,21 +453,55 @@ def remove_remembered_partner(user_id, partner_user_id):
     Remove a partner from remembered list (FR-61).
     """
     try:
+        # Cast to UUIDs for RememberedPartner queries
+        try:
+            user_uuid = uuid.UUID(str(user_id))
+            partner_uuid = uuid.UUID(str(partner_user_id))
+        except ValueError:
+            return jsonify({'error': 'Invalid ID format'}), 400
+
         # Find the entry where user_id remembers partner_user_id
         partner = RememberedPartner.query.filter_by(
-            user_id=user_id,
-            partner_user_id=partner_user_id
+            user_id=user_uuid,
+            partner_user_id=partner_uuid
         ).first()
         
         if not partner:
             return jsonify({'error': 'Partner not found'}), 404
         
-        db.session.delete(partner)
+        # 1. Remove from Requester's list
+        if partner:
+            db.session.delete(partner)
+            
+        # 2. Reciprocal: Remove from Partner's list (if exists)
+        reciprocal_partner = RememberedPartner.query.filter_by(
+            user_id=partner_uuid,
+            partner_user_id=user_uuid
+        ).first()
+        
+        if reciprocal_partner:
+            db.session.delete(reciprocal_partner)
+            
+        # 3. Update PartnerConnection status to 'disconnected'
+        # PartnerConnection uses Strings
+        user_id_str = str(user_id)
+        partner_id_str = str(partner_user_id)
+        
+        connection = PartnerConnection.query.filter(
+            or_(
+                (PartnerConnection.requester_user_id == user_id_str) & (PartnerConnection.recipient_user_id == partner_id_str),
+                (PartnerConnection.requester_user_id == partner_id_str) & (PartnerConnection.recipient_user_id == user_id_str)
+            )
+        ).order_by(PartnerConnection.created_at.desc()).first()
+        
+        if connection:
+            connection.status = 'disconnected'
+            
         db.session.commit()
         
         return jsonify({
             'success': True,
-            'message': 'Partner removed'
+            'message': 'Partner removed and disconnected'
         }), 200
         
     except Exception as e:
