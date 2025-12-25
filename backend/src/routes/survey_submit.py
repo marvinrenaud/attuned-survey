@@ -55,8 +55,11 @@ def submit_survey():
             # For now, return 404 as per plan.
             return jsonify({'error': 'No survey in progress found'}), 404
 
+        retake = data.get('retake', False)
+
         # 3. Idempotency Guard
-        if progress.status == 'completed':
+        # If already completed AND not a forced retake, return existing info
+        if progress.status == 'completed' and not retake:
             current_app.logger.info(f"Duplicate submission attempt for user {user_id}")
             
             # Try to find the existing profile
@@ -72,6 +75,9 @@ def submit_survey():
             
             # Fallback if we can't find the specific profile but status is completed
             return jsonify({'message': 'Survey already completed'}), 200
+        
+        if retake:
+             current_app.logger.info(f"Processing survey retake for user {user_id}")
 
         # 4. Atomic Transaction
         with db.session.begin_nested():

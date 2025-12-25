@@ -586,7 +586,7 @@ CREATE TYPE survey_status_enum AS ENUM ('in_progress', 'completed', 'abandoned')
 
 ### connection_status_enum
 ```sql
-CREATE TYPE connection_status_enum AS ENUM ('pending', 'accepted', 'declined', 'expired');
+CREATE TYPE connection_status_enum AS ENUM ('pending', 'accepted', 'declined', 'expired', 'disconnected');
 ```
 
 ### platform_enum
@@ -671,7 +671,7 @@ activities
 - **Separation:** No migration path between anonymous → authenticated
 
 ### Profile Ownership
-- **Authenticated:** One profile per user (retake replaces)
+- **Authenticated:** One active profile (retake creates new version, history preserved)
 - **Anonymous:** One profile per session
 - **Link:** Via user_id (authenticated) or anonymous_session_id (anonymous)
 

@@ -284,6 +284,7 @@ Submits survey answers, calculates the profile, updates the user's onboarding st
 ```json
 {
   "survey_version": "0.4",
+  "retake": true, // Optional: Set to true to force a retake (creates new profile version)
   "answers": {
     "A1": 5,
     "B1a": "Y",
@@ -291,6 +292,9 @@ Submits survey answers, calculates the profile, updates the user's onboarding st
   }
 }
 ```
+
+**Parameters:**
+- `retake` (boolean, optional): If `true`, allows submitting a new survey even if a previous one exists. Creates a new `Profile` and `SurveySubmission` record while preserving history. Defaults to `false` (which blocks duplicates).
 
 **Response:**
 ```json
