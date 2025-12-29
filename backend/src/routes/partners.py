@@ -166,7 +166,7 @@ def create_connection_request():
             recipient_user_id=str(recipient_id) if recipient_id else None,
             status='pending',
             connection_token=connection_token,
-            expires_at=datetime.utcnow() + timedelta(minutes=5)  # FR-56: 5 minute expiry
+            expires_at=datetime.utcnow() + timedelta(days=1)  # FR-56: 1 day expiry
         )
         
         db.session.add(connection)

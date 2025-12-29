@@ -272,7 +272,7 @@ FROM users;
 | recipient_user_id | UUID | FK → users.id CASCADE, NULL | Populated when accepted |
 | status | connection_status_enum | NOT NULL, DEFAULT 'pending' | pending, accepted, declined, expired |
 | connection_token | TEXT | UNIQUE, NOT NULL | For push notification deep linking |
-| expires_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() + 5 min | Request expiry (5 minutes per FR-56) |
+| expires_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() + 1 day | Request expiry (1 day per FR-56) |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Request creation |
 | updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Last update |
 
