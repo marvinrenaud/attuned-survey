@@ -384,7 +384,8 @@ def decline_connection(connection_id):
 @partners_bp.route('/connections/<user_id>', methods=['GET'])
 def get_connections(user_id):
     """
-    Get all partner connections for a user (pending, accepted, declined, expired).
+    Get partner connections for a user (only pending and accepted).
+    Declined, expired, and disconnected connections are filtered out.
     """
     try:
         # Get user to find their email
@@ -401,12 +402,15 @@ def get_connections(user_id):
         # 1. User is the requester
         # 2. User is the recipient (by email)
         # 3. User is the recipient (by ID - for accepted ones)
+        # AND status is pending or accepted
         connections = PartnerConnection.query.filter(
             or_(
                 PartnerConnection.requester_user_id == user_id,
                 PartnerConnection.recipient_email == user.email,
                 PartnerConnection.recipient_user_id == user_id
             )
+        ).filter(
+            PartnerConnection.status.in_(['pending', 'accepted'])
         ).order_by(PartnerConnection.created_at.desc()).all()
         
         return jsonify({

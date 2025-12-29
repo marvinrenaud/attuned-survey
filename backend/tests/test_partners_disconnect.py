@@ -91,11 +91,18 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     
     # Connection status is 'disconnected'
     # Use direct DB check or get_connections endpoint
+    # UPDATE: Endpoint filters out disconnected, so verify it's NOT in the list
     resp_conns = client.get(f'/api/partners/connections/{user_a.id}')
     conns = resp_conns.get_json()['connections']
-    # Should see the disconnected one
-    target_conn = next(c for c in conns if c['id'] == conn_id_1)
-    assert target_conn['status'] == 'disconnected'
+    
+    # Should NOT see the disconnected one
+    target_conn = next((c for c in conns if c['id'] == conn_id_1), None)
+    assert target_conn is None
+    
+    # Verify via DB that it is indeed disconnected
+    from backend.src.routes.partners import PartnerConnection
+    db_conn = PartnerConnection.query.get(conn_id_1)
+    assert db_conn.status == 'disconnected'
     
     # 7. Re-connection
     # A requests B again

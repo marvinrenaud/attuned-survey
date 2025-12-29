@@ -48,7 +48,7 @@ Returns the calculated profile data (arousal, power, domains, etc.) formatted fo
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/connect` | Send a connection request to another user by email. |
-| `GET` | `/connections/<user_id>` | Get all connection requests (sent and received) for a user. |
+| `GET` | `/connections/<user_id>` | Get active connection requests (pending, accepted) for a user. Expired/declined hidden. |
 **Endpoint:** `POST /api/partners/connections/<connection_id>/accept`
 
 **Description:** Accept a pending connection request.
