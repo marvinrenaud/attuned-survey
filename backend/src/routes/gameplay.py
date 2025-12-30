@@ -238,6 +238,30 @@ def _generate_limit_card() -> Dict[str, Any]:
         }
     }
 
+def _scrub_queue_for_limit(queue: List[Dict[str, Any]], keep_first: bool = True) -> List[Dict[str, Any]]:
+    """
+    Replace future cards in the queue with limit barriers if they are real.
+    Used when the limit is reached but the buffer still contains real cards.
+    
+    Args:
+        queue: The turn queue
+        keep_first: If True, preserves the first card (assumed to be the one just paid for).
+    """
+    start_idx = 1 if keep_first else 0
+    
+    for i in range(start_idx, len(queue)):
+        item = queue[i]
+        # If it's not already a limit card, replace it
+        if item.get('card', {}).get('type') != 'LIMIT_REACHED':
+            # Generate replacement
+            barrier = _generate_limit_card()
+            # Preserve some flow data? No, barrier resets step usually.
+            # But we might want to keep the sequence consistent?
+            # _generate_limit_card uses step 999. That's fine.
+            queue[i] = barrier
+            
+    return queue
+
 def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None) -> List[Dict[str, Any]]:
     """
     Ensure the session queue has `target_size` items.
@@ -272,10 +296,6 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None) ->
         
     # Update State
     state["queue"] = queue
-    # Also update the "current" pointers to reflect the HEAD of the queue?
-    # Actually, the "current turn" displayed to the user is queue[0].
-    # But `current_turn_state` usually tracks what is *active*.
-    # So `state['step']` should probably match `queue[0]['step']`.
     
     if queue:
         head = queue[0]
@@ -289,8 +309,6 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None) ->
     
     return queue
 
-# --- Routes ---
-
 @gameplay_bp.route("/start", methods=["POST"])
 def start_game():
     """
@@ -302,6 +320,7 @@ def start_game():
         player_ids = data.get("player_ids", [])
         settings = data.get("settings", {})
         
+        # ... (Normalization and Validation omitted for brevity, keeping existing) ...
         # Normalize settings
         if "selection_mode" in settings:
             settings["selection_mode"] = settings["selection_mode"].upper()
@@ -347,12 +366,8 @@ def start_game():
                 })
         
         # INITIAL LIMIT CHECK
-        # If already over limit, we do NOT return 403. 
-        # We start the session but fill queue with limit cards.
         if owner_id:
             limit_status = _check_daily_limit(owner_id)
-            # if limit_status["limit_reached"]:
-            #    return 403 <--- REMOVED
 
         # Create Session
         session = Session(
@@ -369,20 +384,27 @@ def start_game():
         )
         
         db.session.add(session)
-        # Commit first to get session_id (needed?) No, but good practice.
+        # Commit first to get session_id 
         db.session.commit()
         
         # Fill Queue (Batch of 3)
-        # Pass owner_id so it can check limit and inject barrier cards if needed
         queue = _fill_queue(session, target_size=3, owner_id=owner_id)
         
         # Charge 1 Credit for the first card IF it isn't a limit card
-        # If queue[0] is LIMIT_REACHED, we don't charge (and user is likely already capped)
         head_card = queue[0] if queue else {}
         if owner_id and head_card.get('card', {}).get('type') != 'LIMIT_REACHED':
             _increment_daily_count(owner_id)
             # Re-check limit status after increment
             limit_status = _check_daily_limit(owner_id)
+            
+            # SCRUBBER: If limit is now reached, ensure only the card we paid for (Head) is real.
+            if limit_status.get("limit_reached"):
+                queue = _scrub_queue_for_limit(queue, keep_first=True)
+                # Update session state with scrubbed queue
+                state = session.current_turn_state
+                state["queue"] = queue
+                session.current_turn_state = state
+                flag_modified(session, "current_turn_state")
             
         db.session.commit()
         
@@ -393,7 +415,7 @@ def start_game():
             "queue": queue, # Return full queue
             "current_turn": queue[0] if queue else {} # Legacy support / convenience
         }), 200
-        
+
     except Exception as e:
         logger.error(f"Start game failed: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -410,7 +432,6 @@ def next_turn(session_id):
             return jsonify({"error": "Session not found"}), 404
             
         data = request.get_json()
-        # action = data.get("action", "NEXT") # Not used yet, but good for feedback
         
         state = session.current_turn_state or {}
         queue = state.get("queue", [])
@@ -420,12 +441,11 @@ def next_turn(session_id):
         owner_id = None
         if players:
             first_p = players[0].get("id")
-            if len(first_p) > 10: # Assuming actual user IDs are longer than generic player IDs
+            if len(first_p) > 10: 
                 owner_id = first_p
         
         # 1. Consume the current card (Head of queue)
         if queue:
-            # The card at index 0 was just "played"
             last_card = queue.pop(0)
             state["queue"] = queue
             session.current_turn_state = state
@@ -436,15 +456,36 @@ def next_turn(session_id):
                 _increment_daily_count(owner_id)
         
         # 2. Replenish Queue (Add 1 to end)
-        # Pass owner_id so it checks limit and injects barrier if needed
         queue = _fill_queue(session, target_size=3, owner_id=owner_id)
-        db.session.commit()
         
-        # 3. Response
+        # SCRUBBER: Check limit and scrub buffer if needed
         limit_status = {}
         if owner_id:
             limit_status = _check_daily_limit(owner_id)
+            if limit_status.get("limit_reached"):
+                # If we strictly exceeded the limit (e.g. 26 > 25), block everything immediately.
+                # If we strictly HIT the limit (25 == 25), allow the current card (which is the 25th).
+                # Note: valid range is 0..25. 25 is the last allowed card.
+                # If used=25. We allow queue[0] (C25). We scrub queue[1:] (C26+).
+                # If used=26. We block queue[0].
+                
+                # Check usage
+                used = limit_status.get("used", 0)
+                limit = limit_status.get("limit", 25)
+                
+                keep_first = True
+                if used > limit:
+                     keep_first = False
+                     
+                queue = _scrub_queue_for_limit(queue, keep_first=keep_first)
+                
+                state["queue"] = queue
+                session.current_turn_state = state
+                flag_modified(session, "current_turn_state")
         
+        db.session.commit()
+        
+        # 3. Response
         response = {
             "session_id": session.session_id,
             "limit_status": limit_status,
