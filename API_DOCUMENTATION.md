@@ -208,6 +208,21 @@ Start a new game session. Returns a queue of 3 cards to minimize latency.
 ```
 
 #### Response
+- `status`: 200 OK
+- `limit_status`: Object describing usage (e.g. `{ "limit_reached": true }`).
+- `queue`: Array of turn objects. **NOTE:** If the daily limit is reached, cards will have `type: "LIMIT_REACHED"`.
+
+#### Card Object (Limit Reached)
+When the limit is reached, the card object will look like this:
+```json
+{
+  "type": "LIMIT_REACHED",
+  "display_text": "Daily limit reached. Tap to unlock unlimited turns.",
+  "intensity_rating": 1,
+  "card_id": "limit-barrier-..."
+}
+```
+The frontend should display a subscription prompt for this card type.
 ```json
 {
   "session_id": "uuid",

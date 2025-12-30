@@ -46,6 +46,13 @@ def _get_next_player_indices(current_idx: int, num_players: int, mode: str) -> t
 
 def _check_daily_limit(user_id: str) -> dict:
     """Check if user has reached daily limit (Free tier only)."""
+    # Ensure ID is UUID
+    if isinstance(user_id, str):
+        try:
+            user_id = uuid.UUID(user_id)
+        except ValueError:
+            return {"error": "Invalid User ID"}
+
     user = User.query.get(user_id)
     if not user:
         return {"error": "User not found"}
@@ -58,13 +65,15 @@ def _check_daily_limit(user_id: str) -> dict:
         }
         
     # Reset if needed
-    if user.daily_activity_reset_at and user.daily_activity_reset_at < datetime.now(timezone.utc):
-        # This logic should ideally be in a central service or model method
-        # But for now we rely on the subscription route logic or duplicate it here
-        # Actually, let's just check the count vs limit. 
-        # The reset logic is in subscriptions.py. 
-        # We should probably call a shared service, but for MVP we'll just check.
-        pass
+    if user.daily_activity_reset_at:
+        reset_at = user.daily_activity_reset_at
+        if reset_at.tzinfo is None:
+             reset_at = reset_at.replace(tzinfo=timezone.utc)
+             
+        if reset_at < datetime.now(timezone.utc):
+            # This logic should ideally be in a central service or model method
+            # But for now we rely on the subscription route logic or duplicate it here
+            pass
         
     limit = 25
     return {
@@ -77,6 +86,12 @@ def _check_daily_limit(user_id: str) -> dict:
 
 def _increment_daily_count(user_id: str):
     """Increment daily count for free users."""
+    if isinstance(user_id, str):
+        try:
+            user_id = uuid.UUID(user_id)
+        except ValueError:
+            return
+
     user = User.query.get(user_id)
     if user and user.subscription_tier != 'premium':
         user.daily_activity_count += 1
@@ -201,7 +216,29 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
         }
     }
 
-def _fill_queue(session: Session, target_size: int = 3) -> List[Dict[str, Any]]:
+def _generate_limit_card() -> Dict[str, Any]:
+    """Generate a barrier card for when daily limit is reached."""
+    return {
+        "status": "SHOW_CARD",
+        "primary_player_idx": -1,
+        "step": 999, # Dummy step
+        "card_id": f"limit-barrier-{uuid.uuid4()}",
+        "card": {
+            "card_id": f"limit-barrier-{uuid.uuid4()}",
+            "type": "LIMIT_REACHED",
+            "primary_player": "System",
+            "secondary_players": [],
+            "display_text": "Daily limit reached. Tap to unlock unlimited turns.",
+            "intensity_rating": 1
+        },
+        "progress": {
+            "current_step": 999,
+            "total_steps": 25,
+            "intensity_phase": "Peak"
+        }
+    }
+
+def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None) -> List[Dict[str, Any]]:
     """
     Ensure the session queue has `target_size` items.
     Updates session.current_turn_state but caller must commit.
@@ -219,14 +256,18 @@ def _fill_queue(session: Session, target_size: int = 3) -> List[Dict[str, Any]]:
         
     needed = target_size - current_size
     
-    # Generate needed items
-    # We pass offset=0 because _generate_turn_data looks at the *end* of the queue
-    # to determine the next step.
+    # Check limit status if owner known
+    limit_reached = False
+    if owner_id:
+        status = _check_daily_limit(owner_id)
+        limit_reached = status["limit_reached"]
+    
     for _ in range(needed):
-        turn_data = _generate_turn_data(session)
-        # We only store essential data in the queue to keep DB size small?
-        # Or store the full card for fast retrieval.
-        # Let's store the full object needed for frontend.
+        if limit_reached:
+            turn_data = _generate_limit_card()
+        else:
+            turn_data = _generate_turn_data(session)
+            
         queue.append(turn_data)
         
     # Update State
@@ -282,9 +323,17 @@ def start_game():
         # Resolve players
         players = []
         for pid in player_ids:
-            user = User.query.filter_by(id=pid).first() if len(pid) > 10 else None
+            # Cast to UUID for query
+            user = None
+            if len(pid) > 10:
+                try:
+                    pid_uuid = uuid.UUID(pid)
+                    user = User.query.get(pid_uuid)
+                except (ValueError, TypeError):
+                    pass
+            
             if user:
-                if not owner_id: owner_id = user.id
+                if not owner_id: owner_id = str(user.id)
                 players.append({
                     "id": str(user.id),
                     "name": user.display_name or "Player",
@@ -297,13 +346,13 @@ def start_game():
                     "anatomy": ["penis"]
                 })
         
+        # INITIAL LIMIT CHECK
+        # If already over limit, we do NOT return 403. 
+        # We start the session but fill queue with limit cards.
         if owner_id:
             limit_status = _check_daily_limit(owner_id)
-            if limit_status["limit_reached"]:
-                return jsonify({
-                    "error": "Daily limit reached",
-                    "limit_status": limit_status
-                }), 403
+            # if limit_status["limit_reached"]:
+            #    return 403 <--- REMOVED
 
         # Create Session
         session = Session(
@@ -324,10 +373,13 @@ def start_game():
         db.session.commit()
         
         # Fill Queue (Batch of 3)
-        queue = _fill_queue(session, target_size=3)
+        # Pass owner_id so it can check limit and inject barrier cards if needed
+        queue = _fill_queue(session, target_size=3, owner_id=owner_id)
         
-        # Charge 1 Credit for the first card
-        if owner_id:
+        # Charge 1 Credit for the first card IF it isn't a limit card
+        # If queue[0] is LIMIT_REACHED, we don't charge (and user is likely already capped)
+        head_card = queue[0] if queue else {}
+        if owner_id and head_card.get('card', {}).get('type') != 'LIMIT_REACHED':
             _increment_daily_count(owner_id)
             # Re-check limit status after increment
             limit_status = _check_daily_limit(owner_id)
@@ -360,35 +412,38 @@ def next_turn(session_id):
         data = request.get_json()
         # action = data.get("action", "NEXT") # Not used yet, but good for feedback
         
-        # 1. Consume the current card (Head of queue)
         state = session.current_turn_state or {}
         queue = state.get("queue", [])
         
+        # Determine owner
+        players = session.players or []
+        owner_id = None
+        if players:
+            first_p = players[0].get("id")
+            if len(first_p) > 10: # Assuming actual user IDs are longer than generic player IDs
+                owner_id = first_p
+        
+        # 1. Consume the current card (Head of queue)
         if queue:
             # The card at index 0 was just "played"
-            queue.pop(0)
+            last_card = queue.pop(0)
             state["queue"] = queue
             session.current_turn_state = state
             flag_modified(session, "current_turn_state")
             
-            # Charge 1 Credit for the played card
-            players = session.players or []
-            if players:
-                owner_id = players[0].get("id")
-                if len(owner_id) > 10:
-                    _increment_daily_count(owner_id)
+            # Charge 1 Credit for the played card IF it wasn't a barrier card
+            if owner_id and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
+                _increment_daily_count(owner_id)
         
         # 2. Replenish Queue (Add 1 to end)
-        queue = _fill_queue(session, target_size=3)
+        # Pass owner_id so it checks limit and injects barrier if needed
+        queue = _fill_queue(session, target_size=3, owner_id=owner_id)
         db.session.commit()
         
         # 3. Response
         limit_status = {}
-        players = session.players or []
-        if players:
-            owner_id = players[0].get("id")
-            if len(owner_id) > 10:
-                limit_status = _check_daily_limit(owner_id)
+        if owner_id:
+            limit_status = _check_daily_limit(owner_id)
         
         response = {
             "session_id": session.session_id,
