@@ -101,7 +101,7 @@ def increment_activity_count(current_user_id, user_id):
     Increment daily activity count for user.
     Called after each activity is presented.
     """
-    """
+
     try:
         # Authorization
         if str(current_user_id) != str(user_id):
