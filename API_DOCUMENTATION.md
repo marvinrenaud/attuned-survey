@@ -1,29 +1,38 @@
 # Attuned API Documentation
 
+## Authentication & Security
+All protected endpoints require a valid Supabase JWT in the Authorization header:
+`Authorization: Bearer <your_access_token>`
+
+The backend validates:
+- Token format/signature (HMAC HS256)
+- Expiration (`exp`)
+- Audience (`aud="authenticated"`)
+- Subject (`sub`) matches request parameters where applicable (Ownership Enforcement).
+
+## Rate Limiting
+Global rate limits are enforced to protect the API:
+- **Daily Limit**: 2000 requests per IP per day.
+- **Hourly Limit**: 500 requests per IP per hour.
+- Exceeding limits returns `429 Too Many Requests`.
+
 ## Authentication (`/api/auth`)
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/register` | Register a new user after Supabase Auth signup. |
 | `POST` | `/login` | Update last login timestamp. |
-| `GET` | `/user/<user_id>` | Get user details.
-```json
-{
-    "user": {
-        "id": "uuid",
-        "submission_id": "string", // Linked survey submission ID
-        "email": "user@example.com"
-        // ... other fields
-    }
-}
-```
-| `PATCH` | `/user/<user_id>` | Update user profile (display name, demographics, etc.). |
-| `DELETE` | `/user/<user_id>` | Delete user account and all associated data. |
-| `POST` | `/user/<user_id>/complete-demographics` | Mark demographics as complete (onboarding). |
-| `GET` | `/users/<user_id>/profile-ui` | Get derived profile data formatted for UI. |
+| `GET` | `/profile` | Get authenticated user details. |
+| `PATCH` | `/profile` | Update user profile (display name, demographics, etc.). |
+| `DELETE` | `/profile` | Delete user account and all associated data. |
+| `POST` | `/complete-demographics` | Mark demographics as complete (onboarding). |
+| `GET` | `/users/profile-ui` | Get derived profile data formatted for UI. |
 
 ### User Profile UI
-`GET /api/users/<user_id>/profile-ui`
+### User Profile UI
+`GET /api/users/profile-ui`
+
+**Auth Required**: User ID extracted from token.
 
 Returns the calculated profile data (arousal, power, domains, etc.) formatted for the frontend.
 
@@ -48,7 +57,7 @@ Returns the calculated profile data (arousal, power, domains, etc.) formatted fo
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/connect` | Send a connection request to another user by email. |
-| `GET` | `/connections/<user_id>` | Get active connection requests (pending, accepted) for a user. Expired/declined hidden. |
+| `GET` | `/connections` | Get active connection requests (pending, accepted) for authenticated user. |
 **Endpoint:** `POST /api/partners/connections/<connection_id>/accept`
 
 **Description:** Accept a pending connection request.
@@ -68,8 +77,8 @@ Returns the calculated profile data (arousal, power, domains, etc.) formatted fo
 }
 ```
 | `POST` | `/connections/<connection_id>/decline` | Decline a connection request. |
-| `GET` | `/remembered/<user_id>` | Get list of remembered partners (quick reconnect). |
-| `DELETE` | `/remembered/<user_id>/<partner_id>` | Remove a remembered partner. |
+| `GET` | `/remembered` | Get list of remembered partners (quick reconnect). |
+| `DELETE` | `/remembered/<partner_id>` | Remove a remembered partner. |
 
 ## Notifications (`/api/notifications`)
 
@@ -79,20 +88,21 @@ Returns the calculated profile data (arousal, power, domains, etc.) formatted fo
 
 ## Recommendations (`/api/recommendations`)
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/` | Generate activity recommendations for a new game session. |
-| `GET` | `/<session_id>` | Get activities for an existing session. |
-| `POST` | `/<session_id>/activities/<activity_id>/feedback` | Submit feedback (like/dislike) for an activity. |
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/` | Generate activity recommendations for a new game session. | **Optional** (If logged in, checks ownership of profiles) |
+| `GET` | `/<session_id>` | Get activities for an existing session. | **Required** (Must be a participant) |
+| `POST` | `/<session_id>/activities/<activity_id>/feedback` | Submit feedback (like/dislike) for an activity. | **Optional** (Required if user_id provided) |
 
 ## Compatibility (`/api/compatibility`)
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `POST` | `/` | Calculate compatibility between two players. |
-| `GET` | `/<sub_a>/<sub_b>` | Get stored compatibility result. |
+| `GET` | `/api/survey/compatibility/<sub_a>/<sub_b>` | Get compatibility by **Submission ID** (Anonymous/Debug). |
+| `GET` | `/api/compatibility/<user_a>/<user_b>` | Get compatibility by **User ID** (Authenticated). |
 
-### Compatibility Scoring
+### Compatibility Scoring (User-Based)
 `GET /api/compatibility/<user_id>/<partner_id>`
 
 Returns the calculated compatibility score and details between a user and their partner. The response is filtered according to the partner's privacy settings:
@@ -282,10 +292,10 @@ Advance to the next turn. Consumes the current card (head of queue) and generate
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/submissions` | Get all survey submissions. |
-| `POST` | `/submissions` | Submit a new survey response. |
+| `GET` | `/submissions` | Get all survey submissions (Admin). |
+| `POST` | `/submissions` | Submit a raw survey response (Anonymous/Legacy). |
 | `GET` | `/submissions/<submission_id>` | Get a specific submission. |
-| `POST` | `/submit` | **Atomic Submission**: Submit survey, calculate profile, and update user status. |
+| `POST` | `/submit` | **Atomic User Submission**: Submit survey, calculate profile, and update user status. **(PREFERRED)** |
 
 ### Atomic Survey Submission
 `POST /api/survey/submit`
@@ -323,9 +333,9 @@ Submits survey answers, calculates the profile, updates the user's onboarding st
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/settings/<user_id>` | Get user's profile sharing settings. |
-| `PUT` | `/settings/<user_id>` | Update user's profile sharing settings. |
-| `GET` | `/partner-profile/<requester_id>/<partner_id>` | Get partner's profile data (filtered by their sharing settings). |
+| `GET` | `/settings` | Get user's profile sharing settings. |
+| `PUT` | `/settings` | Update user's profile sharing settings. |
+| `GET` | `/partner-profile/<partner_id>` | Get partner's profile data. |
 
 ## Admin / Utility
 

@@ -4,33 +4,45 @@ from flask import Blueprint, jsonify, request, current_app
 from ..extensions import db
 from ..models.user import User
 from ..models.profile import Profile
+from ..middleware.auth import token_required
+import logging
+import uuid
+
+logger = logging.getLogger(__name__)
 
 profile_sharing_bp = Blueprint('profile_sharing', __name__, url_prefix='/api/profile-sharing')
 
 
-@profile_sharing_bp.route('/settings/<user_id>', methods=['GET'])
-def get_sharing_settings(user_id):
+@profile_sharing_bp.route('/settings', methods=['GET'])
+@token_required
+def get_sharing_settings(current_user_id):
     """
     Get user's profile sharing settings (FR-62).
     """
     try:
-        user = User.query.filter_by(id=user_id).first()
+        try:
+            user_uuid = uuid.UUID(current_user_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid User ID token'}), 400
+
+        user = User.query.filter_by(id=user_uuid).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
         return jsonify({
-            'user_id': str(user_id),
+            'user_id': str(user_uuid),
             'profile_sharing_setting': user.profile_sharing_setting
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Get sharing settings failed: {str(e)}")
+        logger.error(f"Get sharing settings failed: {str(e)}")
         return jsonify({'error': 'Failed to get settings'}), 500
 
 
-@profile_sharing_bp.route('/settings/<user_id>', methods=['PUT'])
-def update_sharing_settings(user_id):
+@profile_sharing_bp.route('/settings', methods=['PUT'])
+@token_required
+def update_sharing_settings(current_user_id):
     """
     Update user's profile sharing settings (FR-73).
     
@@ -40,13 +52,18 @@ def update_sharing_settings(user_id):
     }
     """
     try:
+        try:
+            user_uuid = uuid.UUID(current_user_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid User ID token'}), 400
+
         data = request.get_json()
         setting = data.get('profile_sharing_setting')
         
         if setting not in ['all_responses', 'overlapping_only', 'demographics_only']:
             return jsonify({'error': 'Invalid sharing setting'}), 400
         
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=user_uuid).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -61,24 +78,31 @@ def update_sharing_settings(user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Update sharing settings failed: {str(e)}")
+        logger.error(f"Update sharing settings failed: {str(e)}")
         return jsonify({'error': 'Failed to update settings'}), 500
 
 
-@profile_sharing_bp.route('/partner-profile/<requester_id>/<partner_id>', methods=['GET'])
-def get_partner_profile(requester_id, partner_id):
+@profile_sharing_bp.route('/partner-profile/<partner_id>', methods=['GET'])
+@token_required
+def get_partner_profile(current_user_id, partner_id):
     """
     Get partner's profile based on their sharing settings (FR-69, FR-70, FR-71).
     Returns filtered profile data according to partner's preferences.
     """
     try:
+        try:
+            requester_uuid = uuid.UUID(current_user_id)
+            partner_uuid = uuid.UUID(partner_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid User ID formatted'}), 400
+
         # Get partner's user and profile
-        partner = User.query.filter_by(id=partner_id).first()
+        partner = User.query.filter_by(id=partner_uuid).first()
         
         if not partner:
             return jsonify({'error': 'Partner not found'}), 404
         
-        partner_profile = Profile.query.filter_by(user_id=partner_id).first()
+        partner_profile = Profile.query.filter_by(user_id=partner_uuid).first()
         
         if not partner_profile:
             return jsonify({'error': 'Partner profile not found'}), 404
@@ -105,7 +129,7 @@ def get_partner_profile(requester_id, partner_id):
         
         # FR-70: Overlapping only
         if sharing_setting == 'overlapping_only':
-            requester_profile = Profile.query.filter_by(user_id=requester_id).first()
+            requester_profile = Profile.query.filter_by(user_id=requester_uuid).first()
             
             if not requester_profile:
                 # Can't determine overlap without requester profile
@@ -130,6 +154,6 @@ def get_partner_profile(requester_id, partner_id):
         return jsonify(response), 200
         
     except Exception as e:
-        current_app.logger.error(f"Get partner profile failed: {str(e)}")
+        logger.error(f"Get partner profile failed: {str(e)}")
         return jsonify({'error': 'Failed to get partner profile'}), 500
 

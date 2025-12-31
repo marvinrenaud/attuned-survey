@@ -15,8 +15,9 @@
 4. [Sessions & Gameplay](#sessions--gameplay)
 5. [Activity Management](#activity-management)
 6. [Subscriptions](#subscriptions)
-7. [Enums](#enums)
-8. [Relationships Diagram](#relationships-diagram)
+7. [System Configuration](#system-configuration)
+8. [Enums](#enums)
+9. [Relationships Diagram](#relationships-diagram)
 
 ---
 
@@ -528,6 +529,20 @@ FROM users;
 - `idx_subscription_expires` on (expires_at) WHERE status='active'
 
 ---
+ 
+ ## System Configuration
+ 
+ ### app_config
+ **Purpose:** Dynamic application configuration storage (NEW - MVP)
+ 
+ | Column | Type | Constraints | Description |
+ |--------|------|-------------|-------------|
+ | key | TEXT | PRIMARY KEY | Config key (e.g., "maintenance_mode") |
+ | value | TEXT | NOT NULL | Config value |
+ | description | TEXT | NULL | Human-readable description |
+ | updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
+ 
+ ---
 
 ## Legacy Tables
 

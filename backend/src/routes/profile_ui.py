@@ -9,21 +9,33 @@ from ..scoring.display_names import (
     ACTIVITY_SECTION_DISPLAY_NAMES,
     ACTIVITY_DISPLAY_NAMES
 )
+from ..middleware.auth import token_required
+import logging
+import uuid
+from sqlalchemy.exc import DataError
+
+logger = logging.getLogger(__name__)
 
 bp = Blueprint("profile_ui", __name__, url_prefix="/api/users")
 profile_ui_bp = bp
 
-@bp.route("/<user_id>/profile-ui", methods=["GET"])
-def get_profile_ui(user_id):
+@bp.route("/profile-ui", methods=["GET"])
+@token_required
+def get_profile_ui(current_user_id):
     try:
+        try:
+            user_uuid = uuid.UUID(current_user_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid User ID token'}), 400
+
         # 1. Fetch User
-        user = User.query.get(user_id)
+        user = User.query.get(user_uuid)
         if not user:
             return jsonify({"error": "User not found"}), 404
 
         # 2. Fetch Latest Profile
         # We query the Profile table directly as it contains the derived data
-        profile = Profile.query.filter_by(user_id=user_id).order_by(Profile.created_at.desc()).first()
+        profile = Profile.query.filter_by(user_id=user_uuid).order_by(Profile.created_at.desc()).first()
         
         if not profile:
             return jsonify({"error": "No profile found"}), 404
@@ -119,7 +131,7 @@ def get_profile_ui(user_id):
 
         # 4. Construct Final Response
         response = {
-            "user_id": user_id,
+            "user_id": str(user_uuid),
             "display_name": user.display_name,
             "submission_id": profile.submission_id,
             "general": {
@@ -134,5 +146,5 @@ def get_profile_ui(user_id):
         return jsonify(response)
 
     except Exception as e:
-        current_app.logger.exception(f"Error generating profile UI for user {user_id}: {e}")
+        logger.exception(f"Error generating profile UI for user {user_id}: {e}")
         return jsonify({"error": "Internal server error"}), 500

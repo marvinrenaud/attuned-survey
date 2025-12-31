@@ -3,7 +3,11 @@ from datetime import datetime
 import math
 from typing import Optional
 
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
+import logging
+from ..middleware.auth import token_required
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
@@ -57,7 +61,9 @@ def get_baseline_record(create: bool = False) -> Optional[SurveyBaseline]:
 
 
 @bp.route("/submissions", methods=["GET"])
-def get_submissions():
+@token_required
+def get_submissions(current_user_id):
+    # TODO: Admin only?
     try:
         submissions = (
             SurveySubmission.query.order_by(SurveySubmission.created_at.asc()).all()
@@ -81,7 +87,7 @@ def create_submission():
         data = request.get_json(silent=True) or {}
         # Log minimal context for troubleshooting payload mismatches
         try:
-            current_app.logger.info(
+            logger.info(
                 "create_submission payload keys=%s name=%s sex=%s sexualOrientation=%s",
                 list(data.keys()),
                 data.get("name"),
@@ -173,7 +179,7 @@ def create_submission():
             if user and user.profile_completed and not user.onboarding_completed:
                 user.onboarding_completed = True
                 db.session.commit()
-                current_app.logger.info(f"Onboarding marked as complete for user: {user.id}")
+                logger.info(f"Onboarding marked as complete for user: {user.id}")
 
         return jsonify(response_payload), 201
     except IntegrityError:
@@ -181,7 +187,7 @@ def create_submission():
         return jsonify({"error": "Submission with this ID already exists"}), 409
     except Exception as exc:  # pragma: no cover - defensive logging path
         try:
-            current_app.logger.exception("create_submission failed: %s", exc)
+            logger.exception("create_submission failed: %s", exc)
         except Exception:
             pass
         db.session.rollback()
@@ -189,7 +195,8 @@ def create_submission():
 
 
 @bp.route("/submissions/<submission_id>", methods=["GET"])
-def get_submission(submission_id):
+@token_required
+def get_submission(current_user_id, submission_id):
     try:
         submission = SurveySubmission.query.filter_by(
             submission_id=submission_id
@@ -205,7 +212,8 @@ def get_submission(submission_id):
 
 
 @bp.route("/baseline", methods=["GET"])
-def get_baseline():
+@token_required
+def get_baseline(current_user_id):
     try:
         baseline_row = get_baseline_record()
         baseline_id = baseline_row.submission_id if baseline_row else None
@@ -216,7 +224,8 @@ def get_baseline():
 
 
 @bp.route("/baseline", methods=["POST"])
-def set_baseline():
+@token_required
+def set_baseline(current_user_id):
     try:
         data = request.get_json(silent=True) or {}
         baseline_id = data.get("id")
@@ -240,7 +249,8 @@ def set_baseline():
 
 
 @bp.route("/baseline", methods=["DELETE"])
-def clear_baseline():
+@token_required
+def clear_baseline(current_user_id):
     try:
         baseline_row = get_baseline_record()
         if baseline_row:
@@ -253,7 +263,8 @@ def clear_baseline():
 
 
 @bp.route("/compatibility/<source_id>/<target_id>", methods=["GET"])
-def get_compatibility(source_id, target_id):
+@token_required
+def get_compatibility(current_user_id, source_id, target_id):
     try:
         source = SurveySubmission.query.filter_by(submission_id=source_id).first()
         target = SurveySubmission.query.filter_by(submission_id=target_id).first()
@@ -287,7 +298,8 @@ def get_compatibility(source_id, target_id):
 
 
 @bp.route("/export", methods=["GET"])
-def export_data():
+@token_required
+def export_data(current_user_id):
     try:
         submissions = (
             SurveySubmission.query.order_by(SurveySubmission.created_at.asc()).all()

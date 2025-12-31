@@ -1,96 +1,45 @@
 """Partner connection and management routes."""
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
+import logging
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 import uuid
 
 from ..extensions import db
+from ..middleware.auth import token_required
 from ..models.user import User
 
 # Import PartnerConnection and RememberedPartner models
 # These will need to be created based on the migrations
-try:
-    from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, or_
-    from sqlalchemy.orm import relationship
-    from sqlalchemy.dialects.postgresql import UUID
-    
-    # Import Compatibility model and calculator
-    from ..models.compatibility import Compatibility
-    from ..compatibility.calculator import calculate_compatibility
-    from ..models.profile import Profile
-    
-    class PartnerConnection(db.Model):
-        __tablename__ = 'partner_connections'
-        
-        id = Column(Integer, primary_key=True)
-        requester_user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
-        requester_display_name = Column(Text)  # Added via migration
-        recipient_email = Column(Text, nullable=False)
-        recipient_user_id = Column(String(36), ForeignKey('users.id'))
-        recipient_display_name = Column(Text)  # Added via migration
-        status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', 'disconnected', name='connection_status_enum'), nullable=False, default='pending')
-        connection_token = Column(Text, unique=True, nullable=False)
-        expires_at = Column(DateTime, nullable=False)
-        created_at = Column(DateTime, default=datetime.utcnow)
-        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-        
-        def to_dict(self):
-            return {
-                'id': self.id,
-                'requester_user_id': str(self.requester_user_id),
-                'requester_display_name': self.requester_display_name,
-                'recipient_email': self.recipient_email,
-                'recipient_user_id': str(self.recipient_user_id) if self.recipient_user_id else None,
-                'recipient_display_name': self.recipient_display_name,
-                'status': self.status,
-                'connection_token': self.connection_token,
-                'expires_at': self.expires_at.isoformat() if self.expires_at else None,
-                'created_at': self.created_at.isoformat() if self.created_at else None
-            }
-    
-    class RememberedPartner(db.Model):
-        __tablename__ = 'remembered_partners'
-        
-        id = Column(Integer, primary_key=True)
-        user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-        partner_user_id = Column(UUID(as_uuid=True), nullable=False)
-        partner_name = Column(Text, nullable=False)
-        partner_email = Column(Text, nullable=False)
-        last_played_at = Column(DateTime, default=datetime.utcnow)
-        created_at = Column(DateTime, default=datetime.utcnow)
-        
-        def to_dict(self):
-            return {
-                'id': self.id,
-                'user_id': str(self.user_id),
-                'partner_user_id': str(self.partner_user_id),
-                'partner_name': self.partner_name,
-                'partner_email': self.partner_email,
-                'last_played_at': self.last_played_at.isoformat() if self.last_played_at else None,
-                'created_at': self.created_at.isoformat() if self.created_at else None
-            }
-    
-except Exception as e:
-    current_app.logger.error(f"Failed to define partner models: {str(e)}")
+from sqlalchemy import or_
+# Import Compatibility model and calculator
+from ..models.compatibility import Compatibility
+from ..compatibility.calculator import calculate_compatibility
+from ..models.profile import Profile
+# Import Partner models
+from ..models.partner import PartnerConnection, RememberedPartner
 
 partners_bp = Blueprint('partners', __name__, url_prefix='/api/partners')
 
 
 @partners_bp.route('/connect', methods=['POST'])
-def create_connection_request():
+@token_required
+def create_connection_request(current_user_id):
     """
     Create a partner connection request (FR-55).
     
     Expected payload:
     {
-        "requester_user_id": "uuid",
         "recipient_email": "partner@example.com"
     }
     """
     try:
         data = request.get_json()
         
-        requester_id = data.get('requester_user_id')
+        # Requester is the authenticated user
+        requester_id = current_user_id
         recipient_email = data.get('recipient_email')
         
         if not requester_id or not recipient_email:
@@ -175,7 +124,7 @@ def create_connection_request():
         # TODO: Send push notification to recipient
         # This would integrate with FCM/APNs
         
-        current_app.logger.info(f"Connection request created: {connection.id}")
+        logger.info(f"Connection request created: {connection.id}")
         
         return jsonify({
             'success': True,
@@ -184,23 +133,27 @@ def create_connection_request():
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Connection request failed: {str(e)}")
+        logger.error(f"Connection request failed: {str(e)}")
         return jsonify({'error': 'Failed to create connection'}), 500
 
 
 @partners_bp.route('/connections/<connection_id>/accept', methods=['POST'])
-def accept_connection(connection_id):
+@token_required
+def accept_connection(current_user_id, connection_id):
     """
     Accept a partner connection request (FR-57).
     
     Expected payload:
     {
-        "recipient_user_id": "uuid"
+        "recipient_user_id": "uuid" (Optional, extracted from token if missing)
     }
     """
     try:
-        data = request.get_json() or {}  # Handle empty body
-        recipient_id = data.get('recipient_user_id')
+        # We can use current_user_id as the rightful recipient
+        accepted_by_user_id = current_user_id
+        
+        # Override recipient_id with authenticated user to ensure security
+        recipient_id = str(accepted_by_user_id)
         
         # Validate format if provided
         if recipient_id:
@@ -293,7 +246,7 @@ def accept_connection(connection_id):
             recipient_profile = Profile.query.filter_by(user_id=recipient_uuid).order_by(Profile.created_at.desc()).first()
             
             if requester_profile and recipient_profile:
-                current_app.logger.info(f"Calculating compatibility for {requester_uuid} and {recipient_uuid}")
+                logger.info(f"Calculating compatibility for {requester_uuid} and {recipient_uuid}")
                 
                 # Prepare profile data for calculator
                 profile_a_data = requester_profile.to_dict()
@@ -332,14 +285,14 @@ def accept_connection(connection_id):
                 
                 db.session.add(compat_record)
                 db.session.commit()
-                current_app.logger.info(f"Compatibility calculated: {compat_record.overall_percentage}%")
+                logger.info(f"Compatibility calculated: {compat_record.overall_percentage}%")
                 
             else:
-                 current_app.logger.warning("Could not calculate compatibility: One or both profiles missing")
+                 logger.warning("Could not calculate compatibility: One or both profiles missing")
 
         except Exception as calc_error:
             # Don't fail the connection acceptance if calculation fails
-            current_app.logger.error(f"Compatibility calculation failed: {calc_error}")
+            logger.error(f"Compatibility calculation failed: {calc_error}")
             db.session.rollback()  # Rollback only calculation part if needed, but connection was already committed above logic check.
             # Actually, `db.session.commit()` was called at line 236. So we are in a new transaction implicitly or need to manage it.
             # Best to keep it separate.
@@ -352,12 +305,13 @@ def accept_connection(connection_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Accept connection failed: {str(e)}")
+        logger.error(f"Accept connection failed: {str(e)}")
         return jsonify({'error': 'Failed to accept connection'}), 500
 
 
 @partners_bp.route('/connections/<connection_id>/decline', methods=['POST'])
-def decline_connection(connection_id):
+@token_required
+def decline_connection(current_user_id, connection_id):
     """
     Decline a partner connection request (FR-57).
     """
@@ -366,6 +320,22 @@ def decline_connection(connection_id):
         
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
+            
+        # Security Check: Ensure current user is the actual recipient
+        # The connection request must be addressed to either current_user_id OR current user's email
+        # We need to fetch current user to check email
+        user = User.query.get(current_user_id)
+        if not user:
+             return jsonify({'error': 'User not found'}), 404
+             
+        is_recipient = False
+        if connection.recipient_user_id and str(connection.recipient_user_id) == str(current_user_id):
+             is_recipient = True
+        elif connection.recipient_email and connection.recipient_email == user.email:
+             is_recipient = True
+             
+        if not is_recipient:
+             return jsonify({'error': 'Unauthorized to decline this request'}), 403
         
         connection.status = 'declined'
         db.session.commit()
@@ -377,22 +347,22 @@ def decline_connection(connection_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Decline connection failed: {str(e)}")
+        logger.error(f"Decline connection failed: {str(e)}")
         return jsonify({'error': 'Failed to decline connection'}), 500
 
 
-@partners_bp.route('/connections/<user_id>', methods=['GET'])
-def get_connections(user_id):
+@partners_bp.route('/connections', methods=['GET'])
+@token_required
+def get_connections(current_user_id):
     """
-    Get partner connections for a user (only pending and accepted).
-    Declined, expired, and disconnected connections are filtered out.
+    Get partner connections for the authenticated user.
     """
     try:
-        # Get user to find their email
+        user_id = str(current_user_id)
         try:
-             user_uuid = uuid.UUID(str(user_id))
+             user_uuid = uuid.UUID(user_id)
         except ValueError:
-             return jsonify({'error': 'Invalid user_id format'}), 400
+             return jsonify({'error': 'Invalid user_id'}), 400
 
         user = User.query.get(user_uuid)
         if not user:
@@ -418,23 +388,20 @@ def get_connections(user_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Get connections failed: {str(e)}")
+        logger.error(f"Get connections failed: {str(e)}")
         return jsonify({'error': 'Failed to retrieve connections'}), 500
 
 
 
-@partners_bp.route('/remembered/<user_id>', methods=['GET'])
-def get_remembered_partners(user_id):
+@partners_bp.route('/remembered', methods=['GET'])
+@token_required
+def get_remembered_partners(current_user_id):
     """
-    Get list of remembered partners for a user (FR-60).
+    Get list of remembered partners for authenticated user (FR-60).
     Returns up to 10 most recent partners.
     """
     try:
-        # Cast user_id to UUID for RememberedPartner query
-        try:
-            user_uuid = uuid.UUID(str(user_id))
-        except ValueError:
-            return jsonify({'error': 'Invalid user_id format'}), 400
+        user_uuid = uuid.UUID(str(current_user_id))
 
         partners = RememberedPartner.query\
             .filter_by(user_id=user_uuid)\
@@ -447,19 +414,20 @@ def get_remembered_partners(user_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Get remembered partners failed: {str(e)}")
+        logger.error(f"Failed to define partner models: {str(e)}")
         return jsonify({'error': 'Failed to retrieve partners'}), 500
 
 
-@partners_bp.route('/remembered/<user_id>/<partner_user_id>', methods=['DELETE'])
-def remove_remembered_partner(user_id, partner_user_id):
+@partners_bp.route('/remembered/<partner_user_id>', methods=['DELETE'])
+@token_required
+def remove_remembered_partner(current_user_id, partner_user_id):
     """
     Remove a partner from remembered list (FR-61).
     """
     try:
         # Cast to UUIDs for RememberedPartner queries
         try:
-            user_uuid = uuid.UUID(str(user_id))
+            user_uuid = uuid.UUID(str(current_user_id)) # Authed User
             partner_uuid = uuid.UUID(str(partner_user_id))
         except ValueError:
             return jsonify({'error': 'Invalid ID format'}), 400
@@ -488,7 +456,7 @@ def remove_remembered_partner(user_id, partner_user_id):
             
         # 3. Update PartnerConnection status to 'disconnected'
         # PartnerConnection uses Strings
-        user_id_str = str(user_id)
+        user_id_str = str(current_user_id)
         partner_id_str = str(partner_user_id)
         
         connection = PartnerConnection.query.filter(
@@ -510,7 +478,7 @@ def remove_remembered_partner(user_id, partner_user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Remove partner failed: {str(e)}")
+        logger.error(f"Remove partner failed: {str(e)}")
         return jsonify({'error': 'Failed to remove partner'}), 500
 
 

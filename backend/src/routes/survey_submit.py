@@ -1,6 +1,6 @@
 from datetime import datetime
 import uuid
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
@@ -8,31 +8,33 @@ from ..models.survey import SurveySubmission, SurveyProgress
 from ..models.profile import Profile
 from ..models.user import User
 from ..scoring.profile import calculate_profile
-from ..auth_utils import get_current_user_id
+from ..middleware.auth import token_required
+import logging
+
+logger = logging.getLogger(__name__)
 
 survey_submit_bp = Blueprint('survey_submit', __name__, url_prefix='/api/survey')
 
 @survey_submit_bp.route('/submit', methods=['POST'])
-def submit_survey():
+@token_required
+def submit_survey(current_user_id):
     """
     Handle atomic survey submission.
-    1. Validate User (JWT)
+    1. Validate User (JWT via decorator)
     2. Check Progress (Idempotency)
     3. Atomic Transaction:
        - Create Submission
-       - Calculate & Create Profile
+       - Calculate & Create/Update Profile (Upsert)
        - Update Progress
        - Update User
     """
     try:
-        # 1. SECURITY: Get user_id from JWT
-        # get_current_user_id() should raise/return error if invalid, 
-        # but let's check how it's implemented or if we need a decorator.
-        # Looking at auth.py (not visible here, but assumed standard pattern or helper).
-        # If get_current_user_id returns None, we should block.
-        user_id = get_current_user_id()
-        if not user_id:
-             return jsonify({'error': 'Unauthorized'}), 401
+        user_id = current_user_id
+        # Convert to UUID object for SQLAlchemy UUID(as_uuid=True) compatibility
+        try:
+             user_id = uuid.UUID(str(user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid user_id format'}), 400
 
         data = request.get_json() or {}
         survey_version = data.get('survey_version', '0.4')
@@ -60,7 +62,7 @@ def submit_survey():
         # 3. Idempotency Guard
         # If already completed AND not a forced retake, return existing info
         if progress.status == 'completed' and not retake:
-            current_app.logger.info(f"Duplicate submission attempt for user {user_id}")
+            logger.info(f"Duplicate submission attempt for user {user_id}")
             
             # Try to find the existing profile
             # We can look up by submission linked to this progress
@@ -77,7 +79,7 @@ def submit_survey():
             return jsonify({'message': 'Survey already completed'}), 200
         
         if retake:
-             current_app.logger.info(f"Processing survey retake for user {user_id}")
+             logger.info(f"Processing survey retake for user {user_id}")
 
         # 4. Atomic Transaction
         with db.session.begin_nested():
@@ -99,31 +101,49 @@ def submit_survey():
             # calculate_profile expects (user_id, answers)
             profile_data = calculate_profile(str(user_id), answers)
 
-            # C. Create Profile
-            # Ensure anatomy is handled (if missing from answers, might be in User, 
-            # but calculate_profile should handle extraction).
-            # We map the dictionary from calculate_profile to the Profile model fields.
-            
-            # Extract fields from profile_data
+            # C. Create or Update Profile
+            # Ensure anatomy is handled
             anatomy = profile_data.get('anatomy', {})
-            # Fallback for anatomy if empty (should be handled by calculator but safety check)
             if not anatomy:
                 anatomy = {'anatomy_self': [], 'anatomy_preference': []}
 
-            profile = Profile(
-                user_id=user_id,
-                submission_id=submission_id,
-                profile_version=profile_data.get('profile_version', '0.4'),
-                power_dynamic=profile_data.get('power_dynamic', {}),
-                arousal_propensity=profile_data.get('arousal_propensity', {}),
-                domain_scores=profile_data.get('domain_scores', {}),
-                activities=profile_data.get('activities', {}),
-                truth_topics=profile_data.get('truth_topics', {}),
-                boundaries=profile_data.get('boundaries', {}),
-                anatomy=anatomy,
-                activity_tags=profile_data.get('activity_tags', {})
-            )
-            db.session.add(profile)
+            # Check for existing profile
+            # We use lock or upsert pattern. Since we are in transaction, unique constraint will fail if we insert.
+            # But we want to UPDATE if exists.
+            
+            existing_profile = Profile.query.filter_by(user_id=user_id).first()
+            
+            if existing_profile:
+                # UPDATE existing profile
+                existing_profile.submission_id = submission_id
+                existing_profile.profile_version = profile_data.get('profile_version', '0.4')
+                existing_profile.power_dynamic = profile_data.get('power_dynamic', {})
+                existing_profile.arousal_propensity = profile_data.get('arousal_propensity', {})
+                existing_profile.domain_scores = profile_data.get('domain_scores', {})
+                existing_profile.activities = profile_data.get('activities', {})
+                existing_profile.truth_topics = profile_data.get('truth_topics', {})
+                existing_profile.boundaries = profile_data.get('boundaries', {})
+                existing_profile.anatomy = anatomy
+                existing_profile.activity_tags = profile_data.get('activity_tags', {})
+                # Updated_at is handled by SQLAlchemy event or manually if needed, 
+                # but default onupdate=datetime.utcnow should trigger.
+                profile = existing_profile
+            else:
+                # INSERT new profile
+                profile = Profile(
+                    user_id=user_id,
+                    submission_id=submission_id,
+                    profile_version=profile_data.get('profile_version', '0.4'),
+                    power_dynamic=profile_data.get('power_dynamic', {}),
+                    arousal_propensity=profile_data.get('arousal_propensity', {}),
+                    domain_scores=profile_data.get('domain_scores', {}),
+                    activities=profile_data.get('activities', {}),
+                    truth_topics=profile_data.get('truth_topics', {}),
+                    boundaries=profile_data.get('boundaries', {}),
+                    anatomy=anatomy,
+                    activity_tags=profile_data.get('activity_tags', {})
+                )
+                db.session.add(profile)
 
             # D. Update Progress
             progress.status = 'completed'
@@ -143,7 +163,7 @@ def submit_survey():
 
         db.session.commit()
         
-        current_app.logger.info(f"Survey submitted successfully for user {user_id}. Profile: {profile.id}")
+        logger.info(f"Survey submitted successfully for user {user_id}. Profile: {profile.id}")
         return jsonify({
             'message': 'Survey submitted successfully',
             'profile_id': profile.id
@@ -151,9 +171,9 @@ def submit_survey():
 
     except IntegrityError as e:
         # db.session.rollback() handled by begin_nested or request teardown
-        current_app.logger.error(f"Integrity error in survey submit: {e}")
+        logger.error(f"Integrity error in survey submit: {e}")
         return jsonify({'error': 'Database integrity error'}), 409
     except Exception as e:
         # db.session.rollback() handled by begin_nested or request teardown
-        current_app.logger.exception(f"Error in survey submit: {e}")
+        logger.exception(f"Error in survey submit: {e}")
         return jsonify({'error': str(e)}), 500

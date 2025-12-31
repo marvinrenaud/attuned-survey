@@ -11,6 +11,7 @@ from typing import List, Dict, Any, Optional
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy.orm.attributes import flag_modified
+from ..middleware.auth import token_required
 
 from ..extensions import db
 from ..models.session import Session
@@ -310,7 +311,8 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None) ->
     return queue
 
 @gameplay_bp.route("/start", methods=["POST"])
-def start_game():
+@token_required
+def start_game(current_user_id):
     """
     Start a new game session.
     Returns a queue of 3 cards.
@@ -318,6 +320,18 @@ def start_game():
     try:
         data = request.get_json()
         player_ids = data.get("player_ids", [])
+        
+        # Ensure authenticated user is included in players or at least considered owner
+        # If player_ids is internal ID list, ensure current_user_id is there.
+        # However, frontend might send partner ID only?
+        # Let's assume player_ids is list of participants.
+        
+        # Convert current_user_id to string for consistency
+        auth_user_id = str(current_user_id)
+        if auth_user_id not in player_ids:
+             # Prepend or Append?
+             player_ids.insert(0, auth_user_id)
+        
         settings = data.get("settings", {})
         
         # ... (Normalization and Validation omitted for brevity, keeping existing) ...
@@ -337,7 +351,8 @@ def start_game():
             
         # Check limit (1 credit for start)
         limit_status = {"limit_reached": False}
-        owner_id = None
+        owner_id = str(current_user_id) # Enforce billing to caller
+
         
         # Resolve players
         players = []
@@ -352,7 +367,8 @@ def start_game():
                     pass
             
             if user:
-                if not owner_id: owner_id = str(user.id)
+                # Owner logic handled above
+
                 players.append({
                     "id": str(user.id),
                     "name": user.display_name or "Player",
@@ -421,7 +437,8 @@ def start_game():
         return jsonify({"error": str(e)}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
-def next_turn(session_id):
+@token_required
+def next_turn(current_user_id, session_id):
     """
     Advance to next turn.
     Consumes the played card, increments credit, replenishes queue.
@@ -431,18 +448,28 @@ def next_turn(session_id):
         if not session:
             return jsonify({"error": "Session not found"}), 404
             
+        # Validate Participation
+        # session.players is JSON list of dicts [{'id':...}, ...]
+        players = session.players or []
+        is_participant = False
+        for p in players:
+             if str(p.get('id')) == str(current_user_id):
+                 is_participant = True
+                 break
+        
+        if not is_participant:
+             return jsonify({'error': 'Unauthorized'}), 403
+            
         data = request.get_json()
         
         state = session.current_turn_state or {}
         queue = state.get("queue", [])
         
-        # Determine owner
-        players = session.players or []
-        owner_id = None
-        if players:
-            first_p = players[0].get("id")
-            if len(first_p) > 10: 
-                owner_id = first_p
+        # Determine owner - default to caller for billing or original owner?
+        # The logic below tried to find "owner_id" from first player.
+        # We should stick to caller if they are a participant.
+        owner_id = str(current_user_id)
+
         
         # 1. Consume the current card (Head of queue)
         if queue:

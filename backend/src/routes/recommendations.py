@@ -18,6 +18,7 @@ from ..recommender.repair import fast_repair, get_safe_fallback, create_placehol
 from ..llm.generator import generate_recommendations
 from ..compatibility.calculator import calculate_compatibility
 from ..config import settings
+from ..middleware.auth import token_required, optional_token
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,8 @@ bp = Blueprint("recommendations", __name__, url_prefix="/api")
 
 
 @bp.route("/recommendations", methods=["POST"])
-def create_recommendations():
+@optional_token
+def create_recommendations(current_user_id):
     """
     Generate activity recommendations for a session.
     
@@ -80,6 +82,36 @@ def create_recommendations():
         else:
             player_b_profile = player_b_data
             profile_b = None
+        
+        # Authorization Check (Ownership of Profiles)
+        # If accessing existing DB profiles (via submission_id), ensure caller owns at least one.
+        if current_user_id:
+            authorized = False
+            # Check A
+            if profile_a and profile_a.user_id and str(profile_a.user_id) == str(current_user_id):
+                authorized = True
+            # Check B
+            if profile_b and profile_b.user_id and str(profile_b.user_id) == str(current_user_id):
+                authorized = True
+            
+            # If profiles are anonymous (no user_id), allow.
+            if profile_a and not profile_a.user_id:
+                authorized = True
+            if profile_b and not profile_b.user_id:
+                authorized = True
+
+            # If NO submission IDs provided (raw dictionaries), allow (authorized implicitly).
+            if not profile_a and not profile_b:
+                authorized = True
+                
+            if not authorized:
+                 logger.warning(f"Unauthorized access attempt to profiles by user {current_user_id}")
+                 return jsonify({'error': 'Unauthorized: You do not own the requested profiles'}), 403
+        else:
+            # Anonymous User
+            # Can only access if profiles are anonymous or raw data
+            if (profile_a and profile_a.user_id) or (profile_b and profile_b.user_id):
+                return jsonify({'error': 'Unauthorized: Cannot access user profiles anonymously'}), 401
         
         # Flatten nested activities structure for scoring
         # Profile activities are nested: {category: {activity: score}}
@@ -392,12 +424,35 @@ def create_recommendations():
 
 
 @bp.route("/recommendations/<session_id>", methods=["GET"])
-def get_recommendations(session_id):
+@token_required
+def get_recommendations(current_user_id, session_id):
     """Get activities for a session."""
     try:
         session = repository.get_session(session_id)
         if not session:
             return jsonify({'error': 'Session not found'}), 404
+            
+        # Authorization Check
+        # Check if current user is one of the players
+        # We need to fetch profiles to check user_ids
+        allowed_users = []
+        if session.player_a_profile and session.player_a_profile.user_id:
+            allowed_users.append(str(session.player_a_profile.user_id))
+        if session.player_b_profile and session.player_b_profile.user_id:
+            allowed_users.append(str(session.player_b_profile.user_id))
+            
+        # Also check new MVP fields
+        if session.primary_user_id:
+            allowed_users.append(str(session.primary_user_id))
+        if session.partner_user_id:
+            allowed_users.append(str(session.partner_user_id))
+        
+        # Allow owner
+        if session.session_owner_user_id:
+            allowed_users.append(str(session.session_owner_user_id))
+            
+        if str(current_user_id) not in allowed_users:
+             return jsonify({'error': 'Unauthorized'}), 403
         
         activities = repository.get_session_activities(session_id)
         
@@ -415,7 +470,8 @@ def get_recommendations(session_id):
 
 
 @bp.route("/recommendations/<session_id>/activities/<activity_id>/feedback", methods=["POST"])
-def submit_activity_feedback(session_id, activity_id):
+@optional_token
+def submit_activity_feedback(current_user_id, session_id, activity_id):
     """
     Submit feedback for an activity (FR-37).
     
@@ -436,6 +492,11 @@ def submit_activity_feedback(session_id, activity_id):
         
         if not user_id and not anonymous_session_id:
             return jsonify({'error': 'Must provide either user_id or anonymous_session_id'}), 400
+
+        # Authorization Check
+        if user_id:
+            if not current_user_id or str(current_user_id) != str(user_id):
+                 return jsonify({'error': 'Unauthorized: User ID mismatch'}), 403
             
         if feedback_type and feedback_type not in ['like', 'dislike', 'neutral']:
             return jsonify({'error': 'Invalid feedback_type'}), 400

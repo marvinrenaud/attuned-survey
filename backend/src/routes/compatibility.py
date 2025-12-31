@@ -14,15 +14,19 @@ from ..scoring.display_names import (
     ACTIVITY_SECTION_DISPLAY_NAMES,
     ACTIVITY_DISPLAY_NAMES
 )
+from ..middleware.auth import token_required
+import logging
+
+logger = logging.getLogger(__name__)
 
 compatibility_bp = Blueprint('compatibility', __name__, url_prefix='/api/compatibility')
 
 
 @compatibility_bp.route('/<user_id>/<partner_id>', methods=['GET'])
-def get_compatibility(user_id, partner_id):
+@token_required
+def get_compatibility(current_user_id, user_id, partner_id):
     try:
-        current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
-        current_app.logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
+        logger.info(f"Compatibility request raw inputs - User: {repr(user_id)}, Partner: {repr(partner_id)}")
         
         # 0. Sanitize Inputs using Regex Extraction (Nuclear Option)
         # Finds a 32-char hex string (with optional dashes) anywhere in the input
@@ -46,8 +50,13 @@ def get_compatibility(user_id, partner_id):
             p_str = str(p_uuid)
             
         except ValueError as val_err:
-             current_app.logger.error(f"Invalid UUID input: User='{user_id}', Partner='{partner_id}'. Error: {val_err}")
+             logger.error(f"Invalid UUID input: User='{user_id}', Partner='{partner_id}'. Error: {val_err}")
              return jsonify({'error': f"Invalid UUID format: {str(val_err)}", 'received_user': str(user_id), 'received_partner': str(partner_id)}), 400
+
+        # Verify Authorization
+        auth_uid_str = str(current_user_id)
+        if auth_uid_str != str(u_uuid) and auth_uid_str != str(p_uuid):
+             return jsonify({'error': 'Unauthorized access to compatibility data'}), 403
              
         # 1. Verify connection exists (active or accepted)
         # Use sanitized strings to prevent "invalid input syntax" DB errors
@@ -151,12 +160,13 @@ def get_compatibility(user_id, partner_id):
     except Exception as e:
         import traceback
         traceback.print_exc()
-        current_app.logger.error(f"Get compatibility failed: {str(e)}")
+        logger.error(f"Get compatibility failed: {str(e)}")
         return jsonify({'error': 'Failed to retrieve compatibility (v5)', 'details': str(e)}), 500
 
 
 @compatibility_bp.route('/<user_id>/<partner_id>/ui', methods=['GET'])
-def get_compatibility_ui(user_id, partner_id):
+@token_required
+def get_compatibility_ui(current_user_id, user_id, partner_id):
     """
     UI-Optimized Compatibility Endpoint.
     - Flattens structure for frontend.
@@ -165,7 +175,7 @@ def get_compatibility_ui(user_id, partner_id):
     - Performs smart interest matching (Giving vs Receiving).
     """
     try:
-        current_app.logger.info(f"Compatibility UI request for {repr(user_id)} and {repr(partner_id)}")
+        logger.info(f"Compatibility UI request for {repr(user_id)} and {repr(partner_id)}")
         
         # 0. Sanitize Inputs (Reuse Logic)
         # Finds a 32-char hex string (with optional dashes) anywhere in the input
@@ -185,6 +195,11 @@ def get_compatibility_ui(user_id, partner_id):
             p_str = str(p_uuid)
         except ValueError as val_err:
              return jsonify({'error': f"Invalid UUID format"}), 400
+
+        # Verify Authorization
+        auth_uid_str = str(current_user_id)
+        if auth_uid_str != str(u_uuid) and auth_uid_str != str(p_uuid):
+             return jsonify({'error': 'Unauthorized access to compatibility data'}), 403
 
         # 1. Fetch Users
         user_u = User.query.get(u_uuid)
@@ -321,7 +336,7 @@ def get_compatibility_ui(user_id, partner_id):
     except Exception as e:
         import traceback
         traceback.print_exc()
-        current_app.logger.error(f"Get compatibility UI failed: {str(e)}")
+        logger.error(f"Get compatibility UI failed: {str(e)}")
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
 

@@ -1,20 +1,28 @@
 """Subscription management and validation routes."""
 from flask import Blueprint, jsonify, request, current_app
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
 from ..extensions import db
 from ..models.user import User
+from ..middleware.auth import token_required
+import logging
+
+logger = logging.getLogger(__name__)
 
 subscriptions_bp = Blueprint('subscriptions', __name__, url_prefix='/api/subscriptions')
 
 
 @subscriptions_bp.route('/validate/<user_id>', methods=['GET'])
-def validate_subscription(user_id):
+@token_required
+def validate_subscription(current_user_id, user_id):
     """
     Validate user's subscription status (FR-26).
     Returns whether user has active premium subscription.
     """
     try:
+        # Authorization
+        if str(current_user_id) != str(user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
         user = User.query.filter_by(id=user_id).first()
         
         if not user:
@@ -35,17 +43,22 @@ def validate_subscription(user_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Subscription validation failed: {str(e)}")
+        logger.error(f"Subscription validation failed: {str(e)}")
         return jsonify({'error': 'Validation failed'}), 500
 
 
 @subscriptions_bp.route('/check-limit/<user_id>', methods=['GET'])
-def check_daily_limit(user_id):
+@token_required
+def check_daily_limit(current_user_id, user_id):
     """
     Check if user has reached daily activity limit (FR-25).
     Free tier users have a daily limit.
     """
     try:
+        # Authorization
+        if str(current_user_id) != str(user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
         user = User.query.filter_by(id=user_id).first()
         
         if not user:
@@ -77,17 +90,23 @@ def check_daily_limit(user_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Check limit failed: {str(e)}")
+        logger.error(f"Check limit failed: {str(e)}")
         return jsonify({'error': 'Failed to check limit'}), 500
 
 
 @subscriptions_bp.route('/increment-activity/<user_id>', methods=['POST'])
-def increment_activity_count(user_id):
+@token_required
+def increment_activity_count(current_user_id, user_id):
     """
     Increment daily activity count for user.
     Called after each activity is presented.
     """
+    """
     try:
+        # Authorization
+        if str(current_user_id) != str(user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
         user = User.query.filter_by(id=user_id).first()
         
         if not user:
@@ -105,7 +124,7 @@ def increment_activity_count(user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Increment activity failed: {str(e)}")
+        logger.error(f"Increment activity failed: {str(e)}")
         return jsonify({'error': 'Failed to increment'}), 500
 
 
@@ -117,7 +136,7 @@ def app_store_webhook():
     """
     # TODO: Implement App Store receipt validation
     # This requires App Store Server API integration
-    current_app.logger.info("App Store webhook received")
+    logger.info("App Store webhook received")
     return jsonify({'received': True}), 200
 
 
@@ -129,9 +148,5 @@ def play_store_webhook():
     """
     # TODO: Implement Play Store purchase validation
     # This requires Google Play Developer API integration
-    current_app.logger.info("Play Store webhook received")
+    logger.info("Play Store webhook received")
     return jsonify({'received': True}), 200
-
-
-from datetime import timedelta  # Add this import
-

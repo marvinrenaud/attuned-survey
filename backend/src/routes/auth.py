@@ -1,5 +1,8 @@
 """Authentication routes for Supabase Auth integration."""
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
+import logging
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -7,6 +10,8 @@ from ..extensions import db
 from ..models.user import User
 from ..models.profile import Profile
 from ..models.survey import SurveySubmission
+
+from ..middleware.auth import token_required
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -52,7 +57,7 @@ def register_user():
         db.session.add(user)
         db.session.commit()
         
-        current_app.logger.info(f"User registered: {user.email} ({user.id})")
+        logger.info(f"User registered: {user.email} ({user.id})")
         
         return jsonify({
             'success': True,
@@ -61,12 +66,12 @@ def register_user():
         
     except IntegrityError as e:
         db.session.rollback()
-        current_app.logger.error(f"User registration failed - duplicate: {str(e)}")
+        logger.error(f"User registration failed - duplicate: {str(e)}")
         return jsonify({'error': 'User already exists'}), 409
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"User registration failed: {str(e)}")
+        logger.error(f"User registration failed: {str(e)}")
         return jsonify({'error': 'Registration failed'}), 500
 
 
@@ -102,15 +107,16 @@ def update_login():
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Login update failed: {str(e)}")
+        logger.error(f"Login update failed: {str(e)}")
         return jsonify({'error': 'Login update failed'}), 500
 
 
-@auth_bp.route('/user/<user_id>', methods=['GET'])
-def get_user(user_id):
-    """Get user details by ID."""
+@auth_bp.route('/profile', methods=['GET'])
+@token_required
+def get_user(current_user_id):
+    """Get authenticated user details."""
     try:
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=current_user_id).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -120,14 +126,15 @@ def get_user(user_id):
         }), 200
         
     except Exception as e:
-        current_app.logger.error(f"Get user failed: {str(e)}")
+        logger.error(f"Get user failed: {str(e)}")
         return jsonify({'error': 'Failed to retrieve user'}), 500
 
 
-@auth_bp.route('/user/<user_id>', methods=['PATCH'])
-def update_user(user_id):
+@auth_bp.route('/profile', methods=['PATCH'])
+@token_required
+def update_user(current_user_id):
     """
-    Update user profile.
+    Update authenticated user profile.
     
     Allowed updates:
     - display_name
@@ -138,7 +145,7 @@ def update_user(user_id):
     """
     try:
         data = request.get_json()
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=current_user_id).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -169,18 +176,19 @@ def update_user(user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"User update failed: {str(e)}")
+        logger.error(f"User update failed: {str(e)}")
         return jsonify({'error': 'Update failed'}), 500
 
 
-@auth_bp.route('/user/<user_id>', methods=['DELETE'])
-def delete_user(user_id):
+@auth_bp.route('/profile', methods=['DELETE'])
+@token_required
+def delete_user(current_user_id):
     """
-    Delete user account and all associated data.
+    Delete authenticated user account and all associated data.
     FR-81: Account deletion with cascade.
     """
     try:
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=current_user_id).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -198,7 +206,7 @@ def delete_user(user_id):
         db.session.delete(user)
         db.session.commit()
         
-        current_app.logger.info(f"User deleted: {user_id}")
+        logger.info(f"User deleted: {current_user_id}")
         
         return jsonify({
             'success': True,
@@ -207,37 +215,18 @@ def delete_user(user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"User deletion failed: {str(e)}")
+        logger.error(f"User deletion failed: {str(e)}")
         return jsonify({'error': 'Deletion failed'}), 500
 
 
-@auth_bp.route('/user/<user_id>/complete-demographics', methods=['POST'])
-def complete_demographics(user_id):
+@auth_bp.route('/complete-demographics', methods=['POST'])
+@token_required
+def complete_demographics(current_user_id):
     """
     Mark demographics as complete (FR-04).
     
     Accepts EITHER boolean format (preferred) OR array format (backward compat).
-    
-    New format (booleans):
-    {
-        "name": "Display Name",
-        "has_penis": true,
-        "has_vagina": false,
-        "has_breasts": true,
-        "likes_penis": true,
-        "likes_vagina": true,
-        "likes_breasts": false,
-        "gender": "woman" (optional),
-        "sexual_orientation": "bisexual" (optional),
-        "relationship_structure": "open" (optional)
-    }
-    
-    Old format (arrays - backward compatible):
-    {
-        "name": "Display Name",
-        "anatomy_self": ["penis", "vagina"],
-        "anatomy_preference": ["breasts"]
-    }
+    ...
     """
     try:
         data = request.get_json()
@@ -246,7 +235,7 @@ def complete_demographics(user_id):
         if 'name' not in data:
             return jsonify({'error': 'Missing required field: name'}), 400
         
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(id=current_user_id).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -316,7 +305,7 @@ def complete_demographics(user_id):
         # Check if this completes onboarding
         check_and_update_onboarding_status(user)
         
-        current_app.logger.info(f"Profile completed for user: {user.email}")
+        logger.info(f"Profile completed for user: {user.email}")
         
         return jsonify({
             'success': True,
@@ -339,7 +328,7 @@ def complete_demographics(user_id):
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Complete demographics failed: {str(e)}")
+        logger.error(f"Complete demographics failed: {str(e)}")
         return jsonify({'error': 'Failed to complete demographics'}), 500
 
 
@@ -376,7 +365,7 @@ def check_and_update_onboarding_status(user):
     if not user.onboarding_completed:
         user.onboarding_completed = True
         db.session.commit()
-        current_app.logger.info(f"Onboarding marked as complete for user: {user.id}")
+        logger.info(f"Onboarding marked as complete for user: {user.id}")
         
     return True
 

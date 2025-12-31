@@ -2,11 +2,18 @@ from flask import Blueprint, jsonify, request, current_app
 from ..extensions import db
 from ..models.notification import PushNotificationToken
 from ..models.user import User
+from ..models.user import User
+from ..middleware.auth import token_required
+import logging
+import uuid
+
+logger = logging.getLogger(__name__)
 
 notifications_bp = Blueprint('notifications', __name__, url_prefix='/api/notifications')
 
 @notifications_bp.route('/register', methods=['POST'])
-def register_token():
+@token_required
+def register_token(current_user_id):
     """
     Register a device token for push notifications (FR-75).
     
@@ -30,8 +37,16 @@ def register_token():
         if platform not in ['ios', 'android']:
             return jsonify({'error': 'Invalid platform'}), 400
             
-        # Verify user exists
-        user = User.query.filter_by(id=user_id).first()
+        if str(current_user_id) != str(user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+            
+        # Verify user exists (Cast to UUID for query)
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid User ID'}), 400
+             
+        user = User.query.filter_by(id=user_uuid).first()
         if not user:
             return jsonify({'error': 'User not found'}), 404
             
@@ -40,18 +55,19 @@ def register_token():
         
         if token:
             # Update user_id if changed (e.g. user logged in on same device)
-            if token.user_id != user_id:
-                token.user_id = user_id
-                current_app.logger.info(f"Updated owner for device token: {device_token[:10]}...")
+            # Ensure we store string in PushNotificationToken (as defined in model)
+            if token.user_id != str(user_uuid):
+                token.user_id = str(user_uuid)
+                logger.info(f"Updated owner for device token: {device_token[:10]}...")
         else:
             # Create new token
             token = PushNotificationToken(
-                user_id=user_id,
+                user_id=str(user_uuid),
                 device_token=device_token,
                 platform=platform
             )
             db.session.add(token)
-            current_app.logger.info(f"Registered new device token for user {user_id}")
+            logger.info(f"Registered new device token for user {user_id}")
             
         db.session.commit()
         
@@ -62,5 +78,5 @@ def register_token():
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"Token registration failed: {str(e)}")
+        logger.error(f"Token registration failed: {str(e)}")
         return jsonify({'error': 'Registration failed'}), 500

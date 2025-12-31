@@ -13,8 +13,9 @@ load_dotenv(dotenv_path=env_path)
 from flask import Flask
 from flask_cors import CORS
 from sqlalchemy import text
+from flask_limiter import Limiter
 
-from .extensions import db
+from .extensions import db, limiter
 from .models.survey import SurveyBaseline, SurveySubmission
 from .models.profile import Profile
 from .models.session import Session
@@ -76,8 +77,13 @@ def create_app() -> Flask:
     if os.environ.get("FLASK_ENV") == "development":
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-
+    
+    # Rate Limiting Config
+    app.config["RATELIMIT_DEFAULT"] = "2000 per day;500 per hour"
+    app.config["RATELIMIT_STORAGE_URI"] = "memory://"
+    
     db.init_app(app)
+    limiter.init_app(app)
 
     with app.app_context():
         try:

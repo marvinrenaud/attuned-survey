@@ -1,11 +1,14 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 from ..models.user import User
+from ..middleware.auth import token_required
 from ..extensions import db
 
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/users', methods=['GET'])
-def get_users():
+@token_required
+def get_users(current_user_id):
+    # TODO: this should be admin only
     users = User.query.all()
     return jsonify([user.to_dict() for user in users])
 
@@ -35,17 +38,25 @@ def create_user():
     return jsonify(user.to_dict()), 201
 
 @user_bp.route('/users/<user_id>', methods=['GET'])
-def get_user(user_id):
+@token_required
+def get_user(current_user_id, user_id):
     """Get user by UUID (changed from integer ID)."""
+    if str(current_user_id) != str(user_id):
+        return jsonify({'error': 'Unauthorized'}), 403
+        
     user = User.query.filter_by(id=user_id).first_or_404()
     return jsonify(user.to_dict())
 
 @user_bp.route('/users/<user_id>', methods=['PUT'])
-def update_user(user_id):
+@token_required
+def update_user(current_user_id, user_id):
     """
     Update user details.
     Note: 'username' is mapped to 'display_name' for backward compatibility.
     """
+    if str(current_user_id) != str(user_id):
+        return jsonify({'error': 'Unauthorized'}), 403
+
     user = User.query.filter_by(id=user_id).first_or_404()
     data = request.json
     
@@ -65,8 +76,12 @@ def update_user(user_id):
     return jsonify(user.to_dict())
 
 @user_bp.route('/users/<user_id>', methods=['DELETE'])
-def delete_user(user_id):
+@token_required
+def delete_user(current_user_id, user_id):
     """Delete user by UUID (changed from integer ID)."""
+    if str(current_user_id) != str(user_id):
+        return jsonify({'error': 'Unauthorized'}), 403
+
     user = User.query.filter_by(id=user_id).first_or_404()
     db.session.delete(user)
     db.session.commit()
