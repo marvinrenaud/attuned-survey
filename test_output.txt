@@ -1,723 +1,87 @@
-INFO:sqlalchemy.engine.Engine:select pg_catalog.version()
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:select current_schema()
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:show standard_conforming_strings
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:SELECT 1
-INFO:sqlalchemy.engine.Engine:[generated in 0.00010s] {}
-INFO:sqlalchemy.engine.Engine:COMMIT
+[2025-12-31 16:18:10,995] WARNING in main: ⚠️ Column verification failed: (sqlite3.OperationalError) near "EXISTS": syntax error
+[SQL: 
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS name VARCHAR(256);
+                        ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
 ============================= test session starts ==============================
-platform darwin -- Python 3.14.0, pytest-9.0.1, pluggy-1.6.0
+platform darwin -- Python 3.14.0, pytest-9.0.1, pluggy-1.6.0 -- /Users/mr/attuned-survey-1/backend/venv/bin/python3.14
+cachedir: .pytest_cache
 rootdir: /Users/mr/attuned-survey-1
 plugins: anyio-4.11.0
-collected 2 items
+collecting ... collected 1 item
 
-backend/tests/test_mobile_flow.py INFO:sqlalchemy.engine.Engine:select pg_catalog.version()
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:select current_schema()
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:show standard_conforming_strings
-INFO:sqlalchemy.engine.Engine:[raw sql] {}
-INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:SELECT 1
-INFO:sqlalchemy.engine.Engine:[generated in 0.00016s] {}
-INFO:sqlalchemy.engine.Engine:COMMIT
-INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[generated in 0.00018s] {'table_name': 'survey_submissions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.08848s ago] {'table_name': 'survey_baseline', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.1365s ago] {'table_name': 'survey_questions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.185s ago] {'table_name': 'profiles', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.2323s ago] {'table_name': 'sessions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.2773s ago] {'table_name': 'activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.3258s ago] {'table_name': 'session_activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.3711s ago] {'table_name': 'compatibility_results', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.4163s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.466s ago] {'table_name': 'partner_connections', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.5313s ago] {'table_name': 'remembered_partners', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_type.typname 
-FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
-WHERE pg_catalog.pg_type.typname = %(typname_1)s AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[generated in 0.00017s] {'typname_1': 'connection_status_enum', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:COMMIT
-INFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:INSERT INTO users (id, email, auth_provider, display_name, demographics, has_penis, has_vagina, has_breasts, likes_penis, likes_vagina, likes_breasts, subscription_tier, subscription_expires_at, daily_activity_count, daily_activity_reset_at, profile_sharing_setting, notification_preferences, profile_completed, onboarding_completed, last_login_at, created_at, updated_at) VALUES (%(id)s::UUID, %(email)s, %(auth_provider)s, %(display_name)s, %(demographics)s::JSONB, %(has_penis)s, %(has_vagina)s, %(has_breasts)s, %(likes_penis)s, %(likes_vagina)s, %(likes_breasts)s, %(subscription_tier)s, %(subscription_expires_at)s, %(daily_activity_count)s, %(daily_activity_reset_at)s, %(profile_sharing_setting)s, %(notification_preferences)s::JSONB, %(profile_completed)s, %(onboarding_completed)s, %(last_login_at)s, %(created_at)s, %(updated_at)s)
-INFO:sqlalchemy.engine.Engine:[generated in 0.00027s] {'id': UUID('c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60'), 'email': 'mobile_test@example.com', 'auth_provider': 'email', 'display_name': 'Mobile Tester', 'demographics': '{}', 'has_penis': True, 'has_vagina': False, 'has_breasts': False, 'likes_penis': False, 'likes_vagina': True, 'likes_breasts': False, 'subscription_tier': 'free', 'subscription_expires_at': None, 'daily_activity_count': 0, 'daily_activity_reset_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357849), 'profile_sharing_setting': 'overlapping_only', 'notification_preferences': '{}', 'profile_completed': False, 'onboarding_completed': False, 'last_login_at': None, 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357857), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357860)}
-INFO:sqlalchemy.engine.Engine:INSERT INTO survey_submissions (submission_id, user_id, respondent_id, name, sex, sexual_orientation, version, payload_json, created_at) VALUES (%(submission_id)s, %(user_id)s::UUID, %(respondent_id)s, %(name)s, %(sex)s, %(sexual_orientation)s, %(version)s, %(payload_json)s::JSON, %(created_at)s) RETURNING survey_submissions.id
-INFO:sqlalchemy.engine.Engine:[generated in 0.00028s] {'submission_id': 'mobile-sub-123', 'user_id': UUID('c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60'), 'respondent_id': None, 'name': None, 'sex': None, 'sexual_orientation': None, 'version': '0.4', 'payload_json': '{"A1": 7, "A2": 7, "A3": 7}', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 562744)}
-INFO:sqlalchemy.engine.Engine:SELECT survey_submissions.id AS survey_submissions_id, survey_submissions.submission_id AS survey_submissions_submission_id, survey_submissions.user_id AS survey_submissions_user_id, survey_submissions.respondent_id AS survey_submissions_respondent_id, survey_submissions.name AS survey_submissions_name, survey_submissions.sex AS survey_submissions_sex, survey_submissions.sexual_orientation AS survey_submissions_sexual_orientation, survey_submissions.version AS survey_submissions_version, survey_submissions.payload_json AS survey_submissions_payload_json, survey_submissions.created_at AS survey_submissions_created_at 
-FROM survey_submissions 
-WHERE survey_submissions.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO:sqlalchemy.engine.Engine:[generated in 0.00017s] {'submission_id_1': 'mobile-sub-123', 'param_1': 1}
-INFO:sqlalchemy.engine.Engine:SELECT profiles.id AS profiles_id, profiles.user_id AS profiles_user_id, profiles.submission_id AS profiles_submission_id, profiles.is_anonymous AS profiles_is_anonymous, profiles.anonymous_session_id AS profiles_anonymous_session_id, profiles.last_accessed_at AS profiles_last_accessed_at, profiles.profile_version AS profiles_profile_version, profiles.survey_version AS profiles_survey_version, profiles.created_at AS profiles_created_at, profiles.updated_at AS profiles_updated_at, profiles.power_dynamic AS profiles_power_dynamic, profiles.arousal_propensity AS profiles_arousal_propensity, profiles.domain_scores AS profiles_domain_scores, profiles.activities AS profiles_activities, profiles.truth_topics AS profiles_truth_topics, profiles.boundaries AS profiles_boundaries, profiles.anatomy AS profiles_anatomy, profiles.activity_tags AS profiles_activity_tags 
-FROM profiles 
-WHERE profiles.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO:sqlalchemy.engine.Engine:[generated in 0.00013s] {'submission_id_1': 'mobile-sub-123', 'param_1': 1}
-INFO:sqlalchemy.engine.Engine:INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id
-INFO:sqlalchemy.engine.Engine:[generated in 0.00028s] {'user_id': 'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60', 'submission_id': 'mobile-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{"sensation": 50}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}
-INFO:sqlalchemy.engine.Engine:ROLLBACK
-[2025-12-04 17:24:13,803] ERROR in process_submission: Error processing submission mobile-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (28, mobile-sub-123, 0.4, 2025-12-04 22:24:13.715142, 2025-12-04 22:24:13.715145, {}, {}, {"sensation": 50}, {}, {}, {}, {}, {}, c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60, f, null, 2025-12-04 22:24:13.715134+00, 0.4).
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced [2025-12-31 16:18:11,263] WARNING in main: ⚠️ Column verification failed: (sqlite3.OperationalError) near "EXISTS": syntax error
+[SQL: 
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS name VARCHAR(256);
+                        ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+FAILED
 
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': 'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60', 'submission_id': 'mobile-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{"sensation": 50}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-ERROR:backend.src.main:Error processing submission mobile-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (28, mobile-sub-123, 0.4, 2025-12-04 22:24:13.715142, 2025-12-04 22:24:13.715145, {}, {}, {"sensation": 50}, {}, {}, {}, {}, {}, c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60, f, null, 2025-12-04 22:24:13.715134+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': 'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60', 'submission_id': 'mobile-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{"sensation": 50}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-Error Response Data: b'{"error":"(psycopg2.errors.CheckViolation) new row for relation \\"profiles\\" violates check constraint \\"chk_anatomy_structure\\"\\nDETAIL:  Failing row contains (28, mobile-sub-123, 0.4, 2025-12-04 22:24:13.715142, 2025-12-04 22:24:13.715145, {}, {}, {\\"sensation\\": 50}, {}, {}, {}, {}, {}, c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60, f, null, 2025-12-04 22:24:13.715134+00, 0.4).\\n\\n[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]\\n[parameters: {\'user_id\': \'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60\', \'submission_id\': \'mobile-sub-123\', \'is_anonymous\': False, \'anonymous_session_id\': None, \'last_accessed_at\': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), \'profile_version\': \'0.4\', \'survey_version\': \'0.4\', \'created_at\': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), \'updated_at\': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), \'power_dynamic\': \'{}\', \'arousal_propensity\': \'{}\', \'domain_scores\': \'{\\"sensation\\": 50}\', \'activities\': \'{}\', \'truth_topics\': \'{}\', \'boundaries\': \'{}\', \'anatomy\': \'{}\', \'activity_tags\': \'{}\'}]\\n(Background on this error at: https://sqlalche.me/e/20/gkpj)"}\n'
-FINFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:INSERT INTO survey_submissions (submission_id, user_id, respondent_id, name, sex, sexual_orientation, version, payload_json, created_at) VALUES (%(submission_id)s, %(user_id)s::UUID, %(respondent_id)s, %(name)s, %(sex)s, %(sexual_orientation)s, %(version)s, %(payload_json)s::JSON, %(created_at)s) RETURNING survey_submissions.id
-INFO:sqlalchemy.engine.Engine:[cached since 0.3196s ago] {'submission_id': 'web-sub-123', 'user_id': None, 'respondent_id': None, 'name': None, 'sex': None, 'sexual_orientation': None, 'version': None, 'payload_json': '{"answers": {"A1": 5}, "version": "0.4"}', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 882188)}
-INFO:sqlalchemy.engine.Engine:SELECT survey_submissions.id AS survey_submissions_id, survey_submissions.submission_id AS survey_submissions_submission_id, survey_submissions.user_id AS survey_submissions_user_id, survey_submissions.respondent_id AS survey_submissions_respondent_id, survey_submissions.name AS survey_submissions_name, survey_submissions.sex AS survey_submissions_sex, survey_submissions.sexual_orientation AS survey_submissions_sexual_orientation, survey_submissions.version AS survey_submissions_version, survey_submissions.payload_json AS survey_submissions_payload_json, survey_submissions.created_at AS survey_submissions_created_at 
-FROM survey_submissions 
-WHERE survey_submissions.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.3586s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO:sqlalchemy.engine.Engine:SELECT profiles.id AS profiles_id, profiles.user_id AS profiles_user_id, profiles.submission_id AS profiles_submission_id, profiles.is_anonymous AS profiles_is_anonymous, profiles.anonymous_session_id AS profiles_anonymous_session_id, profiles.last_accessed_at AS profiles_last_accessed_at, profiles.profile_version AS profiles_profile_version, profiles.survey_version AS profiles_survey_version, profiles.created_at AS profiles_created_at, profiles.updated_at AS profiles_updated_at, profiles.power_dynamic AS profiles_power_dynamic, profiles.arousal_propensity AS profiles_arousal_propensity, profiles.domain_scores AS profiles_domain_scores, profiles.activities AS profiles_activities, profiles.truth_topics AS profiles_truth_topics, profiles.boundaries AS profiles_boundaries, profiles.anatomy AS profiles_anatomy, profiles.activity_tags AS profiles_activity_tags 
-FROM profiles 
-WHERE profiles.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 0.3572s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO:sqlalchemy.engine.Engine:INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id
-INFO:sqlalchemy.engine.Engine:[cached since 0.3536s ago] {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}
-INFO:sqlalchemy.engine.Engine:ROLLBACK
-[2025-12-04 17:24:14,171] ERROR in process_submission: Error processing submission web-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (29, web-sub-123, 0.4, 2025-12-04 22:24:14.068479, 2025-12-04 22:24:14.068481, {}, {}, {}, {}, {}, {}, {}, {}, null, f, null, 2025-12-04 22:24:14.068472+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-ERROR:backend.src.main:Error processing submission web-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (29, web-sub-123, 0.4, 2025-12-04 22:24:14.068479, 2025-12-04 22:24:14.068481, {}, {}, {}, {}, {}, {}, {}, {}, null, f, null, 2025-12-04 22:24:14.068472+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-FINFO:sqlalchemy.engine.Engine:BEGIN (implicit)
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.646s ago] {'table_name': 'survey_submissions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.752s ago] {'table_name': 'survey_baseline', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.796s ago] {'table_name': 'survey_questions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.854s ago] {'table_name': 'profiles', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.897s ago] {'table_name': 'sessions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.943s ago] {'table_name': 'activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 1.99s ago] {'table_name': 'session_activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 2.038s ago] {'table_name': 'compatibility_results', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 2.083s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 2.13s ago] {'table_name': 'partner_connections', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO:sqlalchemy.engine.Engine:[cached since 2.182s ago] {'table_name': 'remembered_partners', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO:sqlalchemy.engine.Engine:
-DROP TABLE session_activities
-INFO:sqlalchemy.engine.Engine:[no key 0.00020s] {}
-INFO:sqlalchemy.engine.Engine:
-DROP TABLE compatibility_results
-INFO:sqlalchemy.engine.Engine:[no key 0.00020s] {}
-INFO:sqlalchemy.engine.Engine:
-DROP TABLE sessions
-INFO:sqlalchemy.engine.Engine:[no key 0.00012s] {}
-INFO:sqlalchemy.engine.Engine:ROLLBACK
-E
-
-==================================== ERRORS ====================================
-_______________ ERROR at teardown of test_process_web_submission _______________
-
-self = <sqlalchemy.engine.base.Connection object at 0x110aad6a0>
-dialect = <sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x110aa2210>
-context = <sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x110aad7b0>
-statement = <sqlalchemy.dialects.postgresql.base.PGDDLCompiler object at 0x110b58410>
-parameters = [immutabledict({})]
-
-    def _exec_single_context(
-        self,
-        dialect: Dialect,
-        context: ExecutionContext,
-        statement: Union[str, Compiled],
-        parameters: Optional[_AnyMultiExecuteParams],
-    ) -> CursorResult[Any]:
-        """continue the _execute_context() method for a single DBAPI
-        cursor.execute() or cursor.executemany() call.
-    
-        """
-        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
-            generic_setinputsizes = context._prepare_set_input_sizes()
-    
-            if generic_setinputsizes:
-                try:
-                    dialect.do_set_input_sizes(
-                        context.cursor, generic_setinputsizes, context
-                    )
-                except BaseException as e:
-                    self._handle_dbapi_exception(
-                        e, str(statement), parameters, None, context
-                    )
-    
-        cursor, str_statement, parameters = (
-            context.cursor,
-            context.statement,
-            context.parameters,
-        )
-    
-        effective_parameters: Optional[_AnyExecuteParams]
-    
-        if not context.executemany:
-            effective_parameters = parameters[0]
-        else:
-            effective_parameters = parameters
-    
-        if self._has_events or self.engine._has_events:
-            for fn in self.dispatch.before_cursor_execute:
-                str_statement, effective_parameters = fn(
-                    self,
-                    cursor,
-                    str_statement,
-                    effective_parameters,
-                    context,
-                    context.executemany,
-                )
-    
-        if self._echo:
-            self._log_info(str_statement)
-    
-            stats = context._get_cache_stats()
-    
-            if not self.engine.hide_parameters:
-                self._log_info(
-                    "[%s] %r",
-                    stats,
-                    sql_util._repr_params(
-                        effective_parameters,
-                        batches=10,
-                        ismulti=context.executemany,
-                    ),
-                )
-            else:
-                self._log_info(
-                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
-                    stats,
-                )
-    
-        evt_handled: bool = False
-        try:
-            if context.execute_style is ExecuteStyle.EXECUTEMANY:
-                effective_parameters = cast(
-                    "_CoreMultiExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_executemany:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_executemany(
-                        cursor,
-                        str_statement,
-                        effective_parameters,
-                        context,
-                    )
-            elif not effective_parameters and context.no_parameters:
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute_no_params:
-                        if fn(cursor, str_statement, context):
-                            evt_handled = True
-                            break
-                if not evt_handled:
-                    self.dialect.do_execute_no_params(
-                        cursor, str_statement, context
-                    )
-            else:
-                effective_parameters = cast(
-                    "_CoreSingleExecuteParams", effective_parameters
-                )
-                if self.dialect._has_events:
-                    for fn in self.dialect.dispatch.do_execute:
-                        if fn(
-                            cursor,
-                            str_statement,
-                            effective_parameters,
-                            context,
-                        ):
-                            evt_handled = True
-                            break
-                if not evt_handled:
->                   self.dialect.do_execute(
-                        cursor, str_statement, effective_parameters, context
-                    )
-
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1967: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x110aa2210>
-cursor = <cursor object at 0x110ca3970; closed: -1>
-statement = '\nDROP TABLE sessions', parameters = immutabledict({})
-context = <sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x110aad7b0>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       psycopg2.errors.DependentObjectsStillExist: cannot drop table sessions because other objects depend on it
-E       DETAIL:  constraint user_activity_history_session_id_fkey on table user_activity_history depends on table sessions
-E       constraint ai_generation_logs_session_id_fkey on table ai_generation_logs depends on table sessions
-E       policy ai_logs_select_own on table ai_generation_logs depends on table sessions
-E       HINT:  Use DROP ... CASCADE to drop the dependent objects too.
-
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py:951: DependentObjectsStillExist
-
-The above exception was the direct cause of the following exception:
-
-    @pytest.fixture(scope='session')
-    def app():
-        """Create application for testing."""
-        app = create_app()
-        app.config.update({
-            'TESTING': True,
-            'SQLALCHEMY_DATABASE_URI': os.getenv('TEST_DATABASE_URL', 'postgresql://localhost/attuned_test'),
-            'SQLALCHEMY_TRACK_MODIFICATIONS': False
-        })
-    
-        with app.app_context():
-            # Create all tables
-            db.create_all()
-            yield app
-            # Teardown
-            db.session.remove()
->           db.drop_all()
-
-backend/tests/conftest.py:34: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-backend/venv/lib/python3.14/site-packages/flask_sqlalchemy/extension.py:917: in drop_all
-    self._call_for_binds(bind_key, "drop_all")
-backend/venv/lib/python3.14/site-packages/flask_sqlalchemy/extension.py:881: in _call_for_binds
-    getattr(metadata, op_name)(bind=engine)
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/schema.py:5956: in drop_all
-    bind._run_ddl_visitor(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:3252: in _run_ddl_visitor
-    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:2459: in _run_ddl_visitor
-    ).traverse_single(element)
-      ^^^^^^^^^^^^^^^^^^^^^^^^
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/visitors.py:661: in traverse_single
-    return meth(obj, **kw)
-           ^^^^^^^^^^^^^^^
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py:1142: in visit_metadata
-    self.traverse_single(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/visitors.py:661: in traverse_single
-    return meth(obj, **kw)
-           ^^^^^^^^^^^^^^^
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py:1209: in visit_table
-    DropTable(table)._invoke_with(self.connection)
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py:321: in _invoke_with
-    return bind.execute(self)
-           ^^^^^^^^^^^^^^^^^^
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1419: in execute
-    return meth(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py:187: in _execute_on_connection
-    return connection._execute_ddl(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1530: in _execute_ddl
-    ret = self._execute_context(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1846: in _execute_context
-    return self._exec_single_context(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1986: in _exec_single_context
-    self._handle_dbapi_exception(
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:2355: in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py:1967: in _exec_single_context
-    self.dialect.do_execute(
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x110aa2210>
-cursor = <cursor object at 0x110ca3970; closed: -1>
-statement = '\nDROP TABLE sessions', parameters = immutabledict({})
-context = <sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x110aad7b0>
-
-    def do_execute(self, cursor, statement, parameters, context=None):
->       cursor.execute(statement, parameters)
-E       sqlalchemy.exc.InternalError: (psycopg2.errors.DependentObjectsStillExist) cannot drop table sessions because other objects depend on it
-E       DETAIL:  constraint user_activity_history_session_id_fkey on table user_activity_history depends on table sessions
-E       constraint ai_generation_logs_session_id_fkey on table ai_generation_logs depends on table sessions
-E       policy ai_logs_select_own on table ai_generation_logs depends on table sessions
-E       HINT:  Use DROP ... CASCADE to drop the dependent objects too.
-E       
-E       [SQL: 
-E       DROP TABLE sessions]
-E       (Background on this error at: https://sqlalche.me/e/20/2j85)
-
-backend/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py:951: InternalError
------------------------------- Captured log setup ------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
------------------------------- Captured log call -------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO survey_submissions (submission_id, user_id, respondent_id, name, sex, sexual_orientation, version, payload_json, created_at) VALUES (%(submission_id)s, %(user_id)s::UUID, %(respondent_id)s, %(name)s, %(sex)s, %(sexual_orientation)s, %(version)s, %(payload_json)s::JSON, %(created_at)s) RETURNING survey_submissions.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3196s ago] {'submission_id': 'web-sub-123', 'user_id': None, 'respondent_id': None, 'name': None, 'sex': None, 'sexual_orientation': None, 'version': None, 'payload_json': '{"answers": {"A1": 5}, "version": "0.4"}', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 882188)}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT survey_submissions.id AS survey_submissions_id, survey_submissions.submission_id AS survey_submissions_submission_id, survey_submissions.user_id AS survey_submissions_user_id, survey_submissions.respondent_id AS survey_submissions_respondent_id, survey_submissions.name AS survey_submissions_name, survey_submissions.sex AS survey_submissions_sex, survey_submissions.sexual_orientation AS survey_submissions_sexual_orientation, survey_submissions.version AS survey_submissions_version, survey_submissions.payload_json AS survey_submissions_payload_json, survey_submissions.created_at AS survey_submissions_created_at 
-FROM survey_submissions 
-WHERE survey_submissions.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3586s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT profiles.id AS profiles_id, profiles.user_id AS profiles_user_id, profiles.submission_id AS profiles_submission_id, profiles.is_anonymous AS profiles_is_anonymous, profiles.anonymous_session_id AS profiles_anonymous_session_id, profiles.last_accessed_at AS profiles_last_accessed_at, profiles.profile_version AS profiles_profile_version, profiles.survey_version AS profiles_survey_version, profiles.created_at AS profiles_created_at, profiles.updated_at AS profiles_updated_at, profiles.power_dynamic AS profiles_power_dynamic, profiles.arousal_propensity AS profiles_arousal_propensity, profiles.domain_scores AS profiles_domain_scores, profiles.activities AS profiles_activities, profiles.truth_topics AS profiles_truth_topics, profiles.boundaries AS profiles_boundaries, profiles.anatomy AS profiles_anatomy, profiles.activity_tags AS profiles_activity_tags 
-FROM profiles 
-WHERE profiles.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3572s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3536s ago] {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}
-INFO     sqlalchemy.engine.Engine:base.py:2705 ROLLBACK
-ERROR    backend.src.main:process_submission.py:110 Error processing submission web-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (29, web-sub-123, 0.4, 2025-12-04 22:24:14.068479, 2025-12-04 22:24:14.068481, {}, {}, {}, {}, {}, {}, {}, {}, null, f, null, 2025-12-04 22:24:14.068472+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
----------------------------- Captured log teardown -----------------------------
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.646s ago] {'table_name': 'survey_submissions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.752s ago] {'table_name': 'survey_baseline', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.796s ago] {'table_name': 'survey_questions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.854s ago] {'table_name': 'profiles', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.897s ago] {'table_name': 'sessions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.943s ago] {'table_name': 'activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 1.99s ago] {'table_name': 'session_activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 2.038s ago] {'table_name': 'compatibility_results', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 2.083s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 2.13s ago] {'table_name': 'partner_connections', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 2.182s ago] {'table_name': 'remembered_partners', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 
-DROP TABLE session_activities
-INFO     sqlalchemy.engine.Engine:base.py:1846 [no key 0.00020s] {}
-INFO     sqlalchemy.engine.Engine:base.py:1846 
-DROP TABLE compatibility_results
-INFO     sqlalchemy.engine.Engine:base.py:1846 [no key 0.00020s] {}
-INFO     sqlalchemy.engine.Engine:base.py:1846 
-DROP TABLE sessions
-INFO     sqlalchemy.engine.Engine:base.py:1846 [no key 0.00012s] {}
-INFO     sqlalchemy.engine.Engine:base.py:2705 ROLLBACK
 =================================== FAILURES ===================================
-________________________ test_process_mobile_submission ________________________
+_______________________ test_check_daily_limit_enforced ________________________
 
-client = <FlaskClient <Flask 'backend.src.main'>>
-app = <Flask 'backend.src.main'>
-db_session = <sqlalchemy.orm.scoping.scoped_session object at 0x110b58a50>
-mobile_payload = {'A1': 7, 'A2': 7, 'A3': 7}
+client = <FlaskClient <Flask 'backend.src.main'>>, app_context = None
+mock_auth_user = <User test@example.com>
+db_session = <sqlalchemy.orm.scoping.scoped_session object at 0x10c3ed310>
 
-    def test_process_mobile_submission(client, app, db_session, mobile_payload):
-        """
-        Test processing a submission that mimics the mobile app flow:
-        - Flat payload (no 'answers' key)
-        - user_id is set on the submission
-        - Anatomy missing from payload
-        """
+    def test_check_daily_limit_enforced(client, app_context, mock_auth_user, db_session):
+        """Test daily limit enforcement for free tier"""
+        mock_auth_user.subscription_tier = 'free'
+        mock_auth_user.daily_activity_count = 25  # At limit
+        db_session.add(mock_auth_user)
+        db_session.commit()
     
-        # 1. Setup: Create a User
-        user_id = uuid.uuid4()
-        user = User(
-            id=user_id,
-            email="mobile_test@example.com",
-            display_name="Mobile Tester",
-            has_penis=True,
-            likes_vagina=True
-        )
-        db.session.add(user)
-        db.session.commit()
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(mock_auth_user.id)}
     
-        # 2. Setup: Create a Submission (Simulating FlutterFlow insert)
-        submission_id = "mobile-sub-123"
-        submission = SurveySubmission(
-            submission_id=submission_id,
-            user_id=user_id,
-            payload_json=mobile_payload,
-            version="0.4"
-        )
-        db.session.add(submission)
-        db.session.commit()
+            response = client.get(
+                f'/api/subscriptions/check-limit/{mock_auth_user.id}',
+                headers={'Authorization': 'Bearer valid-token'}
+            )
     
-        # 3. Action: Call the process endpoint
-        # We mock calculate_profile to avoid complex scoring logic dependencies in this unit test
-        # and focus on the flow (payload handling, user linking, anatomy sync)
-        with patch('backend.src.routes.process_submission.calculate_profile') as mock_calc:
-            mock_calc.return_value = {
-                "profile_version": "0.4",
-                "anatomy": {}, # Calculator might return empty if input missing
-                "domain_scores": {"sensation": 50}
-            }
-    
-            # We also want to verify sync_user_anatomy_to_profile is called
-            with patch('backend.src.routes.process_submission.sync_user_anatomy_to_profile') as mock_sync:
-                mock_sync.return_value = True
-    
-                response = client.post(f'/api/survey/submissions/{submission_id}/process')
-    
-                if response.status_code != 201:
-                    print(f"Error Response Data: {response.data}")
->               assert response.status_code == 201
-E               assert 500 == 201
-E                +  where 500 = <WrapperTestResponse 1720 bytes [500 INTERNAL SERVER ERROR]>.status_code
-
-backend/tests/test_mobile_flow.py:67: AssertionError
------------------------------- Captured log setup ------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:1846 select pg_catalog.version()
-INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] {}
-INFO     sqlalchemy.engine.Engine:base.py:1846 select current_schema()
-INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] {}
-INFO     sqlalchemy.engine.Engine:base.py:1846 show standard_conforming_strings
-INFO     sqlalchemy.engine.Engine:base.py:1846 [raw sql] {}
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT 1
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00016s] {}
-INFO     sqlalchemy.engine.Engine:base.py:2708 COMMIT
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00018s] {'table_name': 'survey_submissions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.08848s ago] {'table_name': 'survey_baseline', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.1365s ago] {'table_name': 'survey_questions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.185s ago] {'table_name': 'profiles', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.2323s ago] {'table_name': 'sessions', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.2773s ago] {'table_name': 'activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3258s ago] {'table_name': 'session_activities', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3711s ago] {'table_name': 'compatibility_results', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.4163s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.466s ago] {'table_name': 'partner_connections', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_class.relname 
-FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
-WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.5313s ago] {'table_name': 'remembered_partners', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT pg_catalog.pg_type.typname 
-FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
-WHERE pg_catalog.pg_type.typname = %(typname_1)s AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00017s] {'typname_1': 'connection_status_enum', 'nspname_1': 'pg_catalog'}
-INFO     sqlalchemy.engine.Engine:base.py:2708 COMMIT
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
------------------------------- Captured log call -------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO users (id, email, auth_provider, display_name, demographics, has_penis, has_vagina, has_breasts, likes_penis, likes_vagina, likes_breasts, subscription_tier, subscription_expires_at, daily_activity_count, daily_activity_reset_at, profile_sharing_setting, notification_preferences, profile_completed, onboarding_completed, last_login_at, created_at, updated_at) VALUES (%(id)s::UUID, %(email)s, %(auth_provider)s, %(display_name)s, %(demographics)s::JSONB, %(has_penis)s, %(has_vagina)s, %(has_breasts)s, %(likes_penis)s, %(likes_vagina)s, %(likes_breasts)s, %(subscription_tier)s, %(subscription_expires_at)s, %(daily_activity_count)s, %(daily_activity_reset_at)s, %(profile_sharing_setting)s, %(notification_preferences)s::JSONB, %(profile_completed)s, %(onboarding_completed)s, %(last_login_at)s, %(created_at)s, %(updated_at)s)
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00027s] {'id': UUID('c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60'), 'email': 'mobile_test@example.com', 'auth_provider': 'email', 'display_name': 'Mobile Tester', 'demographics': '{}', 'has_penis': True, 'has_vagina': False, 'has_breasts': False, 'likes_penis': False, 'likes_vagina': True, 'likes_breasts': False, 'subscription_tier': 'free', 'subscription_expires_at': None, 'daily_activity_count': 0, 'daily_activity_reset_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357849), 'profile_sharing_setting': 'overlapping_only', 'notification_preferences': '{}', 'profile_completed': False, 'onboarding_completed': False, 'last_login_at': None, 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357857), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 357860)}
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO survey_submissions (submission_id, user_id, respondent_id, name, sex, sexual_orientation, version, payload_json, created_at) VALUES (%(submission_id)s, %(user_id)s::UUID, %(respondent_id)s, %(name)s, %(sex)s, %(sexual_orientation)s, %(version)s, %(payload_json)s::JSON, %(created_at)s) RETURNING survey_submissions.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00028s] {'submission_id': 'mobile-sub-123', 'user_id': UUID('c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60'), 'respondent_id': None, 'name': None, 'sex': None, 'sexual_orientation': None, 'version': '0.4', 'payload_json': '{"A1": 7, "A2": 7, "A3": 7}', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 562744)}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT survey_submissions.id AS survey_submissions_id, survey_submissions.submission_id AS survey_submissions_submission_id, survey_submissions.user_id AS survey_submissions_user_id, survey_submissions.respondent_id AS survey_submissions_respondent_id, survey_submissions.name AS survey_submissions_name, survey_submissions.sex AS survey_submissions_sex, survey_submissions.sexual_orientation AS survey_submissions_sexual_orientation, survey_submissions.version AS survey_submissions_version, survey_submissions.payload_json AS survey_submissions_payload_json, survey_submissions.created_at AS survey_submissions_created_at 
-FROM survey_submissions 
-WHERE survey_submissions.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00017s] {'submission_id_1': 'mobile-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT profiles.id AS profiles_id, profiles.user_id AS profiles_user_id, profiles.submission_id AS profiles_submission_id, profiles.is_anonymous AS profiles_is_anonymous, profiles.anonymous_session_id AS profiles_anonymous_session_id, profiles.last_accessed_at AS profiles_last_accessed_at, profiles.profile_version AS profiles_profile_version, profiles.survey_version AS profiles_survey_version, profiles.created_at AS profiles_created_at, profiles.updated_at AS profiles_updated_at, profiles.power_dynamic AS profiles_power_dynamic, profiles.arousal_propensity AS profiles_arousal_propensity, profiles.domain_scores AS profiles_domain_scores, profiles.activities AS profiles_activities, profiles.truth_topics AS profiles_truth_topics, profiles.boundaries AS profiles_boundaries, profiles.anatomy AS profiles_anatomy, profiles.activity_tags AS profiles_activity_tags 
-FROM profiles 
-WHERE profiles.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00013s] {'submission_id_1': 'mobile-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [generated in 0.00028s] {'user_id': 'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60', 'submission_id': 'mobile-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{"sensation": 50}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}
-INFO     sqlalchemy.engine.Engine:base.py:2705 ROLLBACK
-ERROR    backend.src.main:process_submission.py:110 Error processing submission mobile-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (28, mobile-sub-123, 0.4, 2025-12-04 22:24:13.715142, 2025-12-04 22:24:13.715145, {}, {}, {"sensation": 50}, {}, {}, {}, {}, {}, c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60, f, null, 2025-12-04 22:24:13.715134+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': 'c7ee52dd-ecd9-4bf3-a20a-6bb5abb17f60', 'submission_id': 'mobile-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715134), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715142), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 715145), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{"sensation": 50}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
-_________________________ test_process_web_submission __________________________
-
-client = <FlaskClient <Flask 'backend.src.main'>>
-app = <Flask 'backend.src.main'>
-db_session = <sqlalchemy.orm.scoping.scoped_session object at 0x110c6de50>
-
-    def test_process_web_submission(client, app, db_session):
-        """
-        Test processing a submission that mimics the web app flow:
-        - Nested payload ('answers' key)
-        - user_id might be None initially (or set)
-        """
-        submission_id = "web-sub-123"
-        nested_payload = {
-            "answers": {"A1": 5},
-            "version": "0.4"
-        }
-    
-        submission = SurveySubmission(
-            submission_id=submission_id,
-            payload_json=nested_payload
-        )
-        db.session.add(submission)
-        db.session.commit()
-    
-        with patch('backend.src.routes.process_submission.calculate_profile') as mock_calc:
-            mock_calc.return_value = {}
-    
-            response = client.post(f'/api/survey/submissions/{submission_id}/process')
-    
->           assert response.status_code == 201
-E           assert 500 == 201
+>           assert response.status_code == 200
+E           assert 500 == 200
 E            +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
 
-backend/tests/test_mobile_flow.py:109: AssertionError
+backend/tests/test_subscriptions_auth.py:102: AssertionError
 ------------------------------ Captured log setup ------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:2702 BEGIN (implicit)
+WARNING  backend.src.main:main.py:137 ⚠️ Column verification failed: (sqlite3.OperationalError) near "EXISTS": syntax error
+[SQL: 
+                        ALTER TABLE survey_submissions
+                        ADD COLUMN IF NOT EXISTS name VARCHAR(256);
+                        ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
 ------------------------------ Captured log call -------------------------------
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO survey_submissions (submission_id, user_id, respondent_id, name, sex, sexual_orientation, version, payload_json, created_at) VALUES (%(submission_id)s, %(user_id)s::UUID, %(respondent_id)s, %(name)s, %(sex)s, %(sexual_orientation)s, %(version)s, %(payload_json)s::JSON, %(created_at)s) RETURNING survey_submissions.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3196s ago] {'submission_id': 'web-sub-123', 'user_id': None, 'respondent_id': None, 'name': None, 'sex': None, 'sexual_orientation': None, 'version': None, 'payload_json': '{"answers": {"A1": 5}, "version": "0.4"}', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 13, 882188)}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT survey_submissions.id AS survey_submissions_id, survey_submissions.submission_id AS survey_submissions_submission_id, survey_submissions.user_id AS survey_submissions_user_id, survey_submissions.respondent_id AS survey_submissions_respondent_id, survey_submissions.name AS survey_submissions_name, survey_submissions.sex AS survey_submissions_sex, survey_submissions.sexual_orientation AS survey_submissions_sexual_orientation, survey_submissions.version AS survey_submissions_version, survey_submissions.payload_json AS survey_submissions_payload_json, survey_submissions.created_at AS survey_submissions_created_at 
-FROM survey_submissions 
-WHERE survey_submissions.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3586s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 SELECT profiles.id AS profiles_id, profiles.user_id AS profiles_user_id, profiles.submission_id AS profiles_submission_id, profiles.is_anonymous AS profiles_is_anonymous, profiles.anonymous_session_id AS profiles_anonymous_session_id, profiles.last_accessed_at AS profiles_last_accessed_at, profiles.profile_version AS profiles_profile_version, profiles.survey_version AS profiles_survey_version, profiles.created_at AS profiles_created_at, profiles.updated_at AS profiles_updated_at, profiles.power_dynamic AS profiles_power_dynamic, profiles.arousal_propensity AS profiles_arousal_propensity, profiles.domain_scores AS profiles_domain_scores, profiles.activities AS profiles_activities, profiles.truth_topics AS profiles_truth_topics, profiles.boundaries AS profiles_boundaries, profiles.anatomy AS profiles_anatomy, profiles.activity_tags AS profiles_activity_tags 
-FROM profiles 
-WHERE profiles.submission_id = %(submission_id_1)s 
- LIMIT %(param_1)s
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3572s ago] {'submission_id_1': 'web-sub-123', 'param_1': 1}
-INFO     sqlalchemy.engine.Engine:base.py:1846 INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id
-INFO     sqlalchemy.engine.Engine:base.py:1846 [cached since 0.3536s ago] {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}
-INFO     sqlalchemy.engine.Engine:base.py:2705 ROLLBACK
-ERROR    backend.src.main:process_submission.py:110 Error processing submission web-sub-123: (psycopg2.errors.CheckViolation) new row for relation "profiles" violates check constraint "chk_anatomy_structure"
-DETAIL:  Failing row contains (29, web-sub-123, 0.4, 2025-12-04 22:24:14.068479, 2025-12-04 22:24:14.068481, {}, {}, {}, {}, {}, {}, {}, {}, null, f, null, 2025-12-04 22:24:14.068472+00, 0.4).
-
-[SQL: INSERT INTO profiles (user_id, submission_id, is_anonymous, anonymous_session_id, last_accessed_at, profile_version, survey_version, created_at, updated_at, power_dynamic, arousal_propensity, domain_scores, activities, truth_topics, boundaries, anatomy, activity_tags) VALUES (%(user_id)s::UUID, %(submission_id)s, %(is_anonymous)s, %(anonymous_session_id)s, %(last_accessed_at)s, %(profile_version)s, %(survey_version)s, %(created_at)s, %(updated_at)s, %(power_dynamic)s::JSON, %(arousal_propensity)s::JSON, %(domain_scores)s::JSON, %(activities)s::JSON, %(truth_topics)s::JSON, %(boundaries)s::JSON, %(anatomy)s::JSON, %(activity_tags)s::JSON) RETURNING profiles.id]
-[parameters: {'user_id': None, 'submission_id': 'web-sub-123', 'is_anonymous': False, 'anonymous_session_id': None, 'last_accessed_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68472), 'profile_version': '0.4', 'survey_version': '0.4', 'created_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68479), 'updated_at': datetime.datetime(2025, 12, 4, 22, 24, 14, 68481), 'power_dynamic': '{}', 'arousal_propensity': '{}', 'domain_scores': '{}', 'activities': '{}', 'truth_topics': '{}', 'boundaries': '{}', 'anatomy': '{}', 'activity_tags': '{}'}]
-(Background on this error at: https://sqlalche.me/e/20/gkpj)
+ERROR    backend.src.routes.subscriptions:subscriptions.py:106 Check limit failed: can't compare offset-naive and offset-aware datetimes
 =============================== warnings summary ===============================
-backend/tests/test_mobile_flow.py: 11 warnings
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
+  /Users/mr/attuned-survey-1/backend/tests/test_subscriptions_auth.py:27: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    daily_activity_reset_at=datetime.utcnow(),
+
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
+  /Users/mr/attuned-survey-1/backend/tests/test_subscriptions_auth.py:28: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow(),
+
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
+  /Users/mr/attuned-survey-1/backend/tests/test_subscriptions_auth.py:29: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    updated_at=datetime.utcnow(),
+
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
+  /Users/mr/attuned-survey-1/backend/tests/test_subscriptions_auth.py:30: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    last_login_at=datetime.utcnow(),
+
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
   /Users/mr/attuned-survey-1/backend/venv/lib/python3.14/site-packages/sqlalchemy/sql/schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
     return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
 
-backend/tests/test_mobile_flow.py::test_process_mobile_submission
-backend/tests/test_mobile_flow.py::test_process_web_submission
-  /Users/mr/attuned-survey-1/backend/tests/conftest.py:62: SAWarning: transaction already deassociated from connection
+backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced
+  /Users/mr/attuned-survey-1/backend/tests/conftest.py:79: SAWarning: nested transaction already deassociated from connection
     transaction.rollback()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED backend/tests/test_mobile_flow.py::test_process_mobile_submission - as...
-FAILED backend/tests/test_mobile_flow.py::test_process_web_submission - asser...
-ERROR backend/tests/test_mobile_flow.py::test_process_web_submission - sqlalc...
-=================== 2 failed, 13 warnings, 1 error in 3.52s ====================
+FAILED backend/tests/test_subscriptions_auth.py::test_check_daily_limit_enforced - assert 500 == 200
+ +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+======================== 1 failed, 6 warnings in 0.08s =========================

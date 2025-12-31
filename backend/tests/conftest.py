@@ -12,6 +12,7 @@ from sqlalchemy.ext.compiler import compiles
 # This ensures create_app() uses SQLite and doesn't fail on missing DATABASE_URL
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 os.environ['FLASK_ENV'] = 'testing'
+os.environ['SUPABASE_JWT_SECRET'] = 'test-secret-key'
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))

@@ -6,6 +6,9 @@ from ..models.user import User
 from ..middleware.auth import token_required
 import logging
 
+import logging
+import uuid # Added import
+
 logger = logging.getLogger(__name__)
 
 subscriptions_bp = Blueprint('subscriptions', __name__, url_prefix='/api/subscriptions')
@@ -23,7 +26,12 @@ def validate_subscription(current_user_id, user_id):
         if str(current_user_id) != str(user_id):
             return jsonify({'error': 'Unauthorized'}), 403
 
-        user = User.query.filter_by(id=user_id).first()
+        try:
+            uid = uuid.UUID(user_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid user ID'}), 400
+
+        user = User.query.filter_by(id=uid).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -59,7 +67,12 @@ def check_daily_limit(current_user_id, user_id):
         if str(current_user_id) != str(user_id):
             return jsonify({'error': 'Unauthorized'}), 403
 
-        user = User.query.filter_by(id=user_id).first()
+        try:
+            uid = uuid.UUID(user_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid user ID'}), 400
+
+        user = User.query.filter_by(id=uid).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -72,10 +85,11 @@ def check_daily_limit(current_user_id, user_id):
                 'remaining': -1
             }), 200
         
-        # Check if reset is needed
-        if user.daily_activity_reset_at < datetime.now(timezone.utc) - timedelta(days=1):
+        # Check if reset is needed (use naive datetime for consistency with stored value)
+        now = datetime.utcnow()
+        if user.daily_activity_reset_at < now - timedelta(days=1):
             user.daily_activity_count = 0
-            user.daily_activity_reset_at = datetime.now(timezone.utc)
+            user.daily_activity_reset_at = now
             db.session.commit()
         
         daily_limit = 25  # FR-25: configurable limit
@@ -107,7 +121,12 @@ def increment_activity_count(current_user_id, user_id):
         if str(current_user_id) != str(user_id):
             return jsonify({'error': 'Unauthorized'}), 403
 
-        user = User.query.filter_by(id=user_id).first()
+        try:
+            uid = uuid.UUID(user_id)
+        except ValueError:
+             return jsonify({'error': 'Invalid user ID'}), 400
+
+        user = User.query.filter_by(id=uid).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
