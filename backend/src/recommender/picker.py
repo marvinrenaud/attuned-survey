@@ -83,27 +83,27 @@ def get_intensity_window(seq: int, target: int = 25, rating: str = 'R') -> tuple
     if rating == 'G':
         return (1, 1)  # L1-L3 range, always gentle
     
-    # X-rated: Starts at L4 (intensity 4), peaks at L9 (intensity 5)
+    # X-rated: Starts at L4 (intensity 2-3), peaks at L9 (intensity 5)
     elif rating == 'X':
         if seq <= warmup_end:
-            return (4, 4)  # Warmup with L4 (already intimate)
+            return (2, 3)  # Warmup (Sensual)
         elif seq <= build_end:
-            return (4, 4)  # Build stays at L4
+            return (3, 4)  # Build (Heavy)
         elif seq <= peak_end:
-            return (5, 5)  # Peak at L9 (intensity 5)
+            return (4, 5)  # Peak (Explicit)
         else:
-            return (4, 4)  # Afterglow back to L4
+            return (3, 3)  # Afterglow (Cool down)
     
-    # R-rated: L3-L6 range (intensity 2-3)
+    # R-rated: L2-L6 range (intensity 1-3)
     else:  # rating == 'R'
         if seq <= warmup_end:
-            return (2, 2)  # Warmup with L4 (intensity 2)
+            return (1, 2)  # Warmup (Gentle)
         elif seq <= build_end:
-            return (2, 3)  # Build moderate
+            return (2, 3)  # Build (Sensual)
         elif seq <= peak_end:
-            return (3, 3)  # Peak at L6 (intensity 3)
+            return (3, 3)  # Peak (Intimate)
         else:
-            return (2, 3)  # Afterglow moderate
+            return (2, 2)  # Afterglow (Cool down)
 
 
 def get_phase_name(seq: int, target: int = 25) -> str:

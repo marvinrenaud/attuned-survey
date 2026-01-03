@@ -20,12 +20,84 @@ from ..models.activity import Activity
 from ..db import repository
 from ..recommender.picker import get_intensity_window, get_phase_name
 from ..game.text_resolver import resolve_activity_text
+from ..db.repository import find_best_activity_candidate
+from ..models.profile import Profile
 
 logger = logging.getLogger(__name__)
 
 gameplay_bp = Blueprint("gameplay", __name__, url_prefix="/api/game")
 
 # --- Helper Functions ---
+
+def _get_player_profile(player_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Fetch profile dict for a player by user_id."""
+    player_id = player_data.get('id')
+    if not player_id:
+        return None
+        
+    try:
+        # Check if valid UUID
+        user_uuid = uuid.UUID(player_id)
+        profile = Profile.query.filter_by(user_id=user_uuid).first()
+        if profile:
+            return profile.to_dict()
+    except (ValueError, TypeError):
+        pass
+        
+    return None
+
+def _invert_activity_preferences(activities: Dict[str, float]) -> Dict[str, float]:
+    """Invert activity preferences (Give <-> Receive)."""
+    inverted = {}
+    for key, score in activities.items():
+        new_key = key
+        if '_give' in key:
+            new_key = key.replace('_give', '_receive')
+        elif '_receive' in key:
+            new_key = key.replace('_receive', '_give')
+        
+        # Invert score? No, we want the partner to LIKE receiving what we LIKE giving.
+        # So we keep the High Score (1.0).
+        # If I like 'massage_give' (1.0), I want partner to like 'massage_receive' (1.0).
+        inverted[new_key] = score
+        
+    return inverted
+
+def _create_complimentary_profile(primary_profile: Dict) -> Dict:
+    """Create a virtual partner profile that complements the primary user."""
+    # Anatomy: Partner HAS what Primary LIKES
+    anatomy = primary_profile.get('anatomy', {})
+    # If primary likes 'penis', partner has 'penis'
+    partner_has = anatomy.get('anatomy_preference', ['penis', 'vagina']) 
+    if not partner_has: # Fallback
+        partner_has = ['penis', 'vagina']
+        
+    # Power: Invert
+    power = primary_profile.get('power_dynamic', {})
+    orientation = power.get('orientation', 'Switch')
+    partner_orientation = 'Switch'
+    if orientation == 'Top': partner_orientation = 'Bottom'
+    elif orientation == 'Bottom': partner_orientation = 'Top'
+    
+    # Boundaries: Copy primary's boundaries (safe assumption)
+    boundaries = primary_profile.get('boundaries', {})
+    
+    # Activities: "Mirror" preferences
+    # If Primary likes giving X, Partner should like receiving X
+    activities = _invert_activity_preferences(primary_profile.get('activities', {}))
+    
+    return {
+        'id': 'virtual_complimentary',
+        'is_anonymous': True,
+        'anatomy': {'anatomy_self': partner_has, 'anatomy_preference': anatomy.get('anatomy_self', [])},
+        'power_dynamic': {'orientation': partner_orientation},
+        'boundaries': boundaries,
+        'activities': activities,
+        # Default empty structures for others
+        'domain_scores': {},
+        'arousal_propensity': {},
+        'truth_topics': {}
+    }
 
 def _get_next_player_indices(current_idx: int, num_players: int, mode: str) -> tuple[int, int]:
     """
@@ -166,11 +238,65 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
     
     intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
     
-    # Find Activity
-    candidate = Activity.query.filter_by(
-        type=activity_type.lower(),
-        rating=rating
-    ).order_by(db.func.random()).first()
+
+    
+    # --- Personalization Logic ---
+    
+    # Fetch profiles
+    primary_profile_dict = _get_player_profile(primary_player)
+    partner_profile_dict = _get_player_profile(secondary_player)
+    
+    # Complimentary Partner Logic (if Primary exists but Partner is anonymous)
+    if primary_profile_dict and not partner_profile_dict:
+        partner_profile_dict = _create_complimentary_profile(primary_profile_dict)
+        
+    candidate = None
+    
+    # If we have both profiles (real or virtual), use personalization
+    if primary_profile_dict and partner_profile_dict:
+        # Build limits
+        exclude_ids = set()
+        for item in queue:
+            cid = item.get('card_id')
+            # Handle potential non-int IDs if needed (though card_id is string usually)
+            if cid and cid != 'fallback' and not cid.startswith('limit-'):
+                try: exclude_ids.add(int(cid))
+                except: pass
+                
+        # Build boundary list (union of hard limits)
+        p1_bounds = primary_profile_dict.get('boundaries', {}).get('hard_limits', [])
+        p2_bounds = partner_profile_dict.get('boundaries', {}).get('hard_limits', [])
+        player_boundaries = list(set(p1_bounds + p2_bounds))
+        
+        # Build anatomy dict
+        # anatomy structure: {anatomy_self: [], ...}
+        p1_anatomy = primary_profile_dict.get('anatomy', {}).get('anatomy_self', [])
+        p2_anatomy = partner_profile_dict.get('anatomy', {}).get('anatomy_self', [])
+        player_anatomy = {
+            'active_anatomy': p1_anatomy,
+            'partner_anatomy': p2_anatomy
+        }
+        
+        candidate = find_best_activity_candidate(
+            rating=rating,
+            intensity_min=intensity_min,
+            intensity_max=intensity_max,
+            activity_type=activity_type.lower(),
+            player_a_profile=primary_profile_dict,
+            player_b_profile=partner_profile_dict,
+            player_boundaries=player_boundaries,
+            player_anatomy=player_anatomy,
+            excluded_ids=exclude_ids,
+            top_n=75, # Heavy JIT: Fetch 75*2=150 candidates
+            randomize=True # Random sample
+        )
+
+    # Fallback to Random Activity
+    if not candidate:
+        candidate = Activity.query.filter_by(
+            type=activity_type.lower(),
+            rating=rating
+        ).order_by(db.func.random()).first()
     
     if not candidate:
         candidate = Activity(

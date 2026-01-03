@@ -267,6 +267,7 @@ def find_activity_candidates(
     player_anatomy: Optional[Dict[str, List[str]]] = None,
     hard_limits: Optional[List[str]] = None,  # LEGACY, deprecated
     tags: Optional[List[str]] = None,
+    randomize: bool = False,
     limit: int = 50
 ) -> List[Activity]:
     """
@@ -282,6 +283,7 @@ def find_activity_candidates(
         player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' lists
         hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         tags: Optional tag filters
+        randomize: Whether to sort results randomly
         limit: Maximum results to return
     
     Returns:
@@ -305,6 +307,10 @@ def find_activity_candidates(
     # Filter by activity type
     if activity_type:
         query = query.filter(Activity.type == activity_type)
+        
+    # Apply randomization if requested
+    if randomize:
+        query = query.order_by(db.func.random())
     
     # Fetch candidates (over-fetch to account for post-filtering)
     candidates = query.limit(limit * 3).all()
@@ -369,7 +375,8 @@ def find_best_activity_candidate(
     player_anatomy: Optional[Dict[str, List[str]]] = None,
     hard_limits: Optional[List[str]] = None,  # LEGACY
     excluded_ids: Optional[set] = None,
-    top_n: int = 20
+    top_n: int = 20,
+    randomize: bool = True
 ) -> Optional[Activity]:
     """
     Find best-matching activity using preference-based scoring with anatomy and boundary filters.
@@ -387,6 +394,7 @@ def find_best_activity_candidate(
         hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         excluded_ids: Set of activity IDs already used (for deduplication)
         top_n: Consider top N candidates for scoring
+        randomize: Whether to fetch candidates randomly (default True)
     
     Returns:
         Best-matching Activity or None
@@ -406,6 +414,7 @@ def find_best_activity_candidate(
         player_boundaries=player_boundaries,
         player_anatomy=player_anatomy,
         hard_limits=hard_limits,
+        randomize=randomize,
         limit=top_n * 2  # Get more to account for exclusions
     )
     
