@@ -138,11 +138,15 @@ def _get_next_player_indices(current_idx: int, num_players: int, mode: str) -> t
     else:  # SEQUENTIAL
         primary = (current_idx + 1) % num_players
         
-    # Secondary is the next person in the circle (simplified logic)
-    # In a 2-player game, it's always the other person.
-    # In N-player, we default to "next person" for simplicity, 
-    # but could be random or chosen if we wanted more complexity.
-    secondary = (primary + 1) % num_players
+    # Secondary Selection
+    if num_players <= 2:
+        # For couples, it's always the other person
+        secondary = (primary + 1) % num_players
+    else:
+        # For groups, pick a RANDOM partner (excluding primary)
+        # This ensures dynamic interaction (A->B, A->C, etc.)
+        candidates = [i for i in range(num_players) if i != primary]
+        secondary = random.choice(candidates)
     
     return primary, secondary
 
