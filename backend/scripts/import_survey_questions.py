@@ -69,12 +69,24 @@ def import_questions_from_csv(
                 
                 maps_json = parse_maps(maps_str)
                 
+                # Determine question_pre_prompt based on chapter
+                question_pre_prompt = None
+                if chapter == "Arousal & Power":
+                    question_pre_prompt = "How much do you agree with the statement?"
+                elif chapter in ["Physical Touch", "Oral Activities", "Anal Activities", "Power Exchange", "Verbal & Roleplay", "Display & Performance"]:
+                    question_pre_prompt = "Are you currently open to exploring these activities with a play partner?"
+                elif chapter == "Truth Topics":
+                    question_pre_prompt = "Are you currently open to discussing these topics with a play partner?"
+                elif chapter == "Boundaries & Safety":
+                    question_pre_prompt = "Do you currently have any hard boundaries?"
+
                 questions.append({
                     'question_id': question_id,
                     'survey_version': survey_version,
                     'chapter': chapter,
                     'question_type': question_type,
                     'prompt': prompt,
+                    'question_pre_prompt': question_pre_prompt,
                     'options': options,
                     'maps': maps_json,
                     'display_order': row_num - 1  # Use CSV row order
@@ -98,6 +110,7 @@ def import_questions_from_csv(
                     existing.chapter = q['chapter']
                     existing.question_type = q['question_type']
                     existing.prompt = q['prompt']
+                    existing.question_pre_prompt = q['question_pre_prompt']
                     existing.options = q['options']
                     existing.maps = q['maps']
                     existing.display_order = q['display_order']

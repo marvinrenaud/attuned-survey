@@ -4,7 +4,7 @@ from ..extensions import db
 class UserActivityHistory(db.Model):
     __tablename__ = 'user_activity_history'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.String, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     anonymous_session_id = db.Column(db.String, nullable=True)
     session_id = db.Column(db.String, db.ForeignKey('sessions.session_id', ondelete='CASCADE'), nullable=False)

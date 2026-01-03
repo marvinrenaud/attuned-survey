@@ -44,6 +44,7 @@ class SurveyQuestion(db.Model):
     chapter = db.Column(db.String(128), nullable=False)  # e.g., "Arousal & Power", "Physical Touch"
     question_type = db.Column(db.String(32), nullable=False)  # e.g., "likert7", "chooseYMN"
     prompt = db.Column(db.Text, nullable=False)  # The actual question text
+    question_pre_prompt = db.Column(db.Text, nullable=True)  # Introductory text/question
     options = db.Column(db.Text, nullable=True)  # e.g., "1=Strongly disagree ... 7=Strongly agree"
     maps = db.Column(db.JSON, nullable=True)  # Metadata: {"factor":"SE"}, {"category":"physical_touch",...}
     display_order = db.Column(db.Integer, nullable=True)  # Order within chapter

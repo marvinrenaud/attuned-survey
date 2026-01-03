@@ -201,13 +201,19 @@ Returns a flattened, null-safe response designed for the frontend summary page.
 `POST /api/game/start`
 
 Start a new game session. Returns a queue of 3 cards to minimize latency.
+**Authentication:** Optional (Supports Anonymous Guest)
 
 **Credit Consumption:** Consumes **1 credit** immediately (for the first card).
 
 #### Payload
 ```json
 {
-  "player_ids": ["uuid1", "uuid2"],
+  "players": [
+    "user_id_1" 
+    // OR 
+    { "id": "guest_uuid", "name": "Guest", "anatomy": ["penis"] }
+  ],
+  "anonymous_session_id": "optional_local_uuid_for_limits",
   "settings": {
     "intimacy_level": 3,
     "player_order_mode": "SEQUENTIAL",
@@ -267,6 +273,7 @@ The frontend should display a subscription prompt for this card type.
 `POST /api/game/<session_id>/next`
 
 Advance to the next turn. Consumes the current card (head of queue) and generates a new one at the end to maintain a buffer of 3.
+**Authentication:** Optional
 
 **Credit Consumption:** Consumes **1 credit** for the card that was just played/skipped.
 
@@ -274,6 +281,7 @@ Advance to the next turn. Consumes the current card (head of queue) and generate
 ```json
 {
   "action": "NEXT",
+  "anonymous_session_id": "optional_local_uuid_for_limits",
   "selected_type": "TRUTH" // Optional
 }
 ```
