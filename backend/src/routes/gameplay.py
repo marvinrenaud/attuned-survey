@@ -293,9 +293,13 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
 
     # Fallback to Random Activity
     if not candidate:
-        candidate = Activity.query.filter_by(
-            type=activity_type.lower(),
-            rating=rating
+        candidate = Activity.query.filter(
+            Activity.type == activity_type.lower(),
+            Activity.rating == rating,
+            Activity.intensity >= intensity_min,
+            Activity.intensity <= intensity_max,
+            Activity.is_active == True,
+            Activity.approved == True
         ).order_by(db.func.random()).first()
     
     if not candidate:
