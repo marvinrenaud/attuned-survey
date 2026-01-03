@@ -503,7 +503,7 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None, an
     return queue
 
 @gameplay_bp.route("/start", methods=["POST"])
-@optional_token
+@token_required
 def start_game(current_user_id):
     """
     Start a new game session.
@@ -685,7 +685,7 @@ def start_game(current_user_id):
         return jsonify({"error": str(e)}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
-@optional_token
+@token_required
 def next_turn(current_user_id, session_id):
     """
     Advance to next turn.
