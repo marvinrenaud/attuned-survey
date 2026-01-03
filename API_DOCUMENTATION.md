@@ -205,9 +205,11 @@ Start a new game session. Returns a queue of 3 cards to minimize latency.
 **Credit Consumption:** Consumes **1 credit** immediately (for the first card).
 
 #### Payload
+To enable **Group Play** (3+ players), simply include all participant IDs in the `player_ids` array. The backend will automatically switch to Group Mode logic (selecting appropriate activities).
+
 ```json
 {
-  "player_ids": ["uuid1", "uuid2"],
+  "player_ids": ["uuid1", "uuid2", "uuid3", "..."],
   "settings": {
     "intimacy_level": 3,
     "player_order_mode": "SEQUENTIAL",

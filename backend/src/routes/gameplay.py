@@ -339,6 +339,9 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             'partner_anatomy': p2_anatomy
         }
         
+        # Determine Session Mode
+        session_mode = 'groups' if len(players) > 2 else 'couples'
+        
         candidate = find_best_activity_candidate(
             rating=rating,
             intensity_min=intensity_min,
@@ -346,6 +349,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             activity_type=activity_type.lower(),
             player_a_profile=primary_profile_dict,
             player_b_profile=partner_profile_dict,
+            session_mode=session_mode,
             player_boundaries=player_boundaries,
             player_anatomy=player_anatomy,
             excluded_ids=exclude_ids,
@@ -354,14 +358,20 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
         )
 
     # Fallback to Random Activity
+    # Fallback to Random Activity
     if not candidate:
+        # Re-determine mode for fallback scope (redundant check but safe)
+        session_mode = 'groups' if len(players) > 2 else 'couples'
+        scope_filter = ['couples', 'all'] if session_mode == 'couples' else ['groups', 'all']
+        
         candidate = Activity.query.filter(
             Activity.type == activity_type.lower(),
             Activity.rating == rating,
             Activity.intensity >= intensity_min,
             Activity.intensity <= intensity_max,
             Activity.is_active == True,
-            Activity.approved == True
+            Activity.approved == True,
+            Activity.audience_scope.in_(scope_filter)
         ).order_by(db.func.random()).first()
     
     if not candidate:
