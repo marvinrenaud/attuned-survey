@@ -603,9 +603,19 @@ def start_game(current_user_id):
                         pass
                 
                 if user:
+                    # Try to get best name
+                    display_name = user.display_name
+                    if not display_name:
+                        # Try to fetch from Profile -> Survey
+                        # We need to import Profile locally to avoid circular imports if any
+                        from ..models.profile import Profile
+                        profile = Profile.query.filter_by(user_id=user.id).first()
+                        if profile and profile.submission and profile.submission.payload_json:
+                            display_name = profile.submission.payload_json.get('name')
+                    
                     final_players.append({
                         "id": str(user.id),
-                        "name": user.display_name or "Player",
+                        "name": display_name or "Player",
                         "anatomy": user.get_anatomy_self_array()
                     })
                 else:
