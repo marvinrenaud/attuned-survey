@@ -583,7 +583,7 @@ def start_game(current_user_id):
             for p in raw_players:
                 final_players.append({
                     "id": p.get("id", str(uuid.uuid4())),
-                    "name": p.get("name", "Player"),
+                    "name": p.get("name") or "Player",
                     "anatomy": p.get("anatomy", ["penis"]) # Default unsafe but required
                 })
         else:
