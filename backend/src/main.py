@@ -29,7 +29,12 @@ def create_app() -> Flask:
     """Application factory so routes can import models without circular deps."""
 
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, origins=[
+        "https://getattuned.app",
+        "https://app.getattuned.app",
+        "https://*.flutterflow.app",  # For FF preview/test mode
+        "http://localhost:*"  # For local development
+    ])
 
     # --- Database config (Render injects DATABASE_URL) ---
     db_url = os.environ.get("DATABASE_URL")
@@ -49,6 +54,8 @@ def create_app() -> Flask:
     
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1MB
+
     
     # Connection pooling configuration
     # Only apply PostgreSQL-specific settings for PostgreSQL databases

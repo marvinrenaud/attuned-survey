@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models.user import User
 from ..models.profile import Profile
 from ..models.survey import SurveySubmission
@@ -17,6 +17,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("5 per hour")
 def register_user():
     """
     Register a new user after Supabase Auth signup.
@@ -76,18 +77,14 @@ def register_user():
 
 
 @auth_bp.route('/login', methods=['POST'])
-def update_login():
+@token_required
+def update_login(current_user_id):
     """
     Update last_login_at timestamp for existing user.
-    
-    Expected payload:
-    {
-        "user_id": "uuid-from-supabase-auth"
-    }
     """
     try:
-        data = request.get_json()
-        user_id = data.get('user_id')
+        # User ID comes from token now, not body (security fix)
+        user_id = current_user_id
         
         if not user_id:
             return jsonify({'error': 'Missing user_id'}), 400

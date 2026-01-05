@@ -7,7 +7,6 @@ from typing import List, Dict, Any, Optional
 from groq import Groq
 
 from ..services.config_service import get_config, get_config_float, get_config_bool
-from ..services.config_service import get_config, get_config_float, get_config_bool
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -71,6 +70,7 @@ class GroqClient:
                     model=self.model,
                     temperature=temperature,
                     messages=messages,
+                    timeout=30.0,
                     response_format={
                         "type": "json_schema",
                         "json_schema": {
@@ -150,7 +150,8 @@ class GroqClient:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     temperature=temperature,
-                    messages=messages
+                    messages=messages,
+                    timeout=30.0
                 )
                 
                 elapsed_ms = (time.time() - start_time) * 1000

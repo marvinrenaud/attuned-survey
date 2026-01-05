@@ -146,5 +146,5 @@ def get_profile_ui(current_user_id):
         return jsonify(response)
 
     except Exception as e:
-        logger.exception(f"Error generating profile UI for user {user_id}: {e}")
+        logger.exception(f"Error generating profile UI for user {current_user_id}: {e}")
         return jsonify({"error": "Internal server error"}), 500

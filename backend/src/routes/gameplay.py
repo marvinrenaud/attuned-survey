@@ -110,15 +110,18 @@ def _create_virtual_profile(player_data: Dict[str, Any]) -> Dict[str, Any]:
     
     # Anatomy structure expected by finder
     # We assume 'anatomy' input is a list of [penis, vagina, breasts]
+    
+    # Anatomy preferences (defaults to "likes everything" if missing)
+    anatomy_pref = player_data.get('anatomy_preference')
+    if not anatomy_pref:
+        anatomy_pref = ['penis', 'vagina', 'breasts']
+
     return {
         'id': player_data.get('id', 'guest'),
         'is_anonymous': True,
         'anatomy': {
             'anatomy_self': anatomy,
-            # For guest, we assume they are open or we don't filter on partner anatomy yet
-            # effectively "likes everything" or "likes nothing specific"
-            # But the filter might require something. Let's assume broad.
-            'anatomy_preference': ['penis', 'vagina', 'breasts']    
+            'anatomy_preference': anatomy_pref    
         },
         'power_dynamic': {'orientation': 'Switch'}, # Default to broadest
         'boundaries': {'hard_limits': []},
@@ -327,7 +330,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             # Handle potential non-int IDs if needed (though card_id is string usually)
             if cid and cid != 'fallback' and not cid.startswith('limit-'):
                 try: exclude_ids.add(int(cid))
-                except: pass
+                except (ValueError, TypeError): pass
         
         # --- REPETITION PREVENTION ---
         # 1. Session Exclusion (Strict): Exclude ANY activity played in this session by ANYONE
@@ -630,7 +633,8 @@ def start_game(current_user_id):
                 final_players.append({
                     "id": p.get("id", str(uuid.uuid4())),
                     "name": p.get("name") or "Player",
-                    "anatomy": p.get("anatomy", ["penis"]) # Default unsafe but required
+                    "anatomy": p.get("anatomy", ["penis"]), # Default unsafe but required
+                    "anatomy_preference": p.get("anatomy_preference", []) # Optional
                 })
         else:
             # Legacy ID lookup
@@ -765,6 +769,10 @@ def next_turn(current_user_id, session_id):
         session = Session.query.get(session_id)
         if not session:
             return jsonify({"error": "Session not found"}), 404
+        
+        # Ensure session is active
+        if session.status != 'active':
+            return jsonify({"error": "Session is not active"}), 400
             
         # Validate Participation
         # session.players is JSON list of dicts [{'id':...}, ...]

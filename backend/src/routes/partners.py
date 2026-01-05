@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 
 from ..extensions import db
@@ -482,5 +482,5 @@ def remove_remembered_partner(current_user_id, partner_user_id):
         return jsonify({'error': 'Failed to remove partner'}), 500
 
 
-from datetime import timedelta  # Add this import at the top
+
 

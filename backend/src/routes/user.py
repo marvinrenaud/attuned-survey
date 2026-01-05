@@ -5,37 +5,8 @@ from ..extensions import db
 
 user_bp = Blueprint('user', __name__)
 
-@user_bp.route('/users', methods=['GET'])
-@token_required
-def get_users(current_user_id):
-    # TODO: this should be admin only
-    users = User.query.all()
-    return jsonify([user.to_dict() for user in users])
+# Endpoints 'get_users' and 'create_user' have been removed for security.
 
-@user_bp.route('/users', methods=['POST'])
-def create_user():
-    """
-    Legacy endpoint - kept for backward compatibility.
-    For new registrations, use /api/auth/register instead.
-    """
-    data = request.json
-    
-    # Map old 'username' field to new 'display_name' field
-    display_name = data.get('username') or data.get('display_name')
-    email = data.get('email')
-    
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
-    
-    user = User(
-        id=data.get('id'),  # Must be provided (UUID from Supabase Auth)
-        email=email,
-        display_name=display_name,
-        auth_provider=data.get('auth_provider', 'email')
-    )
-    db.session.add(user)
-    db.session.commit()
-    return jsonify(user.to_dict()), 201
 
 @user_bp.route('/users/<user_id>', methods=['GET'])
 @token_required
