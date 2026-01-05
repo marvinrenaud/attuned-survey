@@ -330,12 +330,25 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
                 except: pass
         
         # --- REPETITION PREVENTION ---
-        # Look back at history for the ACTIVE primary player
-        # We want to avoid activities YOU (as primary) have just done.
+        # 1. Session Exclusion (Strict): Exclude ANY activity played in this session by ANYONE
+        try:
+             from ..models.activity_history import UserActivityHistory
+             
+             session_history = db.session.query(UserActivityHistory.activity_id)\
+                 .filter(UserActivityHistory.session_id == session.session_id)\
+                 .filter(UserActivityHistory.activity_id.isnot(None))\
+                 .all()
+             
+             for (hid,) in session_history:
+                 exclude_ids.add(hid)
+        except Exception as e:
+            logger.error(f"Failed to fetch session history for exclusion: {e}")
+
+        # 2. Player History Exclusion (Long-term): Look back at history for the ACTIVE primary player
+        # We want to avoid activities YOU (as primary) have just done (even in other sessions).
         try:
              primary_uid = primary_player.get('id')
              if primary_uid:
-                 from ..models.activity_history import UserActivityHistory
                  # Fetch last 100 activities where this user was primary
                  # Use efficient index on (primary_player_id, presented_at)
                  recent_history = db.session.query(UserActivityHistory.activity_id)\
@@ -348,7 +361,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
                  for (hid,) in recent_history:
                      exclude_ids.add(hid)
         except Exception as e:
-            logger.error(f"Failed to fetch history for exclusion: {e}")
+            logger.error(f"Failed to fetch player history for exclusion: {e}")
 
                 
         # Build boundary list (union of hard limits)
