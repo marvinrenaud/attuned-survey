@@ -6,6 +6,8 @@ import json
 from typing import List, Dict, Any, Optional
 from groq import Groq
 
+from ..services.config_service import get_config, get_config_float, get_config_bool
+from ..services.config_service import get_config, get_config_float, get_config_bool
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -22,8 +24,8 @@ class GroqClient:
             api_key: Groq API key (defaults to settings.GROQ_API_KEY)
             model: Model name (defaults to settings.GROQ_MODEL)
         """
-        self.api_key = api_key or settings.GROQ_API_KEY
-        self.model = model or settings.GROQ_MODEL
+        self.api_key = api_key or get_config('groq_api_key', settings.GROQ_API_KEY)
+        self.model = model or get_config('groq_model', settings.GROQ_MODEL)
         
         if not self.api_key:
             raise ValueError("GROQ_API_KEY is required but not set")
@@ -56,7 +58,7 @@ class GroqClient:
             Exception: If all retries fail
         """
         if temperature is None:
-            temperature = settings.GEN_TEMPERATURE
+            temperature = get_config_float('gen_temperature', settings.GEN_TEMPERATURE)
         
         last_error = None
         backoff = initial_backoff
@@ -136,7 +138,7 @@ class GroqClient:
         ]
         
         if temperature is None:
-            temperature = settings.GEN_TEMPERATURE
+            temperature = get_config_float('gen_temperature', settings.GEN_TEMPERATURE)
         
         last_error = None
         backoff = 0.25

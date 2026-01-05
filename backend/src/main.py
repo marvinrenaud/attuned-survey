@@ -159,6 +159,7 @@ def create_app() -> Flask:
         from .routes.sync_user import sync_user_bp  # noqa: WPS433
         from .routes.profile_ui import profile_ui_bp
         from .routes.gameplay import gameplay_bp
+        from .routes.system_admin import system_admin_bp
         
         app.register_blueprint(auth_bp)
         app.register_blueprint(partners_bp)
@@ -168,6 +169,7 @@ def create_app() -> Flask:
         app.register_blueprint(sync_user_bp)
         app.register_blueprint(profile_ui_bp)
         app.register_blueprint(gameplay_bp)
+        app.register_blueprint(system_admin_bp)
         
         from .routes.compatibility import compatibility_bp
         app.register_blueprint(compatibility_bp)

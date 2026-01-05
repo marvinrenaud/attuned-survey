@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
 from ..extensions import db
+from ..services.config_service import get_config, get_config_int, get_config_float
 from ..models.profile import Profile
 from ..models.session import Session
 from ..models.activity import Activity
@@ -17,7 +18,6 @@ from ..recommender.validator import check_activity_item, ValidationError
 from ..recommender.repair import fast_repair, get_safe_fallback, create_placeholder_activity
 from ..llm.generator import generate_recommendations
 from ..compatibility.calculator import calculate_compatibility
-from ..config import settings
 from ..middleware.auth import token_required, optional_token
 
 logger = logging.getLogger(__name__)
@@ -137,9 +137,10 @@ def create_recommendations(current_user_id):
         
         # Extract session config
         session_config = data.get('session', {})
-        rating = session_config.get('rating', settings.ATTUNED_DEFAULT_RATING)
-        target_activities = session_config.get('target_activities', settings.ATTUNED_DEFAULT_TARGET_ACTIVITIES)
-        bank_ratio = session_config.get('bank_ratio', settings.ATTUNED_DEFAULT_BANK_RATIO)
+        # --- Configuration ---
+        rating = session_config.get('rating', get_config('default_rating', 'R'))
+        target_activities = session_config.get('target_activities', get_config_int('default_target_activities', 25))
+        bank_ratio = session_config.get('bank_ratio', get_config_float('default_bank_ratio', 0.5))
         activity_type = session_config.get('activity_type', 'random')
         rules = session_config.get('rules', {'avoid_maybe_until': 6})
         session_id = session_config.get('session_id')
