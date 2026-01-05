@@ -10,6 +10,7 @@ class UserActivityHistory(db.Model):
     session_id = db.Column(db.String, db.ForeignKey('sessions.session_id', ondelete='CASCADE'), nullable=False)
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.activity_id', ondelete='SET NULL'), nullable=True)
     activity_type = db.Column(db.String, nullable=False)  # 'truth' or 'dare'
+    primary_player_id = db.Column(db.String, nullable=True) # ID of the player performing the activity
     was_skipped = db.Column(db.Boolean, default=False, nullable=False)
     feedback_type = db.Column(db.String, nullable=True)  # 'like', 'dislike', 'neutral'
     feedback_executed = db.Column(db.Boolean, nullable=True)
@@ -24,6 +25,7 @@ class UserActivityHistory(db.Model):
             'session_id': self.session_id,
             'activity_id': self.activity_id,
             'activity_type': self.activity_type,
+            'primary_player_id': self.primary_player_id,
             'was_skipped': self.was_skipped,
             'feedback_type': self.feedback_type,
             'feedback_executed': self.feedback_executed,

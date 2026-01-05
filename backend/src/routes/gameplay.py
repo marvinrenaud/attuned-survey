@@ -328,6 +328,28 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             if cid and cid != 'fallback' and not cid.startswith('limit-'):
                 try: exclude_ids.add(int(cid))
                 except: pass
+        
+        # --- REPETITION PREVENTION ---
+        # Look back at history for the ACTIVE primary player
+        # We want to avoid activities YOU (as primary) have just done.
+        try:
+             primary_uid = primary_player.get('id')
+             if primary_uid:
+                 from ..models.activity_history import UserActivityHistory
+                 # Fetch last 100 activities where this user was primary
+                 # Use efficient index on (primary_player_id, presented_at)
+                 recent_history = db.session.query(UserActivityHistory.activity_id)\
+                     .filter(UserActivityHistory.primary_player_id == str(primary_uid))\
+                     .filter(UserActivityHistory.activity_id.isnot(None))\
+                     .order_by(UserActivityHistory.presented_at.desc())\
+                     .limit(100)\
+                     .all()
+                 
+                 for (hid,) in recent_history:
+                     exclude_ids.add(hid)
+        except Exception as e:
+            logger.error(f"Failed to fetch history for exclusion: {e}")
+
                 
         # Build boundary list (union of hard limits)
         p1_bounds = primary_profile_dict.get('boundaries', {}).get('hard_limits', [])
@@ -774,22 +796,29 @@ def next_turn(current_user_id, session_id):
             session.current_turn_state = state
             flag_modified(session, "current_turn_state")
             
-            # LOGGING FOR ANONYMOUS: We MUST insert into history to track limits
-            if not owner_id and anonymous_session_id and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
-                 # Insert manual history record
+            # LOGGING: Record history for ALL users (Auth & Anon) to prevent repetition
+            if last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
                  from ..models.activity_history import UserActivityHistory
                  
                  card_data = last_card.get('card', {})
                  cid_str = card_data.get('card_id')
                  activity_id = int(cid_str) if cid_str and cid_str.isdigit() else None
                  
+                 # Determine Primary Player ID for this specific turn
+                 turn_primary_idx = last_card.get('primary_player_idx')
+                 turn_primary_id = None
+                 if turn_primary_idx is not None and 0 <= turn_primary_idx < len(players):
+                     turn_primary_id = str(players[turn_primary_idx].get('id'))
+                 
                  history = UserActivityHistory(
-                     anonymous_session_id=anonymous_session_id,
+                     user_id=owner_id, # Owner (payer)
+                     anonymous_session_id=anonymous_session_id, # Track anon session too
                      session_id=session.session_id,
                      activity_id=activity_id,
                      activity_type=card_data.get('type', 'TRUTH').lower(),
+                     primary_player_id=turn_primary_id, # Track who did it
                      was_skipped=False,
-                     presented_at=datetime.now(timezone.utc)
+                     presented_at=datetime.utcnow()
                  )
                  db.session.add(history)
                  
