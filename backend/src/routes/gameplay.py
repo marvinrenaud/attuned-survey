@@ -542,6 +542,17 @@ def start_game(current_user_id):
              return jsonify({"error": "Unauthorized", "message": "Login or Anonymous ID required"}), 401
              
         # Handling Player List
+        # Sanitize player_ids to remove invalid entries (e.g. empty lists from frontend bugs)
+        if isinstance(player_ids, list):
+            cleaned_ids = []
+            for p in player_ids:
+                if p and isinstance(p, (str, uuid.UUID)):
+                     s_p = str(p).strip()
+                     # Basic UUID length check or similar to avoid "[]" strings
+                     if len(s_p) > 20: 
+                         cleaned_ids.append(s_p)
+            player_ids = cleaned_ids
+
         # If authenticated, ensure they are in the list
         if auth_user_id:
              if auth_user_id not in player_ids:
