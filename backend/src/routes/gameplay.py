@@ -39,15 +39,27 @@ def _resolve_player(player_data: Dict[str, Any], current_user_id: str) -> Dict[s
     
     Args:
         player_data: Player dict from frontend (may have id, name, anatomy, anatomy_preference)
-                     Or could be a string ID for backward compatibility
+                     Or could be a JSON string or plain ID string
         current_user_id: The authenticated user's ID
         
     Returns:
         Resolved player dict with name, anatomy, and anatomy_preference
     """
-    # Handle case where player_data is a string (ID only)
+    import json
+    
+    # Handle case where player_data is a string
     if isinstance(player_data, str):
-        player_data = {"id": player_data}
+        # Try to parse as JSON first (e.g., '{"name": "Guest", "anatomy": [...]}')
+        try:
+            parsed = json.loads(player_data)
+            if isinstance(parsed, dict):
+                player_data = parsed
+            else:
+                # Parsed to something else (unlikely), treat as ID
+                player_data = {"id": player_data}
+        except (json.JSONDecodeError, ValueError):
+            # Not valid JSON, treat as a plain ID string (e.g., "uuid-here")
+            player_data = {"id": player_data}
     
     player_id = player_data.get('id')
     

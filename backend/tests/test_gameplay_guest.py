@@ -145,6 +145,24 @@ class TestResolvePlayerHelper:
             assert result["id"] is not None
             uuid.UUID(result["id"])  # Should not raise
             assert result["name"] == "New Guest"
+    
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    def test_resolve_player_json_encoded_string(self, app):
+        """JSON-encoded guest player string should be parsed correctly."""
+        import json
+        current_user = str(uuid.uuid4())
+        
+        # Simulate what might happen if frontend sends JSON as a string
+        guest_data = {"name": "JSON Guest", "anatomy": ["penis"], "anatomy_preference": ["vagina"]}
+        json_string = json.dumps(guest_data)
+        
+        with app.app_context():
+            result = _resolve_player(json_string, current_user)
+            
+            # Should have parsed the JSON and used its values
+            assert result["name"] == "JSON Guest"
+            assert result["anatomy"] == ["penis"]
+            assert result["anatomy_preference"] == ["vagina"]
 
 
 class TestStartGameGuestMode:
