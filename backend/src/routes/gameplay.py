@@ -39,11 +39,16 @@ def _resolve_player(player_data: Dict[str, Any], current_user_id: str) -> Dict[s
     
     Args:
         player_data: Player dict from frontend (may have id, name, anatomy, anatomy_preference)
+                     Or could be a string ID for backward compatibility
         current_user_id: The authenticated user's ID
         
     Returns:
         Resolved player dict with name, anatomy, and anatomy_preference
     """
+    # Handle case where player_data is a string (ID only)
+    if isinstance(player_data, str):
+        player_data = {"id": player_data}
+    
     player_id = player_data.get('id')
     
     # SECURITY: Only DB lookup for the authenticated user
