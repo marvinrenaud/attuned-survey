@@ -30,6 +30,53 @@ gameplay_bp = Blueprint("gameplay", __name__, url_prefix="/api/game")
 
 # --- Helper Functions ---
 
+def _resolve_player(player_data: Dict[str, Any], current_user_id: str) -> Dict[str, Any]:
+    """
+    Resolve player info for session storage.
+    
+    SECURITY: Only performs DB lookup for current_user_id (IDOR protection).
+    Other players use frontend-provided values.
+    
+    Args:
+        player_data: Player dict from frontend (may have id, name, anatomy, anatomy_preference)
+        current_user_id: The authenticated user's ID
+        
+    Returns:
+        Resolved player dict with name, anatomy, and anatomy_preference
+    """
+    player_id = player_data.get('id')
+    
+    # SECURITY: Only DB lookup for the authenticated user
+    if player_id and str(player_id) == str(current_user_id):
+        try:
+            user = User.query.get(uuid.UUID(player_id))
+            if user:
+                # Get display name with fallbacks
+                display_name = user.display_name
+                if not display_name:
+                    profile = Profile.query.filter_by(user_id=user.id).first()
+                    if profile and profile.submission and profile.submission.payload_json:
+                        display_name = profile.submission.payload_json.get('name')
+                
+                return {
+                    "id": str(user.id),
+                    "name": display_name or "Player",
+                    "anatomy": user.get_anatomy_self_array(),
+                    "anatomy_preference": user.get_anatomy_preference_array()
+                }
+        except (ValueError, TypeError):
+            pass
+    
+    # Guest player - use provided values with safe defaults
+    return {
+        "id": player_id or str(uuid.uuid4()),
+        "name": player_data.get("name") or "Guest",
+        "anatomy": player_data.get("anatomy", []),
+        "anatomy_preference": player_data.get("anatomy_preference", [])
+    }
+
+
+
 def _get_player_profile(player_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Fetch profile dict for a player by user_id."""
     player_id = player_data.get('id')
@@ -623,57 +670,23 @@ def start_game(current_user_id):
         owner_id = auth_user_id 
         owner_anon_id = anonymous_session_id if not auth_user_id else None
 
-        # Resolve players
+        # Resolve players using IDOR-safe helper
         final_players = []
         
         if raw_players and isinstance(raw_players[0], dict):
-            # Use provided full player objects (for Guests)
-            # Validate anatomy presence
+            # New format: players array with objects
             for p in raw_players:
-                final_players.append({
-                    "id": p.get("id", str(uuid.uuid4())),
-                    "name": p.get("name") or "Player",
-                    "anatomy": p.get("anatomy", ["penis"]), # Default unsafe but required
-                    "anatomy_preference": p.get("anatomy_preference", []) # Optional
-                })
+                final_players.append(_resolve_player(p, auth_user_id))
         else:
-            # Legacy ID lookup
+            # Legacy format: player_ids array
             if not player_ids and not raw_players:
-                 if auth_user_id: player_ids = [auth_user_id]
-                 else: return jsonify({"error": "No players provided"}), 400
+                if auth_user_id: 
+                    player_ids = [auth_user_id]
+                else: 
+                    return jsonify({"error": "No players provided"}), 400
 
             for pid in player_ids:
-                # Cast to UUID for query
-                user = None
-                if len(pid) > 10:
-                    try:
-                        pid_uuid = uuid.UUID(pid)
-                        user = User.query.get(pid_uuid)
-                    except (ValueError, TypeError):
-                        pass
-                
-                if user:
-                    # Try to get best name
-                    display_name = user.display_name
-                    if not display_name:
-                        # Try to fetch from Profile -> Survey
-                        # We need to import Profile locally to avoid circular imports if any
-                        from ..models.profile import Profile
-                        profile = Profile.query.filter_by(user_id=user.id).first()
-                        if profile and profile.submission and profile.submission.payload_json:
-                            display_name = profile.submission.payload_json.get('name')
-                    
-                    final_players.append({
-                        "id": str(user.id),
-                        "name": display_name or "Player",
-                        "anatomy": user.get_anatomy_self_array()
-                    })
-                else:
-                    final_players.append({
-                        "id": pid,
-                        "name": f"Player {pid[:4]}",
-                        "anatomy": ["penis"]
-                    })
+                final_players.append(_resolve_player({"id": pid}, auth_user_id))
         
         players = final_players
 
@@ -681,6 +694,9 @@ def start_game(current_user_id):
         limit_status = _check_daily_limit(user_id=owner_id, anonymous_session_id=owner_anon_id)
 
         # Create Session
+        # Convert owner_id to UUID for SQLite compatibility
+        owner_uuid = uuid.UUID(owner_id) if owner_id else None
+        
         session = Session(
             players=players,
             game_settings=settings,
@@ -693,7 +709,7 @@ def start_game(current_user_id):
             player_a_profile_id=1, 
             player_b_profile_id=1,
             # Link owner
-            session_owner_user_id=owner_id
+            session_owner_user_id=owner_uuid
         )
         
         # If anonymous, we might want to store partner_anonymous_name/anatomy on the session for legacy
