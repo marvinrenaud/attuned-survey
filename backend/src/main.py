@@ -32,7 +32,8 @@ def create_app() -> Flask:
     CORS(app, origins=[
         "https://getattuned.app",
         "https://app.getattuned.app",
-        "https://*.flutterflow.app",  # For FF preview/test mode
+        "https://attuned.flutterflow.app",  # Explicit FF web app origin
+        "https://*.flutterflow.app",  # For other FF preview/test modes
         "http://localhost:*"  # For local development
     ])
 
