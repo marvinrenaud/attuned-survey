@@ -448,6 +448,13 @@ def get_user_data(current_user_id, user_id):
     if str(user_id) != str(current_user_id):
         return jsonify({'error': 'Forbidden'}), 403
     user = User.query.get(current_user_id)
+
+### Player Resolution Security
+When resolving player data (e.g. for gameplay):
+- **Self**: Always allow lookup for `current_user_id`.
+- **Partner**: Only allow DB lookup if an accepted `PartnerConnection` exists.
+- **Guest/Unconnected**: Do NOT look up in DB. Use frontend-provided data or defaults.
+- **Implementation**: See `_resolve_player` in `gameplay.py`.
 ```
 
 ### Partner-Scoped Access

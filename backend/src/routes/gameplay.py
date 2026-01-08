@@ -23,6 +23,7 @@ from ..recommender.picker import get_intensity_window, get_phase_name
 from ..game.text_resolver import resolve_activity_text
 from ..db.repository import find_best_activity_candidate
 from ..models.profile import Profile
+from ..models.partner import PartnerConnection
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +64,26 @@ def _resolve_player(player_data: Dict[str, Any], current_user_id: str) -> Dict[s
     
     player_id = player_data.get('id')
     
-    # SECURITY: Only DB lookup for the authenticated user
+    # SECURITY: Check for authenticated user OR valid partner connection
+    allow_lookup = False
+    
+    # 1. Self lookup
     if player_id and str(player_id) == str(current_user_id):
+        allow_lookup = True
+    
+    # 2. Partner lookup (if connected)
+    if not allow_lookup and player_id and current_user_id:
+        # Check for accepted connection
+        # (requester=me, recipient=them) OR (requester=them, recipient=me)
+        conn = PartnerConnection.query.filter(
+            ((PartnerConnection.requester_user_id == str(current_user_id)) & (PartnerConnection.recipient_user_id == str(player_id))) |
+            ((PartnerConnection.requester_user_id == str(player_id)) & (PartnerConnection.recipient_user_id == str(current_user_id)))
+        ).filter_by(status='accepted').first()
+        
+        if conn:
+            allow_lookup = True
+
+    if allow_lookup:
         try:
             user = User.query.get(uuid.UUID(player_id))
             if user:
