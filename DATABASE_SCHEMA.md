@@ -144,6 +144,7 @@ FROM users;
 | survey_version | TEXT | NOT NULL, DEFAULT '0.4' | Survey version being taken |
 | status | survey_status_enum | NOT NULL, DEFAULT 'in_progress' | in_progress, completed, abandoned |
 | current_question | TEXT | NULL | Last question ID answered (e.g., "A12") |
+| current_question_index | INTEGER | NOT NULL, DEFAULT 0 | 0-indexed current question. Equals number of completed answers. |
 | completion_percentage | INTEGER | NOT NULL, DEFAULT 0, CHECK 0-100 | Progress percentage |
 | answers | JSONB | NOT NULL, DEFAULT '{}' | Incremental answers: {"A1": 5, "A2": 6, ...} |
 | started_at | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | Survey start time |
@@ -164,6 +165,7 @@ FROM users;
 
 **Triggers:**
 - `update_survey_progress_last_saved_at` - Auto-updates last_saved_at when answers or current_question change
+- `trg_survey_progress_set_current_question_index` - Auto-calculates current_question_index from answers length
 
 ---
 

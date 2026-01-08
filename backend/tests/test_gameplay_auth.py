@@ -7,6 +7,7 @@ from src.models.user import User
 from src.models.session import Session
 from src.models.activity import Activity
 from src.models.profile import Profile
+from src.models.activity_history import UserActivityHistory  # Required for db.create_all()
 from src.extensions import db
 import jwt
 import os

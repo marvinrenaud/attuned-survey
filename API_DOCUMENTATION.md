@@ -205,11 +205,29 @@ Start a new game session. Returns a queue of 3 cards to minimize latency.
 **Credit Consumption:** Consumes **1 credit** immediately (for the first card).
 
 #### Payload
-To enable **Group Play** (3+ players), simply include all participant IDs in the `player_ids` array. The backend will automatically switch to Group Mode logic (selecting appropriate activities).
+You can provide either a list of IDs (`player_ids`) OR a list of full player objects (`players`). Use `players` to support **Guest Players** (users without accounts).
 
+**Option 1: Registered Users Only (Legacy)**
 ```json
 {
-  "player_ids": ["uuid1", "uuid2", "uuid3", "..."],
+  "player_ids": ["uuid1", "uuid2"],
+  "settings": { ... }
+}
+```
+
+**Option 2: Guest Players (Preferred for Mixed/Guest Groups)**
+Guest players allow you to specify anatomy and preferences directly.
+```json
+{
+  "players": [
+    { "id": "uuid1" }, // Registered user (ID only)
+    {
+      "id": "guest-uuid", // Optional, generated if missing
+      "name": "Guest Name",
+      "anatomy": ["penis"], // HAS: penis, vagina, breasts
+      "anatomy_preference": ["vagina", "breasts"] // LIKES: Defaults to ["penis", "vagina", "breasts"] if omitted
+    }
+  ],
   "settings": {
     "intimacy_level": 3,
     "player_order_mode": "SEQUENTIAL",

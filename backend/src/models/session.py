@@ -90,7 +90,7 @@ class Session(db.Model):
             'partner_user_id': str(self.partner_user_id) if self.partner_user_id else None,
             'partner_profile_id': self.partner_profile_id,
             'partner_anonymous_name': self.partner_anonymous_name,
-            'partner_anonymous_anatomy': self.partner_anonymous_anatomy,
+            'partner_anonymous_anatomy': self.partner_anonymous_anatomy or {},
             'intimacy_level': self.intimacy_level,
             'skip_count': self.skip_count,
             'session_owner_user_id': str(self.session_owner_user_id) if self.session_owner_user_id else None,
@@ -106,10 +106,10 @@ class Session(db.Model):
             'status': self.status,
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'rules': self.rules,
+            'rules': self.rules or {},
             # New Gameplay Fields
-            'players': self.players,
-            'game_settings': self.game_settings,
-            'current_turn_state': self.current_turn_state,
+            'players': self.players or [],
+            'game_settings': self.game_settings or {},
+            'current_turn_state': self.current_turn_state or {},
         }
 

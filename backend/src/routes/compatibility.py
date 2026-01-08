@@ -116,14 +116,14 @@ def get_compatibility(current_user_id, user_id, partner_id):
             
         # Logic for "overlapping_only" and "all_responses" (MVP treatment: currently treated similarly for score breakdown)
         # Detailed breakdown is allowed
-        response['breakdown'] = compat_record.breakdown
-        response['mutual_activities'] = compat_record.mutual_activities
-        response['growth_opportunities'] = compat_record.growth_opportunities
+        response['breakdown'] = compat_record.breakdown or {}
+        response['mutual_activities'] = compat_record.mutual_activities or []
+        response['growth_opportunities'] = compat_record.growth_opportunities or []
         
         # Mutual truth topics logic
         # If partner shares ONLY overlapping, we show mutual truth topics (as they are by definition overlapping)
         # If partner shares ALL, we definitely show them.
-        response['mutual_truth_topics'] = compat_record.mutual_truth_topics
+        response['mutual_truth_topics'] = compat_record.mutual_truth_topics or []
         
         # Blocked / Conflicts
         # These inherently reveal partner's hard limits.
@@ -134,8 +134,8 @@ def get_compatibility(current_user_id, user_id, partner_id):
         # If overlapping_only, maybe we mask the specific limit name if it's too sensitive? 
         # But the plan said "Return Score, breakdown, and filtered partner_profile".
         # Let's include conflicts as they are "interactions" between the two users.
-        response['blocked_activities'] = compat_record.blocked_activities
-        response['boundary_conflicts'] = compat_record.boundary_conflicts
+        response['blocked_activities'] = compat_record.blocked_activities or []
+        response['boundary_conflicts'] = compat_record.boundary_conflicts or []
         
         # 5. Add Partner Profile Snippet (Filtered)
         # Using existing get_partner_profile logic re-use or simplified fetch?
