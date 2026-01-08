@@ -177,8 +177,8 @@ Returns a flattened, null-safe response designed for the frontend summary page.
     {
       "section": "Physical Touch",
       "tags": [
-        { "name": "Massage (Receiving)", "status": "mutual" },
-        { "name": "Spanking", "status": "conflict" }
+        { "name": "Massage (Receiving)", "status": "mutual", "compatible": true },
+        { "name": "Spanking", "status": "conflict", "compatible": false }
       ]
     }
   ],

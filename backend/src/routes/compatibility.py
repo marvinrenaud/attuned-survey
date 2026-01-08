@@ -432,6 +432,10 @@ def _transform_profile_for_ui(profile, user, sharing_setting):
 def _compare_interests(u_acts, u_bounds, p_acts, p_bounds, overlapping_only):
     """
     Generates comparison list with Smart Matching & Conflicts.
+    
+    Returns tags with:
+    - status: 'mutual', 'conflict', 'user_only', 'partner_only'
+    - compatible: True if directional activities align (give/receive cross-match)
     """
     results = []
     
@@ -466,6 +470,7 @@ def _compare_interests(u_acts, u_bounds, p_acts, p_bounds, overlapping_only):
             complement = None
             is_receive = k.endswith('_receive')
             is_give = k.endswith('_give')
+            is_directional = is_give or is_receive
             
             if is_receive:
                 base = k[:-8] # strip _receive
@@ -515,14 +520,47 @@ def _compare_interests(u_acts, u_bounds, p_acts, p_bounds, overlapping_only):
                 elif p_score > 0:
                     status = "partner_only"
             
+            # Calculate compatibility (directional cross-match)
+            # compatible=True means the activity can actually happen with both satisfied
+            compatible = False
+            
+            if status == "conflict":
+                # Hard limit conflict - never compatible
+                compatible = False
+            elif is_directional:
+                # For directional activities, check if roles complement
+                if is_give:
+                    # This is a "give" activity - compatible if user wants to receive
+                    receive_key = f"{base}_receive"
+                    # Partner gives → User receives?
+                    if p_score > 0 and u_section.get(receive_key, 0) > 0:
+                        compatible = True
+                    # User gives → Partner receives?
+                    if u_score > 0 and p_section.get(receive_key, 0) > 0:
+                        compatible = True
+                elif is_receive:
+                    # This is a "receive" activity - compatible if the other wants to give
+                    give_key = f"{base}_give"
+                    # Partner receives → User gives?
+                    if p_score > 0 and u_section.get(give_key, 0) > 0:
+                        compatible = True
+                    # User receives → Partner gives?
+                    if u_score > 0 and p_section.get(give_key, 0) > 0:
+                        compatible = True
+            else:
+                # Non-directional activities: compatible if mutual
+                compatible = (status == "mutual")
+            
             if status:
+                tag_data = {"name": display_name, "status": status, "compatible": compatible}
+                
                 # Privacy Filter
                 if overlapping_only:
                     if status in ['mutual', 'conflict']:
-                        section_tags.append({"name": display_name, "status": status})
+                        section_tags.append(tag_data)
                     # Hide one-sided things
                 else:
-                    section_tags.append({"name": display_name, "status": status})
+                    section_tags.append(tag_data)
             
             processed_keys.add(k)
 
@@ -530,3 +568,4 @@ def _compare_interests(u_acts, u_bounds, p_acts, p_bounds, overlapping_only):
             results.append({"section": section_name, "tags": section_tags})
             
     return results
+

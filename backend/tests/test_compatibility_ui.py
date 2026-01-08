@@ -244,5 +244,71 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
         # Expect "Unknown Thing Receive" or similar title case
         self.assertTrue(unknown['name'].startswith("Unknown Thing"), "Should format fallback name")
 
+    def test_compatible_field_cross_match(self):
+        """Test compatible=True when give/receive cross-match (complementary roles)."""
+        from src.routes.compatibility import _compare_interests
+        
+        # User wants to give, Partner wants to receive - perfect complement
+        u_acts = {'physical_touch': {'massage_give': 1.0}}
+        p_acts = {'physical_touch': {'massage_receive': 1.0}}
+        
+        results = _compare_interests(u_acts, {}, p_acts, {}, False)
+        phys = results[0]['tags']
+        
+        massage = next((t for t in phys if 'Massage' in t['name']), None)
+        self.assertIsNotNone(massage, "Should find massage activity")
+        self.assertEqual(massage['status'], 'mutual', "Should be mutual (cross-match)")
+        self.assertTrue(massage['compatible'], "Should be compatible (give matches receive)")
+
+    def test_compatible_field_same_role(self):
+        """Test compatible=False when both want same role (both givers, no receiver)."""
+        from src.routes.compatibility import _compare_interests
+        
+        # Both want to give, neither wants to receive - not compatible
+        u_acts = {'physical_touch': {'massage_give': 1.0}}
+        p_acts = {'physical_touch': {'massage_give': 1.0}}
+        
+        results = _compare_interests(u_acts, {}, p_acts, {}, False)
+        phys = results[0]['tags']
+        
+        massage = next((t for t in phys if 'Massage' in t['name']), None)
+        self.assertIsNotNone(massage, "Should find massage activity")
+        self.assertEqual(massage['status'], 'mutual', "Should be mutual (both want give)")
+        self.assertFalse(massage['compatible'], "Should NOT be compatible (both givers, no receiver)")
+
+    def test_compatible_field_non_directional(self):
+        """Test compatible=mutual for non-directional activities."""
+        from src.routes.compatibility import _compare_interests
+        
+        # Non-directional activity - both want it
+        u_acts = {'physical_touch': {'kissing': 1.0}}
+        p_acts = {'physical_touch': {'kissing': 1.0}}
+        
+        results = _compare_interests(u_acts, {}, p_acts, {}, False)
+        phys = results[0]['tags']
+        
+        kissing = next((t for t in phys if 'Kissing' in t['name']), None)
+        self.assertIsNotNone(kissing, "Should find kissing activity")
+        self.assertEqual(kissing['status'], 'mutual')
+        self.assertTrue(kissing['compatible'], "Non-directional mutual should be compatible")
+
+    def test_compatible_field_conflict(self):
+        """Test compatible=False when there's a hard limit conflict."""
+        from src.routes.compatibility import _compare_interests
+        
+        # User wants to give, but partner has hard limit
+        u_acts = {'physical_touch': {'spanking_give': 1.0}}
+        p_acts = {'physical_touch': {'spanking_receive': 1.0}}
+        p_bounds = {'hard_limits': ['spanking']}
+        
+        results = _compare_interests(u_acts, {}, p_acts, p_bounds, False)
+        phys = results[0]['tags']
+        
+        spanking = next((t for t in phys if 'Spanking' in t['name']), None)
+        self.assertIsNotNone(spanking, "Should find spanking activity")
+        self.assertEqual(spanking['status'], 'conflict')
+        self.assertFalse(spanking['compatible'], "Conflict should never be compatible")
+
 if __name__ == '__main__':
     unittest.main()
+
