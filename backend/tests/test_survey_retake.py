@@ -71,14 +71,14 @@ def test_survey_retake_flow(client, user_with_progress, db_session):
         'anatomy': {}
     }
 
-    with patch('backend.src.routes.survey_submit.get_current_user_id', return_value=user_id), \
+    with patch('backend.src.middleware.auth.jwt.decode', return_value={'sub': str(user_id)}), \
          patch('backend.src.routes.survey_submit.calculate_profile', return_value=mock_profile_data):
         
         # 1. INITIAL SUBMISSION
         resp = client.post('/api/survey/submit', json={
             "survey_version": "0.4",
             "answers": answers_v1
-        })
+        }, headers={'Authorization': 'Bearer test-token'})
         if resp.status_code != 200:
             print(f"Error Response: {resp.get_json()}")
         assert resp.status_code == 200
@@ -93,7 +93,7 @@ def test_survey_retake_flow(client, user_with_progress, db_session):
         resp = client.post('/api/survey/submit', json={
             "survey_version": "0.4",
             "answers": answers_v2
-        })
+        }, headers={'Authorization': 'Bearer test-token'})
         assert resp.status_code == 200
         data = resp.get_json()
         assert data['message'] == 'Survey already completed'
@@ -108,7 +108,7 @@ def test_survey_retake_flow(client, user_with_progress, db_session):
             "survey_version": "0.4",
             "answers": answers_v2,
             "retake": True
-        })
+        }, headers={'Authorization': 'Bearer test-token'})
         assert resp.status_code == 200
         data = resp.get_json()
         assert data['message'] == 'Survey submitted successfully'

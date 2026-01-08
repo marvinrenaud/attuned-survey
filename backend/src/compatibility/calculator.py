@@ -128,7 +128,7 @@ def calculate_asymmetric_directional_jaccard(
         if key in processed_keys:
             continue
             
-        print(f"Processing key: {key}")
+        # print(f"Processing key: {key}")
         top_val = top_activities.get(key, 0)
         bottom_val = bottom_activities.get(key, 0)
         

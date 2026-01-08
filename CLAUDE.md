@@ -700,6 +700,10 @@ pytest tests/ --tb=short            # Shorter tracebacks
 - **Auth tests**: Every endpoint rejects unauthenticated requests
 - **Ownership tests**: Endpoints reject cross-user access
 - **Integration tests**: Full flows (register → survey → game)
+- **Baseline before Refactor**:
+    - **Before starting** any major refactor or new feature branch, run `pytest` on `main` to establish a baseline.
+    - Note any existing failures.
+    - This allows you to distinguish between *new* regressions and *pre-existing* issues.
 
 ---
 

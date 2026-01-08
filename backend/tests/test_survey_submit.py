@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+import jwt # Import jwt to allow patching specifically if needed, but we patch string path
 import uuid
 from datetime import datetime
 from backend.src.models.user import User
@@ -25,13 +26,13 @@ def survey_data():
         }
     }
 
-@patch('backend.src.routes.survey_submit.get_current_user_id')
 @patch('backend.src.routes.survey_submit.calculate_profile')
-def test_submit_survey_success(mock_calc, mock_get_user, client, db_session, auth_header, survey_data):
+@patch('backend.src.middleware.auth.jwt.decode')
+def test_submit_survey_success(mock_jwt_decode, mock_calc, client, db_session, auth_header, survey_data):
     """Test successful atomic survey submission."""
     # Setup
     user_id = uuid.uuid4()
-    mock_get_user.return_value = user_id
+    mock_jwt_decode.return_value = {'sub': str(user_id)}
     
     # Mock profile calculation result
     mock_calc.return_value = {
@@ -92,12 +93,12 @@ def test_submit_survey_success(mock_calc, mock_get_user, client, db_session, aut
     updated_user = User.query.get(user_id)
     assert updated_user.onboarding_completed is True
 
-@patch('backend.src.routes.survey_submit.get_current_user_id')
-def test_submit_survey_idempotency(mock_get_user, client, db_session, auth_header, survey_data):
+@patch('backend.src.middleware.auth.jwt.decode')
+def test_submit_survey_idempotency(mock_jwt_decode, client, db_session, auth_header, survey_data):
     """Test idempotency: second submission should return existing profile."""
     # Setup
     user_id = uuid.uuid4()
-    mock_get_user.return_value = user_id
+    mock_jwt_decode.return_value = {'sub': str(user_id)}
     
     # Create User
     user = User(id=user_id, email='test@example.com', onboarding_completed=True)
@@ -151,13 +152,13 @@ def test_submit_survey_idempotency(mock_get_user, client, db_session, auth_heade
     assert data['profile_id'] == profile.id
     assert data['message'] == 'Survey already completed'
 
-@patch('backend.src.routes.survey_submit.get_current_user_id')
 @patch('backend.src.routes.survey_submit.calculate_profile')
-def test_submit_survey_rollback(mock_calc, mock_get_user, client, db_session, auth_header, survey_data):
+@patch('backend.src.middleware.auth.jwt.decode')
+def test_submit_survey_rollback(mock_jwt_decode, mock_calc, client, db_session, auth_header, survey_data):
     """Test transaction rollback on error."""
     # Setup
     user_id = uuid.uuid4()
-    mock_get_user.return_value = user_id
+    mock_jwt_decode.return_value = {'sub': str(user_id)}
     
     # Mock error during calculation
     mock_calc.side_effect = Exception("Calculation failed")
@@ -193,11 +194,11 @@ def test_submit_survey_rollback(mock_calc, mock_get_user, client, db_session, au
     assert SurveySubmission.query.filter_by(user_id=user_id).first() is None
     assert Profile.query.filter_by(user_id=user_id).first() is None
 
-@patch('backend.src.routes.survey_submit.get_current_user_id')
-def test_submit_survey_no_progress(mock_get_user, client, db_session, auth_header, survey_data):
+@patch('backend.src.middleware.auth.jwt.decode')
+def test_submit_survey_no_progress(mock_jwt_decode, client, db_session, auth_header, survey_data):
     """Test 404 if no progress found."""
     user_id = uuid.uuid4()
-    mock_get_user.return_value = user_id
+    mock_jwt_decode.return_value = {'sub': str(user_id)}
     
     # Create User but NO Progress
     user = User(id=user_id, email='test@example.com')

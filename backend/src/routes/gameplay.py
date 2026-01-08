@@ -2,7 +2,7 @@
 Gameplay routes for Just-in-Time architecture.
 Handles session creation, player rotation, and activity selection.
 """
-import logging
+from ..logging_config import get_logger, timed
 import uuid
 import random
 import time
@@ -25,7 +25,7 @@ from ..db.repository import find_best_activity_candidate
 from ..models.profile import Profile
 from ..models.partner import PartnerConnection
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 gameplay_bp = Blueprint("gameplay", __name__, url_prefix="/api/game")
 
@@ -428,7 +428,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
              for (hid,) in session_history:
                  exclude_ids.add(hid)
         except Exception as e:
-            logger.error(f"Failed to fetch session history for exclusion: {e}")
+            logger.error("session_history_fetch_failed", error=str(e))
 
         # 2. Player History Exclusion (Long-term): Look back at history for the ACTIVE primary player
         # We want to avoid activities YOU (as primary) have just done (even in other sessions).
@@ -447,7 +447,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
                  for (hid,) in recent_history:
                      exclude_ids.add(hid)
         except Exception as e:
-            logger.error(f"Failed to fetch player history for exclusion: {e}")
+            logger.error("player_history_fetch_failed", error=str(e))
 
                 
         # Build boundary list (union of hard limits)
@@ -499,6 +499,14 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             Activity.audience_scope.in_(scope_filter)
         ).order_by(db.func.random()).first()
     
+    if candidate:
+        logger.info("activity_selected", 
+            activity_id=str(candidate.activity_id),
+            type=candidate.type,
+            intensity=candidate.intensity,
+            step=target_step
+        )
+    
     if not candidate:
         candidate = Activity(
             script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
@@ -514,7 +522,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
             raise ValueError("Activity script is missing or empty")
         activity_text = script['steps'][0].get('do', "Perform the activity.")
     except Exception as e:
-        logger.error(f"Failed to extract activity text: {e}")
+        logger.error("activity_text_extraction_failed", error=str(e), activity_id=str(candidate.activity_id) if candidate else None)
         activity_text = "Perform a mystery activity with your partner."
         
     resolved_text = resolve_activity_text(
@@ -798,6 +806,12 @@ def start_game(current_user_id):
             
         db.session.commit()
         
+        logger.info("game_session_started",
+            session_id=str(session.session_id),
+            player_count=len(players),
+            intimacy_level=settings.get('intimacy_level')
+        )
+        
         # Response
         return jsonify({
             "session_id": session.session_id,
@@ -807,7 +821,7 @@ def start_game(current_user_id):
         }), 200
 
     except Exception as e:
-        logger.error(f"Start game failed: {str(e)}")
+        logger.error("start_game_failed", error=str(e), error_type=type(e).__name__)
         return jsonify({"error": str(e)}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
@@ -940,7 +954,7 @@ def next_turn(current_user_id, session_id):
         return jsonify(response)
         
     except Exception as e:
-        logger.error(f"Next turn failed: {str(e)}")
+        logger.error("next_turn_failed", session_id=session_id, error=str(e))
         # If DB error, rollback?
         db.session.rollback()
         return jsonify({"error": str(e)}), 500

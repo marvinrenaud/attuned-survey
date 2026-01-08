@@ -16,6 +16,11 @@ from sqlalchemy import text
 from flask_limiter import Limiter
 
 from .extensions import db, limiter
+from .logging_config import (
+    configure_logging, 
+    request_context_middleware, 
+    log_request_complete
+)
 from .models.survey import SurveyBaseline, SurveySubmission
 from .models.profile import Profile
 from .models.session import Session
@@ -45,13 +50,15 @@ def create_app() -> Flask:
     # Fix for Render/Heroku DATABASE_URL format (postgres:// -> postgresql://)
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
-        app.logger.info("Converted DATABASE_URL from postgres:// to postgresql://")
+        # We can't use the structlog logger here yet as it's not configured
+        # But we can rely on standard logging or just print for this critical early config
+        print("Converted DATABASE_URL from postgres:// to postgresql://")
     
     # Ensure SSL mode is set
     if "sslmode=" not in db_url:
         separator = "&" if "?" in db_url else "?"
         db_url = f"{db_url}{separator}sslmode=require"
-        app.logger.info("Added sslmode=require to DATABASE_URL")
+        print("Added sslmode=require to DATABASE_URL")
     
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -81,10 +88,19 @@ def create_app() -> Flask:
             "pool_pre_ping": True,       # Verify connections before using them
         }
 
-    # Enable SQLAlchemy logging in development
-    if os.environ.get("FLASK_ENV") == "development":
-        logging.basicConfig()
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+    
+    # Configure structured logging
+    logger = configure_logging(app)
+    
+    # Add request lifecycle hooks
+    @app.before_request
+    def before_request():
+        request_context_middleware()
+    
+    @app.after_request
+    def after_request(response):
+        return log_request_complete(response)
+
     
     # Rate Limiting Config
     app.config["RATELIMIT_DEFAULT"] = "2000 per day;500 per hour"
@@ -99,25 +115,25 @@ def create_app() -> Flask:
             is_pooler = 'pooler.supabase.com' in db_url
             
             if is_pooler:
-                app.logger.info("🔗 Detected Supabase connection pooler - skipping DDL operations")
-                app.logger.info("   (Tables should already exist; DDL not allowed through PgBouncer)")
+                logger.info("connection_pooler_detected", skip_ddl=True)
+                logger.info("ddl_skipped_pooler_mode")
             
             # Test basic connectivity
-            app.logger.info("Attempting database connection...")
+            logger.info("db_connection_attempt")
             db.session.execute(text("SELECT 1"))
             db.session.commit()
-            app.logger.info("✅ Database connection successful")
+            logger.info("db_connection_success")
             
             # Only run DDL if NOT using pooler
             if not is_pooler:
-                app.logger.info("Running DDL operations (create tables, add columns)...")
+                logger.info("starting_ddl_operations")
                 
                 # Create tables
                 try:
                     db.create_all()
-                    app.logger.info("✅ Tables created/verified")
+                    logger.info("tables_verified")
                 except Exception as table_error:
-                    app.logger.warning(f"⚠️ Table creation failed: {table_error}")
+                    logger.warning("table_creation_failed", error=str(table_error))
                 
                 # Add missing columns (for backward compatibility)
                 try:
@@ -140,16 +156,16 @@ def create_app() -> Flask:
                         """
                     ))
                     db.session.commit()
-                    app.logger.info("✅ Verified survey_submissions columns")
+                    logger.info("survey_columns_verified")
                 except Exception as col_error:
-                    app.logger.warning(f"⚠️ Column verification failed: {col_error}")
+                    logger.warning("column_verification_failed", error=str(col_error))
                     db.session.rollback()
             else:
-                app.logger.info("✅ Pooler mode - assuming tables and columns already exist")
+                logger.info("pooler_mode_active")
                 
         except Exception as e:
-            app.logger.error(f"❌ Database initialization failed: {e}")
-            app.logger.error("App will start but database operations may fail")
+            logger.error("db_initialization_failed", error=str(e))
+            logger.error("app_starting_with_db_issues")
             # Don't raise - allow app to start even if DB has issues
 
     # --- Routes ---
@@ -188,9 +204,12 @@ def create_app() -> Flask:
         from .routes.notifications import notifications_bp
         app.register_blueprint(notifications_bp)
         
-        app.logger.info("✅ MVP routes registered")
+        env = os.environ.get("FLASK_ENV", "production")
+        is_prod = env == "production"
+        if is_prod:
+           logger.info("mvp_routes_registered", env=env)
     except Exception as e:
-        app.logger.warning(f"⚠️ Could not register MVP routes: {e}")
+        logger.warning("mvp_routes_registration_failed", error=str(e))
 
     app.register_blueprint(survey_bp)
     app.register_blueprint(recommendations_bp)

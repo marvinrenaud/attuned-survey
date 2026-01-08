@@ -8,8 +8,9 @@ from groq import Groq
 
 from ..services.config_service import get_config, get_config_float, get_config_bool
 from ..config import settings
+from ..logging_config import get_logger, timed
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class GroqClient:
@@ -32,6 +33,7 @@ class GroqClient:
         self.client = Groq(api_key=self.api_key)
         logger.info(f"Groq client initialized with model: {self.model}")
     
+    @timed("groq_chat_completion")
     def chat_json_schema(
         self,
         messages: List[Dict[str, str]],
@@ -85,24 +87,23 @@ class GroqClient:
                 
                 content = response.choices[0].message.content
                 
-                logger.info(
-                    f"Groq request successful",
-                    extra={
-                        "elapsed_ms": elapsed_ms,
-                        "model": self.model,
-                        "temperature": temperature,
-                        "attempt": attempt + 1,
-                        "response_length": len(content) if content else 0
-                    }
+                logger.info("groq_request_success",
+                    elapsed_ms=elapsed_ms,
+                    model=self.model,
+                    temperature=temperature,
+                    attempt=attempt + 1,
+                    response_length=len(content) if content else 0
                 )
                 
                 return content
             
             except Exception as e:
                 last_error = e
-                logger.warning(
-                    f"Groq request failed (attempt {attempt + 1}/{max_retries + 1}): {str(e)}",
-                    extra={"error_type": type(e).__name__}
+                logger.warning("groq_request_failed",
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                    error=str(e),
+                    error_type=type(e).__name__
                 )
                 
                 if attempt < max_retries:
@@ -110,7 +111,7 @@ class GroqClient:
                     backoff *= 2  # Exponential backoff
         
         # All retries failed
-        logger.error(f"Groq request failed after {max_retries + 1} attempts: {str(last_error)}")
+        logger.error("groq_request_exhausted", error=str(last_error), attempts=max_retries+1)
         raise Exception(f"Groq API call failed after {max_retries + 1} attempts: {str(last_error)}")
     
     def chat_simple(
