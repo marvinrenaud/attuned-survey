@@ -84,16 +84,17 @@ def get_profile_ui(current_user_id):
         # --- Domain Radar ---
         domains = derived.get('domain_scores', {})
         domain_ui = []
-        for key, score in domains.items():
+        
+        # Desired Order: Sensation > Power > Connection > Exploration > Verbal
+        ordered_keys = ['sensation', 'power', 'connection', 'exploration', 'verbal']
+        
+        for key in ordered_keys:
+            score = domains.get(key, 0)
             display_name = DOMAIN_DISPLAY_NAMES.get(key, key.title())
             domain_ui.append({
                 "domain": display_name,
                 "score": score
             })
-        # Sort domains alphabetically or by a fixed order? 
-        # User didn't specify, but fixed order is usually better for radar charts.
-        # Let's stick to the order in DOMAIN_DISPLAY_NAMES if possible, or just list them.
-        # For now, list is fine.
 
         # --- Boundaries ---
         boundaries_data = derived.get('boundaries', {})
