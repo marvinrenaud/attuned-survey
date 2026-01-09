@@ -67,7 +67,7 @@ class SurveyProgress(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
     anonymous_session_id = db.Column(db.Text, nullable=True, index=True)
     survey_version = db.Column(db.Text, nullable=False, default='0.4')
-    status = db.Column(db.String(32), nullable=False, default='in_progress')  # Enum: in_progress, completed, abandoned
+    status = db.Column(db.Enum('in_progress', 'completed', 'abandoned', name='survey_status_enum'), nullable=False, default='in_progress')
     current_question = db.Column(db.Text, nullable=True)
     completion_percentage = db.Column(db.Integer, nullable=False, default=0)
     answers = db.Column(db.JSON, nullable=False, default=dict)

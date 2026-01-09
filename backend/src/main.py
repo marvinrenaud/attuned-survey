@@ -7,8 +7,15 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+# Load environment variables from .env file
+# Try loading from backend/ first, then project root
+backend_env = Path(__file__).parent.parent / '.env'
+if backend_env.exists():
+    load_dotenv(dotenv_path=backend_env)
+else:
+    # Fallback to project root
+    root_env = Path(__file__).parent.parent.parent / '.env'
+    load_dotenv(dotenv_path=root_env)
 
 from flask import Flask
 from flask_cors import CORS
@@ -49,10 +56,13 @@ def create_app() -> Flask:
     
     # Fix for Render/Heroku DATABASE_URL format (postgres:// -> postgresql://)
     if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
+        db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
         # We can't use the structlog logger here yet as it's not configured
         # But we can rely on standard logging or just print for this critical early config
-        print("Converted DATABASE_URL from postgres:// to postgresql://")
+        print("Converted DATABASE_URL from postgres:// to postgresql+psycopg://")
+    elif db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+        print("Converted DATABASE_URL from postgresql:// to postgresql+psycopg://")
     
     # Ensure SSL mode is set
     if "sslmode=" not in db_url:
@@ -67,7 +77,9 @@ def create_app() -> Flask:
     
     # Connection pooling configuration
     # Only apply PostgreSQL-specific settings for PostgreSQL databases
-    if db_url.startswith("postgresql://"):
+    # Connection pooling configuration
+    # Only apply PostgreSQL-specific settings for PostgreSQL databases
+    if db_url.startswith("postgresql") and "psycopg" in db_url:
         app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
             "pool_size": 10,             # Increased pool size
             "pool_recycle": 60,          # Recycle connections after 1 minute (Supabase closes idle conns fast)
@@ -111,8 +123,8 @@ def create_app() -> Flask:
 
     with app.app_context():
         try:
-            # Detect if using Supabase pooler (PgBouncer doesn't allow DDL)
-            is_pooler = 'pooler.supabase.com' in db_url
+             # Detect if using Supabase pooler (PgBouncer doesn't allow DDL)
+            is_pooler = 'pooler.supabase.com' in db_url or "supavisor" in db_url
             
             if is_pooler:
                 logger.info("connection_pooler_detected", skip_ddl=True)

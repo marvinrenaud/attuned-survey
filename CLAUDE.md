@@ -38,7 +38,7 @@ Pre-launch MVP. Core functionality complete, focus on polish and security harden
 | Component | Technology |
 |-----------|------------|
 | Backend Framework | Python 3.11+ / Flask |
-| Database | PostgreSQL 15+ (hosted on Supabase) |
+| Database | PostgreSQL 15+ (hosted on Supabase) via psycopg 3 |
 | ORM | SQLAlchemy with Flask-SQLAlchemy |
 | Auth | Supabase Auth (JWT-based) |
 | AI | Groq API with Llama 3.3 70B |
