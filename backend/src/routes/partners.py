@@ -9,7 +9,9 @@ import uuid
 
 from ..extensions import db
 from ..middleware.auth import token_required
+from ..middleware.auth import token_required
 from ..models.user import User
+from ..services.email_service import send_partner_request, send_partner_accepted
 
 # Import PartnerConnection and RememberedPartner models
 # These will need to be created based on the migrations
@@ -121,8 +123,13 @@ def create_connection_request(current_user_id):
         db.session.add(connection)
         db.session.commit()
         
-        # TODO: Send push notification to recipient
-        # This would integrate with FCM/APNs
+        # Send email notification
+        request_url = "attuned://getattuned.app/connectionRequestsPage"
+        send_partner_request(
+            recipient_email=recipient_email,
+            requester_name=requester.display_name or "A user",
+            request_url=request_url
+        )
         
         logger.info(f"Connection request created: {connection.id}")
         
@@ -297,7 +304,20 @@ def accept_connection(current_user_id, connection_id):
             # Actually, `db.session.commit()` was called at line 236. So we are in a new transaction implicitly or need to manage it.
             # Best to keep it separate.
 
-        
+            # Best to keep it separate.
+            
+        # Send acceptance email
+        if requester:
+            accepted_by_name = "A user"
+            # We need the acceptor's name (current user)
+            acceptor = User.query.get(accepted_by_user_id)
+            if acceptor:
+                accepted_by_name = acceptor.display_name or acceptor.email
+            
+            send_partner_accepted(
+                recipient_email=requester.email,
+                partner_name=accepted_by_name
+            )
         return jsonify({
             'success': True,
             'connection': connection.to_dict()

@@ -29,6 +29,9 @@ class Settings:
     REPAIR_USE_AI: bool
     GEN_TEMPERATURE: float
     
+    # Email
+    RESEND_API_KEY: str
+    
     # Flask
     FLASK_ENV: str
     
@@ -55,6 +58,9 @@ class Settings:
         # Feature flags
         self.REPAIR_USE_AI = self._get_optional("REPAIR_USE_AI", "true").lower() in ("true", "1", "yes")
         self.GEN_TEMPERATURE = float(self._get_optional("GEN_TEMPERATURE", "0.6"))
+        
+        # Email
+        self.RESEND_API_KEY = self._get_optional("RESEND_API_KEY", "")
         
         # Flask
         self.FLASK_ENV = self._get_optional("FLASK_ENV", "production")
@@ -96,6 +102,7 @@ class Settings:
             "ATTUNED_DEFAULT_RATING": self.ATTUNED_DEFAULT_RATING,
             "REPAIR_USE_AI": self.REPAIR_USE_AI,
             "GEN_TEMPERATURE": self.GEN_TEMPERATURE,
+            "RESEND_API_KEY": self.mask_sensitive(self.RESEND_API_KEY),
             "FLASK_ENV": self.FLASK_ENV,
         }
 
