@@ -316,7 +316,8 @@ def accept_connection(current_user_id, connection_id):
             
             send_partner_accepted(
                 recipient_email=requester.email,
-                partner_name=accepted_by_name
+                partner_name=accepted_by_name,
+                user_name=requester.display_name or "Love"
             )
         return jsonify({
             'success': True,

@@ -3,6 +3,7 @@ from typing import Optional
 import logging
 
 from ..config import settings
+from .email_templates import PARTNER_REQUEST_TEMPLATE, PARTNER_ACCEPTED_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -18,23 +19,16 @@ def send_partner_request(recipient_email: str, requester_name: str, request_url:
         return False
 
     try:
+        html_content = PARTNER_REQUEST_TEMPLATE.format(
+            partner_name=requester_name,
+            invite_url=request_url
+        )
+
         params: resend.Emails.SendParams = {
             "from": DEFAULT_FROM,
             "to": [recipient_email],
-            "subject": f"{requester_name} wants to connect on Attuned",
-            "html": f"""
-                <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto;">
-                    <h1 style="color: #2D2926;">Partner Request</h1>
-                    <p style="color: #5C5653; font-size: 16px;">
-                        {requester_name} has invited you to be their partner on Attuned.
-                    </p>
-                    <a href="{request_url}" 
-                       style="display: inline-block; background: #C4A39B; color: #fff; 
-                              padding: 16px 32px; border-radius: 8px; text-decoration: none;">
-                        View Request
-                    </a>
-                </div>
-            """
+            "subject": "Attuned: You have a new play partner request, love.",
+            "html": html_content
         }
         resend.Emails.send(params)
         logger.info(f"Partner request email sent to {recipient_email}")
@@ -44,26 +38,32 @@ def send_partner_request(recipient_email: str, requester_name: str, request_url:
         return False
 
 
-def send_partner_accepted(recipient_email: str, partner_name: str) -> bool:
-    """Notify user their partner request was accepted."""
+def send_partner_accepted(recipient_email: str, partner_name: str, user_name: str = "Love") -> bool:
+    """
+    Notify user their partner request was accepted.
+    
+    :param recipient_email: Email of the user who sent the original request (now receiving acceptance)
+    :param partner_name: Name of the partner who accepted the request
+    :param user_name: Name of the recipient (original requester)
+    """
     if not settings.RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set. Skipping email sending.")
         return False
 
     try:
+        app_url = "https://getattuned.app/home" # Or a specific deep link if needed
+        
+        html_content = PARTNER_ACCEPTED_TEMPLATE.format(
+            user_name=user_name,
+            partner_name=partner_name,
+            app_url=app_url
+        )
+
         params: resend.Emails.SendParams = {
             "from": DEFAULT_FROM,
             "to": [recipient_email],
-            "subject": f"{partner_name} accepted your partner request!",
-            "html": f"""
-                <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto;">
-                    <h1 style="color: #2D2926;">You're Connected! 💕</h1>
-                    <p style="color: #5C5653; font-size: 16px;">
-                        {partner_name} has accepted your partner request. 
-                        Open Attuned to start exploring together.
-                    </p>
-                </div>
-            """
+            "subject": "Attuned: You have a new play partner, love.",
+            "html": html_content
         }
         resend.Emails.send(params)
         logger.info(f"Partner acceptance email sent to {recipient_email}")
