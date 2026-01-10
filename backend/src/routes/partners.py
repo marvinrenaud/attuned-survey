@@ -121,7 +121,7 @@ def create_connection_request(current_user_id):
         db.session.commit()
         
         # Send email notification
-        request_url = "attuned://getattuned.app/connectionRequestsPage"
+        request_url = "https://getattuned.app/connectionRequestsPage"
         send_partner_request(
             recipient_email=recipient_email,
             requester_name=requester.display_name or "A user",

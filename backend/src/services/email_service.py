@@ -51,7 +51,7 @@ def send_partner_accepted(recipient_email: str, partner_name: str, user_name: st
         return False
 
     try:
-        app_url = "attuned://getattuned.app/tapToPlay" # Deep link to tap to play page
+        app_url = "https://getattuned.app/partnersPage" # Deep link to partners page
         
         html_content = PARTNER_ACCEPTED_TEMPLATE.format(
             user_name=user_name,
