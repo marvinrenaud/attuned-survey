@@ -113,7 +113,7 @@ PARTNER_REQUEST_TEMPLATE = """<!DOCTYPE html>
                     <tr>
                         <td style="padding: 0;">
                             <h1 class="headline" style="margin: 0 0 24px 0; font-family: 'Libertinage', Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: 400; color: #CB3343; text-align: center; letter-spacing: -0.5px; line-height: 1.2;">
-                                Someone's thinking of you...
+                                Someone wants to play with you...
                             </h1>
                             
                             <!-- Partner Name Card -->
