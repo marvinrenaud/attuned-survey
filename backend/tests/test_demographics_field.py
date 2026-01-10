@@ -20,7 +20,7 @@ class TestDemographicsFieldDatabase:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='default-test@example.com',
             display_name='Default Test'
         )
@@ -32,7 +32,7 @@ class TestDemographicsFieldDatabase:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='update-test@example.com',
             display_name='Update Test',
             profile_completed=False
@@ -53,7 +53,7 @@ class TestCompleteDemographicsEndpoint:
     def test_endpoint_with_valid_data(self, client):
         """Test complete-demographics with valid data returns 200."""
         # Create user first
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         response = client.post('/api/auth/register', json={
             'id': user_id,
             'email': 'test-demo@example.com',
@@ -75,7 +75,7 @@ class TestCompleteDemographicsEndpoint:
     
     def test_endpoint_missing_fields_returns_400(self, client):
         """Test complete-demographics with missing fields returns 400."""
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         
         # Try without anatomy_self
         response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
@@ -92,7 +92,7 @@ class TestCompleteDemographicsEndpoint:
         """Test complete-demographics updates display_name."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='name-test@example.com',
@@ -116,7 +116,7 @@ class TestCompleteDemographicsEndpoint:
         """Test complete-demographics updates demographics JSONB."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='demo-jsonb-test@example.com'
@@ -143,7 +143,7 @@ class TestCompleteDemographicsEndpoint:
         """Test complete-demographics sets profile_completed=TRUE."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='flag-test@example.com',
@@ -184,7 +184,7 @@ class TestUserStates:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='just-registered@example.com',
             display_name='New User',
             profile_completed=False,
@@ -203,7 +203,7 @@ class TestUserStates:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='demo-done@example.com',
             display_name='Demo User',
             profile_completed=True,
@@ -222,7 +222,7 @@ class TestUserStates:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='survey-done@example.com',
             display_name='Complete User',
             profile_completed=True,
@@ -245,7 +245,7 @@ class TestGameAccessGate:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='no-demo@example.com',
             profile_completed=False
         )

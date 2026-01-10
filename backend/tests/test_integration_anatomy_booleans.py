@@ -4,6 +4,9 @@ Tests end-to-end user journeys and cross-feature integration. 10 tests total.
 """
 import pytest
 import uuid
+import jwt
+import os
+from unittest.mock import patch
 
 
 class TestUserJourneysWithAnatomy:
@@ -21,7 +24,9 @@ class TestUserJourneysWithAnatomy:
         })
         
         # Complete demographics with anatomy
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"}):
+            response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Journey User',
             'has_penis': True,
             'likes_vagina': True,

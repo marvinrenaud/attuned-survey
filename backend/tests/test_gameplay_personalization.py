@@ -43,7 +43,7 @@ def client(app):
 def auth_headers():
     import jwt
     user_id = str(uuid.uuid4())
-    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     return {'Authorization': f'Bearer {token}'}, user_id
 
 def create_user_with_profile(app, user_id, power_orientation='Switch', anatomy=['penis'], 
@@ -68,7 +68,7 @@ def create_user_with_profile(app, user_id, power_orientation='Switch', anatomy=[
         db.session.commit()
         return user, profile
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_personalized_selection_with_profiles(client, app, auth_headers):
     # Setup: 2 users, 1 perfect match activity, 1 mismatch
     headers, uid1 = auth_headers
@@ -114,7 +114,7 @@ def test_personalized_selection_with_profiles(client, app, auth_headers):
         # (Assuming type 'truth' was selected at least once)
         assert '1' in ids or '2' in ids
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_boundary_filtering(client, app, auth_headers):
     headers, uid1 = auth_headers
     uid2 = str(uuid.uuid4())
@@ -148,7 +148,7 @@ def test_boundary_filtering(client, app, auth_headers):
         assert best is not None
         assert best.activity_id == 101 # 100 should be filtered out
         
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_anatomy_filtering(client, app, auth_headers):
     headers, uid1 = auth_headers
     uid2 = str(uuid.uuid4())
@@ -200,7 +200,7 @@ def test_complimentary_profile_generation():
     assert comp['activities'].get('massage_receive') == 1.0
     assert comp['activities'].get('spanking_give') == 0.0
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_complimentary_integration(client, app, auth_headers):
     headers, uid1 = auth_headers
     # User 1 is Top, likes 'act_top'

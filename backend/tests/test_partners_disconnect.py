@@ -1,8 +1,14 @@
 import pytest
 import uuid
 import json
+import jwt
+import os
 from datetime import datetime, timedelta
 from backend.src.models.user import User
+
+def get_auth_header(user_id):
+    token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+    return {'Authorization': f'Bearer {token}'}
 
 # Helper to create a user and force commit
 def create_user(db_session, email):
@@ -17,6 +23,7 @@ def create_user(db_session, email):
     return user
 
 def test_partner_disconnect_lifecycle(client, db_session, app):
+    print(app.url_map)
     """
     Test the full lifecycle:
     1. Connect (Pending)
@@ -38,7 +45,7 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     resp = client.post('/api/partners/connect', json={
         'requester_user_id': str(user_a.id),
         'recipient_email': user_b.email
-    })
+    }, headers=get_auth_header(user_a.id))
     assert resp.status_code == 201
     conn_data = resp.get_json()['connection']
     conn_id_1 = conn_data['id']
@@ -47,20 +54,20 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     # 3. B accepts A
     resp = client.post(f'/api/partners/connections/{conn_id_1}/accept', json={
         'recipient_user_id': user_b.id
-    })
+    }, headers=get_auth_header(user_b.id))
     assert resp.status_code == 200
     assert resp.get_json()['connection']['status'] == 'accepted'
     
     # 4. Verify Remembered Partners
     # Check A remembers B
-    resp_a = client.get(f'/api/partners/remembered/{user_a.id}')
+    resp_a = client.get('/api/partners/remembered', headers=get_auth_header(user_a.id))
     assert resp_a.status_code == 200
     partners_a = resp_a.get_json()['partners']
     assert len(partners_a) == 1
     assert partners_a[0]['partner_email'] == user_b.email
     
     # Check B remembers A
-    resp_b = client.get(f'/api/partners/remembered/{user_b.id}')
+    resp_b = client.get('/api/partners/remembered', headers=get_auth_header(user_b.id))
     assert resp_b.status_code == 200
     partners_b = resp_b.get_json()['partners']
     assert len(partners_b) == 1
@@ -71,28 +78,28 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     resp_dup = client.post('/api/partners/connect', json={
         'requester_user_id': str(user_a.id),
         'recipient_email': user_b.email
-    })
+    }, headers=get_auth_header(user_a.id))
     assert resp_dup.status_code == 400
     assert "already connected" in resp_dup.get_json()['error']
     
     # 5. A Disconnects from B
-    resp_del = client.delete(f'/api/partners/remembered/{user_a.id}/{user_b.id}')
+    resp_del = client.delete(f'/api/partners/remembered/{user_b.id}', headers=get_auth_header(user_a.id))
     assert resp_del.status_code == 200
     
     # 6. Verify Disconnection Results
     
     # A's list empty
-    resp_a_new = client.get(f'/api/partners/remembered/{user_a.id}')
+    resp_a_new = client.get('/api/partners/remembered', headers=get_auth_header(user_a.id))
     assert len(resp_a_new.get_json()['partners']) == 0
     
     # B's list empty (Reciprocal Delete!)
-    resp_b_new = client.get(f'/api/partners/remembered/{user_b.id}')
+    resp_b_new = client.get('/api/partners/remembered', headers=get_auth_header(user_b.id))
     assert len(resp_b_new.get_json()['partners']) == 0
     
     # Connection status is 'disconnected'
     # Use direct DB check or get_connections endpoint
     # UPDATE: Endpoint filters out disconnected, so verify it's NOT in the list
-    resp_conns = client.get(f'/api/partners/connections/{user_a.id}')
+    resp_conns = client.get('/api/partners/connections', headers=get_auth_header(user_a.id))
     conns = resp_conns.get_json()['connections']
     
     # Should NOT see the disconnected one
@@ -109,7 +116,7 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     resp_new = client.post('/api/partners/connect', json={
         'requester_user_id': str(user_a.id),
         'recipient_email': user_b.email
-    })
+    }, headers=get_auth_header(user_a.id))
     assert resp_new.status_code == 201
     new_conn_data = resp_new.get_json()['connection']
     conn_id_2 = new_conn_data['id']
@@ -121,11 +128,11 @@ def test_partner_disconnect_lifecycle(client, db_session, app):
     # 8. B Accepts New Connection
     resp_accept_new = client.post(f'/api/partners/connections/{conn_id_2}/accept', json={
         'recipient_user_id': user_b.id
-    })
+    }, headers=get_auth_header(user_b.id))
     assert resp_accept_new.status_code == 200
     
     # Verify both remembered again
-    resp_a_final = client.get(f'/api/partners/remembered/{user_a.id}')
+    resp_a_final = client.get('/api/partners/remembered', headers=get_auth_header(user_a.id))
     assert len(resp_a_final.get_json()['partners']) == 1
 
 def test_pending_request_validation(client, db_session, app):
@@ -137,13 +144,13 @@ def test_pending_request_validation(client, db_session, app):
     client.post('/api/partners/connect', json={
         'requester_user_id': str(user_a.id),
         'recipient_email': user_b.email
-    })
+    }, headers=get_auth_header(user_a.id))
     
     # 1. A tries to request B again -> "Request already sent"
     resp_dup = client.post('/api/partners/connect', json={
         'requester_user_id': str(user_a.id),
         'recipient_email': user_b.email
-    })
+    }, headers=get_auth_header(user_a.id))
     assert resp_dup.status_code == 400
     assert "already sent" in resp_dup.get_json()['error']
     
@@ -152,7 +159,7 @@ def test_pending_request_validation(client, db_session, app):
     resp_rev = client.post('/api/partners/connect', json={
         'requester_user_id': str(user_b.id),
         'recipient_email': user_a.email
-    })
+    }, headers=get_auth_header(user_b.id))
     assert resp_rev.status_code == 400
     # The logic approximates this by checking if A received a request from B?
     # Wait, the logic in partners.py checks existing connections:

@@ -63,6 +63,8 @@ def token_required(f):
         except jwt.InvalidTokenError as e:
             return jsonify({'error': 'Invalid token', 'message': str(e)}), 401
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': 'Authentication failed', 'message': str(e)}), 500
 
         # 4. Pass User ID to Route

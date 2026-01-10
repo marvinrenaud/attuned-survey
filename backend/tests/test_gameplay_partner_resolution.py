@@ -48,8 +48,8 @@ def create_user(user_id, name, anatomy=None):
 
 def create_connection(requester_id, recipient_id, status='accepted'):
     conn = PartnerConnection(
-        requester_user_id=requester_id,
-        recipient_user_id=recipient_id,
+        requester_user_id=uuid.UUID(str(requester_id)),
+        recipient_user_id=uuid.UUID(str(recipient_id)),
         recipient_email="test@test.com",
         status=status,
         connection_token=str(uuid.uuid4()),

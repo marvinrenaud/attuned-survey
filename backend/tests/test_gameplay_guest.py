@@ -77,7 +77,7 @@ def create_user(app, user_id, display_name="Test User",
 class TestResolvePlayerHelper:
     """Unit tests for the _resolve_player helper function."""
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_resolve_player_current_user_from_db(self, app):
         """Registered user should have name/anatomy resolved from DB."""
         user_id = str(uuid.uuid4())
@@ -93,7 +93,7 @@ class TestResolvePlayerHelper:
             assert set(result["anatomy"]) == {"vagina", "breasts"}
             assert "penis" in result["anatomy_preference"]
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_resolve_player_other_user_not_looked_up(self, app):
         """Other user IDs should NOT be looked up (IDOR protection)."""
         current_user = str(uuid.uuid4())
@@ -112,7 +112,7 @@ class TestResolvePlayerHelper:
             assert result["name"] == "Guest"  # Default for non-current-user
             assert result["anatomy"] == []  # Not from DB
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_resolve_player_guest_uses_provided_values(self, app):
         """Guest players should use frontend-provided values."""
         current_user = str(uuid.uuid4())
@@ -131,7 +131,7 @@ class TestResolvePlayerHelper:
             assert result["anatomy"] == ["penis"]
             assert result["anatomy_preference"] == ["vagina", "breasts"]
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_resolve_player_guest_without_id_gets_generated_id(self, app):
         """Guest without ID should get a generated UUID."""
         current_user = str(uuid.uuid4())
@@ -146,7 +146,7 @@ class TestResolvePlayerHelper:
             uuid.UUID(result["id"])  # Should not raise
             assert result["name"] == "New Guest"
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_resolve_player_json_encoded_string(self, app):
         """JSON-encoded guest player string should be parsed correctly."""
         import json
@@ -168,7 +168,7 @@ class TestResolvePlayerHelper:
 class TestStartGameGuestMode:
     """Integration tests for /api/game/start with guest players."""
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_start_game_resolves_primary_user_name(self, client, app):
         """Primary user should have their display_name resolved."""
         user_id = str(uuid.uuid4())
@@ -182,7 +182,7 @@ class TestStartGameGuestMode:
             db.session.commit()
         
         token = jwt.encode({"sub": user_id, "aud": "authenticated"}, 
-                          "test_secret", algorithm="HS256")
+                          "test-secret-key", algorithm="HS256")
         
         response = client.post('/api/game/start', 
             json={
@@ -209,7 +209,7 @@ class TestStartGameGuestMode:
             # Guest should have provided name
             assert players[1]["name"] == "Guest Partner"
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_start_game_resolves_primary_user_anatomy(self, client, app):
         """Primary user should have their anatomy resolved from DB."""
         user_id = str(uuid.uuid4())
@@ -224,7 +224,7 @@ class TestStartGameGuestMode:
             db.session.commit()
         
         token = jwt.encode({"sub": user_id, "aud": "authenticated"}, 
-                          "test_secret", algorithm="HS256")
+                          "test-secret-key", algorithm="HS256")
         
         response = client.post('/api/game/start', 
             json={
@@ -251,7 +251,7 @@ class TestStartGameGuestMode:
             assert players[1]["anatomy"] == ["penis"]
             assert players[1]["anatomy_preference"] == ["vagina"]
     
-    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
     def test_start_game_idor_protection(self, client, app):
         """Attempting to resolve another user's data should fail safely."""
         current_user = str(uuid.uuid4())
@@ -269,7 +269,7 @@ class TestStartGameGuestMode:
             db.session.commit()
         
         token = jwt.encode({"sub": current_user, "aud": "authenticated"}, 
-                          "test_secret", algorithm="HS256")
+                          "test-secret-key", algorithm="HS256")
         
         # Try to include victim's ID
         response = client.post('/api/game/start', 

@@ -75,10 +75,17 @@ def _resolve_player(player_data: Dict[str, Any], current_user_id: str) -> Dict[s
     if not allow_lookup and player_id and current_user_id:
         # Check for accepted connection
         # (requester=me, recipient=them) OR (requester=them, recipient=me)
-        conn = PartnerConnection.query.filter(
-            ((PartnerConnection.requester_user_id == str(current_user_id)) & (PartnerConnection.recipient_user_id == str(player_id))) |
-            ((PartnerConnection.requester_user_id == str(player_id)) & (PartnerConnection.recipient_user_id == str(current_user_id)))
-        ).filter_by(status='accepted').first()
+        # Convert to UUIDs for strict comparison if possible
+        try:
+            uid_obj = uuid.UUID(str(current_user_id))
+            pid_obj = uuid.UUID(str(player_id))
+            
+            conn = PartnerConnection.query.filter(
+                ((PartnerConnection.requester_user_id == uid_obj) & (PartnerConnection.recipient_user_id == pid_obj)) |
+                ((PartnerConnection.requester_user_id == pid_obj) & (PartnerConnection.recipient_user_id == uid_obj))
+            ).filter_by(status='accepted').first()
+        except (ValueError, TypeError):
+             conn = None
         
         if conn:
             allow_lookup = True
@@ -884,7 +891,7 @@ def next_turn(current_user_id, session_id):
             flag_modified(session, "current_turn_state")
             
             # LOGGING: Record history for ALL users (Auth & Anon) to prevent repetition
-            if last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
+            if last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
                  from ..models.activity_history import UserActivityHistory
                  
                  card_data = last_card.get('card', {})
@@ -910,7 +917,7 @@ def next_turn(current_user_id, session_id):
                  db.session.add(history)
                  
             # Charge 1 Credit for the played card IF it wasn't a barrier card
-            if owner_id and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
+            if owner_id and last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
                 _increment_daily_count(owner_id)
         
         # 2. Replenish Queue (Add 1 to end)
@@ -954,6 +961,8 @@ def next_turn(current_user_id, session_id):
         return jsonify(response)
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         logger.error("next_turn_failed", session_id=session_id, error=str(e))
         # If DB error, rollback?
         db.session.rollback()

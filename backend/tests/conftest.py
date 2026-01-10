@@ -13,6 +13,11 @@ from sqlalchemy.ext.compiler import compiles
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 os.environ['FLASK_ENV'] = 'testing'
 os.environ['SUPABASE_JWT_SECRET'] = 'test-secret-key'
+os.environ['RATELIMIT_ENABLED'] = 'False'
+os.environ['PROPAGATE_EXCEPTIONS'] = 'True'
+
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -26,23 +31,53 @@ def compile_jsonb(element, compiler, **kw):
 # 3. Import app and extensions
 # Note: importing main executes create_app() immediately due to the 'app = create_app()' line at the bottom of main.py
 from backend.src.main import create_app
-from backend.src.extensions import db
+from backend.src.extensions import db, limiter
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.pool import StaticPool
+from sqlalchemy import event, String
+from sqlalchemy.dialects.postgresql import UUID as pg_UUID
+from sqlalchemy.dialects.postgresql import UUID as pg_UUID
 import uuid
+# Import models to ensure they are registered for create_all
+from backend.src.models.activity_history import UserActivityHistory
+
+# SQLite UUID handling
+@compiles(pg_UUID, 'sqlite')
+def compile_uuid(element, compiler, **kw):
+    """SQLite: treat UUID as CHAR(36)"""
+    return "CHAR(36)"
+
+def make_uuid(val=None):
+    """Always returns a uuid.UUID object."""
+    if val is None:
+        return uuid.uuid4()
+    return val if isinstance(val, uuid.UUID) else uuid.UUID(val)
 
 @pytest.fixture(scope='session')
 def app():
     """Create application for testing."""
-    # We can use the app instance created by the import, or create a new one.
-    # Since main.py creates one, let's just use a fresh one to be safe and explicit.
     app = create_app()
     app.config.update({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+        'RATELIMIT_ENABLED': False,
+        'PROPAGATE_EXCEPTIONS': True,
+        'ENV': 'development',  # Forces ConsoleRenderer in logging_config.py
+        'SQLALCHEMY_ENGINE_OPTIONS': {
+            'poolclass': StaticPool,
+            'connect_args': {'check_same_thread': False}
+        }
     })
     
+    # Force disable limiter
+    limiter.enabled = False
+    
     with app.app_context():
+        # Enable Foreign Keys for SQLite
+        if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+            event.listen(db.engine, 'connect', lambda c, _: c.execute('PRAGMA foreign_keys=ON'))
+            
         # Create all tables
         db.create_all()
         yield app
@@ -86,7 +121,7 @@ def db_session(app):
 def test_user_data():
     """Sample user data for testing."""
     return {
-        'id': str(uuid.uuid4()),
+        'id': uuid.uuid4(),
         'email': 'test@example.com',
         'display_name': 'Test User',
         'auth_provider': 'email',
@@ -138,7 +173,10 @@ def test_profile_data():
 def test_session_data():
     """Sample session data for testing."""
     return {
-        'session_id': str(uuid.uuid4()),
+        'session_id': str(uuid.uuid4()), # Sessions use String ID in some places but UUID in model. Wait. 
+        # Session model: session_id = Column(String(128), primary_key=True)
+        # So Session ID IS A STRING!
+        # Re-checking Session model...
         'rating': 'R',
         'intimacy_level': 'R',
         'status': 'active',

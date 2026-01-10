@@ -30,24 +30,24 @@ def app():
 def client(app):
     return app.test_client()
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_missing_header(client):
     response = client.get('/protected')
     assert response.status_code == 401
     assert "Authentication required" in response.json['error']
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_invalid_header_format(client):
     response = client.get('/protected', headers={'Authorization': 'InvalidFormat'})
     assert response.status_code == 401
     assert "Authentication required" in response.json['error']
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_valid_token(client):
-    # Generate a valid token signed with test_secret
+    # Generate a valid token signed with test-secret-key
     token = jwt.encode(
         {"sub": "user-123", "aud": "authenticated"}, 
-        "test_secret", 
+        "test-secret-key", 
         algorithm="HS256"
     )
     
@@ -55,41 +55,41 @@ def test_valid_token(client):
     assert response.status_code == 200
     assert response.json['user_id'] == 'user-123'
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_token_missing_sub(client):
     # Token without user ID
     token = jwt.encode(
         {"aud": "authenticated"}, 
-        "test_secret", 
+        "test-secret-key", 
         algorithm="HS256"
     )
     response = client.get('/protected', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == 401
     assert "No user ID found" in response.json['message']
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_wrong_audience(client):
     # Token with wrong audience
     token = jwt.encode(
         {"sub": "user-123", "aud": "other_app"}, 
-        "test_secret", 
+        "test-secret-key", 
         algorithm="HS256"
     )
     response = client.get('/protected', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == 401
     assert "Invalid audience" in response.json['message']
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_optional_auth_anonymous(client):
     response = client.get('/optional')
     assert response.status_code == 200
     assert response.json['message'] == 'Anonymous'
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_optional_auth_logged_in(client):
     token = jwt.encode(
         {"sub": "user-456", "aud": "authenticated"}, 
-        "test_secret", 
+        "test-secret-key", 
         algorithm="HS256"
     )
     response = client.get('/optional', headers={'Authorization': f'Bearer {token}'})

@@ -45,7 +45,7 @@ def mock_conn_query():
     with patch('src.models.partner.PartnerConnection.query') as mock_query:
         yield mock_query
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_connections_unauthorized(client):
     # Missing header
     response = client.get('/api/partners/connections')
@@ -55,11 +55,11 @@ def test_get_connections_unauthorized(client):
     response = client.get('/api/partners/connections', headers={'Authorization': 'Bearer invalid'})
     assert response.status_code == 401
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_connections_authorized(client, mock_user_query, mock_conn_query):
     # Mock Token
     user_id = "123e4567-e89b-12d3-a456-426614174000"
-    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     # Mock User existence
     # Note: User model is imported in partners.py, so we patch User.query
@@ -75,10 +75,10 @@ def test_get_connections_authorized(client, mock_user_query, mock_conn_query):
     assert response.status_code == 200
     mock_user_query.get.assert_called()
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_create_connection_request(client, mock_user_query):
     user_id = "123e4567-e89b-12d3-a456-426614174000"
-    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     # Mock User existence (Requester)
     mock_user = MagicMock(id=user_id, email="requester@example.com")

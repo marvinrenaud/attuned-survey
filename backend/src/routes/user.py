@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, abort
 from ..models.user import User
 from ..middleware.auth import token_required
 from ..extensions import db
+import uuid
 
 user_bp = Blueprint('user', __name__)
 
@@ -15,7 +16,12 @@ def get_user(current_user_id, user_id):
     if str(current_user_id) != str(user_id):
         return jsonify({'error': 'Unauthorized'}), 403
         
-    user = User.query.filter_by(id=user_id).first_or_404()
+    try:
+        uid_obj = uuid.UUID(user_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid ID'}), 400
+
+    user = User.query.filter_by(id=uid_obj).first_or_404()
     return jsonify(user.to_dict())
 
 @user_bp.route('/users/<user_id>', methods=['PUT'])
@@ -28,7 +34,12 @@ def update_user(current_user_id, user_id):
     if str(current_user_id) != str(user_id):
         return jsonify({'error': 'Unauthorized'}), 403
 
-    user = User.query.filter_by(id=user_id).first_or_404()
+    try:
+        uid_obj = uuid.UUID(user_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid ID'}), 400
+
+    user = User.query.filter_by(id=uid_obj).first_or_404()
     data = request.json
     
     # Support both old 'username' and new 'display_name' fields
@@ -53,7 +64,12 @@ def delete_user(current_user_id, user_id):
     if str(current_user_id) != str(user_id):
         return jsonify({'error': 'Unauthorized'}), 403
 
-    user = User.query.filter_by(id=user_id).first_or_404()
+    try:
+        uid_obj = uuid.UUID(user_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid ID'}), 400
+
+    user = User.query.filter_by(id=uid_obj).first_or_404()
     db.session.delete(user)
     db.session.commit()
     return '', 204

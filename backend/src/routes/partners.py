@@ -72,27 +72,24 @@ def create_connection_request(current_user_id):
         existing_query = PartnerConnection.query.filter(
             or_(
                 # Case 1: I sent request to their email
-                (PartnerConnection.requester_user_id == requester_id) & (PartnerConnection.recipient_email == recipient_email),
+                (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
                 # Case 2: They sent request to me (if we know their ID) - harder with just email lookup
                 # But we can try to look up active connections where I am recipient and they are requester
-                (PartnerConnection.recipient_user_id == requester_id) & (PartnerConnection.recipient_email == requester.email)  # Approximation
+                (PartnerConnection.recipient_user_id == requester_uuid) & (PartnerConnection.recipient_email == requester.email)  # Approximation
             )
         )
         
         # If we found the recipient user account, we can be more precise
         if recipient_id:
-            # Prepare string IDs for PartnerConnection (String) columns
-            req_id_str = str(requester_id)
-            rec_id_str = str(recipient_id)
-            
+            # Match directly with UUIDs
             existing_query = PartnerConnection.query.filter(
                 or_(
                     # Forward: Me -> Them
-                    (PartnerConnection.requester_user_id == req_id_str) & (PartnerConnection.recipient_user_id == rec_id_str),
-                    (PartnerConnection.requester_user_id == req_id_str) & (PartnerConnection.recipient_email == recipient_email),
+                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_user_id == recipient_id),
+                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
                     
                     # Backward: Them -> Me
-                    (PartnerConnection.requester_user_id == rec_id_str) & (PartnerConnection.recipient_user_id == req_id_str)
+                    (PartnerConnection.requester_user_id == recipient_id) & (PartnerConnection.recipient_user_id == requester_uuid)
                 )
             )
 
@@ -112,9 +109,9 @@ def create_connection_request(current_user_id):
 
         # Create connection request
         connection = PartnerConnection(
-            requester_user_id=str(requester_id),
+            requester_user_id=requester_uuid,
             recipient_email=recipient_email,
-            recipient_user_id=str(recipient_id) if recipient_id else None,
+            recipient_user_id=recipient_id,
             status='pending',
             connection_token=connection_token,
             expires_at=datetime.utcnow() + timedelta(days=1)  # FR-56: 1 day expiry
@@ -394,11 +391,16 @@ def get_connections(current_user_id):
         # 2. User is the recipient (by email)
         # 3. User is the recipient (by ID - for accepted ones)
         # AND status is pending or accepted
+        # Find connections where:
+        # 1. User is the requester
+        # 2. User is the recipient (by email)
+        # 3. User is the recipient (by ID - for accepted ones)
+        # AND status is pending or accepted
         connections = PartnerConnection.query.filter(
             or_(
-                PartnerConnection.requester_user_id == user_id,
+                PartnerConnection.requester_user_id == user_uuid,
                 PartnerConnection.recipient_email == user.email,
-                PartnerConnection.recipient_user_id == user_id
+                PartnerConnection.recipient_user_id == user_uuid
             )
         ).filter(
             PartnerConnection.status.in_(['pending', 'accepted'])
@@ -476,14 +478,12 @@ def remove_remembered_partner(current_user_id, partner_user_id):
             db.session.delete(reciprocal_partner)
             
         # 3. Update PartnerConnection status to 'disconnected'
-        # PartnerConnection uses Strings
-        user_id_str = str(current_user_id)
-        partner_id_str = str(partner_user_id)
+        # PartnerConnection uses UUIDs now
         
         connection = PartnerConnection.query.filter(
             or_(
-                (PartnerConnection.requester_user_id == user_id_str) & (PartnerConnection.recipient_user_id == partner_id_str),
-                (PartnerConnection.requester_user_id == partner_id_str) & (PartnerConnection.recipient_user_id == user_id_str)
+                (PartnerConnection.requester_user_id == user_uuid) & (PartnerConnection.recipient_user_id == partner_uuid),
+                (PartnerConnection.requester_user_id == partner_uuid) & (PartnerConnection.recipient_user_id == user_uuid)
             )
         ).order_by(PartnerConnection.created_at.desc()).first()
         

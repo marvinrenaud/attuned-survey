@@ -1,7 +1,7 @@
 """Database models for survey data."""
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import UUID
-
+from .guid import GUID
 from ..extensions import db
 
 
@@ -10,7 +10,7 @@ class SurveySubmission(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.String(128), unique=True, nullable=False)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
     respondent_id = db.Column(db.String(128), index=True, nullable=True)
     name = db.Column(db.String(256), nullable=True)
     sex = db.Column(db.String(32), nullable=True)
@@ -64,15 +64,15 @@ class SurveyProgress(db.Model):
     __tablename__ = "survey_progress"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
     anonymous_session_id = db.Column(db.Text, nullable=True, index=True)
     survey_version = db.Column(db.Text, nullable=False, default='0.4')
     status = db.Column(db.Enum('in_progress', 'completed', 'abandoned', name='survey_status_enum'), nullable=False, default='in_progress')
     current_question = db.Column(db.Text, nullable=True)
     completion_percentage = db.Column(db.Integer, nullable=False, default=0)
     answers = db.Column(db.JSON, nullable=False, default=dict)
-    started_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
-    last_saved_at = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    last_saved_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     completed_at = db.Column(db.DateTime(timezone=True), nullable=True)
     current_question_index = db.Column(db.Integer, nullable=True)
 

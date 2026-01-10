@@ -69,20 +69,22 @@ def request_context_middleware():
     g.request_start = perf_counter()
     
     # Bind context for all logs in this request
-    structlog.contextvars.bind_contextvars(
-        request_id=request_id,
-        method=request.method,
-        path=request.path,
-    )
-    
-    # Add user context if authenticated (this might run before auth, so check carefully)
-    # Auth middleware usually runs before views but after before_request hooks in some setups?
-    # Actually, in Flask "before_request" runs in order of registration.
-    # We will likely bind user_id later in the auth middleware or just check g here if available.
-    if hasattr(g, 'current_user_id') and g.current_user_id:
+    try:
         structlog.contextvars.bind_contextvars(
-            user_id=str(g.current_user_id)[:8] + '...'  # Truncate for privacy
+            request_id=request_id,
+            method=request.method,
+            path=request.path,
         )
+        
+        # Add user context if authenticated
+        if hasattr(g, 'current_user_id') and g.current_user_id:
+            structlog.contextvars.bind_contextvars(
+                user_id=str(g.current_user_id)[:8] + '...'
+            )
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def log_request_complete(response):

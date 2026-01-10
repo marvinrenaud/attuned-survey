@@ -18,7 +18,7 @@ class TestUserJourneys:
         from backend.src.models.user import User
         
         # Step 1: Register user
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         response = client.post('/api/auth/register', json={
             'id': user_id,
             'email': 'journey1@example.com',
@@ -61,7 +61,7 @@ class TestUserJourneys:
         from backend.src.models.profile import Profile
         
         # Step 1: Register
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         response = client.post('/api/auth/register', json={
             'id': user_id,
             'email': 'journey2@example.com'
@@ -140,7 +140,7 @@ class TestCrossFeatureIntegration:
         
         # User without demographics
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='no-demo-partner@example.com',
             profile_completed=False
         )
@@ -158,7 +158,7 @@ class TestCrossFeatureIntegration:
         
         # Free user without demographics
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='sub-check-order@example.com',
             subscription_tier='free',
             daily_activity_count=10,

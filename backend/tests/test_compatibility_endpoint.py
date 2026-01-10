@@ -1,4 +1,6 @@
 import pytest
+import jwt
+import os
 from unittest.mock import patch, MagicMock
 from backend.src.models.survey import SurveySubmission
 
@@ -28,6 +30,11 @@ def client(app):
 def mock_db_session(app):
     with patch('backend.src.routes.survey.SurveySubmission') as mock_model:
         yield mock_model
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+def get_auth_header():
+    token = jwt.encode({"sub": "test-user", "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+    return {'Authorization': f'Bearer {token}'}
 
 def test_compatibility_endpoint(client, mock_db_session):
     """Test the GET /api/survey/compatibility/<source_id>/<target_id> endpoint with mocks."""
@@ -77,7 +84,7 @@ def test_compatibility_endpoint(client, mock_db_session):
     mock_db_session.query.filter_by.side_effect = side_effect
     
     # Call endpoint
-    response = client.get("/api/survey/compatibility/sub_a/sub_b")
+    response = client.get("/api/survey/compatibility/sub_a/sub_b", headers=get_auth_header())
     
     assert response.status_code == 200
     data = response.get_json()
@@ -98,5 +105,5 @@ def test_compatibility_endpoint_not_found(client, mock_db_session):
     mock_query.first.return_value = None
     mock_db_session.query.filter_by.return_value = mock_query
     
-    response = client.get("/api/survey/compatibility/fake_a/fake_b")
+    response = client.get("/api/survey/compatibility/fake_a/fake_b", headers=get_auth_header())
     assert response.status_code == 404

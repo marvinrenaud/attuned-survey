@@ -5,6 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
+import uuid
 
 from ..extensions import db, limiter
 from ..models.user import User
@@ -43,8 +44,16 @@ def register_user():
             return jsonify({'error': 'Missing required fields: id, email'}), 400
         
         # Create user record
+        try:
+            user_uuid = request.get_json()['id']
+            # Cast to UUID if string
+            if isinstance(user_uuid, str):
+                user_uuid = uuid.UUID(user_uuid)
+        except (ValueError, KeyError):
+             return jsonify({'error': 'Invalid ID'}), 400
+
         user = User(
-            id=data['id'],  # UUID from Supabase Auth
+            id=user_uuid,  # UUID from Supabase Auth
             email=data['email'],
             auth_provider=data.get('auth_provider', 'email'),
             display_name=data.get('display_name'),
@@ -89,7 +98,13 @@ def update_login(current_user_id):
         if not user_id:
             return jsonify({'error': 'Missing user_id'}), 400
         
-        user = User.query.filter_by(id=user_id).first()
+        # Cast to UUID
+        try:
+            uid_obj = uuid.UUID(str(user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid ID'}), 400
+
+        user = User.query.filter_by(id=uid_obj).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -108,21 +123,33 @@ def update_login(current_user_id):
         return jsonify({'error': 'Login update failed'}), 500
 
 
+import traceback
+
 @auth_bp.route('/profile', methods=['GET'])
 @token_required
 def get_user(current_user_id):
     """Get authenticated user details."""
     try:
-        user = User.query.filter_by(id=current_user_id).first()
+        # Cast to UUID
+        try:
+            uid_obj = uuid.UUID(str(current_user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid ID'}), 400
+
+        user = User.query.filter_by(id=uid_obj).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
         return jsonify({
-            'user': user.to_dict()
-        }), 200
+            'user': user.to_dict(),
+            'completion_status': user.profile_completed,
+            'onboarding_completed': user.onboarding_completed,
+            'has_personalization': user.onboarding_completed
+        })
         
     except Exception as e:
+        traceback.print_exc()
         logger.error(f"Get user failed: {str(e)}")
         return jsonify({'error': 'Failed to retrieve user'}), 500
 
@@ -142,7 +169,13 @@ def update_user(current_user_id):
     """
     try:
         data = request.get_json()
-        user = User.query.filter_by(id=current_user_id).first()
+        
+        try:
+            uid_obj = uuid.UUID(str(current_user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid ID'}), 400
+
+        user = User.query.filter_by(id=uid_obj).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -185,7 +218,12 @@ def delete_user(current_user_id):
     FR-81: Account deletion with cascade.
     """
     try:
-        user = User.query.filter_by(id=current_user_id).first()
+        try:
+            uid_obj = uuid.UUID(str(current_user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid ID'}), 400
+
+        user = User.query.filter_by(id=uid_obj).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -232,7 +270,12 @@ def complete_demographics(current_user_id):
         if 'name' not in data:
             return jsonify({'error': 'Missing required field: name'}), 400
         
-        user = User.query.filter_by(id=current_user_id).first()
+        try:
+            uid_obj = uuid.UUID(str(current_user_id))
+        except ValueError:
+             return jsonify({'error': 'Invalid ID'}), 400
+
+        user = User.query.filter_by(id=uid_obj).first()
         
         if not user:
             return jsonify({'error': 'User not found'}), 404

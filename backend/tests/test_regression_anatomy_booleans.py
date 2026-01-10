@@ -4,6 +4,9 @@ Ensures existing functionality not broken. 15 tests total.
 """
 import pytest
 import uuid
+import jwt
+import os
+from unittest.mock import patch
 
 
 class TestDataIntegrityRegression:
@@ -23,7 +26,7 @@ class TestDataIntegrityRegression:
         from backend.src.models.user import User
         from backend.src.models.profile import Profile
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='fk-regression@test.com',
@@ -74,7 +77,7 @@ class TestDataIntegrityRegression:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='defaults-regression@test.com'
         )
         db_session.add(user)
@@ -91,16 +94,18 @@ class TestBackwardCompatibilityRegression:
         """Test endpoint still accepts anatomy_self array format."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='array-regression@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Test',
-            'anatomy_self': ['penis'],
-            'anatomy_preference': ['vagina']
-        })
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        with patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"}):
+            response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
+                'name': 'Test',
+                'anatomy_self': ['penis'],
+                'anatomy_preference': ['vagina']
+            })
         
         assert response.status_code == 200
     
@@ -165,7 +170,7 @@ class TestAPIRegression:
     
     def test_user_registration_works(self, client):
         """Test user registration endpoint still works."""
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         response = client.post('/api/auth/register', json={
             'id': user_id,
             'email': 'reg-regression@test.com'
@@ -178,7 +183,7 @@ class TestAPIRegression:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='to-dict-regression@test.com',
             has_penis=True
         )
@@ -195,7 +200,7 @@ class TestAPIRegression:
         import json
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='json-regression@test.com',
             has_vagina=True
         )

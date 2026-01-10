@@ -49,16 +49,16 @@ def mock_calculate_profile():
         }
         yield mock_calc
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_submit_survey_unauthorized(client):
     response = client.post('/api/survey/submit', json={})
     assert response.status_code == 401
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_submit_survey_success_new_profile(client, app, mock_calculate_profile):
     user_id_str = str(uuid.uuid4())
     user_id = uuid.UUID(user_id_str)
-    token = jwt.encode({"sub": user_id_str, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id_str, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     with app.app_context():
         # Setup: User, Progress (In Progress)
@@ -98,11 +98,11 @@ def test_submit_survey_success_new_profile(client, app, mock_calculate_profile):
         prg = SurveyProgress.query.filter_by(user_id=user_id).first()
         assert prg.status == 'completed'
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_submit_survey_upsert_retake(client, app, mock_calculate_profile):
     user_id_str = str(uuid.uuid4())
     user_id = uuid.UUID(user_id_str)
-    token = jwt.encode({"sub": user_id_str, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id_str, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     with app.app_context():
         # Setup: User, Completed Progress, Existing Profile

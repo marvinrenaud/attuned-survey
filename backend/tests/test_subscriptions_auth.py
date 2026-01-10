@@ -17,7 +17,7 @@ from datetime import datetime
 def mock_user(db_session, test_user_data):
     """Create a mock user for testing"""
     user = User(
-        id=uuid.UUID(test_user_data['id']),
+        id=test_user_data['id'],
         email=test_user_data['email'],
         display_name=test_user_data['display_name'],
         auth_provider=test_user_data['auth_provider'],

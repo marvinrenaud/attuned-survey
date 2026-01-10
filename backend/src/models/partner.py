@@ -2,15 +2,16 @@ from ..extensions import db
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
+from .guid import GUID
 
 class PartnerConnection(db.Model):
     __tablename__ = 'partner_connections'
     
     id = Column(Integer, primary_key=True)
-    requester_user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    requester_user_id = Column(GUID(), ForeignKey('users.id'), nullable=False)
     requester_display_name = Column(Text)  # Added via migration
     recipient_email = Column(Text, nullable=False)
-    recipient_user_id = Column(String(36), ForeignKey('users.id'))
+    recipient_user_id = Column(GUID(), ForeignKey('users.id'))
     recipient_display_name = Column(Text)  # Added via migration
     status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', 'disconnected', name='connection_status_enum'), nullable=False, default='pending')
     connection_token = Column(Text, unique=True, nullable=False)
@@ -36,8 +37,8 @@ class RememberedPartner(db.Model):
     __tablename__ = 'remembered_partners'
     
     id = Column(Integer, primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    partner_user_id = Column(UUID(as_uuid=True), nullable=False)
+    user_id = Column(GUID(), ForeignKey('users.id'), nullable=False)
+    partner_user_id = Column(GUID(), nullable=False)
     partner_name = Column(Text, nullable=False)
     partner_email = Column(Text, nullable=False)
     last_played_at = Column(DateTime, default=datetime.utcnow)

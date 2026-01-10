@@ -41,7 +41,7 @@ def test_process_mobile_submission(client, app, db_session, mobile_payload):
         submission_id=submission_id,
         user_id=user_id,
         payload_json=mobile_payload,
-        version="0.4"
+        survey_version="0.4"
     )
     db.session.add(submission)
     db.session.commit()

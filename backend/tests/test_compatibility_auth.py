@@ -51,27 +51,27 @@ def create_full_profile(id, user_id, submission_id):
         anatomy={}
     )
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_compat_unauthorized(client):
     response = client.get('/api/compatibility/uid1/uid2')
     assert response.status_code == 401
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_compat_forbidden(client, app):
     # User 3 tries to view 1-2
     u1_id = str(uuid.uuid4())
     u2_id = str(uuid.uuid4())
     u3_id = str(uuid.uuid4())
-    token3 = jwt.encode({"sub": u3_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token3 = jwt.encode({"sub": u3_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     response = client.get(f'/api/compatibility/{u1_id}/{u2_id}', headers={'Authorization': f'Bearer {token3}'})
     assert response.status_code == 403
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_compat_success(client, app):
     u1_id = str(uuid.uuid4())
     u2_id = str(uuid.uuid4())
-    token1 = jwt.encode({"sub": u1_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token1 = jwt.encode({"sub": u1_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     try:
         with app.app_context():
@@ -82,8 +82,8 @@ def test_compat_success(client, app):
             
             # Partner Connection
             conn = PartnerConnection(
-                requester_user_id=u1_id, 
-                recipient_user_id=u2_id, 
+                requester_user_id=uuid.UUID(u1_id), 
+                recipient_user_id=uuid.UUID(u2_id), 
                 status='accepted', 
                 recipient_email="u2@e.com",
                 connection_token="token123",
@@ -124,11 +124,11 @@ def test_compat_success(client, app):
         print(f"DEBUG EXCEPTION: {e}")
         raise e
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_compat_ui_success(client, app):
     u1_id = str(uuid.uuid4())
     u2_id = str(uuid.uuid4())
-    token1 = jwt.encode({"sub": u1_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token1 = jwt.encode({"sub": u1_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     try:
         with app.app_context():

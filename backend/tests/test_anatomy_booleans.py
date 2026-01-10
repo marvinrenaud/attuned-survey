@@ -4,8 +4,11 @@ Tests 30 scenarios for database fields, API, validation, and profile sync.
 """
 import pytest
 import uuid
+import jwt
+import os
+from unittest.mock import patch
 
-
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 class TestAnatomyDatabaseFields:
     """Test anatomy boolean fields in database (6 tests)."""
     
@@ -25,7 +28,7 @@ class TestAnatomyDatabaseFields:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='defaults-anatomy@test.com'
         )
         
@@ -41,7 +44,7 @@ class TestAnatomyDatabaseFields:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='set-anatomy@test.com',
             has_penis=True,
             likes_vagina=True
@@ -65,7 +68,7 @@ class TestAnatomyDatabaseFields:
         from sqlalchemy.exc import IntegrityError
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='no-has-anatomy@test.com',
             profile_completed=True,  # Trigger constraint
             has_penis=False,
@@ -86,7 +89,7 @@ class TestAnatomyDatabaseFields:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='incomplete-anatomy@test.com',
             profile_completed=False,  # Not completed yet
             has_penis=False,
@@ -99,6 +102,7 @@ class TestAnatomyDatabaseFields:
         assert user.profile_completed == False
 
 
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 class TestAnatomyAPIEndpoint:
     """Test complete-demographics API with anatomy booleans (10 tests)."""
     
@@ -106,12 +110,13 @@ class TestAnatomyAPIEndpoint:
         """Test complete-demographics with all anatomy booleans."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='all-booleans@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test User',
             'has_penis': True,
             'has_vagina': False,
@@ -131,12 +136,13 @@ class TestAnatomyAPIEndpoint:
         """Test with partial anatomy selection (not all checked)."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='partial@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'has_vagina': True,  # Only one
             'likes_penis': True  # Only one
@@ -148,12 +154,13 @@ class TestAnatomyAPIEndpoint:
         """Test with no anatomy selection returns error."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='no-anatomy@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test'
             # No anatomy fields
         })
@@ -165,12 +172,13 @@ class TestAnatomyAPIEndpoint:
         """Test endpoint updates all 6 boolean fields."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='update-all@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'has_penis': True,
             'has_vagina': True,
@@ -190,12 +198,13 @@ class TestAnatomyAPIEndpoint:
         """Test endpoint sets profile_completed=true."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='set-flag@test.com', profile_completed=False)
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'has_penis': True,
             'likes_vagina': True
@@ -210,12 +219,13 @@ class TestAnatomyAPIEndpoint:
         """Test backward compatibility: accepts anatomy_self array."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='array-compat@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'anatomy_self': ['penis', 'breasts'],
             'anatomy_preference': ['vagina']
@@ -232,12 +242,13 @@ class TestAnatomyAPIEndpoint:
         """Test array format converts to booleans correctly."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='convert-array@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'anatomy_self': ['vagina'],
             'anatomy_preference': ['penis', 'vagina', 'breasts']
@@ -252,12 +263,13 @@ class TestAnatomyAPIEndpoint:
         """Test response includes all 6 boolean fields."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(id=user_id, email='response@test.com')
         db_session.add(user)
         db_session.commit()
         
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        response = client.post('/api/auth/complete-demographics', headers={'Authorization': f'Bearer {token}'}, json={
             'name': 'Test',
             'has_penis': True,
             'likes_vagina': True
@@ -272,7 +284,7 @@ class TestAnatomyAPIEndpoint:
         """Test GET user/:id returns all anatomy fields."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='get-anatomy@test.com',
@@ -293,7 +305,7 @@ class TestAnatomyAPIEndpoint:
         """Test PATCH can update anatomy booleans."""
         from backend.src.models.user import User
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='patch-anatomy@test.com',
@@ -319,7 +331,7 @@ class TestAnatomyValidation:
         from sqlalchemy.exc import IntegrityError
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='no-has@test.com',
             profile_completed=True,
             has_penis=False,
@@ -339,7 +351,7 @@ class TestAnatomyValidation:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='with-anatomy@test.com',
             profile_completed=True,
             has_penis=True,
@@ -356,7 +368,7 @@ class TestAnatomyValidation:
         
         # Valid: has penis
         user1 = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='has-one@test.com',
             profile_completed=True,
             has_penis=True,
@@ -372,7 +384,7 @@ class TestAnatomyValidation:
         
         # Valid: likes breasts
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='likes-one@test.com',
             profile_completed=True,
             has_vagina=True,
@@ -387,7 +399,7 @@ class TestAnatomyValidation:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='all-has@test.com',
             has_penis=True,
             has_vagina=True,
@@ -404,7 +416,7 @@ class TestAnatomyValidation:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='all-likes@test.com',
             has_penis=True,
             likes_penis=True,
@@ -425,7 +437,7 @@ class TestAnatomyProfileSync:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='array-self@test.com',
             has_penis=True,
             has_breasts=True
@@ -442,7 +454,7 @@ class TestAnatomyProfileSync:
         from backend.src.models.user import User
         
         user = User(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             email='array-pref@test.com',
             likes_vagina=True
         )
@@ -457,7 +469,7 @@ class TestAnatomyProfileSync:
         from backend.src.models.profile import Profile
         from backend.src.db.repository import sync_user_anatomy_to_profile
         
-        user_id = str(uuid.uuid4())
+        user_id = uuid.uuid4()
         user = User(
             id=user_id,
             email='sync-test@test.com',

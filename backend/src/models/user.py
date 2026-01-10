@@ -2,6 +2,7 @@
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from ..extensions import db
+from .guid import GUID
 
 
 class User(db.Model):
@@ -9,7 +10,7 @@ class User(db.Model):
     __tablename__ = "users"
     
     # Primary key from Supabase Auth
-    id = db.Column(UUID(as_uuid=True), primary_key=True)
+    id = db.Column(GUID(), primary_key=True)
     
     # Authentication
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
@@ -77,7 +78,7 @@ class User(db.Model):
     def to_dict(self):
         return {
             'id': str(self.id),
-            'submission_id': self.submission.submission_id if self.submission else None,
+            'submission_id': self.submission.submission_id if getattr(self, 'submission', None) else None,
             'email': self.email,
             'auth_provider': self.auth_provider,
             'display_name': self.display_name,

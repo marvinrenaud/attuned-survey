@@ -1,6 +1,7 @@
 """Session model - stores game session configuration and state."""
 from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
+from .guid import GUID
 from ..extensions import db
 import uuid
 
@@ -27,9 +28,9 @@ class Session(db.Model):
     )
     
     # NEW MVP Fields (Migration 005) - Support authenticated + anonymous users
-    primary_user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    primary_user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
     primary_profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id', ondelete='CASCADE'), nullable=True, index=True)
-    partner_user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    partner_user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
     partner_profile_id = db.Column(db.Integer, db.ForeignKey('profiles.id', ondelete='SET NULL'), nullable=True, index=True)
     
     # Anonymous partner information
@@ -41,7 +42,7 @@ class Session(db.Model):
     skip_count = db.Column(db.Integer, nullable=False, default=0)
     
     # Session ownership and confirmation
-    session_owner_user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+    session_owner_user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
     connection_confirmed_at = db.Column(db.DateTime, nullable=True)
     
     # Session configuration

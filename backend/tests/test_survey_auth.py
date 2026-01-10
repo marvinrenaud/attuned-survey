@@ -29,26 +29,26 @@ def app():
 def client(app):
     return app.test_client()
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_submissions_unauthorized(client):
     response = client.get('/api/survey/submissions')
     assert response.status_code == 401
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_submissions_authorized(client, app):
     user_id = str(uuid.uuid4())
-    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test_secret", algorithm="HS256")
+    token = jwt.encode({"sub": user_id, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     
     response = client.get('/api/survey/submissions', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == 200
     assert 'submissions' in response.json
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_compatibility_unauthorized(client):
     response = client.get('/api/survey/compatibility/a/b')
     assert response.status_code == 401
 
-@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test_secret"})
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_get_baseline_unauthorized(client):
     response = client.get('/api/survey/baseline')
     assert response.status_code == 401

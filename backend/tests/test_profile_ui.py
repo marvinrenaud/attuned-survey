@@ -34,8 +34,11 @@ def test_get_profile_ui_includes_display_name(client, db_session):
         # Mock chain: filter_by -> order_by -> first
         mock_profile_query.filter_by.return_value.order_by.return_value.first.return_value = mock_profile
 
-        # Execute
-        response = client.get(f'/api/users/{user_id}/profile-ui')
+        # Route does not take user_id in path
+        import jwt
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+        auth_header = {'Authorization': f'Bearer {token}'}
+        response = client.get(f'/api/users/profile-ui', headers=auth_header)
         
         # Verify
         assert response.status_code == 200

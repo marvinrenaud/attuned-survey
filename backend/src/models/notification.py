@@ -1,11 +1,12 @@
-from datetime import datetime
 from ..extensions import db
+from datetime import datetime
+from .guid import GUID
 
 class PushNotificationToken(db.Model):
     __tablename__ = 'push_notification_tokens'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     device_token = db.Column(db.String, unique=True, nullable=False)
     platform = db.Column(db.String, nullable=False)  # 'ios' or 'android'
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

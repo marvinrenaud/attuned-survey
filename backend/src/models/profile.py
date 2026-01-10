@@ -1,6 +1,7 @@
 """Profile model - links to survey submissions and stores derived profile data."""
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from .guid import GUID
 from ..extensions import db
 
 
@@ -10,8 +11,10 @@ class Profile(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     
+    
+    
     # Link to authenticated user (NEW - Migration 003)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
+    user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True, index=True)
     
     # Link to survey submission
     submission_id = db.Column(
