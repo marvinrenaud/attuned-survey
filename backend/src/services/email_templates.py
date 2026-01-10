@@ -24,7 +24,7 @@ SENDER: love@getattuned.app
 # These are embedded in each template inline
 
 DARK_MODE_CSS = """
-        :root {{}
+        :root {{
             color-scheme: light dark;
             supported-color-schemes: light dark;
         }}
