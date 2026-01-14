@@ -357,6 +357,83 @@ Submits survey answers, calculates the profile, updates the user's onboarding st
 | `PUT` | `/settings` | Update user's profile sharing settings. |
 | `GET` | `/partner-profile/<partner_id>` | Get partner's profile data. |
 
+## Subscriptions (`/api/subscriptions`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/validate/<user_id>` | Get subscription status and tier for a user. |
+| `GET` | `/check-limit/<user_id>` | Check if user has reached daily activity limit. |
+| `POST` | `/increment-activity/<user_id>` | Increment daily activity counter (internal use). |
+| `POST` | `/webhook/app-store` | Apple App Store subscription webhook. |
+| `POST` | `/webhook/play-store` | Google Play Store subscription webhook. |
+
+### Validate Subscription
+`GET /api/subscriptions/validate/<user_id>`
+
+Returns the user's subscription status and related billing information.
+
+**Auth Required**: Yes (user can only query their own subscription).
+
+**Response:**
+```json
+{
+  "user_id": "uuid",
+  "subscription_tier": "free",
+  "is_premium": false,
+  "expires_at": null,
+  "daily_activity_count": 5,
+  "daily_activity_reset_at": "2026-01-14T00:00:00"
+}
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `subscription_tier` | string | `"free"` or `"premium"` |
+| `is_premium` | boolean | `true` if premium AND not expired |
+| `expires_at` | string \| null | ISO timestamp of subscription expiry |
+| `daily_activity_count` | integer | Activities consumed today |
+| `daily_activity_reset_at` | string | When the daily counter was last reset |
+
+### Check Daily Limit
+`GET /api/subscriptions/check-limit/<user_id>`
+
+Check if a free-tier user has reached their daily activity limit (25 activities).
+
+**Response (Free User):**
+```json
+{
+  "has_limit": true,
+  "limit_reached": false,
+  "count": 5,
+  "limit": 25,
+  "remaining": 20
+}
+```
+
+**Response (Premium User):**
+```json
+{
+  "has_limit": false,
+  "limit_reached": false,
+  "remaining": -1
+}
+```
+
+### Increment Activity Count
+`POST /api/subscriptions/increment-activity/<user_id>`
+
+Increments the daily activity counter for free-tier users. Premium users are not affected.
+
+**Note:** This is typically called internally by the gameplay endpoints. Frontend should not need to call this directly.
+
+**Response:**
+```json
+{
+  "success": true,
+  "count": 6
+}
+```
+
 ## Admin / Utility
 
 | Method | Endpoint | Description |
