@@ -14,7 +14,10 @@ class User(db.Model):
     
     # Authentication
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    auth_provider = db.Column(db.String(20), nullable=False, default='email')  # email, google, apple, facebook
+    auth_provider = db.Column(
+        db.Enum('email', 'google', 'apple', 'facebook', name='auth_provider_enum', create_type=False),
+        nullable=False, default='email'
+    )
     
     # Profile information
     display_name = db.Column(db.String(255))
@@ -31,13 +34,19 @@ class User(db.Model):
     likes_breasts = db.Column(db.Boolean, nullable=False, default=False)
     
     # Subscription
-    subscription_tier = db.Column(db.String(20), nullable=False, default='free')  # free, premium
+    subscription_tier = db.Column(
+        db.Enum('free', 'premium', name='subscription_tier_enum', create_type=False),
+        nullable=False, default='free'
+    )
     subscription_expires_at = db.Column(db.DateTime)
     daily_activity_count = db.Column(db.Integer, nullable=False, default=0)
     daily_activity_reset_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Preferences
-    profile_sharing_setting = db.Column(db.String(30), nullable=False, default='overlapping_only')
+    profile_sharing_setting = db.Column(
+        db.Enum('all_responses', 'overlapping_only', 'demographics_only', name='profile_sharing_enum', create_type=False),
+        nullable=False, default='overlapping_only'
+    )
     notification_preferences = db.Column(JSONB, nullable=False, default=dict)
     
     # Status

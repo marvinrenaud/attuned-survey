@@ -38,7 +38,10 @@ class Session(db.Model):
     partner_anonymous_anatomy = db.Column(JSONB, nullable=True)
     
     # Game configuration
-    intimacy_level = db.Column(db.String(1), nullable=False, default='R')  # G, R, X
+    intimacy_level = db.Column(
+        db.Enum('G', 'R', 'X', name='intimacy_level_enum', create_type=False),
+        nullable=False, default='R'
+    )
     skip_count = db.Column(db.Integer, nullable=False, default=0)
     
     # Session ownership and confirmation

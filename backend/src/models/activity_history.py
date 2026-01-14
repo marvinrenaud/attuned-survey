@@ -10,10 +10,16 @@ class UserActivityHistory(db.Model):
     anonymous_session_id = db.Column(db.String, nullable=True)
     session_id = db.Column(db.String, db.ForeignKey('sessions.session_id', ondelete='CASCADE'), nullable=False)
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.activity_id', ondelete='SET NULL'), nullable=True)
-    activity_type = db.Column(db.String, nullable=False)  # 'truth' or 'dare'
+    activity_type = db.Column(
+        db.Enum('truth', 'dare', name='activity_type_enum', create_type=False),
+        nullable=False
+    )
     primary_player_id = db.Column(db.String, nullable=True) # ID of the player performing the activity
     was_skipped = db.Column(db.Boolean, default=False, nullable=False)
-    feedback_type = db.Column(db.String, nullable=True)  # 'like', 'dislike', 'neutral'
+    feedback_type = db.Column(
+        db.Enum('like', 'dislike', 'neutral', name='feedback_type_enum', create_type=False),
+        nullable=True
+    )
     feedback_executed = db.Column(db.Boolean, nullable=True)
     presented_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     theme_tags = db.Column(db.JSON, default=list)

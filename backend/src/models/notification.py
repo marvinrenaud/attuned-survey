@@ -8,7 +8,10 @@ class PushNotificationToken(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(GUID(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     device_token = db.Column(db.String, unique=True, nullable=False)
-    platform = db.Column(db.String, nullable=False)  # 'ios' or 'android'
+    platform = db.Column(
+        db.Enum('ios', 'android', name='platform_enum', create_type=False),
+        nullable=False
+    )
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
