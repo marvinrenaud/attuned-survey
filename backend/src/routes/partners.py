@@ -12,6 +12,7 @@ from ..middleware.auth import token_required
 from ..middleware.auth import token_required
 from ..models.user import User
 from ..services.email_service import send_partner_request, send_partner_accepted
+from ..services.notification_service import NotificationService
 
 # Import PartnerConnection and RememberedPartner models
 # These will need to be created based on the migrations
@@ -127,6 +128,18 @@ def create_connection_request(current_user_id):
             requester_name=requester.display_name or "A user",
             request_url=request_url
         )
+        
+        # Send push notification if recipient exists and has FCM token
+        if recipient_id:
+            try:
+                NotificationService.send_partner_invitation(
+                    recipient_user_id=str(recipient_id),
+                    sender_user_id=str(requester_uuid),
+                    sender_name=requester.display_name or "Someone",
+                    invitation_id=connection.id
+                )
+            except Exception as push_error:
+                logger.warning(f"Push notification failed (non-fatal): {push_error}")
         
         logger.info(f"Connection request created: {connection.id}")
         
@@ -316,6 +329,16 @@ def accept_connection(current_user_id, connection_id):
                 partner_name=accepted_by_name,
                 user_name=requester.display_name or "Love"
             )
+            
+            # Send push notification to requester
+            try:
+                NotificationService.send_invitation_accepted(
+                    requester_user_id=str(requester_uuid),
+                    acceptor_user_id=str(recipient_uuid),
+                    acceptor_name=accepted_by_name
+                )
+            except Exception as push_error:
+                logger.warning(f"Push notification failed (non-fatal): {push_error}")
         return jsonify({
             'success': True,
             'connection': connection.to_dict()

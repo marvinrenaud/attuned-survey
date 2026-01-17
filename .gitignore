@@ -63,3 +63,6 @@ Thumbs.db
 backend/flask_output.txt
 backend/run_backend.py
 
+# Firebase credentials (DO NOT COMMIT)
+*firebase*.json
+*-adminsdk*.json
