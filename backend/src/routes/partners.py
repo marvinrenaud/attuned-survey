@@ -365,7 +365,13 @@ def decline_connection(current_user_id, connection_id):
     Decline a partner connection request (FR-57).
     """
     try:
-        connection = PartnerConnection.query.filter_by(id=connection_id).first()
+        # Validate connection_id format (it's an integer in the DB model)
+        try:
+            connection_id_int = int(connection_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid connection_id format'}), 400
+
+        connection = PartnerConnection.query.filter_by(id=connection_id_int).first()
         
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
