@@ -216,6 +216,13 @@ def create_app() -> Flask:
         from .routes.notifications import notifications_bp
         app.register_blueprint(notifications_bp)
         
+        # Initialize Firebase for push notifications
+        from .firebase_config import initialize_firebase
+        if initialize_firebase():
+            logger.info("firebase_initialized_for_push_notifications")
+        else:
+            logger.warning("firebase_initialization_failed_push_notifications_disabled")
+        
         env = os.environ.get("FLASK_ENV", "production")
         is_prod = env == "production"
         if is_prod:
