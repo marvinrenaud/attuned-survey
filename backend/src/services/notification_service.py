@@ -233,10 +233,9 @@ class NotificationService:
             notification_type="partner_invitation",
             data={
                 "initialPageName": "ConnectionRequestsPage",
-                "parameterData": json.dumps({
-                    "type": "partner_invitation",
-                    "invitation_id": str(invitation_id)
-                })
+                "type": "partner_invitation",
+                "invitation_id": str(invitation_id),
+                "sender_user_id": str(sender_user_id)
             },
             sender_user_id=sender_user_id
         )
@@ -262,10 +261,8 @@ class NotificationService:
             notification_type="invitation_accepted",
             data={
                 "initialPageName": "tapToPlay",
-                "parameterData": json.dumps({
-                    "type": "invitation_accepted",
-                    "partner_id": str(acceptor_user_id)
-                })
+                "type": "invitation_accepted",
+                "partner_user_id": str(acceptor_user_id)
             },
             sender_user_id=acceptor_user_id
         )
