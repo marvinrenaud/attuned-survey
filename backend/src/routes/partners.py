@@ -132,12 +132,16 @@ def create_connection_request(current_user_id):
         # Send push notification if recipient exists and has FCM token
         if recipient_id:
             try:
-                NotificationService.send_partner_invitation(
+                push_result = NotificationService.send_partner_invitation(
                     recipient_user_id=str(recipient_id),
                     sender_user_id=str(requester_uuid),
                     sender_name=requester.display_name or "Someone",
                     invitation_id=connection.id
                 )
+                if push_result.get('success'):
+                    logger.info(f"Push notification sent for connection {connection.id}")
+                else:
+                    logger.info(f"Push notification skipped for connection {connection.id}: {push_result.get('reason')}")
             except Exception as push_error:
                 logger.warning(f"Push notification failed (non-fatal): {push_error}")
         
@@ -332,11 +336,15 @@ def accept_connection(current_user_id, connection_id):
             
             # Send push notification to requester
             try:
-                NotificationService.send_invitation_accepted(
+                push_result = NotificationService.send_invitation_accepted(
                     requester_user_id=str(requester_uuid),
                     acceptor_user_id=str(recipient_uuid),
                     acceptor_name=accepted_by_name
                 )
+                if push_result.get('success'):
+                    logger.info(f"Acceptance push notification sent to user {requester_uuid}")
+                else:
+                    logger.info(f"Acceptance push notification skipped: {push_result.get('reason')}")
             except Exception as push_error:
                 logger.warning(f"Push notification failed (non-fatal): {push_error}")
         return jsonify({

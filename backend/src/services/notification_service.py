@@ -1,5 +1,6 @@
 """Push notification service using Firebase Admin SDK."""
 import logging
+import uuid
 from datetime import datetime
 from typing import Optional, Dict, List, Any
 from firebase_admin import messaging
@@ -44,19 +45,28 @@ class NotificationService:
         Returns:
             Dict with success status and results
         """
+        logger.info(f"📤 Attempting to send {notification_type} notification to user {recipient_user_id}")
+        
         if not is_firebase_initialized():
             logger.warning("Firebase not initialized. Skipping push notification.")
             return {"success": False, "reason": "firebase_not_initialized"}
 
         # Step 1: Get the user's FCM token(s) from database
+        # Convert string to UUID for proper database lookup
         try:
+            recipient_uuid = uuid.UUID(str(recipient_user_id))
             tokens = PushNotificationToken.query.filter_by(
-                user_id=recipient_user_id
+                user_id=recipient_uuid
             ).all()
             
             if not tokens:
                 logger.info(f"No FCM tokens found for user {recipient_user_id}")
                 return {"success": False, "reason": "no_tokens"}
+            
+            logger.info(f"Found {len(tokens)} FCM token(s) for user {recipient_user_id}")
+        except ValueError as e:
+            logger.error(f"Invalid UUID format for recipient: {recipient_user_id} - {e}")
+            return {"success": False, "reason": "invalid_user_id", "error": str(e)}
         except Exception as e:
             logger.error(f"Error fetching FCM tokens: {e}")
             return {"success": False, "reason": "database_error", "error": str(e)}
