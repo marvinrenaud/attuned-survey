@@ -1,4 +1,5 @@
 """Push notification service using Firebase Admin SDK."""
+import json
 import logging
 import uuid
 from datetime import datetime
@@ -205,10 +206,11 @@ class NotificationService:
             body="Tap to view the invitation",
             notification_type="partner_invitation",
             data={
-                "type": "partner_invitation",
-                "invitation_id": str(invitation_id),
-                "page": "/ConnectionRequestsPage",
-                "route": "/ConnectionRequestsPage"
+                "initialPageName": "ConnectionRequestsPage",
+                "parameterData": json.dumps({
+                    "type": "partner_invitation",
+                    "invitation_id": str(invitation_id)
+                })
             },
             sender_user_id=sender_user_id
         )
@@ -233,10 +235,11 @@ class NotificationService:
             body="Tap to see your partner",
             notification_type="invitation_accepted",
             data={
-                "type": "invitation_accepted",
-                "partner_id": str(acceptor_user_id),
-                "page": "/tapToPlay",
-                "route": "/tapToPlay"
+                "initialPageName": "tapToPlay",
+                "parameterData": json.dumps({
+                    "type": "invitation_accepted",
+                    "partner_id": str(acceptor_user_id)
+                })
             },
             sender_user_id=acceptor_user_id
         )

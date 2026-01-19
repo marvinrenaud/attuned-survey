@@ -145,8 +145,11 @@ class TestNotificationService:
                 notification = Notification.query.get(result['notification_id'])
                 assert "Alice" in notification.title
                 assert notification.notification_type == "partner_invitation"
-                assert notification.data['invitation_id'] == "123"
-                assert notification.data['page'] == "/ConnectionRequestsPage"
+                assert notification.data['initialPageName'] == "ConnectionRequestsPage"
+                # invitation_id is now inside parameterData JSON
+                import json
+                params = json.loads(notification.data['parameterData'])
+                assert params['invitation_id'] == "123"
 
     def test_send_invitation_accepted(self, app, test_user_with_token, sender_user):
         """Test convenience method for invitation accepted."""
@@ -168,7 +171,7 @@ class TestNotificationService:
                 notification = Notification.query.get(result['notification_id'])
                 assert "Bob" in notification.title
                 assert notification.notification_type == "invitation_accepted"
-                assert notification.data['page'] == "/tapToPlay"
+                assert notification.data['initialPageName'] == "tapToPlay"
 
     def test_invalid_token_removed(self, app, test_user_with_token):
         """Test that invalid FCM tokens are removed from database."""
