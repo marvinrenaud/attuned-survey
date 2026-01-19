@@ -207,7 +207,8 @@ class NotificationService:
             data={
                 "type": "partner_invitation",
                 "invitation_id": str(invitation_id),
-                "initial_page": "/ConnectionRequestsPage"
+                "page": "/ConnectionRequestsPage",
+                "route": "/ConnectionRequestsPage"
             },
             sender_user_id=sender_user_id
         )
@@ -234,7 +235,8 @@ class NotificationService:
             data={
                 "type": "invitation_accepted",
                 "partner_id": str(acceptor_user_id),
-                "initial_page": "/PartnersPage"
+                "page": "/tapToPlay",
+                "route": "/tapToPlay"
             },
             sender_user_id=acceptor_user_id
         )
