@@ -80,3 +80,85 @@ def register_token(current_user_id):
         db.session.rollback()
         logger.error(f"Token registration failed: {str(e)}")
         return jsonify({'error': 'Registration failed'}), 500
+
+
+@notifications_bp.route('/mark-all-read', methods=['POST'])
+@token_required
+def mark_all_read(current_user_id):
+    """
+    Mark all notifications as read for the authenticated user.
+    
+    Response:
+    {
+        "success": true,
+        "marked_count": 5
+    }
+    """
+    from ..models.notification_history import Notification
+    from datetime import datetime
+    
+    try:
+        user_uuid = uuid.UUID(str(current_user_id))
+        
+        # Update all unread notifications for this user
+        result = Notification.query.filter_by(
+            recipient_user_id=user_uuid,
+            is_read=False
+        ).update({
+            'is_read': True,
+            'read_at': datetime.utcnow()
+        })
+        
+        db.session.commit()
+        logger.info(f"Marked {result} notifications as read for user {current_user_id}")
+        
+        return jsonify({
+            'success': True,
+            'marked_count': result
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Mark all read failed: {str(e)}")
+        return jsonify({'error': 'Failed to mark notifications as read'}), 500
+
+
+@notifications_bp.route('/mark-read/<int:notification_id>', methods=['POST'])
+@token_required
+def mark_read(current_user_id, notification_id):
+    """
+    Mark a specific notification as read.
+    Only works if the notification belongs to the authenticated user.
+    
+    Response:
+    {
+        "success": true
+    }
+    """
+    from ..models.notification_history import Notification
+    from datetime import datetime
+    
+    try:
+        user_uuid = uuid.UUID(str(current_user_id))
+        
+        # Find the notification (must belong to current user)
+        notification = Notification.query.filter_by(
+            id=notification_id,
+            recipient_user_id=user_uuid
+        ).first()
+        
+        if not notification:
+            return jsonify({'error': 'Notification not found'}), 404
+        
+        if not notification.is_read:
+            notification.is_read = True
+            notification.read_at = datetime.utcnow()
+            db.session.commit()
+            logger.info(f"Marked notification {notification_id} as read")
+        
+        return jsonify({'success': True}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Mark read failed: {str(e)}")
+        return jsonify({'error': 'Failed to mark notification as read'}), 500

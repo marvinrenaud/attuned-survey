@@ -25,6 +25,8 @@ class Notification(db.Model):
     data = db.Column(db.JSON, default=dict)
     sent_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    read_at = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
         return {
@@ -36,5 +38,7 @@ class Notification(db.Model):
             'body': self.body,
             'data': self.data,
             'sent_at': self.sent_at.isoformat() if self.sent_at else None,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'is_read': self.is_read,
+            'read_at': self.read_at.isoformat() if self.read_at else None
         }

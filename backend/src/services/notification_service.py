@@ -19,6 +19,28 @@ class NotificationService:
     """Service for sending push notifications via FCM."""
 
     @staticmethod
+    def get_unread_count(user_id: str) -> int:
+        """
+        Get count of unread notifications for a user.
+        
+        Args:
+            user_id: UUID of the user
+            
+        Returns:
+            Number of unread notifications
+        """
+        try:
+            user_uuid = uuid.UUID(str(user_id))
+            count = Notification.query.filter_by(
+                recipient_user_id=user_uuid,
+                is_read=False
+            ).count()
+            return count
+        except Exception as e:
+            logger.error(f"Error getting unread count: {e}")
+            return 0
+
+    @staticmethod
     def send_push_notification(
         recipient_user_id: str,
         title: str,
@@ -87,6 +109,10 @@ class NotificationService:
             db.session.add(notification_record)
             db.session.commit()
             notification_id = notification_record.id
+            
+            # Calculate unread count AFTER inserting (includes this notification)
+            unread_count = NotificationService.get_unread_count(recipient_user_id)
+            logger.info(f"User {recipient_user_id} has {unread_count} unread notifications")
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error creating notification record: {e}")
@@ -111,13 +137,13 @@ class NotificationService:
                 token=device_token,
             )
 
-            # Add platform-specific config
+            # Add platform-specific config with dynamic badge count
             if platform == "ios":
                 message.apns = messaging.APNSConfig(
                     payload=messaging.APNSPayload(
                         aps=messaging.Aps(
                             sound="default",
-                            badge=1
+                            badge=unread_count  # Dynamic badge count
                         )
                     )
                 )
