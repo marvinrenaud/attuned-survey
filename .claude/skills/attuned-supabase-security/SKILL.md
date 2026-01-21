@@ -69,32 +69,39 @@ CREATE POLICY notifications_insert_service ON notifications
 -- Just don't create the policy - service role can insert without it
 ```
 
-### Multiple UPDATE Policies = Security Bug
+### Keep UPDATE Policies Simple
 
-Multiple UPDATE policies on the same table can bypass each other's restrictions. The user can satisfy either policy.
+**DO NOT** try to protect specific fields via RLS WITH CHECK clauses with self-referential subqueries. This approach is fragile and causes 500 errors.
 
 ```sql
--- SECURITY BUG: Two UPDATE policies
-CREATE POLICY users_update_own ON users FOR UPDATE
-    USING (auth.uid() = id);  -- No field restrictions
-
-CREATE POLICY users_update_safe_fields ON users FOR UPDATE
-    USING (auth.uid() = id)
-    WITH CHECK (subscription_tier = ...);  -- Field restrictions
-
--- User can use users_update_own to bypass field restrictions!
-
--- FIX: Single UPDATE policy with all restrictions
+-- BROKEN: Self-referential subqueries cause failures
 CREATE POLICY users_update_own ON users
     FOR UPDATE
     TO authenticated
     USING ((select auth.uid()) = id)
     WITH CHECK (
         (select auth.uid()) = id
-        AND subscription_tier = (SELECT u.subscription_tier FROM users u WHERE u.id = (select auth.uid()))
-        -- ... other protected fields
+        -- DANGER: These subqueries cause problems:
+        AND subscription_tier = (SELECT u.subscription_tier FROM users u WHERE u.id = ...)
+        AND daily_activity_count = (SELECT u.daily_activity_count FROM users u WHERE u.id = ...)
     );
+-- Problems:
+-- 1. NULL = NULL returns NULL (not TRUE), so NULL fields fail
+-- 2. Self-referential RLS subqueries can cause blocking
+-- 3. This approach is inherently fragile
+
+-- CORRECT: Simple ownership check only
+CREATE POLICY users_update_own ON users
+    FOR UPDATE
+    TO authenticated
+    USING ((select auth.uid()) = id)
+    WITH CHECK ((select auth.uid()) = id);
 ```
+
+**For field protection**, use one of these approaches instead:
+1. **Backend validation** (primary) - Check in API routes before saving
+2. **Database trigger** (defense in depth) - BEFORE UPDATE trigger to reject/reset protected fields
+3. **Separate admin table** - Move protected fields to a table users can't update
 
 ## Function Security
 
@@ -228,6 +235,15 @@ UPDATE users SET subscription_tier = 'premium' WHERE id = 'target-user';
 -- Should fail due to WITH CHECK constraint
 ```
 
+## Anti-Patterns (AVOID)
+
+| Anti-Pattern | Why It Fails | Use Instead |
+|--------------|--------------|-------------|
+| Self-referential subqueries in WITH CHECK | NULL comparisons fail, RLS recursion | Backend validation or triggers |
+| `col = (SELECT col FROM same_table)` | Causes 500 errors | Simple ownership check |
+| Field protection via RLS | Fragile, hard to debug | Database triggers |
+| Complex WITH CHECK logic | Any failure = 500, no error message | Keep policies simple |
+
 ## Quick Reference
 
 | Pattern | Implementation |
@@ -238,4 +254,5 @@ UPDATE users SET subscription_tier = 'premium' WHERE id = 'target-user';
 | Function security | `SET search_path = ''` |
 | Change return type | DROP first, then CREATE |
 | Service role access | Don't create USING(true) policies |
-| Multiple UPDATE | Single policy with all restrictions |
+| UPDATE policies | Keep simple - ownership check only |
+| Field protection | Use triggers or backend validation |
