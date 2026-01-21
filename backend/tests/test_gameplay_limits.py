@@ -109,3 +109,33 @@ def test_next_turn_limit_injection(client, db_session, app):
 
     # Now all should be limit cards (or mostly)
     assert queue_final[-1]['card']['type'] == 'LIMIT_REACHED'
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+def test_premium_user_no_limit(client, db_session, app):
+    """Premium users should never hit daily limits."""
+    user_id = uuid.uuid4()
+    token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+
+    user = User(
+        id=user_id,
+        email="premium@test.com",
+        subscription_tier='premium',
+        daily_activity_count=1000  # Way over free limit
+    )
+    db_session.add(user)
+
+    act = Activity(activity_id=1, type="truth", rating="G", intensity=1, script={'steps': []})
+    db_session.add(act)
+    db_session.commit()
+
+    response = client.post('/api/game/start',
+        json={"player_ids": []},
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    assert response.status_code == 200
+    data = response.json
+
+    # Premium users should not see limit_reached
+    if 'limit_status' in data:
+        assert data['limit_status'].get('limit_reached') is False or data['limit_status'].get('has_limit') is False
