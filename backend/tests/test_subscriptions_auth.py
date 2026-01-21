@@ -1,4 +1,5 @@
 
+import os
 import pytest
 import uuid
 from datetime import datetime
@@ -144,3 +145,26 @@ def test_increment_activity_count(client, app_context, mock_auth_user, db_sessio
         # Verify DB update
         db_session.refresh(mock_auth_user)
         assert mock_auth_user.daily_activity_count == 1
+
+
+# 401 Unauthorized tests - ensure endpoints require auth
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+def test_validate_subscription_unauthorized(client):
+    """Test that subscription validation requires auth."""
+    response = client.get(f'/api/subscriptions/validate/{uuid.uuid4()}')
+    assert response.status_code == 401
+
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+def test_check_limit_unauthorized(client):
+    """Test that checking limit requires auth."""
+    response = client.get(f'/api/subscriptions/check-limit/{uuid.uuid4()}')
+    assert response.status_code == 401
+
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+def test_increment_activity_unauthorized(client):
+    """Test that incrementing activity requires auth."""
+    response = client.post(f'/api/subscriptions/increment-activity/{uuid.uuid4()}')
+    assert response.status_code == 401
