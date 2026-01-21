@@ -82,8 +82,18 @@ When adding new features:
 3. [ ] Are ownership checks in place?
 4. [ ] Does it affect partner data? (isolation critical)
 5. [ ] Need database migration?
-6. [ ] Need RLS policy update?
+6. [ ] Need RLS policy update? (see `attuned-supabase-security` skill)
 7. [ ] What tests are needed? (auth, functional, integration)
+
+## Database Security
+
+See `attuned-supabase-security` skill for detailed RLS and function security patterns.
+
+**Key rules:**
+- RLS policies need `TO authenticated` for user-specific access
+- Use `(select auth.uid())` not `auth.uid()` for InitPlan optimization
+- Functions need `SET search_path = ''`
+- Don't create multiple UPDATE policies on same table (bypass risk)
 
 ## Known Constraints
 
