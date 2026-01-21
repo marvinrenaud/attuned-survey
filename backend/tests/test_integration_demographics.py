@@ -5,6 +5,21 @@ Tests complete end-to-end user journeys.
 """
 import pytest
 import uuid
+import jwt
+
+
+def create_token(user_id: str) -> str:
+    """Create a valid JWT token for testing."""
+    return jwt.encode(
+        {"sub": str(user_id), "aud": "authenticated"},
+        "test-secret-key",
+        algorithm="HS256"
+    )
+
+
+def get_auth_headers(user_id: str) -> dict:
+    """Get authorization headers for a user."""
+    return {'Authorization': f'Bearer {create_token(user_id)}'}
 
 
 class TestUserJourneys:
@@ -31,12 +46,14 @@ class TestUserJourneys:
         assert user.profile_completed == False
         assert user.onboarding_completed == False
         
-        # Step 3: Complete demographics
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Journey 1 Complete',
-            'anatomy_self': ['penis'],
-            'anatomy_preference': ['vagina']
-        })
+        # Step 3: Complete demographics (use correct endpoint with JWT auth)
+        response = client.post('/api/auth/complete-demographics',
+            headers=get_auth_headers(str(user_id)),
+            json={
+                'name': 'Journey 1 Complete',
+                'anatomy_self': ['penis'],
+                'anatomy_preference': ['vagina']
+            })
         assert response.status_code == 200
         
         # Step 4: Verify demographics flag set
@@ -68,12 +85,14 @@ class TestUserJourneys:
         })
         assert response.status_code == 201
         
-        # Step 2: Complete demographics
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Journey 2 User',
-            'anatomy_self': ['vagina'],
-            'anatomy_preference': ['penis']
-        })
+        # Step 2: Complete demographics (use correct endpoint with JWT auth)
+        response = client.post('/api/auth/complete-demographics',
+            headers=get_auth_headers(str(user_id)),
+            json={
+                'name': 'Journey 2 User',
+                'anatomy_self': ['vagina'],
+                'anatomy_preference': ['penis']
+            })
         assert response.status_code == 200
         
         user = User.query.filter_by(id=user_id).first()
