@@ -1,0 +1,206 @@
+# Attuned Claude Code Setup Guide v2
+
+## TL;DR - Quick Install
+
+```bash
+# 1. Core Foundation
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+
+# 2. 100+ Specialized Subagents
+/plugin marketplace add VoltAgent/awesome-claude-code-subagents
+
+# 3. Supabase Integration
+npx claude-code-templates@latest --mcp database/supabase
+
+# 4. Stripe Best Practices
+/plugin marketplace add anthropics/skills
+/plugin install stripe-best-practices
+
+# 5. Context Engineering (advanced)
+/plugin marketplace add muratcankoylan/Agent-Skills-for-Context-Engineering
+
+# 6. Copy Attuned custom skills
+cp -r attuned-skills/.claude /path/to/attuned-survey-main/
+```
+
+---
+
+## Recommended Plugin Stack
+
+### Tier 1: Essential (Install First)
+
+| Plugin | Source | Why |
+|--------|--------|-----|
+| **Superpowers** | `obra/superpowers-marketplace` | TDD, brainstorming, planning, debugging. The foundation. |
+| **Awesome Subagents** | `VoltAgent/awesome-claude-code-subagents` | 100+ specialized agents (backend-developer, security-auditor, api-designer, test-engineer) |
+| **Anthropic Official Skills** | `anthropics/skills` | docx, pdf, pptx, xlsx, stripe-best-practices |
+
+### Tier 2: Stack-Specific
+
+| Plugin | Source | Why |
+|--------|--------|-----|
+| **Supabase MCP** | `claude-code-templates --mcp database/supabase` | Schema sync, migrations, RLS, type generation |
+| **Flask Skills** | `@jezweb/claude-skills/flask` | Flask patterns, blueprints, factory pattern |
+| **API Testing** | `mhattingpete/claude-skills-marketplace` | Git automation, test fixing, code review |
+
+### Tier 3: Advanced (When Ready)
+
+| Plugin | Source | Why |
+|--------|--------|-----|
+| **Context Engineering** | `muratcankoylan/Agent-Skills-for-Context-Engineering` | Multi-agent patterns, memory systems, optimization |
+| **Manus Planning** | `kmichels/multi-manus-planning` | Persistent markdown planning across sessions |
+| **Claude Coach** | `netresearch/claude-code-marketplace` | Self-improving learning from corrections |
+| **Engineering Workflows** | `mhattingpete/claude-skills-marketplace/engineering-workflow-plugin` | Git ops, feature planning, code review |
+
+---
+
+## Installation Details
+
+### 1. Superpowers (REQUIRED)
+
+```bash
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
+```
+
+Provides:
+- `/superpowers:brainstorm` - Design refinement before coding
+- `/superpowers:write-plan` - Detailed implementation plans
+- `/superpowers:execute-plan` - TDD execution with subagents
+- 20+ skills: TDD, systematic-debugging, verification-before-completion
+
+### 2. VoltAgent Subagents
+
+```bash
+/plugin marketplace add VoltAgent/awesome-claude-code-subagents
+```
+
+Or use the installer script:
+```bash
+curl -sSL https://raw.githubusercontent.com/VoltAgent/awesome-claude-code-subagents/main/install-agents.sh | bash
+```
+
+Key agents for Attuned:
+- `backend-developer` - Flask/API patterns
+- `api-designer` - RESTful principles
+- `test-engineer` - Comprehensive testing
+- `security-auditor` - OWASP, vulnerability scanning
+- `database-architect` - Schema design
+
+### 3. Supabase Integration
+
+```bash
+npx claude-code-templates@latest \
+  --command "database/supabase-schema-sync,database/supabase-type-generator" \
+  --agent "database/supabase-schema-architect" \
+  --mcp database/supabase
+```
+
+### 4. Context Engineering Collection
+
+```bash
+/plugin marketplace add muratcankoylan/Agent-Skills-for-Context-Engineering
+/plugin install context-engineering-collection
+```
+
+Skills included:
+- context-fundamentals
+- context-optimization  
+- memory-systems
+- multi-agent-patterns
+- evaluation
+
+---
+
+## Creating Your CLAUDE.md
+
+When you first open Claude Code in your repo, it will offer to create a CLAUDE.md. Accept, then customize with:
+
+```markdown
+# Attuned Backend
+
+## Stack
+- Python 3.11+ / Flask
+- PostgreSQL via Supabase (psycopg 3)
+- Supabase Auth (JWT)
+- Groq + Llama 3.3 70B for AI
+- FlutterFlow frontend (read-only)
+
+## Critical Rules
+1. ALWAYS verify user ownership before returning resources
+2. Use @token_required decorator on all protected endpoints
+3. Test auth (401/403) for every new endpoint
+4. Never expose one user's data to another
+
+## Architecture
+See backend/src/routes/ for API patterns
+See backend/src/scoring/ for survey calculation
+See backend/src/compatibility/ for matching algorithms
+
+## Running Tests
+cd backend && python -m pytest tests/ -v
+```
+
+---
+
+## Directory Structure After Full Setup
+
+```
+attuned-survey-main/
+├── .claude/
+│   ├── skills/
+│   │   ├── attuned-architecture/
+│   │   ├── attuned-testing/
+│   │   ├── attuned-ai-activities/
+│   │   ├── attuned-activity-bank/
+│   │   ├── attuned-survey/
+│   │   └── attuned-payments/
+│   └── agents/
+│       ├── qa-tester.md
+│       ├── activity-manager.md
+│       ├── survey-analyst.md
+│       └── payment-implementer.md
+├── CLAUDE.md                    # Generated by Claude Code
+├── backend/
+└── ...
+```
+
+---
+
+## Workflow Cheatsheet
+
+| Task | Command |
+|------|---------|
+| New feature | `/superpowers:brainstorm` → `/superpowers:write-plan` → `/superpowers:execute-plan` |
+| Fix bug | Describe bug → systematic-debugging skill triggers |
+| Run tests | "Run the test suite" → qa-tester agent |
+| Add endpoint | "Add POST /api/..." → backend-developer + api-designer agents |
+| Security review | "Audit this code" → security-auditor agent |
+| Stripe setup | "Implement subscription payments" → stripe-best-practices skill |
+
+---
+
+## Skill Discovery
+
+```bash
+# List installed skills
+"What skills are available?"
+
+# Search skills marketplace
+# Visit: https://skillsmp.com/ (71,000+ skills)
+
+# Install from GitHub
+/plugin marketplace add <username>/<repo>
+/plugin install <skill-name>@<marketplace-name>
+```
+
+---
+
+## Notes
+
+- Skills trigger automatically based on context
+- Your CLAUDE.md provides project-specific context
+- FlutterFlow frontend is read-only from Claude Code
+- Always run tests before merging (`/superpowers:execute-plan` includes this)
+- Superpowers enforces TDD - tests written before implementation

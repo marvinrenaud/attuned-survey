@@ -191,10 +191,14 @@ def accept_connection(current_user_id, connection_id):
              return jsonify({'error': 'Invalid connection_id format'}), 400
 
         connection = PartnerConnection.query.filter_by(id=connection_id_int).first()
-        
+
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
-            
+
+        # CRITICAL: Verify caller is the intended recipient (IDOR protection)
+        if connection.recipient_user_id and str(connection.recipient_user_id) != str(current_user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
         # Fallback to DB if recipient_id not provided
         if not recipient_id:
             if connection.recipient_user_id:
