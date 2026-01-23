@@ -35,6 +35,9 @@ from .models.activity import Activity
 from .models.session_activity import SessionActivity
 from .models.compatibility import Compatibility
 from .models.user import User
+from .models.influencer import Influencer
+from .models.promo_code import PromoCode
+from .models.promo_redemption import PromoRedemption
 
 
 def create_app() -> Flask:
