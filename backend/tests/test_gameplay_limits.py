@@ -11,13 +11,13 @@ from src.models.profile import Profile
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_start_game_limit_injection(client, db_session, app):
-    """Test that starting a game with limit reached returns limit cards."""
-    # Create user at limit
+    """Test that starting a game with lifetime limit reached returns limit cards."""
+    # Create user at limit (10 lifetime activities)
     user_id = uuid.uuid4()
     user = User(
         id=user_id,
         email="limit1@test.com",
-        daily_activity_count=25,
+        lifetime_activity_count=10,  # At the limit
         subscription_tier='free'
     )
     db_session.add(user)
@@ -45,22 +45,22 @@ def test_start_game_limit_injection(client, db_session, app):
     # Check queue content - when limit is reached, queue should contain limit cards
     queue = data['queue']
     assert len(queue) == 3
-    # At least the last 2 cards should be limit cards (first may be allowed as the 26th)
+    # At least the last 2 cards should be limit cards (first may be allowed as the 11th)
     # Based on code: keep_first=True in _scrub_queue_for_limit when limit_reached
     assert queue[1]['card']['type'] == 'LIMIT_REACHED'
     assert queue[2]['card']['type'] == 'LIMIT_REACHED'
-    assert queue[1]['card']['display_text'] == "Daily limit reached. Tap to unlock unlimited turns."
-    assert queue[2]['card']['display_text'] == "Daily limit reached. Tap to unlock unlimited turns."
+    assert queue[1]['card']['display_text'] == "Activity limit reached. Tap to unlock unlimited turns."
+    assert queue[2]['card']['display_text'] == "Activity limit reached. Tap to unlock unlimited turns."
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_next_turn_limit_injection(client, db_session, app):
-    """Test that hitting limit mid-game fills queue with limit cards."""
-    # Create user with 1 remaining credit
+    """Test that hitting lifetime limit mid-game fills queue with limit cards."""
+    # Create user with 1 remaining credit (9 of 10 used)
     user_id = uuid.uuid4()
     user = User(
         id=user_id,
         email="limit2@test.com",
-        daily_activity_count=24,
+        lifetime_activity_count=9,  # 1 remaining before limit of 10
         subscription_tier='free'
     )
     db_session.add(user)
@@ -73,7 +73,7 @@ def test_next_turn_limit_injection(client, db_session, app):
     # Create JWT token for authentication
     token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
 
-    # Start Game (Consumes 25th credit)
+    # Start Game (Consumes 10th credit)
     resp_start = client.post('/api/game/start', json={
         "player_ids": [str(user_id)]
     }, headers={'Authorization': f'Bearer {token}'})
@@ -82,7 +82,7 @@ def test_next_turn_limit_injection(client, db_session, app):
 
     # Verify user is now at limit
     db_session.refresh(user)
-    assert user.daily_activity_count == 25
+    assert user.lifetime_activity_count == 10
 
     # Call Next (Should be over limit now)
     resp_next = client.post(f'/api/game/{session_id}/next', json={},
@@ -112,7 +112,7 @@ def test_next_turn_limit_injection(client, db_session, app):
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_premium_user_no_limit(client, db_session, app):
-    """Premium users should never hit daily limits."""
+    """Premium users should never hit activity limits."""
     user_id = uuid.uuid4()
     token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
 
@@ -120,7 +120,7 @@ def test_premium_user_no_limit(client, db_session, app):
         id=user_id,
         email="premium@test.com",
         subscription_tier='premium',
-        daily_activity_count=1000  # Way over free limit
+        lifetime_activity_count=1000  # Way over free limit
     )
     db_session.add(user)
 
@@ -138,4 +138,4 @@ def test_premium_user_no_limit(client, db_session, app):
 
     # Premium users should not see limit_reached
     if 'limit_status' in data:
-        assert data['limit_status'].get('limit_reached') is False or data['limit_status'].get('has_limit') is False
+        assert data['limit_status'].get('limit_reached') is False or data['limit_status'].get('is_capped') is False

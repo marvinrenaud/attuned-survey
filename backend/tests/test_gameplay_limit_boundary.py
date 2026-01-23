@@ -12,18 +12,19 @@ from src.models.profile import Profile
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_limit_boundary_leak(client, db_session, app):
     """
-    Test boundary behavior at limit edge: starting at count 24 (1 remaining)
+    Test boundary behavior at limit edge: starting at count 9 (1 remaining)
     should allow the first turn, then subsequent cards from /next should be
     LIMIT_REACHED barriers once the limit is hit.
 
     This validates there's no "leak" where extra cards slip through.
+    Uses lifetime_activity_count with limit of 10.
     """
-    # 1. Setup User at 24 (1 left before limit of 25)
+    # 1. Setup User at 9 (1 left before limit of 10)
     user_id = uuid.uuid4()
     user = User(
         id=user_id,
         email="leaktest@test.com",
-        daily_activity_count=24,
+        lifetime_activity_count=9,
         subscription_tier='free'
     )
     db_session.add(user)
@@ -36,7 +37,7 @@ def test_limit_boundary_leak(client, db_session, app):
     # Create JWT token for authentication
     token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
 
-    # 2. Start Game - at count 24, limit not yet reached
+    # 2. Start Game - at count 9, limit not yet reached
     resp = client.post('/api/game/start', json={
         "player_ids": [str(user_id)]
     }, headers={'Authorization': f'Bearer {token}'})
@@ -48,21 +49,21 @@ def test_limit_boundary_leak(client, db_session, app):
 
     session_id = data['session_id']
 
-    # At start, user has used 24, remaining 1, limit not yet reached
-    # (limit is reached when used >= limit, i.e., 25 >= 25)
+    # At start, user has used 9, remaining 1, limit not yet reached
+    # (limit is reached when used >= limit, i.e., 10 >= 10)
     assert data['limit_status']['limit_reached'] is False
-    assert data['limit_status']['used'] == 24
+    assert data['limit_status']['used'] == 9
     assert data['limit_status']['remaining'] == 1
 
-    # Verify user count incremented to 25 after starting game
+    # Verify user count incremented to 10 after starting game
     db_session.refresh(user)
-    assert user.daily_activity_count == 25
+    assert user.lifetime_activity_count == 10
 
     queue = data['queue']
     # Initial queue should have real cards (not LIMIT_REACHED) since we weren't at limit when starting
     assert queue[0]['card']['type'] != 'LIMIT_REACHED'
 
-    # 3. Call /next - now at limit (25), new cards should be LIMIT_REACHED
+    # 3. Call /next - now at limit (10), new cards should be LIMIT_REACHED
     resp_next = client.post(f'/api/game/{session_id}/next', json={},
                             headers={'Authorization': f'Bearer {token}'})
     assert resp_next.status_code == 200

@@ -257,10 +257,12 @@ def _get_anonymous_usage(anon_id: str) -> int:
     result = db.session.execute(sql, {"anon_id": anon_id, "cutoff": cutoff}).scalar()
     return result or 0
 
-def _check_daily_limit(user_id: Optional[str] = None, anonymous_session_id: Optional[str] = None) -> dict:
-    """Check if user (auth or anon) has reached daily limit."""
-    limit = 25
-    
+def _check_activity_limit(user_id: Optional[str] = None, anonymous_session_id: Optional[str] = None) -> dict:
+    """Check if user (auth or anon) has reached lifetime activity limit."""
+    from ..services.config_service import get_config_int
+
+    limit = get_config_int('free_tier_activity_limit', 10)
+
     # 1. Authenticated User
     if user_id:
         # Ensure ID is UUID
@@ -273,26 +275,24 @@ def _check_daily_limit(user_id: Optional[str] = None, anonymous_session_id: Opti
         user = User.query.get(user_id)
         if not user:
             return {"error": "User not found"}
-            
+
         if user.subscription_tier == 'premium':
             return {
                 "limit_reached": False,
                 "remaining": -1,
                 "is_capped": False
             }
-            
-        # Reset Logic is in User model or helper, assuming simpler read here
-        # or simplified flow. The helper 'check_daily_activity_limit' does the reset.
-        # But we need the values.
-        
+
+        used = user.lifetime_activity_count or 0
+
         return {
-            "limit_reached": user.daily_activity_count >= limit,
-            "remaining": max(0, limit - user.daily_activity_count),
+            "limit_reached": used >= limit,
+            "remaining": max(0, limit - used),
             "is_capped": True,
-            "used": user.daily_activity_count,
+            "used": used,
             "limit": limit
         }
-        
+
     # 2. Anonymous User
     if anonymous_session_id:
         used_count = _get_anonymous_usage(anonymous_session_id)
@@ -303,11 +303,17 @@ def _check_daily_limit(user_id: Optional[str] = None, anonymous_session_id: Opti
             "used": used_count,
             "limit": limit
         }
-        
+
     return {"error": "No identity provided"}
 
-def _increment_daily_count(user_id: str):
-    """Increment daily count for free users."""
+
+# Alias for backwards compatibility
+def _check_daily_limit(user_id: Optional[str] = None, anonymous_session_id: Optional[str] = None) -> dict:
+    """Deprecated: Use _check_activity_limit instead."""
+    return _check_activity_limit(user_id, anonymous_session_id)
+
+def _increment_activity_count(user_id: str):
+    """Increment lifetime activity count for free users."""
     if isinstance(user_id, str):
         try:
             user_id = uuid.UUID(user_id)
@@ -316,8 +322,14 @@ def _increment_daily_count(user_id: str):
 
     user = User.query.get(user_id)
     if user and user.subscription_tier != 'premium':
-        user.daily_activity_count += 1
+        user.lifetime_activity_count = (user.lifetime_activity_count or 0) + 1
         db.session.commit()
+
+
+# Alias for backwards compatibility
+def _increment_daily_count(user_id: str):
+    """Deprecated: Use _increment_activity_count instead."""
+    _increment_activity_count(user_id)
 
 def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: Optional[str] = None) -> Dict[str, Any]:
     """
@@ -560,7 +572,7 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
     }
 
 def _generate_limit_card() -> Dict[str, Any]:
-    """Generate a barrier card for when daily limit is reached."""
+    """Generate a barrier card for when activity limit is reached."""
     return {
         "status": "SHOW_CARD",
         "primary_player_idx": -1,
@@ -571,7 +583,7 @@ def _generate_limit_card() -> Dict[str, Any]:
             "type": "LIMIT_REACHED",
             "primary_player": "System",
             "secondary_players": [],
-            "display_text": "Daily limit reached. Tap to unlock unlimited turns.",
+            "display_text": "Activity limit reached. Tap to unlock unlimited turns.",
             "intensity_rating": 1
         },
         "progress": {
