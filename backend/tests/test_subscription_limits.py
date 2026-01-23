@@ -239,3 +239,68 @@ class TestAuthorizationChecks:
             )
 
             assert response.status_code == 403
+
+
+class TestPricingEndpoint:
+    """Tests for GET /api/subscriptions/pricing endpoint."""
+
+    def test_pricing_returns_all_plans(self, client, app_context):
+        """Pricing endpoint returns all plan options."""
+        response = client.get('/api/subscriptions/pricing')
+
+        assert response.status_code == 200
+        data = response.get_json()
+
+        # Should have all four plan types
+        assert 'monthly' in data
+        assert 'annual' in data
+        assert 'discounted_monthly' in data
+        assert 'discounted_annual' in data
+
+    def test_pricing_monthly_structure(self, client, app_context):
+        """Monthly plan has correct structure."""
+        response = client.get('/api/subscriptions/pricing')
+        data = response.get_json()
+
+        monthly = data['monthly']
+        assert monthly['price'] == 4.99
+        assert monthly['price_display'] == '$4.99/month'
+
+    def test_pricing_annual_structure(self, client, app_context):
+        """Annual plan has correct structure with monthly equivalent."""
+        response = client.get('/api/subscriptions/pricing')
+        data = response.get_json()
+
+        annual = data['annual']
+        assert annual['price'] == 29.99
+        assert annual['price_display'] == '$29.99/year'
+        assert 'monthly_equivalent' in annual
+        assert annual['monthly_equivalent'] == round(29.99 / 12, 2)
+
+    def test_pricing_discounted_monthly_structure(self, client, app_context):
+        """Discounted monthly shows original price and discount."""
+        response = client.get('/api/subscriptions/pricing')
+        data = response.get_json()
+
+        discounted = data['discounted_monthly']
+        assert discounted['price'] == 3.99
+        assert discounted['price_display'] == '$3.99/month'
+        assert discounted['original_price'] == 4.99
+        assert discounted['discount_percent'] == 20
+
+    def test_pricing_discounted_annual_structure(self, client, app_context):
+        """Discounted annual shows original price and discount."""
+        response = client.get('/api/subscriptions/pricing')
+        data = response.get_json()
+
+        discounted = data['discounted_annual']
+        assert discounted['price'] == 23.99
+        assert discounted['price_display'] == '$23.99/year'
+        assert discounted['original_price'] == 29.99
+        assert discounted['discount_percent'] == 20
+
+    def test_pricing_no_auth_required(self, client, app_context):
+        """Pricing endpoint is public (no auth required)."""
+        # No Authorization header
+        response = client.get('/api/subscriptions/pricing')
+        assert response.status_code == 200

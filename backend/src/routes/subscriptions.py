@@ -187,3 +187,69 @@ def get_subscription_status(current_user_id, user_id):
     except Exception as e:
         logger.error(f"Get status failed: {str(e)}")
         return jsonify({'error': 'Failed to get status'}), 500
+
+
+@subscriptions_bp.route('/pricing', methods=['GET'])
+def get_pricing():
+    """
+    GET /api/subscriptions/pricing
+
+    Returns subscription pricing for all plans.
+    Public endpoint - no auth required.
+    Prices are read from app_config for easy updates.
+    """
+    try:
+        # Get prices from config (with defaults)
+        monthly_price = float(get_config_int('monthly_price_usd', 499) / 100) if get_config_int('monthly_price_usd', 0) > 100 else 4.99
+        annual_price = float(get_config_int('annual_price_usd', 2999) / 100) if get_config_int('annual_price_usd', 0) > 100 else 29.99
+        discount_percent = get_config_int('promo_discount_percent', 20)
+
+        # Try to get string values from app_config for prices
+        from ..models.app_config import AppConfig
+        monthly_config = AppConfig.query.filter_by(key='monthly_price_usd').first()
+        annual_config = AppConfig.query.filter_by(key='annual_price_usd').first()
+
+        if monthly_config and monthly_config.value:
+            try:
+                monthly_price = float(monthly_config.value)
+            except ValueError:
+                pass
+
+        if annual_config and annual_config.value:
+            try:
+                annual_price = float(annual_config.value)
+            except ValueError:
+                pass
+
+        # Calculate discounted prices
+        discounted_monthly = round(monthly_price * (1 - discount_percent / 100), 2)
+        discounted_annual = round(annual_price * (1 - discount_percent / 100), 2)
+        monthly_equivalent = round(annual_price / 12, 2)
+
+        return jsonify({
+            'monthly': {
+                'price': monthly_price,
+                'price_display': f'${monthly_price:.2f}/month'
+            },
+            'annual': {
+                'price': annual_price,
+                'price_display': f'${annual_price:.2f}/year',
+                'monthly_equivalent': monthly_equivalent
+            },
+            'discounted_monthly': {
+                'price': discounted_monthly,
+                'price_display': f'${discounted_monthly:.2f}/month',
+                'original_price': monthly_price,
+                'discount_percent': discount_percent
+            },
+            'discounted_annual': {
+                'price': discounted_annual,
+                'price_display': f'${discounted_annual:.2f}/year',
+                'original_price': annual_price,
+                'discount_percent': discount_percent
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get pricing failed: {str(e)}")
+        return jsonify({'error': 'Failed to get pricing'}), 500
