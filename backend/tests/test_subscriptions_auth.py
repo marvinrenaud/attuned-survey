@@ -167,3 +167,65 @@ def test_increment_activity_unauthorized(client):
     """Test that incrementing activity requires auth."""
     response = client.post(f'/api/subscriptions/increment-activity/{uuid.uuid4()}')
     assert response.status_code == 401
+
+
+# 403 Forbidden tests - ensure endpoints enforce user ownership
+
+def test_validate_subscription_wrong_user(client, app_context, mock_auth_user, db_session):
+    """Test that user cannot validate another user's subscription."""
+    other_user_id = uuid.uuid4()
+
+    with patch('src.middleware.auth.jwt.decode') as mock_decode:
+        mock_decode.return_value = {"sub": str(mock_auth_user.id)}
+
+        response = client.get(
+            f'/api/subscriptions/validate/{other_user_id}',
+            headers={'Authorization': 'Bearer valid-token'}
+        )
+
+        assert response.status_code == 403
+
+
+def test_check_limit_wrong_user(client, app_context, mock_auth_user, db_session):
+    """Test that user cannot check another user's activity limit."""
+    other_user_id = uuid.uuid4()
+
+    with patch('src.middleware.auth.jwt.decode') as mock_decode:
+        mock_decode.return_value = {"sub": str(mock_auth_user.id)}
+
+        response = client.get(
+            f'/api/subscriptions/check-limit/{other_user_id}',
+            headers={'Authorization': 'Bearer valid-token'}
+        )
+
+        assert response.status_code == 403
+
+
+def test_increment_activity_wrong_user(client, app_context, mock_auth_user, db_session):
+    """Test that user cannot increment another user's activity count."""
+    other_user_id = uuid.uuid4()
+
+    with patch('src.middleware.auth.jwt.decode') as mock_decode:
+        mock_decode.return_value = {"sub": str(mock_auth_user.id)}
+
+        response = client.post(
+            f'/api/subscriptions/increment-activity/{other_user_id}',
+            headers={'Authorization': 'Bearer valid-token'}
+        )
+
+        assert response.status_code == 403
+
+
+def test_status_wrong_user(client, app_context, mock_auth_user, db_session):
+    """Test that user cannot get another user's subscription status."""
+    other_user_id = uuid.uuid4()
+
+    with patch('src.middleware.auth.jwt.decode') as mock_decode:
+        mock_decode.return_value = {"sub": str(mock_auth_user.id)}
+
+        response = client.get(
+            f'/api/subscriptions/status/{other_user_id}',
+            headers={'Authorization': 'Bearer valid-token'}
+        )
+
+        assert response.status_code == 403
