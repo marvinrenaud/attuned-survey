@@ -222,6 +222,9 @@ def create_app() -> Flask:
         from .routes.promo import promo_bp
         app.register_blueprint(promo_bp)
 
+        from .routes.webhooks import webhooks_bp
+        app.register_blueprint(webhooks_bp)
+
         # Initialize Firebase for push notifications
         from .firebase_config import initialize_firebase
         if initialize_firebase():
