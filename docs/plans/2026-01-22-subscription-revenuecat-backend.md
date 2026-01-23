@@ -21,7 +21,22 @@ Implement subscription backend for RevenueCat integration with Stripe (US) and A
 | Promo redemption | On webhook (Option C) | Most reliable, no app callback needed |
 | Promo validation | Associate on validate | Sets `pending_promo_code` immediately |
 | RevenueCat API key | Skip for now | Only receiving webhooks, not calling API |
-| Webhook auth | Bearer token | RevenueCat's standard approach |
+| Webhook auth | Bearer token | RevenueCat's standard approach (verify during implementation) |
+| Promo schema | Normalized (influencers + promo_codes) | Better attribution analytics, aligns with attuned-payments skill |
+
+## Agent & Skill Utilization
+
+| Phase | Skills/Agents | Purpose |
+|-------|---------------|---------|
+| **All Phases** | `attuned-payments` | Reference existing patterns |
+| **Phase 1** | `attuned-supabase-security` | RLS policy patterns |
+| **Phase 1** | `attuned-git-workflow` | Branch setup |
+| **Phases 2-5** | `superpowers:test-driven-development` | Write tests before implementation |
+| **Phases 2-5** | `superpowers:subagent-driven-development` | Parallelize independent tasks |
+| **Each Checkpoint** | `qa-tester` agent | Run comprehensive test suites |
+| **Phase 6** | `superpowers:verification-before-completion` | Final verification |
+| **Phase 6** | `superpowers:requesting-code-review` | Code review |
+| **Post-Implementation** | Update `attuned-payments` skill | Sync skill with final patterns |
 
 ## Database Schema
 
@@ -41,13 +56,28 @@ ALTER TABLE users ADD COLUMN subscription_cancelled_at TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN billing_issue_detected_at TIMESTAMPTZ;
 ```
 
+#### Influencers Table (NEW)
+
+```sql
+CREATE TABLE influencers (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT,
+    platform TEXT,  -- 'tiktok', 'instagram', 'podcast', 'youtube'
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'paused', 'inactive')),
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
 #### Promo Codes Table (NEW)
 
 ```sql
 CREATE TABLE promo_codes (
     id SERIAL PRIMARY KEY,
+    influencer_id INTEGER REFERENCES influencers(id) ON DELETE SET NULL,
     code TEXT UNIQUE NOT NULL,
-    influencer_name TEXT,
     discount_percent INTEGER DEFAULT 20,
     stripe_coupon_id TEXT,
     revenuecat_offering_id TEXT DEFAULT 'discounted_20_percent',
@@ -58,8 +88,9 @@ CREATE TABLE promo_codes (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_promo_codes_code ON promo_codes(code);
+CREATE INDEX idx_promo_codes_code ON promo_codes(UPPER(code));
 CREATE INDEX idx_promo_codes_active ON promo_codes(is_active) WHERE is_active = true;
+CREATE INDEX idx_promo_codes_influencer ON promo_codes(influencer_id);
 ```
 
 #### Promo Redemptions Table (NEW)
@@ -82,6 +113,10 @@ CREATE INDEX idx_promo_redemptions_code ON promo_redemptions(promo_code_id);
 #### RLS Policies
 
 ```sql
+-- influencers: service role only (no client access)
+ALTER TABLE influencers ENABLE ROW LEVEL SECURITY;
+-- No policies - service role bypasses RLS
+
 -- promo_codes: service role only (no client access)
 ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
 -- No policies - service role bypasses RLS
@@ -228,7 +263,7 @@ Increments `lifetime_activity_count` for free users only.
 
 ## File Structure
 
-### New Files (7)
+### New Files (8)
 
 ```
 backend/
@@ -237,6 +272,7 @@ backend/
 │   └── 027_rollback.sql
 ├── src/
 │   ├── models/
+│   │   ├── influencer.py
 │   │   ├── promo_code.py
 │   │   └── promo_redemption.py
 │   ├── routes/
@@ -255,7 +291,7 @@ backend/
 ```
 backend/src/
 ├── models/
-│   ├── __init__.py              # Add PromoCode, PromoRedemption exports
+│   ├── __init__.py              # Add Influencer, PromoCode, PromoRedemption exports
 │   └── user.py                   # Add 9 new columns
 ├── routes/
 │   └── subscriptions.py          # Lifetime limits, remove old stubs
@@ -275,26 +311,34 @@ backend/tests/
 
 ### Phase 1: Foundation
 
+**Skills:** `attuned-supabase-security`, `attuned-git-workflow`
+
 | Step | Task |
 |------|------|
-| 1.1 | Create migration `027_add_subscription_enhancements.sql` |
-| 1.2 | Create rollback `027_rollback.sql` |
-| 1.3 | Run migration, verify tables exist |
-| 1.4 | Create `models/promo_code.py`, `promo_redemption.py` |
-| 1.5 | Update `models/user.py` with new columns |
-| 1.6 | Update `models/__init__.py` exports |
+| 1.1 | Create feature branch `feature/subscription-revenuecat-backend` |
+| 1.2 | Create migration `027_add_subscription_enhancements.sql` |
+| 1.3 | Create rollback `027_rollback.sql` |
+| 1.4 | Run migration, verify tables exist |
+| 1.5 | Create `models/influencer.py` |
+| 1.6 | Create `models/promo_code.py` (with Influencer relationship) |
+| 1.7 | Create `models/promo_redemption.py` |
+| 1.8 | Update `models/user.py` with new columns |
+| 1.9 | Update `models/__init__.py` exports |
 
-**Checkpoint:** `python -c "from src.models import PromoCode, PromoRedemption"` succeeds
+**Checkpoint:** `python -c "from src.models import Influencer, PromoCode, PromoRedemption"` succeeds
 
 ---
 
 ### Phase 2: Subscription Limits
 
+**Skills:** `superpowers:test-driven-development`
+**Agent:** `qa-tester` at checkpoint
+
 | Step | Task |
 |------|------|
-| 2.1 | Update `routes/subscriptions.py` - change to lifetime limits |
-| 2.2 | Remove old webhook stubs from `subscriptions.py` |
-| 2.3 | Update `test_subscription_limits.py` for lifetime model |
+| 2.1 | Write tests first in `test_subscription_limits.py` for lifetime model |
+| 2.2 | Update `routes/subscriptions.py` - change to lifetime limits |
+| 2.3 | Remove old webhook stubs from `subscriptions.py` |
 | 2.4 | **Run:** `pytest tests/test_subscription_limits.py -v` |
 
 **Checkpoint:** All lifetime limit tests pass
@@ -303,11 +347,14 @@ backend/tests/
 
 ### Phase 3: Promo Validation
 
+**Skills:** `superpowers:test-driven-development`
+**Agent:** `qa-tester` at checkpoint
+
 | Step | Task |
 |------|------|
-| 3.1 | Create `routes/promo.py` |
-| 3.2 | Register blueprint in `main.py` |
-| 3.3 | Write `test_promo_codes.py` |
+| 3.1 | Write tests first in `test_promo_codes.py` |
+| 3.2 | Create `routes/promo.py` |
+| 3.3 | Register blueprint in `main.py` |
 | 3.4 | **Run:** `pytest tests/test_promo_codes.py -v` |
 
 **Checkpoint:** Promo validation works, `pending_promo_code` gets set
@@ -316,10 +363,13 @@ backend/tests/
 
 ### Phase 4: Subscription Service
 
+**Skills:** `superpowers:test-driven-development`
+**Agent:** `qa-tester` at checkpoint
+
 | Step | Task |
 |------|------|
-| 4.1 | Create `services/subscription_service.py` |
-| 4.2 | Write `test_subscription_service.py` |
+| 4.1 | Write tests first in `test_subscription_service.py` |
+| 4.2 | Create `services/subscription_service.py` |
 | 4.3 | **Run:** `pytest tests/test_subscription_service.py -v` |
 
 **Checkpoint:** Event handlers work in isolation
@@ -328,11 +378,14 @@ backend/tests/
 
 ### Phase 5: Webhook Endpoint
 
+**Skills:** `superpowers:test-driven-development`
+**Agent:** `qa-tester` at checkpoint
+
 | Step | Task |
 |------|------|
-| 5.1 | Create `routes/webhooks.py` |
-| 5.2 | Register blueprint in `main.py` |
-| 5.3 | Write `test_webhooks.py` |
+| 5.1 | Write tests first in `test_webhooks.py` |
+| 5.2 | Create `routes/webhooks.py` |
+| 5.3 | Register blueprint in `main.py` |
 | 5.4 | **Run:** `pytest tests/test_webhooks.py -v` |
 
 **Checkpoint:** Full HTTP flow works end-to-end
@@ -341,13 +394,17 @@ backend/tests/
 
 ### Phase 6: Full Verification
 
+**Skills:** `superpowers:verification-before-completion`, `superpowers:requesting-code-review`
+**Agent:** `qa-tester` for full suite
+
 | Step | Task |
 |------|------|
 | 6.1 | **Run:** `pytest tests/ -v` (entire suite) |
 | 6.2 | Manual test with RevenueCat test webhook |
-| 6.3 | Code review |
+| 6.3 | Code review via `superpowers:requesting-code-review` |
+| 6.4 | Update `attuned-payments` skill with final patterns |
 
-**Checkpoint:** All tests pass, ready for deploy
+**Checkpoint:** All tests pass, skill updated, ready for deploy
 
 ---
 
@@ -371,6 +428,8 @@ REVENUECAT_WEBHOOK_SECRET=your_secret_here
 - [ ] Manual test with RevenueCat test webhook
 - [ ] Update Render environment variables
 - [ ] Configure RevenueCat webhook URL in dashboard
+- [ ] Update `attuned-payments` skill with final implementation patterns
+- [ ] Code review completed
 
 ---
 
@@ -379,4 +438,5 @@ REVENUECAT_WEBHOOK_SECRET=your_secret_here
 - Verify RevenueCat's exact webhook auth mechanism during implementation
 - Promo `original_price` stored as NULL (unknown from webhook), `discounted_price` = actual payment
 - Keep `daily_activity_count` columns for backward compatibility during transition
-- Service role bypasses RLS for promo_codes table
+- Service role bypasses RLS for influencers and promo_codes tables
+- PromoCode model includes relationship to Influencer for join queries
