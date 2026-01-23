@@ -77,7 +77,9 @@
 
 ### 2. Subscription Status
 
-**Endpoint**: `GET /api/subscriptions/status/<user_id>`
+**Endpoint**: `GET /api/subscriptions/status/[user_id]`
+
+> **FlutterFlow Note**: Use `[user_id]` syntax for path parameters, not `<user_id>`.
 
 **Purpose**: Get complete subscription state for display and decision-making.
 
@@ -139,7 +141,7 @@
 
 ### 3. Activity Limit Check (Quick Check)
 
-**Endpoint**: `GET /api/subscriptions/check-limit/<user_id>`
+**Endpoint**: `GET /api/subscriptions/check-limit/[user_id]`
 
 **Purpose**: Quick check if user can play (used before starting game).
 
@@ -180,7 +182,7 @@
 
 ### 4. Increment Activity Count
 
-**Endpoint**: `POST /api/subscriptions/increment-activity/<user_id>`
+**Endpoint**: `POST /api/subscriptions/increment-activity/[user_id]`
 
 **Purpose**: Called after an activity is presented to user.
 
@@ -232,7 +234,7 @@ The backend receives webhooks from RevenueCat at `POST /api/webhooks/revenuecat`
 3. Frontend: Call RevenueCat purchase with offering_id = "default"
 4. RevenueCat: Process payment, send INITIAL_PURCHASE webhook to backend
 5. Backend: Update user to premium
-6. Frontend: Call GET /api/subscriptions/status/<user_id>
+6. Frontend: Call GET /api/subscriptions/status/[user_id]
 7. Frontend: Update app state with subscription info
 8. Frontend: Navigate to success/home
 ```
@@ -249,7 +251,7 @@ The backend receives webhooks from RevenueCat at `POST /api/webhooks/revenuecat`
 7. Frontend: Call RevenueCat purchase with offering_id = "discounted_20_percent"
 8. RevenueCat: Process payment at discounted price, send webhook
 9. Backend: Update user to premium, attribute promo code
-10. Frontend: Call GET /api/subscriptions/status/<user_id>
+10. Frontend: Call GET /api/subscriptions/status/[user_id]
 11. Frontend: Update app state (includes promo_code_used)
 12. Frontend: Navigate to success/home
 ```
@@ -258,7 +260,7 @@ The backend receives webhooks from RevenueCat at `POST /api/webhooks/revenuecat`
 
 ```
 1. Frontend: App launches, user is authenticated
-2. Frontend: Call GET /api/subscriptions/status/<user_id>
+2. Frontend: Call GET /api/subscriptions/status/[user_id]
 3. Frontend: Update isPremium, activitiesRemaining app state
 4. Frontend: Conditionally show premium/free UI
 ```
@@ -267,12 +269,12 @@ The backend receives webhooks from RevenueCat at `POST /api/webhooks/revenuecat`
 
 ```
 1. Frontend: User taps "Play"
-2. Frontend: Call GET /api/subscriptions/check-limit/<user_id>
+2. Frontend: Call GET /api/subscriptions/check-limit/[user_id]
 3. If limit_reached == true:
    - Show upgrade prompt
 4. Else:
    - Start game
-   - After activity shown: Call POST /api/subscriptions/increment-activity/<user_id>
+   - After activity shown: Call POST /api/subscriptions/increment-activity/[user_id]
 ```
 
 ---
