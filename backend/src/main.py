@@ -35,6 +35,9 @@ from .models.activity import Activity
 from .models.session_activity import SessionActivity
 from .models.compatibility import Compatibility
 from .models.user import User
+from .models.influencer import Influencer
+from .models.promo_code import PromoCode
+from .models.promo_redemption import PromoRedemption
 
 
 def create_app() -> Flask:
@@ -215,7 +218,13 @@ def create_app() -> Flask:
         
         from .routes.notifications import notifications_bp
         app.register_blueprint(notifications_bp)
-        
+
+        from .routes.promo import promo_bp
+        app.register_blueprint(promo_bp)
+
+        from .routes.webhooks import webhooks_bp
+        app.register_blueprint(webhooks_bp)
+
         # Initialize Firebase for push notifications
         from .firebase_config import initialize_firebase
         if initialize_firebase():

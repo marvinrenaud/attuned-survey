@@ -33,14 +33,25 @@ class User(db.Model):
     likes_vagina = db.Column(db.Boolean, nullable=False, default=False)
     likes_breasts = db.Column(db.Boolean, nullable=False, default=False)
     
-    # Subscription
+    # Subscription - Core
     subscription_tier = db.Column(
         db.Enum('free', 'premium', name='subscription_tier_enum', create_type=False),
         nullable=False, default='free'
     )
     subscription_expires_at = db.Column(db.DateTime)
-    daily_activity_count = db.Column(db.Integer, nullable=False, default=0)
-    daily_activity_reset_at = db.Column(db.DateTime, default=datetime.utcnow)
+    daily_activity_count = db.Column(db.Integer, nullable=False, default=0)  # Legacy - kept for backward compat
+    daily_activity_reset_at = db.Column(db.DateTime, default=datetime.utcnow)  # Legacy - kept for backward compat
+
+    # Subscription - RevenueCat Integration (Migration 027)
+    subscription_platform = db.Column(db.String(50))  # 'stripe' | 'apple' | 'google'
+    subscription_product_id = db.Column(db.String(255))  # RevenueCat product identifier
+    revenuecat_app_user_id = db.Column(db.String(255))  # RevenueCat's user ID
+    stripe_customer_id = db.Column(db.String(255))  # From RevenueCat if available
+    lifetime_activity_count = db.Column(db.Integer, default=0)  # Replaces daily model
+    pending_promo_code = db.Column(db.String(50))  # Cleared after webhook processes
+    promo_code_used = db.Column(db.String(50))  # Final converted promo code
+    subscription_cancelled_at = db.Column(db.DateTime)  # When user cancelled (still has access until expiry)
+    billing_issue_detected_at = db.Column(db.DateTime)  # When billing problem detected
     
     # Preferences
     profile_sharing_setting = db.Column(
@@ -104,6 +115,9 @@ class User(db.Model):
             'subscription_expires_at': self.subscription_expires_at.isoformat() if self.subscription_expires_at else None,
             'daily_activity_count': self.daily_activity_count,
             'daily_activity_reset_at': self.daily_activity_reset_at.isoformat() if self.daily_activity_reset_at else None,
+            'subscription_platform': self.subscription_platform,
+            'lifetime_activity_count': self.lifetime_activity_count,
+            'promo_code_used': self.promo_code_used,
             'profile_sharing_setting': self.profile_sharing_setting,
             'notification_preferences': self.notification_preferences or {},
             'profile_completed': self.profile_completed,
