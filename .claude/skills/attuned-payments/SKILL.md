@@ -34,526 +34,211 @@ Attuned uses a hybrid payment architecture:
 
 ## Database Schema
 
-### Users Table Updates
+See `backend/migrations/027_add_subscription_enhancements.sql` for full schema.
+
+### Key Tables
+
+- **influencers** - Marketing partners who distribute promo codes
+- **promo_codes** - Discount codes with usage limits and expiration
+- **promo_redemptions** - Tracks which users redeemed which codes
+
+### Users Table Subscription Columns
 
 ```sql
--- Add to existing users table
-ALTER TABLE users ADD COLUMN subscription_platform TEXT; -- 'stripe' | 'apple' | 'google'
-ALTER TABLE users ADD COLUMN subscription_product_id TEXT;
-ALTER TABLE users ADD COLUMN revenuecat_app_user_id TEXT;
-ALTER TABLE users ADD COLUMN stripe_customer_id TEXT;
-ALTER TABLE users ADD COLUMN lifetime_activity_count INTEGER DEFAULT 0;
-ALTER TABLE users ADD COLUMN promo_code_used TEXT;
+subscription_platform TEXT;          -- 'stripe' | 'apple' | 'google'
+subscription_product_id TEXT;        -- 'attuned_monthly' | 'attuned_annual'
+subscription_expires_at TIMESTAMPTZ;
+subscription_cancelled_at TIMESTAMPTZ;
+billing_issue_detected_at TIMESTAMPTZ;
+revenuecat_app_user_id TEXT;
+stripe_customer_id TEXT;
+lifetime_activity_count INTEGER DEFAULT 0;
+pending_promo_code TEXT;             -- Set during validation
+promo_code_used TEXT;                -- Set on purchase webhook
 ```
 
-### App Config Updates
+## Implementation Patterns
 
-```sql
-INSERT INTO app_config (key, value) VALUES
-  ('free_tier_activity_limit', '10'),
-  ('monthly_price_usd', '4.99'),
-  ('annual_price_usd', '29.99'),
-  ('promo_discount_percent', '20');
-```
+### Promo Code Validation Flow
 
-### Promo Code Tables
+1. User enters code in app
+2. App calls `POST /api/promo/validate` with code
+3. Backend validates code and sets `user.pending_promo_code`
+4. App shows discounted offering in RevenueCat
+5. User completes purchase
+6. RevenueCat sends `INITIAL_PURCHASE` webhook
+7. Backend creates `promo_redemption`, clears `pending_promo_code`, sets `promo_code_used`
 
-```sql
--- Influencers table
-CREATE TABLE influencers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT UNIQUE,
-  platform TEXT,  -- 'tiktok', 'instagram', 'podcast', 'youtube'
-  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'paused', 'inactive')),
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+### Subscription Service (Event Handler)
 
--- Promo codes table
-CREATE TABLE promo_codes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  influencer_id UUID REFERENCES influencers(id) ON DELETE CASCADE,
-  code TEXT UNIQUE NOT NULL,  -- 'VANESSA', 'TODDBARATZ', 'FOREPLAY'
-  discount_percent INTEGER DEFAULT 20,
-  offering_id TEXT NOT NULL,  -- RevenueCat offering identifier
-  is_active BOOLEAN DEFAULT true,
-  max_redemptions INTEGER,  -- NULL = unlimited
-  current_redemptions INTEGER DEFAULT 0,
-  expires_at TIMESTAMPTZ,  -- NULL = never expires
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Index for fast lookups
-CREATE INDEX idx_promo_codes_lookup ON promo_codes(UPPER(code)) WHERE is_active = true;
-
--- Code redemptions table
-CREATE TABLE code_redemptions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  promo_code_id UUID REFERENCES promo_codes(id),
-  user_id UUID NOT NULL,
-  revenuecat_app_user_id TEXT,
-  device_platform TEXT,  -- 'ios' or 'android'
-  redeemed_at TIMESTAMPTZ DEFAULT NOW(),
-  converted_at TIMESTAMPTZ,  -- Set when subscription purchase confirmed
-  UNIQUE(user_id)  -- One promo code per user ever
-);
-
--- Helper function
-CREATE OR REPLACE FUNCTION increment_promo_usage(code_id UUID)
-RETURNS void AS $$
-BEGIN
-  UPDATE promo_codes 
-  SET current_redemptions = current_redemptions + 1, updated_at = NOW()
-  WHERE id = code_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
-## Flask Backend Routes
-
-### File: `backend/src/routes/promo.py`
+The `SubscriptionService` class handles all RevenueCat webhook events:
 
 ```python
-from flask import Blueprint, request, jsonify
-from datetime import datetime, timezone
-from ..extensions import db
-from ..middleware.auth import token_required
+# backend/src/services/subscription_service.py
+class SubscriptionService:
+    STORE_MAP = {
+        'APP_STORE': 'apple',
+        'PLAY_STORE': 'google',
+        'STRIPE': 'stripe',
+    }
 
-promo_bp = Blueprint('promo', __name__, url_prefix='/api/promo')
-
-@promo_bp.route('/validate', methods=['POST'])
-@token_required
-def validate_promo(current_user_id):
-    """
-    POST /api/promo/validate
-    Body: { "code": "VANESSA" }
-    Returns: { "valid": true, "offering_id": "discounted_20_percent", ... }
-    """
-    data = request.get_json()
-    code = data.get('code', '').upper().strip()
-    
-    if not code:
-        return jsonify({'valid': False, 'error': 'No code provided'}), 400
-    
-    # Check if user already redeemed any code
-    existing = db.session.execute(
-        "SELECT id FROM code_redemptions WHERE user_id = :user_id",
-        {'user_id': str(current_user_id)}
-    ).fetchone()
-    
-    if existing:
-        return jsonify({'valid': False, 'error': 'You have already used a promo code'})
-    
-    # Look up promo code with influencer info
-    result = db.session.execute("""
-        SELECT pc.id, pc.code, pc.discount_percent, pc.offering_id,
-               pc.max_redemptions, pc.current_redemptions, pc.expires_at,
-               i.name as influencer_name
-        FROM promo_codes pc
-        JOIN influencers i ON pc.influencer_id = i.id
-        WHERE UPPER(pc.code) = :code AND pc.is_active = true AND i.status = 'active'
-    """, {'code': code}).fetchone()
-    
-    if not result:
-        return jsonify({'valid': False, 'error': 'Invalid promo code'})
-    
-    # Check expiration
-    if result.expires_at and result.expires_at < datetime.now(timezone.utc):
-        return jsonify({'valid': False, 'error': 'This code has expired'})
-    
-    # Check usage limits
-    if result.max_redemptions and result.current_redemptions >= result.max_redemptions:
-        return jsonify({'valid': False, 'error': 'This code has reached its redemption limit'})
-    
-    return jsonify({
-        'valid': True,
-        'offering_id': result.offering_id,
-        'discount_percent': result.discount_percent,
-        'influencer_name': result.influencer_name,
-        'promo_code_id': str(result.id)
-    })
-
-@promo_bp.route('/redeem', methods=['POST'])
-@token_required
-def record_redemption(current_user_id):
-    """
-    POST /api/promo/redeem
-    Body: { "promo_code_id": "uuid", "revenuecat_app_user_id": "rc_id", "platform": "ios" }
-    """
-    data = request.get_json()
-    promo_code_id = data.get('promo_code_id')
-    rc_user_id = data.get('revenuecat_app_user_id')
-    platform = data.get('platform', 'unknown')
-    
-    if not promo_code_id:
-        return jsonify({'success': False, 'error': 'Missing promo_code_id'}), 400
-    
-    try:
-        result = db.session.execute("""
-            INSERT INTO code_redemptions (promo_code_id, user_id, revenuecat_app_user_id, device_platform)
-            VALUES (:promo_code_id, :user_id, :rc_user_id, :platform)
-            RETURNING id
-        """, {
-            'promo_code_id': promo_code_id,
-            'user_id': str(current_user_id),
-            'rc_user_id': rc_user_id,
-            'platform': platform
-        })
-        redemption_id = result.fetchone()[0]
-        
-        db.session.execute("SELECT increment_promo_usage(:code_id)", {'code_id': promo_code_id})
-        db.session.commit()
-        
-        return jsonify({'success': True, 'redemption_id': str(redemption_id)}), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': 'Could not record redemption'}), 400
-
-@promo_bp.route('/confirm-conversion', methods=['POST'])
-@token_required
-def confirm_conversion(current_user_id):
-    """
-    POST /api/promo/confirm-conversion
-    Body: { "redemption_id": "uuid" }
-    """
-    data = request.get_json()
-    redemption_id = data.get('redemption_id')
-    
-    if not redemption_id:
-        return jsonify({'success': False, 'error': 'Missing redemption_id'}), 400
-    
-    db.session.execute("""
-        UPDATE code_redemptions SET converted_at = NOW()
-        WHERE id = :redemption_id AND user_id = :user_id AND converted_at IS NULL
-    """, {'redemption_id': redemption_id, 'user_id': str(current_user_id)})
-    db.session.commit()
-    
-    return jsonify({'success': True})
+    @classmethod
+    def process_webhook_event(cls, user: User, event: dict) -> dict:
+        handlers = {
+            'INITIAL_PURCHASE': cls._handle_initial_purchase,
+            'RENEWAL': cls._handle_renewal,
+            'CANCELLATION': cls._handle_cancellation,
+            'UNCANCELLATION': cls._handle_uncancellation,
+            'EXPIRATION': cls._handle_expiration,
+            'BILLING_ISSUE': cls._handle_billing_issue,
+            'PRODUCT_CHANGE': cls._handle_product_change,
+        }
+        handler = handlers.get(event.get('type'))
+        if not handler:
+            return {'handled': False}
+        return handler(user, event)
 ```
 
-### File: `backend/src/routes/subscriptions.py`
+### Webhook Authentication
+
+Uses Bearer token (not HMAC signature) for simplicity:
 
 ```python
-from flask import Blueprint, request, jsonify
-from ..extensions import db
-from ..middleware.auth import token_required
-import hmac
-import hashlib
-
-subscriptions_bp = Blueprint('subscriptions', __name__, url_prefix='/api/subscriptions')
-
-@subscriptions_bp.route('/status/<user_id>', methods=['GET'])
-@token_required
-def get_status(current_user_id, user_id):
-    """
-    GET /api/subscriptions/status/{user_id}
-    Returns subscription state for the app
-    """
-    # Verify ownership
-    if str(current_user_id) != str(user_id):
-        return jsonify({'error': 'Forbidden'}), 403
-    
-    user = db.session.execute("""
-        SELECT subscription_tier, subscription_expires_at, lifetime_activity_count
-        FROM users WHERE id = :user_id
-    """, {'user_id': user_id}).fetchone()
-    
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-    
-    # Get activity limit from config
-    config = db.session.execute(
-        "SELECT value FROM app_config WHERE key = 'free_tier_activity_limit'"
-    ).fetchone()
-    limit = int(config.value) if config else 10
-    
-    return jsonify({
-        'subscription_tier': user.subscription_tier or 'free',
-        'expires_at': user.subscription_expires_at.isoformat() if user.subscription_expires_at else None,
-        'activities_used': user.lifetime_activity_count or 0,
-        'activities_limit': limit if user.subscription_tier != 'premium' else None,
-        'activities_remaining': max(0, limit - (user.lifetime_activity_count or 0)) if user.subscription_tier != 'premium' else None
-    })
-
-@subscriptions_bp.route('/check-limit/<user_id>', methods=['GET'])
-@token_required
-def check_limit(current_user_id, user_id):
-    """
-    GET /api/subscriptions/check-limit/{user_id}
-    Check if free user has activities remaining
-    """
-    if str(current_user_id) != str(user_id):
-        return jsonify({'error': 'Forbidden'}), 403
-    
-    user = db.session.execute("""
-        SELECT subscription_tier, lifetime_activity_count FROM users WHERE id = :user_id
-    """, {'user_id': user_id}).fetchone()
-    
-    if user.subscription_tier == 'premium':
-        return jsonify({'has_limit': False, 'can_play': True})
-    
-    config = db.session.execute(
-        "SELECT value FROM app_config WHERE key = 'free_tier_activity_limit'"
-    ).fetchone()
-    limit = int(config.value) if config else 10
-    used = user.lifetime_activity_count or 0
-    
-    return jsonify({
-        'has_limit': True,
-        'can_play': used < limit,
-        'activities_used': used,
-        'activities_limit': limit,
-        'activities_remaining': max(0, limit - used)
-    })
+# backend/src/routes/webhooks.py
+def verify_webhook_auth():
+    secret = os.environ.get('REVENUECAT_WEBHOOK_SECRET')
+    if not secret:
+        return False
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return False
+    return auth_header[7:] == secret
 ```
 
-### File: `backend/src/routes/webhooks.py`
+### Idempotency Patterns
+
+Every event handler checks current state before making changes:
 
 ```python
-from flask import Blueprint, request, jsonify
-from ..extensions import db
-import hmac
-import hashlib
-import os
+# Skip if already premium with same product
+if (user.subscription_tier == 'premium' and
+        user.subscription_product_id == product_id):
+    return {'handled': True, 'skipped': True}
 
-webhooks_bp = Blueprint('webhooks', __name__, url_prefix='/api/webhooks')
+# Skip if already cancelled
+if user.subscription_cancelled_at is not None:
+    return {'handled': True, 'skipped': True}
+```
 
-REVENUECAT_WEBHOOK_SECRET = os.getenv('REVENUECAT_WEBHOOK_SECRET')
+## API Endpoints
 
-def verify_revenuecat_signature(payload, signature):
-    """Verify RevenueCat webhook signature"""
-    expected = hmac.new(
-        REVENUECAT_WEBHOOK_SECRET.encode(),
-        payload,
-        hashlib.sha256
-    ).hexdigest()
-    return hmac.compare_digest(expected, signature)
+### Promo Validation
+`POST /api/promo/validate`
+- Auth: JWT required
+- Body: `{ "code": "VANESSA" }`
+- Sets `user.pending_promo_code` on success
+- Returns offering_id for RevenueCat
 
-@webhooks_bp.route('/revenuecat', methods=['POST'])
-def revenuecat_webhook():
-    """
-    POST /api/webhooks/revenuecat
-    Handles subscription lifecycle events from RevenueCat
-    
-    Events:
-    - INITIAL_PURCHASE: New subscription created
-    - RENEWAL: Subscription renewed successfully
-    - CANCELLATION: User cancelled (access until period end)
-    - EXPIRATION: Subscription ended, revoke access
-    - BILLING_ISSUE: Payment failed, send in-app notification
-    - PRODUCT_CHANGE: User upgraded/downgraded plan
-    """
-    # Verify signature
-    signature = request.headers.get('X-RevenueCat-Signature', '')
-    if REVENUECAT_WEBHOOK_SECRET and not verify_revenuecat_signature(request.data, signature):
-        return jsonify({'error': 'Invalid signature'}), 401
-    
-    data = request.get_json()
-    event_type = data.get('event', {}).get('type')
-    app_user_id = data.get('event', {}).get('app_user_id')
-    product_id = data.get('event', {}).get('product_id')
-    expiration = data.get('event', {}).get('expiration_at_ms')
-    
-    if not app_user_id:
-        return jsonify({'error': 'Missing app_user_id'}), 400
-    
-    # Map RevenueCat events to actions
-    if event_type == 'INITIAL_PURCHASE':
-        db.session.execute("""
-            UPDATE users SET 
-                subscription_tier = 'premium',
-                subscription_product_id = :product_id,
-                subscription_expires_at = to_timestamp(:expiration / 1000.0)
-            WHERE revenuecat_app_user_id = :rc_id OR id::text = :rc_id
-        """, {'product_id': product_id, 'expiration': expiration, 'rc_id': app_user_id})
-        
-    elif event_type == 'RENEWAL':
-        db.session.execute("""
-            UPDATE users SET subscription_expires_at = to_timestamp(:expiration / 1000.0)
-            WHERE revenuecat_app_user_id = :rc_id OR id::text = :rc_id
-        """, {'expiration': expiration, 'rc_id': app_user_id})
-        
-    elif event_type == 'EXPIRATION':
-        db.session.execute("""
-            UPDATE users SET subscription_tier = 'free'
-            WHERE revenuecat_app_user_id = :rc_id OR id::text = :rc_id
-        """, {'rc_id': app_user_id})
-        
-    elif event_type == 'CANCELLATION':
-        # User cancelled but still has access until expiration
-        pass  # No action needed, will expire naturally
-        
-    elif event_type == 'BILLING_ISSUE':
-        # TODO: Send in-app notification about payment issue
-        pass
-    
-    db.session.commit()
-    return jsonify({'success': True})
+### Subscription Status
+`GET /api/subscriptions/status/<user_id>`
+- Auth: JWT required (own user only)
+- Returns tier, expiry, activity counts, billing status
+
+### Activity Limit Check
+`GET /api/subscriptions/check-limit/<user_id>`
+- Auth: JWT required (own user only)
+- Returns `has_limit`, `limit_reached`, `remaining`
+
+### Webhook
+`POST /api/webhooks/revenuecat`
+- Auth: Bearer token (REVENUECAT_WEBHOOK_SECRET)
+- Always returns 200 to prevent retries
+- Delegates to SubscriptionService
+
+## Testing Requirements
+
+Every endpoint must have:
+1. **401 test** - Request without auth token
+2. **403 test** - Request with wrong user's token
+3. **Success test** - Happy path
+4. **Error case tests** - Invalid input, not found
+
+Test files:
+- `tests/test_promo_codes.py` - Promo validation logic
+- `tests/test_subscription_service.py` - Event handlers (unit tests)
+- `tests/test_webhooks.py` - HTTP layer + auth
+- `tests/test_subscription_limits.py` - Limit checks and increments
+
+## Environment Variables
+
+```bash
+# Required for webhooks
+REVENUECAT_WEBHOOK_SECRET=your_webhook_secret_here
+
+# Optional
+STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
 ```
 
 ## RevenueCat Configuration
 
-### Offerings Setup
-
+### Offerings
 | Offering ID | Products | Use Case |
 |-------------|----------|----------|
 | `default` | attuned_monthly ($4.99), attuned_annual ($29.99) | Standard pricing |
 | `discounted_20_percent` | attuned_monthly_discounted ($3.99), attuned_annual_discounted ($23.99) | Promo code users |
 
-### Subscriber Attributes for Attribution
-
-```dart
-await Purchases.setAttributes({
-  'promo_code': 'VANESSA',
-  'influencer': 'Vanessa Marin',
-  '\$mediaSource': 'influencer_promo',
-  '\$campaign': 'Vanessa Marin',
-});
-```
-
-## FlutterFlow Custom Actions
-
-### 1. validatePromoCode
-
-```dart
-Future<PromoValidationResult> validatePromoCode(String code) async {
-  final response = await http.post(
-    Uri.parse('https://attuned-backend.onrender.com/api/promo/validate'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $currentJwtToken',
-    },
-    body: jsonEncode({'code': code}),
-  );
-  final data = jsonDecode(response.body);
-  return PromoValidationResult(
-    valid: data['valid'] ?? false,
-    error: data['error'],
-    offeringId: data['offering_id'],
-    discountPercent: data['discount_percent'],
-    influencerName: data['influencer_name'],
-    promoCodeId: data['promo_code_id'],
-  );
-}
-```
-
-### 2. detectUserRegion
-
-```dart
-Future<bool> isUSUser() async {
-  // iOS: SKStorefront.countryCode
-  // Android: BillingClient country
-  // Returns true for US users (external payments)
-  // Returns false for non-US (use IAP)
-}
-```
-
-### 3. setPromoAttribution
-
-```dart
-Future<void> setPromoAttribution(String promoCode, String influencerName) async {
-  await Purchases.setAttributes({
-    'promo_code': promoCode,
-    'influencer': influencerName,
-    '\$mediaSource': 'influencer_promo',
-    '\$campaign': influencerName,
-  });
-}
-```
-
-## Vendor Account Setup Checklist
-
-### RevenueCat
-1. Create account at revenuecat.com
-2. Create project 'Attuned'
-3. Add iOS app (bundle ID + App Store Connect)
-4. Add Android app (package name + Play Console)
-5. Connect Stripe account
-6. Create Entitlement: `premium_access`
-7. Create Products: `attuned_monthly`, `attuned_annual`, `attuned_monthly_discounted`, `attuned_annual_discounted`
-8. Create Offerings: `default`, `discounted_20_percent`
-9. Configure webhook URL: `https://attuned-backend.onrender.com/api/webhooks/revenuecat`
-10. Save webhook signing secret to Render env
-
-### Stripe
-1. Create/access Stripe account
-2. Complete business verification
-3. Create Products and Prices (standard + discounted)
-4. Enable Apple Pay and Google Pay
-5. Configure Customer Portal
-6. Connect to RevenueCat
-
-### Apple App Store Connect
-1. Create Subscription Group: 'Attuned Premium'
-2. Create subscriptions: `attuned_monthly_499`, `attuned_annual_2999`
-3. Create discounted: `attuned_monthly_399`, `attuned_annual_2399`
-4. **CRITICAL**: Apply for External Purchase Link Entitlement (US)
-   - URL: developer.apple.com/contact/request/storekit-external-entitlement-us
-   - Takes 1-2 weeks for approval
-
-### Google Play Console
-1. Create subscriptions with base plans
-2. Create license testers for sandbox
-3. Generate service account credentials for RevenueCat
+### Webhook Configuration
+- URL: `https://attuned-backend.onrender.com/api/webhooks/revenuecat`
+- Auth: Bearer token in Authorization header
+- Events: All subscription lifecycle events
 
 ## Influencer Performance Query
 
 ```sql
-SELECT 
+SELECT
   i.name AS influencer,
   i.platform,
   pc.code,
-  COUNT(cr.id) AS total_redemptions,
-  COUNT(cr.converted_at) AS conversions,
-  ROUND(100.0 * COUNT(cr.converted_at) / NULLIF(COUNT(cr.id), 0), 1) AS conversion_rate_percent
+  pc.redemption_count AS redemptions,
+  (SELECT COUNT(*) FROM promo_redemptions pr
+   WHERE pr.promo_code_id = pc.id) AS tracked_redemptions
 FROM influencers i
 JOIN promo_codes pc ON i.id = pc.influencer_id
-LEFT JOIN code_redemptions cr ON pc.id = cr.promo_code_id
-GROUP BY i.id, i.name, i.platform, pc.code
-ORDER BY conversions DESC;
+WHERE i.status = 'active'
+ORDER BY pc.redemption_count DESC;
 ```
 
-## Testing Checklist
+## Common Patterns
 
-- [ ] US user subscribes monthly with card
-- [ ] US user subscribes annual with Apple Pay
-- [ ] US user subscribes with promo code
-- [ ] Non-US user subscribes via Apple IAP
-- [ ] Non-US user subscribes via Google Play
-- [ ] User upgrades monthly to annual
-- [ ] User cancels subscription (verify access until expiry)
-- [ ] User with expired card gets billing issue notification
-- [ ] User reinstalls app and subscription restores
-- [ ] Free user hits activity limit
-- [ ] Promo code validation errors (expired, invalid, used)
-- [ ] Webhook retry after temporary backend failure
+### Checking Subscription Access
 
-## Environment Variables
-
-```bash
-# Render (Flask backend)
-REVENUECAT_WEBHOOK_SECRET=rc_webhook_secret_here
-STRIPE_SECRET_KEY=sk_live_xxx
-STRIPE_WEBHOOK_SECRET=whsec_xxx
-
-# FlutterFlow
-REVENUECAT_IOS_API_KEY=appl_xxx
-REVENUECAT_ANDROID_API_KEY=goog_xxx
+```python
+def is_premium(user):
+    return (
+        user.subscription_tier == 'premium' and
+        (user.subscription_expires_at is None or
+         user.subscription_expires_at > datetime.now(timezone.utc))
+    )
 ```
 
-## Implementation Timeline
+### Activity Limit Enforcement
 
-| Phase | Tasks | Duration |
-|-------|-------|----------|
-| 1. Foundation | Vendor accounts, DB migrations, deploy webhooks | Days 1-2 |
-| 2. Backend | Webhook handlers, promo endpoints, status APIs | Days 3-4 |
-| 3. Frontend | RevenueCat SDK, custom actions, payment UI | Days 5-7 |
-| 4. Testing | All platforms, promo codes, edge cases | Days 8-9 |
-| 5. Launch | Live mode, TestFlight, App Store submission | Day 10 |
+```python
+limit = get_config_int('free_tier_activity_limit', 10)
+used = user.lifetime_activity_count or 0
+can_play = user.subscription_tier == 'premium' or used < limit
+```
 
-**Total: 35-50 hours (~5-7 working days)**
+### Store Name Mapping
 
-Note: Apple External Payment Entitlement approval is outside your control (1-2 weeks). Develop with IAP as fallback.
+```python
+STORE_MAP = {
+    'APP_STORE': 'apple',
+    'PLAY_STORE': 'google',
+    'STRIPE': 'stripe',
+    'AMAZON': 'amazon',
+    'PROMOTIONAL': 'promo'
+}
+platform = STORE_MAP.get(event.get('store'), 'unknown')
+```
