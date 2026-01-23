@@ -2,6 +2,42 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Mandatory Skill Usage (ALWAYS DO THIS FIRST)
+
+Before starting ANY task, you MUST:
+
+1. **Check available skills** - Review the skills below and identify which apply to your task
+2. **Invoke applicable skills** - Use the `Skill` tool to load relevant skills BEFORE writing any code
+3. **Announce skills being used** - State which skills you're applying at the start of each task
+4. **Chain skills when needed** - Multi-domain tasks require multiple skills (e.g., database + security + testing)
+
+### Available Project Skills
+
+| Skill | When to Use |
+|-------|-------------|
+| `attuned-architecture` | System design, adding features, refactoring, technical decisions |
+| `attuned-supabase-security` | RLS policies, migrations, database security, SECURITY DEFINER functions |
+| `attuned-testing` | Writing tests, debugging failures, running test suites, pytest patterns |
+| `attuned-git-workflow` | Branching, commits, PRs, version control workflow |
+| `attuned-payments` | Subscriptions, RevenueCat, Stripe, promo codes, activity limits |
+| `attuned-survey` | Survey questions, scoring algorithms, profile calculation |
+| `attuned-activity-bank` | Activity data, import scripts, activity validation, taxonomy |
+| `attuned-ai-activities` | LLM prompts, activity generation, Groq integration |
+
+### Skill Chaining Examples
+
+- **New API endpoint**: `attuned-architecture` → `attuned-supabase-security` → `attuned-testing`
+- **Database migration**: `attuned-supabase-security` → `attuned-git-workflow`
+- **Subscription feature**: `attuned-payments` → `attuned-testing` → `attuned-architecture`
+- **Bug fix**: `attuned-testing` (write failing test first) → domain-specific skill
+
+### Non-Negotiable
+
+- Do NOT skip skill checks because a task "seems simple"
+- Do NOT rely on memory of skill contents - always invoke fresh
+- Do NOT proceed with implementation until skills are loaded
+- If unsure which skill applies, invoke `attuned-architecture` for guidance
+
 ## Project Overview
 
 Attuned is a Flask backend for a couples intimacy app. It calculates intimacy profiles from a 54-question survey, matches partners using an asymmetric compatibility algorithm, and recommends activities from an 850+ item bank. The frontend is a React SPA, but there's also a FlutterFlow mobile app consuming the same API.
