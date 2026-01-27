@@ -49,19 +49,22 @@ def test_limit_boundary_leak(client, db_session, app):
 
     session_id = data['session_id']
 
-    # At start, user has used 9, remaining 1, limit not yet reached
-    # (limit is reached when used >= limit, i.e., 10 >= 10)
-    assert data['limit_status']['limit_reached'] is False
-    assert data['limit_status']['used'] == 9
-    assert data['limit_status']['remaining'] == 1
-
     # Verify user count incremented to 10 after starting game
     db_session.refresh(user)
     assert user.lifetime_activity_count == 10
 
+    # limit_status should reflect POST-increment state (fresh, not stale)
+    # After increment: used=10, limit=10, so limit_reached=True
+    assert data['limit_status']['limit_reached'] is True
+    assert data['limit_status']['used'] == 10
+    assert data['limit_status']['remaining'] == 0
+
     queue = data['queue']
-    # Initial queue should have real cards (not LIMIT_REACHED) since we weren't at limit when starting
+    # First card is real (the one just paid for)
     assert queue[0]['card']['type'] != 'LIMIT_REACHED'
+    # Remaining cards should be LIMIT_REACHED barriers (scrubbed since at limit)
+    assert queue[1]['card']['type'] == 'LIMIT_REACHED'
+    assert queue[2]['card']['type'] == 'LIMIT_REACHED'
 
     # 3. Call /next - now at limit (10), new cards should be LIMIT_REACHED
     resp_next = client.post(f'/api/game/{session_id}/next', json={},

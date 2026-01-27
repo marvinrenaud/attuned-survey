@@ -331,6 +331,66 @@ def _increment_daily_count(user_id: str):
     """Deprecated: Use _increment_activity_count instead."""
     _increment_activity_count(user_id)
 
+
+def _enforce_activity_limit(
+    queue: List[Dict[str, Any]],
+    user_id: Optional[str] = None,
+    anonymous_session_id: Optional[str] = None,
+    charge_credit: bool = True
+) -> tuple:
+    """
+    Single source of truth for activity limit enforcement.
+
+    This function handles the complete limit enforcement logic:
+    1. Checks if first card is a limit card (if so, no charge needed)
+    2. Increments activity count if charge_credit=True and card is real
+    3. Re-checks limit status AFTER increment (fresh status)
+    4. Scrubs queue if limit reached, with appropriate keep_first logic
+    5. Returns fresh limit_status and modified queue
+
+    Args:
+        queue: The turn queue to potentially scrub
+        user_id: Authenticated user ID (optional)
+        anonymous_session_id: Anonymous session ID (optional)
+        charge_credit: Whether to charge a credit for the first card
+
+    Returns:
+        tuple: (limit_status: dict, queue: list)
+            - limit_status is ALWAYS fresh (post-increment if applicable)
+            - queue is scrubbed if limit was reached
+    """
+    from ..services.config_service import get_config_int
+
+    # Check if first card is a limit card (no charge needed)
+    head_card = queue[0] if queue else {}
+    is_limit_card = head_card.get('card', {}).get('type') == 'LIMIT_REACHED'
+
+    # Charge credit if requested and card is real
+    if charge_credit and not is_limit_card:
+        if user_id:
+            _increment_activity_count(user_id)
+        # Anonymous users: count is tracked via history, not incremented here
+
+    # Get FRESH limit status (post-increment)
+    limit_status = _check_activity_limit(user_id=user_id, anonymous_session_id=anonymous_session_id)
+
+    # Scrub queue if limit reached
+    if limit_status.get("limit_reached"):
+        # Determine keep_first logic:
+        # - If we just charged (card was real), keep first card (it's paid for)
+        # - If we're over limit (used > limit), don't keep first
+        # - If first card was already a limit card, doesn't matter
+        used = limit_status.get("used", 0)
+        limit = limit_status.get("limit", get_config_int('free_tier_activity_limit', 10))
+
+        # Keep first if we're exactly at limit (not over), and card was real
+        keep_first = (used <= limit) and not is_limit_card
+
+        queue = _scrub_queue_for_limit(queue, keep_first=keep_first)
+
+    return limit_status, queue
+
+
 def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: Optional[str] = None) -> Dict[str, Any]:
     """
     Generate data for a single turn without committing to DB.
@@ -638,8 +698,8 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None, an
     # Check limit status if owner known
     limit_reached = False
     if owner_id or anonymous_session_id:
-        status = _check_daily_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
-        limit_reached = status["limit_reached"]
+        status = _check_activity_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
+        limit_reached = status.get("limit_reached", False)
     
     for _ in range(needed):
         if limit_reached:
@@ -753,9 +813,6 @@ def start_game(current_user_id):
         
         players = final_players
 
-        # INITIAL LIMIT CHECK
-        limit_status = _check_daily_limit(user_id=owner_id, anonymous_session_id=owner_anon_id)
-
         # Create Session
         # Convert owner_id to UUID for SQLite compatibility
         owner_uuid = uuid.UUID(owner_id) if owner_id else None
@@ -784,44 +841,21 @@ def start_game(current_user_id):
         
         # Fill Queue (Batch of 3)
         queue = _fill_queue(session, target_size=3, owner_id=owner_id, anonymous_session_id=owner_anon_id)
-        
-        # Charge 1 Credit for the first card IF it isn't a limit card
-        head_card = queue[0] if queue else {}
-        is_limit_card = head_card.get('card', {}).get('type') == 'LIMIT_REACHED'
-        
-        if not is_limit_card:
-            if owner_id:
-                _increment_daily_count(owner_id)
-            elif owner_anon_id:
-                # Anonymous: We don't increment a counter. The 'record' in history IS the count.
-                # But that happens in next_turn? 
-                # Wait: On START, we show the first card. Is it "consumed"?
-                # Usually START shows card 1. NEXT consumes card 1 and shows card 2.
-                # So START does not record history yet?
-                # If we don't record history, the COUNT doesn't go up. (Infinite restart loop hole).
-                # To fix: we must record the first card as "presented" immediately?
-                # Or just accept the loophole for MVP (User can restart game 100 times to see 100 first cards).
-                # Given strictness request: We should probably record it. 
-                pass
 
-        # Re-check and Scrub
-        # For Anonymous, the count relies on history. If we didn't insert history, limit doesn't change.
-        # Let's trust the initial check result for this turn.
-        
-        if limit_status.get("limit_reached"):
-             queue = _scrub_queue_for_limit(queue, keep_first=True) # Keep the one we (maybe) paid for
-             
-             # If strictly capped (e.g. 25/25), keep_first should be FALSE if we want to block new starts?
-             # If limit is 25. Used is 25. User calls Start. Limit Reached = True.
-             # Queue has 3 cards. 
-             # If we keep_first, they get Card 1. Then Next blocks.
-             # This essentially gives them 26 cards.
-             # Acceptable for MVP.
+        # Enforce activity limit: charge credit, get fresh status, scrub if needed
+        # This returns FRESH limit_status (post-increment) and modified queue
+        limit_status, queue = _enforce_activity_limit(
+            queue=queue,
+            user_id=owner_id,
+            anonymous_session_id=owner_anon_id,
+            charge_credit=True
+        )
 
-             state = session.current_turn_state
-             state["queue"] = queue
-             session.current_turn_state = state
-             flag_modified(session, "current_turn_state")
+        # Update session state with scrubbed queue
+        state = session.current_turn_state
+        state["queue"] = queue
+        session.current_turn_state = state
+        flag_modified(session, "current_turn_state")
             
         db.session.commit()
         
@@ -930,35 +964,24 @@ def next_turn(current_user_id, session_id):
                  
             # Charge 1 Credit for the played card IF it wasn't a barrier card
             if owner_id and last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
-                _increment_daily_count(owner_id)
+                _increment_activity_count(owner_id)
         
         # 2. Replenish Queue (Add 1 to end)
         queue = _fill_queue(session, target_size=3, owner_id=owner_id, anonymous_session_id=anonymous_session_id)
-        
-        # SCRUBBER: Check limit and scrub buffer if needed
-        limit_status = {}
-        if owner_id or anonymous_session_id:
-            limit_status = _check_daily_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
-            if limit_status.get("limit_reached"):
-                # If we strictly exceeded the limit (e.g. 26 > 25), block everything immediately.
-                # If we strictly HIT the limit (25 == 25), allow the current card (which is the 25th).
-                # Note: valid range is 0..25. 25 is the last allowed card.
-                # If used=25. We allow queue[0] (C25). We scrub queue[1:] (C26+).
-                # If used=26. We block queue[0].
-                
-                # Check usage
-                used = limit_status.get("used", 0)
-                limit = limit_status.get("limit", 25)
-                
-                keep_first = True
-                if used > limit:
-                     keep_first = False
-                     
-                queue = _scrub_queue_for_limit(queue, keep_first=keep_first)
-                
-                state["queue"] = queue
-                session.current_turn_state = state
-                flag_modified(session, "current_turn_state")
+
+        # Enforce activity limit: get fresh status, scrub if needed
+        # charge_credit=False because we already charged above for the consumed card
+        limit_status, queue = _enforce_activity_limit(
+            queue=queue,
+            user_id=owner_id,
+            anonymous_session_id=anonymous_session_id,
+            charge_credit=False  # Already charged for consumed card
+        )
+
+        # Update session state with scrubbed queue
+        state["queue"] = queue
+        session.current_turn_state = state
+        flag_modified(session, "current_turn_state")
         
         db.session.commit()
         
