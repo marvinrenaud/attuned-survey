@@ -971,31 +971,20 @@ def next_turn(current_user_id, session_id):
         
         # 2. Replenish Queue (Add 1 to end)
         queue = _fill_queue(session, target_size=3, owner_id=owner_id, anonymous_session_id=anonymous_session_id)
-        
-        # SCRUBBER: Check limit and scrub buffer if needed
-        limit_status = {}
-        if owner_id or anonymous_session_id:
-            limit_status = _check_daily_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
-            if limit_status.get("limit_reached"):
-                # If we strictly exceeded the limit (e.g. 26 > 25), block everything immediately.
-                # If we strictly HIT the limit (25 == 25), allow the current card (which is the 25th).
-                # Note: valid range is 0..25. 25 is the last allowed card.
-                # If used=25. We allow queue[0] (C25). We scrub queue[1:] (C26+).
-                # If used=26. We block queue[0].
-                
-                # Check usage
-                used = limit_status.get("used", 0)
-                limit = limit_status.get("limit", 25)
-                
-                keep_first = True
-                if used > limit:
-                     keep_first = False
-                     
-                queue = _scrub_queue_for_limit(queue, keep_first=keep_first)
-                
-                state["queue"] = queue
-                session.current_turn_state = state
-                flag_modified(session, "current_turn_state")
+
+        # Enforce activity limit: get fresh status, scrub if needed
+        # charge_credit=False because we already charged above for the consumed card
+        limit_status, queue = _enforce_activity_limit(
+            queue=queue,
+            user_id=owner_id,
+            anonymous_session_id=anonymous_session_id,
+            charge_credit=False  # Already charged for consumed card
+        )
+
+        # Update session state with scrubbed queue
+        state["queue"] = queue
+        session.current_turn_state = state
+        flag_modified(session, "current_turn_state")
         
         db.session.commit()
         
