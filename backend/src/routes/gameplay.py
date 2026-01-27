@@ -698,8 +698,8 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None, an
     # Check limit status if owner known
     limit_reached = False
     if owner_id or anonymous_session_id:
-        status = _check_daily_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
-        limit_reached = status["limit_reached"]
+        status = _check_activity_limit(user_id=owner_id, anonymous_session_id=anonymous_session_id)
+        limit_reached = status.get("limit_reached", False)
     
     for _ in range(needed):
         if limit_reached:
@@ -812,9 +812,6 @@ def start_game(current_user_id):
                 final_players.append(_resolve_player({"id": pid}, auth_user_id))
         
         players = final_players
-
-        # INITIAL LIMIT CHECK
-        limit_status = _check_daily_limit(user_id=owner_id, anonymous_session_id=owner_anon_id)
 
         # Create Session
         # Convert owner_id to UUID for SQLite compatibility
@@ -967,7 +964,7 @@ def next_turn(current_user_id, session_id):
                  
             # Charge 1 Credit for the played card IF it wasn't a barrier card
             if owner_id and last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
-                _increment_daily_count(owner_id)
+                _increment_activity_count(owner_id)
         
         # 2. Replenish Queue (Add 1 to end)
         queue = _fill_queue(session, target_size=3, owner_id=owner_id, anonymous_session_id=anonymous_session_id)
