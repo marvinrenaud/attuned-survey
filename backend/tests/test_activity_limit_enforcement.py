@@ -204,3 +204,28 @@ class TestTotalActivityCount:
         # Note: count may be 11 because the 10th card charge happens,
         # but we should only SEE 10 real cards
         assert user.lifetime_activity_count >= 10
+
+
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+class TestPremiumUserNoLimits:
+    """Test that premium users are never affected by activity limits."""
+
+    def test_premium_user_at_high_count_not_limited(self, client, db_session, app, test_activity):
+        """Premium users should never see limit_reached=True even with high activity count."""
+        user, token = create_user_at_count(db_session, count=1000, tier='premium')
+
+        resp = client.post(
+            '/api/game/start',
+            json={"player_ids": [str(user.id)]},
+            headers={'Authorization': f'Bearer {token}'}
+        )
+
+        assert resp.status_code == 200
+        data = resp.get_json()
+
+        # Premium users never hit limit
+        assert data['limit_status']['limit_reached'] is False
+        # Queue should have real cards, not barriers
+        assert data['queue'][0]['card']['type'] != 'LIMIT_REACHED'
+        assert data['queue'][1]['card']['type'] != 'LIMIT_REACHED'
+        assert data['queue'][2]['card']['type'] != 'LIMIT_REACHED'
