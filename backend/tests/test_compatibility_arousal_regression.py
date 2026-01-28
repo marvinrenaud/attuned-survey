@@ -270,14 +270,42 @@ class TestCompatibilityArousalRegression:
         )
 
 
+class TestSEModifier:
+    """Unit tests for SE compatibility modifier."""
+
+    def test_both_high_returns_full_bonus(self):
+        from src.compatibility.calculator import calculate_se_modifier
+        result = calculate_se_modifier(0.80, 0.75)
+        assert result == 0.03
+
+    def test_high_mid_returns_partial_bonus(self):
+        from src.compatibility.calculator import calculate_se_modifier
+        result = calculate_se_modifier(0.80, 0.50)
+        assert result == 0.015
+
+    def test_high_low_returns_minimal_bonus(self):
+        from src.compatibility.calculator import calculate_se_modifier
+        result = calculate_se_modifier(0.80, 0.20)
+        assert result == 0.005
+
+    def test_both_mid_returns_zero(self):
+        from src.compatibility.calculator import calculate_se_modifier
+        result = calculate_se_modifier(0.50, 0.45)
+        assert result == 0.0
+
+    def test_both_low_returns_zero(self):
+        from src.compatibility.calculator import calculate_se_modifier
+        result = calculate_se_modifier(0.20, 0.25)
+        assert result == 0.0
+
+    def test_order_independent(self):
+        """SE modifier should work regardless of which profile is a vs b."""
+        from src.compatibility.calculator import calculate_se_modifier
+        assert calculate_se_modifier(0.80, 0.50) == calculate_se_modifier(0.50, 0.80)
+
+
 class TestCompatibilityArousalUnit:
     """Unit tests for arousal-specific compatibility functions."""
-
-    def test_se_modifier_both_high(self):
-        """Test SE modifier calculation for both high."""
-        # This test will be implemented when the function exists
-        # For now, skip
-        pytest.skip("SE modifier function not yet implemented")
 
     def test_sisc_modifier_mismatch(self):
         """Test SIS-C modifier calculation for mismatch."""

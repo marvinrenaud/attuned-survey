@@ -12,6 +12,45 @@ import math
 from typing import Dict, List, Any, Optional, Tuple
 
 
+def calculate_se_modifier(se_a: float, se_b: float) -> float:
+    """
+    Calculate SE (Sexual Excitation) compatibility modifier.
+
+    Research basis: Kim et al. 2021 - "Both high" > "Both low" for satisfaction.
+    Pawłowska et al. 2023 - Similarity at high levels benefits satisfaction.
+
+    Args:
+        se_a: Player A's SE score (0-1)
+        se_b: Player B's SE score (0-1)
+
+    Returns:
+        Modifier value: 0.03 (both high), 0.015 (high+mid), 0.005 (high+low), 0.0 (other)
+    """
+    HIGH = 0.65
+    LOW = 0.35
+
+    a_high = se_a >= HIGH
+    b_high = se_b >= HIGH
+    a_low = se_a < LOW
+    b_low = se_b < LOW
+
+    if a_high and b_high:
+        # Both high - best outcome (mutual responsiveness)
+        return 0.03
+
+    elif a_high or b_high:
+        # One high - check what the other is
+        other = se_b if a_high else se_a
+        if other >= LOW:  # Other is mid-range
+            return 0.015
+        else:  # Other is low
+            return 0.005
+
+    else:
+        # Both mid, both low, or mid+low
+        return 0.0
+
+
 def calculate_power_complement(power_a: Dict[str, Any], power_b: Dict[str, Any]) -> float:
     """
     Calculate power dynamic complement (0-1).
