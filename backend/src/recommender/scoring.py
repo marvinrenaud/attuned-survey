@@ -421,6 +421,42 @@ def calculate_se_pacing_modifier(
         return -0.05
 
 
+def calculate_sisp_modifier(
+    is_performance_activity: bool,
+    sisp_a: float,
+    sisp_b: float
+) -> float:
+    """
+    Calculate SIS-P modifier for performance-pressure activities.
+
+    High SIS-P individuals experience arousal drop under performance pressure.
+    Activities that put someone "on the spot" should be deprioritized.
+
+    Args:
+        is_performance_activity: Whether activity has performance pressure
+        sisp_a: Player A's SIS-P score (0-1)
+        sisp_b: Player B's SIS-P score (0-1)
+
+    Returns:
+        Modifier: 0 for non-performance, -0.15 to 0 for performance based on SIS-P
+    """
+    if not is_performance_activity:
+        return 0.0
+
+    # Use max SIS-P (most performance-anxious person)
+    max_sisp = max(sisp_a, sisp_b)
+
+    if max_sisp >= 0.65:
+        # High performance anxiety - significant penalty
+        return -0.15
+    elif max_sisp >= 0.50:
+        # Moderate - small penalty
+        return -0.05
+    else:
+        # Low - no penalty
+        return 0.0
+
+
 def filter_by_power_dynamics(
     activities: List[Dict[str, Any]],
     player_a_orientation: str,

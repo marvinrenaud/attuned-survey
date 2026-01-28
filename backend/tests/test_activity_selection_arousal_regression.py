@@ -564,47 +564,86 @@ class TestSISPPerformanceModifier:
     """
     Unit tests for SIS-P performance modifier function.
 
-    These tests are placeholders - they will be implemented alongside
-    the actual modifier function.
+    High SIS-P individuals experience arousal drop under performance pressure.
+    Activities that put someone "on the spot" should be deprioritized.
     """
 
-    @pytest.mark.skip(reason="SIS-P modifier not yet implemented")
-    def test_calculate_sisp_penalty_high_sisp(self):
-        """
-        Test SIS-P penalty calculation for high SIS-P.
+    def test_high_sisp_penalizes_performance_activities(self):
+        """High SIS-P should penalize performance-pressure activities."""
+        from src.recommender.scoring import calculate_sisp_modifier
 
-        Expected: High SIS-P (>= 0.65) returns penalty factor < 1.0
-        for high-performance activities.
-        """
-        # from src.recommender.scoring import calculate_sisp_performance_penalty
-        # penalty = calculate_sisp_performance_penalty(0.80, "high")
-        # assert penalty < 1.0
-        pass
+        modifier = calculate_sisp_modifier(
+            is_performance_activity=True,
+            sisp_a=0.80,
+            sisp_b=0.50
+        )
+        assert modifier < 0, "High SIS-P should penalize performance activities"
 
-    @pytest.mark.skip(reason="SIS-P modifier not yet implemented")
-    def test_calculate_sisp_penalty_low_sisp(self):
-        """
-        Test SIS-P penalty calculation for low SIS-P.
+    def test_low_sisp_no_penalty(self):
+        """Low SIS-P should not penalize performance activities."""
+        from src.recommender.scoring import calculate_sisp_modifier
 
-        Expected: Low SIS-P (< 0.35) returns penalty factor ~= 1.0
-        (no penalty for performance activities).
-        """
-        # from src.recommender.scoring import calculate_sisp_performance_penalty
-        # penalty = calculate_sisp_performance_penalty(0.20, "high")
-        # assert 0.95 <= penalty <= 1.05
-        pass
+        modifier = calculate_sisp_modifier(
+            is_performance_activity=True,
+            sisp_a=0.20,
+            sisp_b=0.25
+        )
+        assert modifier >= 0, "Low SIS-P should not penalize"
 
-    @pytest.mark.skip(reason="SIS-P modifier not yet implemented")
-    def test_calculate_sisp_penalty_low_performance_activity(self):
-        """
-        Test SIS-P penalty for low-performance activities.
+    def test_non_performance_no_penalty(self):
+        """Non-performance activities should never be penalized."""
+        from src.recommender.scoring import calculate_sisp_modifier
 
-        Expected: Low performance activities get no penalty regardless of SIS-P.
-        """
-        # from src.recommender.scoring import calculate_sisp_performance_penalty
-        # penalty = calculate_sisp_performance_penalty(0.80, "low")
-        # assert penalty == 1.0
-        pass
+        modifier = calculate_sisp_modifier(
+            is_performance_activity=False,
+            sisp_a=0.80,
+            sisp_b=0.80
+        )
+        assert modifier == 0, "Non-performance should not be affected"
+
+    def test_moderate_sisp_small_penalty(self):
+        """Moderate SIS-P should have smaller penalty than high SIS-P."""
+        from src.recommender.scoring import calculate_sisp_modifier
+
+        # Moderate SIS-P (0.50-0.65)
+        modifier_moderate = calculate_sisp_modifier(
+            is_performance_activity=True,
+            sisp_a=0.55,
+            sisp_b=0.50
+        )
+
+        # High SIS-P (>= 0.65)
+        modifier_high = calculate_sisp_modifier(
+            is_performance_activity=True,
+            sisp_a=0.80,
+            sisp_b=0.50
+        )
+
+        assert modifier_moderate > modifier_high, "Moderate SIS-P penalty should be less than high"
+
+    def test_uses_max_sisp(self):
+        """SIS-P modifier should use the max of both profiles' SIS-P."""
+        from src.recommender.scoring import calculate_sisp_modifier
+
+        # One high, one low - should use the high value
+        modifier = calculate_sisp_modifier(
+            is_performance_activity=True,
+            sisp_a=0.80,
+            sisp_b=0.20
+        )
+        assert modifier < 0, "Should penalize based on highest SIS-P"
+
+    def test_order_independent(self):
+        """SIS-P modifier should work regardless of which profile is a vs b."""
+        from src.recommender.scoring import calculate_sisp_modifier
+
+        modifier_ab = calculate_sisp_modifier(
+            is_performance_activity=True, sisp_a=0.80, sisp_b=0.30
+        )
+        modifier_ba = calculate_sisp_modifier(
+            is_performance_activity=True, sisp_a=0.30, sisp_b=0.80
+        )
+        assert modifier_ab == modifier_ba, "Modifier should be order-independent"
 
 
 # =============================================================================
