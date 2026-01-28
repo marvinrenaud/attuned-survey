@@ -4,8 +4,8 @@ Regression tests for arousal integration into compatibility scoring.
 These tests capture baseline scores before changes, then verify
 expected direction of change (HIGHER, SAME, LOWER) after implementation.
 
-Run baseline capture: pytest tests/test_compatibility_arousal_regression.py -v --capture-baseline
-Run regression check: pytest tests/test_compatibility_arousal_regression.py -v
+Run baseline capture: pytest tests/test_compatibility_arousal_regression.py::TestCompatibilityArousalBaseline::test_capture_baseline_scores -v -s
+Run regression check: pytest tests/test_compatibility_arousal_regression.py::TestCompatibilityArousalRegression -v
 """
 import pytest
 import json
@@ -13,10 +13,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from src.compatibility.calculator import calculate_compatibility
-from tests.fixtures.arousal_test_profiles import (
-    TEST_PAIRS,
-    get_all_test_pairs,
-)
+from tests.fixtures.arousal_test_profiles import TEST_PAIRS
 
 # Path to store baseline scores
 BASELINE_FILE = Path(__file__).parent / "fixtures" / "compatibility_baseline.json"
@@ -137,6 +134,21 @@ class TestCompatibilityArousalRegression:
             f"(reason: {pair_data['reason']})"
         )
 
+    def test_se_high_low_scores_higher(self, baseline_scores):
+        """High + Low SE should score slightly HIGHER (high compensates)."""
+        pair_name = "se_high_low"
+        pair_data = TEST_PAIRS[pair_name]
+        baseline = baseline_scores[pair_name]
+
+        result = calculate_compatibility(pair_data["profile_a"], pair_data["profile_b"])
+        new_score = result["overall_compatibility"]["score"]
+        old_score = baseline["score"]
+
+        assert new_score > old_score, (
+            f"Expected HIGHER: {old_score}% -> {new_score}% "
+            f"(reason: {pair_data['reason']})"
+        )
+
     def test_se_both_mid_scores_same(self, baseline_scores):
         """Both mid SE should score approximately SAME."""
         pair_name = "se_both_mid"
@@ -182,6 +194,36 @@ class TestCompatibilityArousalRegression:
             f"(reason: {pair_data['reason']})"
         )
 
+    def test_sisc_both_high_scores_same(self, baseline_scores):
+        """Both high SIS-C should score approximately SAME (aligned but neutral)."""
+        pair_name = "sisc_both_high"
+        pair_data = TEST_PAIRS[pair_name]
+        baseline = baseline_scores[pair_name]
+
+        result = calculate_compatibility(pair_data["profile_a"], pair_data["profile_b"])
+        new_score = result["overall_compatibility"]["score"]
+        old_score = baseline["score"]
+
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
+            f"(reason: {pair_data['reason']})"
+        )
+
+    def test_sisc_both_low_scores_same(self, baseline_scores):
+        """Both low SIS-C should score approximately SAME (aligned but neutral)."""
+        pair_name = "sisc_both_low"
+        pair_data = TEST_PAIRS[pair_name]
+        baseline = baseline_scores[pair_name]
+
+        result = calculate_compatibility(pair_data["profile_a"], pair_data["profile_b"])
+        new_score = result["overall_compatibility"]["score"]
+        old_score = baseline["score"]
+
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
+            f"(reason: {pair_data['reason']})"
+        )
+
     def test_sisc_mismatch_scores_lower(self, baseline_scores):
         """Significant SIS-C mismatch should score LOWER."""
         pair_name = "sisc_mismatch"
@@ -209,6 +251,21 @@ class TestCompatibilityArousalRegression:
 
         assert new_score > old_score, (
             f"Expected HIGHER: {old_score}% -> {new_score}% "
+            f"(reason: {pair_data['reason']})"
+        )
+
+    def test_baseline_pair_scores_same(self, baseline_scores):
+        """Baseline mid arousal pair should score approximately SAME."""
+        pair_name = "baseline_pair"
+        pair_data = TEST_PAIRS[pair_name]
+        baseline = baseline_scores[pair_name]
+
+        result = calculate_compatibility(pair_data["profile_a"], pair_data["profile_b"])
+        new_score = result["overall_compatibility"]["score"]
+        old_score = baseline["score"]
+
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
