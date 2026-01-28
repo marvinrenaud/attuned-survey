@@ -347,6 +347,80 @@ def score_activity_for_players(
     }
 
 
+def calculate_se_pacing_modifier(
+    activity_intensity: int,
+    se_a: float,
+    se_b: float,
+    seq: int,
+    target: int = 25
+) -> float:
+    """
+    Calculate SE-based pacing modifier for activity scoring.
+
+    High SE pairs can handle faster intensity progression.
+    Low SE pairs benefit from slower buildup.
+
+    The session is divided into phases:
+    - Early (0-20%): expected intensity ~1.5
+    - Build (20-60%): expected intensity ~2.5
+    - Peak (60-88%): expected intensity ~3.5
+    - Afterglow (88-100%): expected intensity ~2.5
+
+    High SE pairs get +0.5 to expected intensity (can handle more earlier).
+    Low SE pairs get -0.5 to expected intensity (need slower buildup).
+
+    Args:
+        activity_intensity: Activity intensity level (1-5)
+        se_a: Player A's SE score (0-1)
+        se_b: Player B's SE score (0-1)
+        seq: Current sequence number in session
+        target: Total target activities
+
+    Returns:
+        Modifier to add to activity score (-0.05 to 0.05)
+    """
+    avg_se = (se_a + se_b) / 2
+    progress = seq / target  # 0.0 to 1.0
+
+    # Expected intensity at this point in session
+    # Early (0-20%): intensity 1-2
+    # Mid (20-60%): intensity 2-3
+    # Peak (60-88%): intensity 3-4
+    # Afterglow (88-100%): intensity 2-3
+    if progress <= 0.2:
+        expected_intensity = 1.5
+    elif progress <= 0.6:
+        expected_intensity = 2.5
+    elif progress <= 0.88:
+        expected_intensity = 3.5
+    else:
+        expected_intensity = 2.5
+
+    # High SE pairs can handle higher intensity earlier
+    if avg_se >= 0.65:
+        se_intensity_bonus = 0.5  # Allow 0.5 higher intensity
+    elif avg_se < 0.35:
+        se_intensity_bonus = -0.5  # Prefer 0.5 lower intensity
+    else:
+        se_intensity_bonus = 0.0
+
+    adjusted_expected = expected_intensity + se_intensity_bonus
+
+    # Calculate how well this activity fits the adjusted expectation
+    intensity_diff = abs(activity_intensity - adjusted_expected)
+
+    # Convert to modifier (-0.05 to 0.05)
+    # Perfect match = +0.05, far off = -0.05
+    if intensity_diff <= 0.5:
+        return 0.05
+    elif intensity_diff <= 1.0:
+        return 0.02
+    elif intensity_diff <= 1.5:
+        return 0.0
+    else:
+        return -0.05
+
+
 def filter_by_power_dynamics(
     activities: List[Dict[str, Any]],
     player_a_orientation: str,

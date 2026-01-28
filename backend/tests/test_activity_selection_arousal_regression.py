@@ -472,45 +472,92 @@ class TestSEPacingModifier:
     """
     Unit tests for SE pacing modifier function.
 
-    These tests are placeholders - they will be implemented alongside
-    the actual modifier function.
+    SE pacing adjusts activity scores based on the couple's Sexual Excitation
+    levels and where they are in the session (early vs peak intensity).
     """
 
-    @pytest.mark.skip(reason="SE pacing modifier not yet implemented")
-    def test_calculate_se_pacing_factor_high_se(self):
-        """
-        Test SE pacing factor calculation for high SE.
+    def test_high_se_pair_boosts_higher_intensity(self):
+        """High SE pairs should score higher intensity activities better."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
 
-        Expected: High SE (>= 0.65) returns factor > 1.0 for faster pacing.
-        """
-        # from src.recommender.scoring import calculate_se_pacing_factor
-        # factor = calculate_se_pacing_factor(0.80, 0.75)  # Both high SE
-        # assert factor > 1.0
-        pass
+        # High intensity activity (intensity=4) with high SE pair at mid-session
+        modifier = calculate_se_pacing_modifier(
+            activity_intensity=4,
+            se_a=0.80,
+            se_b=0.75,
+            seq=10,
+            target=25
+        )
+        assert modifier > 0, "High SE pair should boost high intensity"
 
-    @pytest.mark.skip(reason="SE pacing modifier not yet implemented")
-    def test_calculate_se_pacing_factor_low_se(self):
-        """
-        Test SE pacing factor calculation for low SE.
+    def test_low_se_pair_boosts_lower_intensity(self):
+        """Low SE pairs should score lower intensity activities better."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
 
-        Expected: Low SE (< 0.35) returns factor < 1.0 for slower pacing.
-        """
-        # from src.recommender.scoring import calculate_se_pacing_factor
-        # factor = calculate_se_pacing_factor(0.20, 0.25)  # Both low SE
-        # assert factor < 1.0
-        pass
+        # Low intensity activity (intensity=2) with low SE pair at mid-session
+        modifier = calculate_se_pacing_modifier(
+            activity_intensity=2,
+            se_a=0.20,
+            se_b=0.25,
+            seq=10,
+            target=25
+        )
+        assert modifier >= 0, "Low SE pair should not penalize low intensity"
 
-    @pytest.mark.skip(reason="SE pacing modifier not yet implemented")
-    def test_calculate_se_pacing_factor_mid_se(self):
-        """
-        Test SE pacing factor calculation for mid SE.
+    def test_high_se_early_session_matches_moderate(self):
+        """High SE pair early in session should boost moderate intensity."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
 
-        Expected: Mid SE (0.35-0.65) returns factor ~= 1.0 (no change).
-        """
-        # from src.recommender.scoring import calculate_se_pacing_factor
-        # factor = calculate_se_pacing_factor(0.50, 0.50)  # Both mid SE
-        # assert 0.95 <= factor <= 1.05
-        pass
+        # Early session (seq=2) - expected intensity ~1.5, high SE adds +0.5 = 2.0
+        modifier = calculate_se_pacing_modifier(
+            activity_intensity=2,
+            se_a=0.80,
+            se_b=0.75,
+            seq=2,
+            target=25
+        )
+        assert modifier > 0, "High SE early session should boost moderate intensity"
+
+    def test_low_se_penalizes_intense_early(self):
+        """Low SE pair should be penalized for intense activities early."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
+
+        # Early session (seq=2) with intense activity (4) and low SE pair
+        modifier = calculate_se_pacing_modifier(
+            activity_intensity=4,
+            se_a=0.20,
+            se_b=0.25,
+            seq=2,
+            target=25
+        )
+        assert modifier < 0, "Low SE should penalize intense activities early"
+
+    def test_mid_se_neutral_modifier(self):
+        """Mid SE pairs should have minimal pacing adjustments."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
+
+        # Mid session, moderate activity, mid SE
+        modifier = calculate_se_pacing_modifier(
+            activity_intensity=3,
+            se_a=0.50,
+            se_b=0.50,
+            seq=12,
+            target=25
+        )
+        # Should be close to zero or small positive
+        assert -0.05 <= modifier <= 0.05, "Mid SE should have minimal adjustment"
+
+    def test_order_independent(self):
+        """SE pacing modifier should work regardless of which profile is a vs b."""
+        from src.recommender.scoring import calculate_se_pacing_modifier
+
+        modifier_ab = calculate_se_pacing_modifier(
+            activity_intensity=3, se_a=0.80, se_b=0.50, seq=10, target=25
+        )
+        modifier_ba = calculate_se_pacing_modifier(
+            activity_intensity=3, se_a=0.50, se_b=0.80, seq=10, target=25
+        )
+        assert modifier_ab == modifier_ba, "Modifier should be order-independent"
 
 
 class TestSISPPerformanceModifier:
