@@ -623,23 +623,33 @@ def calculate_compatibility(
 ) -> Dict[str, Any]:
     """
     Calculate complete compatibility between two players.
-    
+
     Args:
         player_a: Player A's complete profile
         player_b: Player B's complete profile
-        weights: Optional custom weights (default: power=0.15, domain=0.25, activity=0.40, truth=0.20)
-    
+        weights: Optional custom weights (default: power=0.15, domain=0.25, activity=0.40, truth=0.15, se=0.03, sisc=0.02)
+
     Returns:
         Complete compatibility result dict
     """
     if weights is None:
-        weights = {'power': 0.15, 'domain': 0.25, 'activity': 0.40, 'truth': 0.20}
+        # Updated weights: Truth reduced from 0.20 to 0.15, added SE (0.03) and SIS-C (0.02)
+        weights = {
+            'power': 0.15,
+            'domain': 0.25,
+            'activity': 0.40,
+            'truth': 0.15,  # Reduced from 0.20
+            'se': 0.03,     # NEW: SE capacity (added as modifier)
+            'sisc': 0.02,   # NEW: SIS-C alignment (added as modifier)
+        }
     
     # Extract components
     power_a = player_a.get('power_dynamic', {})
     power_b = player_b.get('power_dynamic', {})
     domains_a = player_a.get('domain_scores', {})
     domains_b = player_b.get('domain_scores', {})
+    arousal_a = player_a.get('arousal_propensity', {})
+    arousal_b = player_b.get('arousal_propensity', {})
     
     # Use categorized activities directly for overlap calculation
     activities_a = player_a.get('activities', {})
@@ -655,6 +665,15 @@ def calculate_compatibility(
     domain_similarity = calculate_domain_similarity(domains_a, domains_b, power_a, power_b)
     activity_overlap = calculate_activity_overlap(activities_a, activities_b, power_a, power_b)
     truth_overlap = calculate_truth_overlap(truth_topics_a, truth_topics_b)
+
+    # Calculate arousal modifiers (NEW)
+    se_a = arousal_a.get('sexual_excitation', 0.5)
+    se_b = arousal_b.get('sexual_excitation', 0.5)
+    sisc_a = arousal_a.get('inhibition_consequence', 0.5)
+    sisc_b = arousal_b.get('inhibition_consequence', 0.5)
+
+    se_modifier = calculate_se_modifier(se_a, se_b)
+    sisc_modifier = calculate_sisc_modifier(sisc_a, sisc_b)
     
     # Detect same-pole pairs for truth multiplier
     is_same_pole = (power_a.get('orientation') == 'Top' and power_b.get('orientation') == 'Top') or \
@@ -669,18 +688,23 @@ def calculate_compatibility(
     player_b_proxy = {'activities': flat_b, 'boundaries': boundaries_b}
     boundary_conflicts = check_boundary_conflicts(player_a_proxy, player_b_proxy)
     
-    # Calculate weighted overall score
+    # Calculate weighted overall score (UPDATED to include arousal)
     overall_score = (
         weights['power'] * power_complement +
         weights['domain'] * domain_similarity +
         weights['activity'] * activity_overlap +
-        weights['truth'] * adjusted_truth_overlap
+        weights['truth'] * adjusted_truth_overlap +
+        se_modifier +      # SE is additive (0.0 to 0.03)
+        sisc_modifier      # SIS-C is additive (-0.02 to 0.02)
     )
     
     # Apply boundary penalty
     boundary_penalty = len(boundary_conflicts) * 0.20
     overall_score = max(0, overall_score - boundary_penalty)
-    
+
+    # Cap at 1.0 (100%)
+    overall_score = min(1.0, overall_score)
+
     # Convert to percentage
     overall_percentage = round(overall_score * 100)
     
@@ -703,7 +727,7 @@ def calculate_compatibility(
     ))
     
     return {
-        'compatibility_version': '0.5',
+        'compatibility_version': '0.6',  # Version bump for arousal integration
         'overall_compatibility': {
             'score': overall_percentage,
             'interpretation': interpret_compatibility(overall_percentage)
@@ -713,6 +737,16 @@ def calculate_compatibility(
             'domain_similarity': round(domain_similarity * 100),
             'activity_overlap': round(activity_overlap * 100),
             'truth_overlap': round(adjusted_truth_overlap * 100),
+            'se_modifier': round(se_modifier * 100),       # NEW
+            'sisc_modifier': round(sisc_modifier * 100),   # NEW
+        },
+        'arousal_alignment': {  # NEW section
+            'se_a': round(se_a, 2),
+            'se_b': round(se_b, 2),
+            'sisc_a': round(sisc_a, 2),
+            'sisc_b': round(sisc_b, 2),
+            'se_modifier': round(se_modifier * 100),
+            'sisc_modifier': round(sisc_modifier * 100),
         },
         'mutual_activities': mutual_activities,
         'growth_opportunities': growth_opportunities,

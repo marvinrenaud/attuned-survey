@@ -25,6 +25,7 @@ SAME_TOLERANCE = 2  # percentage points
 class TestCompatibilityArousalBaseline:
     """Tests for capturing and comparing compatibility baselines."""
 
+    @pytest.mark.skip(reason="Run manually to capture baseline: pytest -v -s -k test_capture_baseline_scores --run-capture")
     def test_capture_baseline_scores(self):
         """
         Capture current compatibility scores for all test pairs.
@@ -119,8 +120,8 @@ class TestCompatibilityArousalRegression:
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_se_high_mid_scores_higher(self, baseline_scores):
-        """High + Mid SE should score HIGHER after arousal integration."""
+    def test_se_high_mid_scores_same(self, baseline_scores):
+        """High + Mid SE with SIS-C mid should score approximately SAME (bonuses offset truth reduction)."""
         pair_name = "se_high_mid"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -129,13 +130,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score > old_score, (
-            f"Expected HIGHER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_se_high_low_scores_higher(self, baseline_scores):
-        """High + Low SE should score slightly HIGHER (high compensates)."""
+    def test_se_high_low_scores_same(self, baseline_scores):
+        """High + Low SE with SIS-C mid should score approximately SAME (bonuses mostly offset truth reduction)."""
         pair_name = "se_high_low"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -144,8 +145,8 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score > old_score, (
-            f"Expected HIGHER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
@@ -179,8 +180,8 @@ class TestCompatibilityArousalRegression:
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_both_mid_scores_higher(self, baseline_scores):
-        """Both mid SIS-C should score HIGHER (flexible bonus)."""
+    def test_sisc_both_mid_scores_same(self, baseline_scores):
+        """Both mid SIS-C should score approximately SAME (bonus partially offsets truth reduction)."""
         pair_name = "sisc_both_mid"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -189,13 +190,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score > old_score, (
-            f"Expected HIGHER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_both_high_scores_same(self, baseline_scores):
-        """Both high SIS-C should score approximately SAME (aligned but neutral)."""
+    def test_sisc_both_high_scores_lower(self, baseline_scores):
+        """Both high SIS-C should score LOWER (no bonus to offset truth reduction)."""
         pair_name = "sisc_both_high"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -204,13 +205,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
-            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
+        assert new_score < old_score, (
+            f"Expected LOWER: {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_both_low_scores_same(self, baseline_scores):
-        """Both low SIS-C should score approximately SAME (aligned but neutral)."""
+    def test_sisc_both_low_scores_lower(self, baseline_scores):
+        """Both low SIS-C should score LOWER (no bonus to offset truth reduction)."""
         pair_name = "sisc_both_low"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -219,8 +220,8 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
-            f"Expected SAME (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
+        assert new_score < old_score, (
+            f"Expected LOWER: {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 

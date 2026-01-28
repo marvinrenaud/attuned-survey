@@ -8,7 +8,7 @@
       "truth_overlap": 75
     },
     "expected_direction": "HIGHER",
-    "reason": "Both high SE should get full 3% bonus"
+    "reason": "Both high SE gets +3% bonus plus +2% SIS-C mid bonus"
   },
   "se_high_mid": {
     "score": 84,
@@ -18,8 +18,8 @@
       "activity_overlap": 74,
       "truth_overlap": 75
     },
-    "expected_direction": "HIGHER",
-    "reason": "High + Mid SE should get 1.5% bonus"
+    "expected_direction": "SAME",
+    "reason": "High+Mid SE (+1.5%) plus SIS-C mid (+2%) approximately offsets truth reduction"
   },
   "se_high_low": {
     "score": 84,
@@ -29,8 +29,8 @@
       "activity_overlap": 74,
       "truth_overlap": 75
     },
-    "expected_direction": "HIGHER",
-    "reason": "High + Low SE should get 0.5% bonus"
+    "expected_direction": "SAME",
+    "reason": "High+Low SE (+0.5%) plus SIS-C mid (+2%) mostly offsets truth reduction"
   },
   "se_both_mid": {
     "score": 84,
@@ -41,7 +41,7 @@
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
-    "reason": "Both mid SE should have no change"
+    "reason": "Mid SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
   },
   "se_both_low": {
     "score": 84,
@@ -52,7 +52,7 @@
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
-    "reason": "Both low SE should have no bonus (neutral)"
+    "reason": "Low SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
   },
   "sisc_both_mid": {
     "score": 84,
@@ -62,8 +62,8 @@
       "activity_overlap": 74,
       "truth_overlap": 75
     },
-    "expected_direction": "HIGHER",
-    "reason": "Both mid SIS-C should get 2% bonus (flexible)"
+    "expected_direction": "SAME",
+    "reason": "Both mid SIS-C (+2%) partially offsets truth reduction"
   },
   "sisc_both_high": {
     "score": 84,
@@ -73,8 +73,8 @@
       "activity_overlap": 74,
       "truth_overlap": 75
     },
-    "expected_direction": "SAME",
-    "reason": "Both high SIS-C is aligned but neutral"
+    "expected_direction": "LOWER",
+    "reason": "Both high SIS-C (0%) doesn't offset truth reduction"
   },
   "sisc_both_low": {
     "score": 84,
@@ -84,8 +84,8 @@
       "activity_overlap": 74,
       "truth_overlap": 75
     },
-    "expected_direction": "SAME",
-    "reason": "Both low SIS-C is aligned but neutral"
+    "expected_direction": "LOWER",
+    "reason": "Both low SIS-C (0%) doesn't offset truth reduction"
   },
   "sisc_mismatch": {
     "score": 84,
@@ -96,7 +96,7 @@
       "truth_overlap": 75
     },
     "expected_direction": "LOWER",
-    "reason": "Significant SIS-C mismatch should get -2% penalty"
+    "reason": "SIS-C mismatch (-2%) plus truth reduction compounds penalty"
   },
   "optimal_pair": {
     "score": 84,
@@ -107,7 +107,7 @@
       "truth_overlap": 75
     },
     "expected_direction": "HIGHER",
-    "reason": "Optimal arousal alignment should get full +5%"
+    "reason": "Both high SE (+3%) plus SIS-C mid (+2%) exceeds truth reduction"
   },
   "baseline_pair": {
     "score": 84,
@@ -118,6 +118,6 @@
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
-    "reason": "Baseline mid arousal pair should stay approximately the same"
+    "reason": "Baseline mid arousal pair with SIS-C mid bonus partially offsets reduction"
   }
 }

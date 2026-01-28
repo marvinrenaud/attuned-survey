@@ -302,81 +302,86 @@ PROFILE_BOTH_LOW_SE_BOTTOM = _build_base_profile(
 # =============================================================================
 
 # Expected score changes after arousal integration:
-# HIGHER = should score higher after change
-# SAME = should stay approximately the same
-# LOWER = should score lower after change
+# Note: Truth weight reduced from 20% to 15% (-5%), so pairs without arousal bonuses
+# will score ~4% lower. The modifiers are:
+# - SE: Both high (+3%), High+Mid (+1.5%), High+Low (+0.5%), others (0%)
+# - SIS-C: Both mid (+2%), mismatch>0.4 (-2%), others (0%)
+#
+# HIGHER = arousal bonuses exceed truth reduction (net positive)
+# SAME = arousal bonuses approximately offset truth reduction (within ±2%)
+# LOWER = no bonuses or penalties, net negative from truth reduction
 
 TEST_PAIRS = {
     # SE Capacity Tests
     "se_both_high": {
         "profile_a": PROFILE_SE_HIGH_TOP,
         "profile_b": PROFILE_SE_HIGH_BOTTOM,
-        "expected_direction": "HIGHER",  # Both high SE = +3%
-        "reason": "Both high SE should get full 3% bonus"
+        "expected_direction": "HIGHER",  # +3% SE + 2% SIS-C - 4% truth = +1%
+        "reason": "Both high SE gets +3% bonus plus +2% SIS-C mid bonus"
     },
     "se_high_mid": {
         "profile_a": PROFILE_SE_HIGH_TOP,
         "profile_b": PROFILE_SE_MID_BOTTOM,
-        "expected_direction": "HIGHER",  # High + Mid = +1.5%
-        "reason": "High + Mid SE should get 1.5% bonus"
+        "expected_direction": "SAME",  # +1.5% SE + 2% SIS-C - 4% truth ≈ 0%
+        "reason": "High+Mid SE (+1.5%) plus SIS-C mid (+2%) approximately offsets truth reduction"
     },
     "se_high_low": {
         "profile_a": PROFILE_SE_HIGH_TOP,
         "profile_b": PROFILE_SE_LOW_BOTTOM,
-        "expected_direction": "HIGHER",  # High + Low = +0.5%
-        "reason": "High + Low SE should get 0.5% bonus"
+        "expected_direction": "SAME",  # +0.5% SE + 2% SIS-C - 4% truth ≈ -1.5%
+        "reason": "High+Low SE (+0.5%) plus SIS-C mid (+2%) mostly offsets truth reduction"
     },
     "se_both_mid": {
         "profile_a": PROFILE_SE_MID_TOP,
         "profile_b": PROFILE_SE_MID_BOTTOM,
-        "expected_direction": "SAME",  # Mid + Mid = 0%
-        "reason": "Both mid SE should have no change"
+        "expected_direction": "SAME",  # 0% SE + 2% SIS-C - 4% truth ≈ -2%
+        "reason": "Mid SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
     },
     "se_both_low": {
         "profile_a": PROFILE_SE_LOW_TOP,
         "profile_b": PROFILE_SE_LOW_BOTTOM,
-        "expected_direction": "SAME",  # Low + Low = 0%
-        "reason": "Both low SE should have no bonus (neutral)"
+        "expected_direction": "SAME",  # 0% SE + 2% SIS-C - 4% truth ≈ -2%
+        "reason": "Low SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
     },
 
     # SIS-C Alignment Tests
     "sisc_both_mid": {
         "profile_a": PROFILE_SISC_MID_TOP,
         "profile_b": PROFILE_SISC_MID_BOTTOM,
-        "expected_direction": "HIGHER",  # Both mid = +2%
-        "reason": "Both mid SIS-C should get 2% bonus (flexible)"
+        "expected_direction": "SAME",  # 0% SE + 2% SIS-C - 4% truth ≈ -2%
+        "reason": "Both mid SIS-C (+2%) partially offsets truth reduction"
     },
     "sisc_both_high": {
         "profile_a": PROFILE_SISC_HIGH_TOP,
         "profile_b": PROFILE_SISC_HIGH_BOTTOM,
-        "expected_direction": "SAME",  # Both high = 0%
-        "reason": "Both high SIS-C is aligned but neutral"
+        "expected_direction": "LOWER",  # 0% SE + 0% SIS-C - 4% truth = -4%
+        "reason": "Both high SIS-C (0%) doesn't offset truth reduction"
     },
     "sisc_both_low": {
         "profile_a": PROFILE_SISC_LOW_TOP,
         "profile_b": PROFILE_SISC_LOW_BOTTOM,
-        "expected_direction": "SAME",  # Both low = 0%
-        "reason": "Both low SIS-C is aligned but neutral"
+        "expected_direction": "LOWER",  # 0% SE + 0% SIS-C - 4% truth = -4%
+        "reason": "Both low SIS-C (0%) doesn't offset truth reduction"
     },
     "sisc_mismatch": {
         "profile_a": PROFILE_MISMATCH_RISKY,
         "profile_b": PROFILE_MISMATCH_CAUTIOUS,
-        "expected_direction": "LOWER",  # Delta > 0.4 = -2%
-        "reason": "Significant SIS-C mismatch should get -2% penalty"
+        "expected_direction": "LOWER",  # 0% SE - 2% SIS-C - 4% truth = -6%
+        "reason": "SIS-C mismatch (-2%) plus truth reduction compounds penalty"
     },
 
     # Combined Tests
     "optimal_pair": {
         "profile_a": PROFILE_OPTIMAL_TOP,
         "profile_b": PROFILE_OPTIMAL_BOTTOM,
-        "expected_direction": "HIGHER",  # Both high SE (+3%) + Both mid SIS-C (+2%) = +5%
-        "reason": "Optimal arousal alignment should get full +5%"
+        "expected_direction": "HIGHER",  # +3% SE + 2% SIS-C - 4% truth = +1%
+        "reason": "Both high SE (+3%) plus SIS-C mid (+2%) exceeds truth reduction"
     },
     "baseline_pair": {
         "profile_a": PROFILE_SE_MID_TOP,
         "profile_b": PROFILE_SE_MID_BOTTOM,
-        "expected_direction": "SAME",  # Mid SE (0%) + Mid SIS-C (but need both mid...)
-        "reason": "Baseline mid arousal pair should stay approximately the same"
+        "expected_direction": "SAME",  # 0% SE + 2% SIS-C - 4% truth ≈ -2%
+        "reason": "Baseline mid arousal pair with SIS-C mid bonus partially offsets reduction"
     },
 }
 
