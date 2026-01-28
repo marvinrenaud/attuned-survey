@@ -271,33 +271,55 @@ class TestCurrentActivityScoringBehavior:
         # Should have high power alignment (Top + Bottom pair)
         assert result["power_alignment_score"] >= 0.9
 
-    def test_arousal_values_currently_not_used(self):
+    def test_arousal_values_affect_scores_with_session_context(self):
         """
-        Verify that different arousal values DON'T affect scores currently.
+        Verify that arousal values affect scores when session_context is provided.
 
-        This test documents the current behavior where arousal is NOT used
-        in activity scoring. After arousal integration, this behavior will change.
+        After arousal integration, SE affects pacing based on session progress.
+        Without session_context, SE pacing modifier defaults to 0.
         """
-        activity = INTENSITY_TEST_ACTIVITIES[0]  # gentle_massage
+        activity = INTENSITY_TEST_ACTIVITIES[2]  # intense_spanking (intensity=3)
 
-        # Score with high SE profiles
+        # Score with high SE profiles with session context (mid-session)
         result_high_se = score_activity_for_players(
             activity,
             PROFILE_SE_HIGH_TOP,
-            PROFILE_SE_HIGH_BOTTOM
+            PROFILE_SE_HIGH_BOTTOM,
+            session_context={'seq': 15, 'target': 25}  # 60% through session
         )
 
-        # Score with low SE profiles
+        # Score with low SE profiles with same session context
         result_low_se = score_activity_for_players(
             activity,
             PROFILE_SE_LOW_TOP,
-            PROFILE_SE_LOW_BOTTOM
+            PROFILE_SE_LOW_BOTTOM,
+            session_context={'seq': 15, 'target': 25}
         )
 
-        # Currently, scores should be the SAME because arousal isn't used
-        # After arousal integration, this will change
-        assert result_high_se["overall_score"] == result_low_se["overall_score"], \
-            "EXPECTED: Current implementation ignores arousal values"
+        # After arousal integration, high SE should score intense activities higher
+        # (at peak phase, high SE has adjusted expected intensity of 4.0, matches well)
+        assert result_high_se["se_pacing_modifier"] > result_low_se["se_pacing_modifier"], \
+            "High SE should have better pacing modifier for intense activities at peak"
+
+    def test_arousal_without_session_context_defaults(self):
+        """
+        Without session_context, SE pacing modifier defaults to 0.
+
+        This ensures backward compatibility for callers not passing session context.
+        """
+        activity = INTENSITY_TEST_ACTIVITIES[0]  # gentle_massage
+
+        # Score without session context
+        result = score_activity_for_players(
+            activity,
+            PROFILE_SE_HIGH_TOP,
+            PROFILE_SE_HIGH_BOTTOM
+            # No session_context
+        )
+
+        # SE pacing modifier should be 0 without session context
+        assert result["se_pacing_modifier"] == 0.0, \
+            "SE pacing modifier should default to 0 without session context"
 
 
 # =============================================================================

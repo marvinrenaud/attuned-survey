@@ -273,17 +273,19 @@ def score_activity_for_players(
     activity: Dict[str, Any],
     player_a_profile: Dict[str, Any],
     player_b_profile: Dict[str, Any],
-    weights: Optional[Dict[str, float]] = None
+    weights: Optional[Dict[str, float]] = None,
+    session_context: Optional[Dict[str, Any]] = None
 ) -> Dict[str, float]:
     """
     Calculate overall personalization score for an activity-player pair.
-    
+
     Args:
         activity: Activity dict with power_role, preference_keys, domains
         player_a_profile: Complete profile for player A
         player_b_profile: Complete profile for player B
         weights: Optional custom weights (default: mutual=0.5, power=0.3, domain=0.2)
-    
+        session_context: Optional dict with 'seq' and 'target' for pacing
+
     Returns:
         Dict with component scores and overall score
     """
@@ -293,7 +295,7 @@ def score_activity_for_players(
             'power_alignment': 0.3,
             'domain_fit': 0.2
         }
-    
+
     # Extract player data
     player_a_activities = player_a_profile.get('activities', {})
     player_b_activities = player_b_profile.get('activities', {})
@@ -301,47 +303,83 @@ def score_activity_for_players(
     player_b_power = player_b_profile.get('power_dynamic', {})
     player_a_domains = player_a_profile.get('domain_scores', {})
     player_b_domains = player_b_profile.get('domain_scores', {})
-    
+
+    # Extract arousal data
+    arousal_a = player_a_profile.get('arousal_propensity', {})
+    arousal_b = player_b_profile.get('arousal_propensity', {})
+    se_a = arousal_a.get('sexual_excitation', 0.5)
+    se_b = arousal_b.get('sexual_excitation', 0.5)
+    sisp_a = arousal_a.get('inhibition_performance', 0.5)
+    sisp_b = arousal_b.get('inhibition_performance', 0.5)
+
     # Extract activity data
     activity_pref_keys = activity.get('preference_keys', [])
     activity_power_role = activity.get('power_role', 'neutral')
     activity_domains = activity.get('domains', [])
-    
+    activity_intensity = activity.get('intensity', activity.get('intensity_level', 2))
+    is_performance = activity.get('is_performance', activity.get('performance_pressure', 'low') in ['high', 'moderate'])
+
+    # Map intensity_level string to numeric if needed
+    if isinstance(activity_intensity, str):
+        intensity_map = {'gentle': 1, 'moderate': 2, 'intense': 3}
+        activity_intensity = intensity_map.get(activity_intensity, 2)
+
     # Calculate component scores
     mutual_interest = score_mutual_interest(
         activity_pref_keys,
         player_a_activities,
         player_b_activities
     )
-    
+
     power_alignment = score_power_alignment(
         activity_power_role,
         player_a_power.get('orientation', 'Switch'),
         player_b_power.get('orientation', 'Switch')
     )
-    
+
     domain_fit = score_domain_fit(
         activity_domains,
         player_a_domains,
         player_b_domains
     )
-    
+
+    # Calculate arousal modifiers
+    se_pacing_modifier = 0.0
+    sisp_modifier = 0.0
+
+    if session_context:
+        seq = session_context.get('seq', 1)
+        target = session_context.get('target', 25)
+        se_pacing_modifier = calculate_se_pacing_modifier(
+            activity_intensity, se_a, se_b, seq, target
+        )
+
+    sisp_modifier = calculate_sisp_modifier(is_performance, sisp_a, sisp_b)
+
     # Calculate weighted overall score
-    overall_score = (
+    base_score = (
         weights['mutual_interest'] * mutual_interest +
         weights['power_alignment'] * power_alignment +
         weights['domain_fit'] * domain_fit
     )
-    
+
+    # Apply arousal modifiers
+    overall_score = base_score + se_pacing_modifier + sisp_modifier
+    overall_score = max(0.0, min(1.0, overall_score))  # Clamp to 0-1
+
     return {
         'mutual_interest_score': round(mutual_interest, 3),
         'power_alignment_score': round(power_alignment, 3),
         'domain_fit_score': round(domain_fit, 3),
+        'se_pacing_modifier': round(se_pacing_modifier, 3),
+        'sisp_modifier': round(sisp_modifier, 3),
         'overall_score': round(overall_score, 3),
         'components': {
             'mutual_interest': mutual_interest,
             'power_alignment': power_alignment,
-            'domain_fit': domain_fit
+            'domain_fit': domain_fit,
+            'se_pacing': se_pacing_modifier,
+            'sisp': sisp_modifier,
         },
         'weights': weights
     }
