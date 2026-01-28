@@ -1,0 +1,123 @@
+{
+  "se_both_high": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "HIGHER",
+    "reason": "Both high SE should get full 3% bonus"
+  },
+  "se_high_mid": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "HIGHER",
+    "reason": "High + Mid SE should get 1.5% bonus"
+  },
+  "se_high_low": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "HIGHER",
+    "reason": "High + Low SE should get 0.5% bonus"
+  },
+  "se_both_mid": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "SAME",
+    "reason": "Both mid SE should have no change"
+  },
+  "se_both_low": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "SAME",
+    "reason": "Both low SE should have no bonus (neutral)"
+  },
+  "sisc_both_mid": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "HIGHER",
+    "reason": "Both mid SIS-C should get 2% bonus (flexible)"
+  },
+  "sisc_both_high": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "SAME",
+    "reason": "Both high SIS-C is aligned but neutral"
+  },
+  "sisc_both_low": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "SAME",
+    "reason": "Both low SIS-C is aligned but neutral"
+  },
+  "sisc_mismatch": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "LOWER",
+    "reason": "Significant SIS-C mismatch should get -2% penalty"
+  },
+  "optimal_pair": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "HIGHER",
+    "reason": "Optimal arousal alignment should get full +5%"
+  },
+  "baseline_pair": {
+    "score": 84,
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 96,
+      "activity_overlap": 74,
+      "truth_overlap": 75
+    },
+    "expected_direction": "SAME",
+    "reason": "Baseline mid arousal pair should stay approximately the same"
+  }
+}
