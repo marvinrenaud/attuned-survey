@@ -304,9 +304,36 @@ class TestSEModifier:
         assert calculate_se_modifier(0.80, 0.50) == calculate_se_modifier(0.50, 0.80)
 
 
-class TestCompatibilityArousalUnit:
-    """Unit tests for arousal-specific compatibility functions."""
+class TestSISCModifier:
+    """Unit tests for SIS-C compatibility modifier."""
 
-    def test_sisc_modifier_mismatch(self):
-        """Test SIS-C modifier calculation for mismatch."""
-        pytest.skip("SIS-C modifier function not yet implemented")
+    def test_both_mid_returns_bonus(self):
+        from src.compatibility.calculator import calculate_sisc_modifier
+        result = calculate_sisc_modifier(0.50, 0.45)
+        assert result == 0.02
+
+    def test_significant_mismatch_returns_penalty(self):
+        from src.compatibility.calculator import calculate_sisc_modifier
+        result = calculate_sisc_modifier(0.15, 0.90)  # delta = 0.75 > 0.4
+        assert result == -0.02
+
+    def test_both_high_returns_zero(self):
+        from src.compatibility.calculator import calculate_sisc_modifier
+        result = calculate_sisc_modifier(0.80, 0.75)
+        assert result == 0.0
+
+    def test_both_low_returns_zero(self):
+        from src.compatibility.calculator import calculate_sisc_modifier
+        result = calculate_sisc_modifier(0.20, 0.25)
+        assert result == 0.0
+
+    def test_moderate_mismatch_returns_zero(self):
+        # delta = 0.35, which is < 0.4 threshold
+        from src.compatibility.calculator import calculate_sisc_modifier
+        result = calculate_sisc_modifier(0.30, 0.65)
+        assert result == 0.0
+
+    def test_order_independent(self):
+        """SIS-C modifier should work regardless of which profile is a vs b."""
+        from src.compatibility.calculator import calculate_sisc_modifier
+        assert calculate_sisc_modifier(0.15, 0.90) == calculate_sisc_modifier(0.90, 0.15)

@@ -51,6 +51,40 @@ def calculate_se_modifier(se_a: float, se_b: float) -> float:
         return 0.0
 
 
+def calculate_sisc_modifier(sisc_a: float, sisc_b: float) -> float:
+    """
+    Calculate SIS-C (Consequence Inhibition) compatibility modifier.
+
+    Research basis: Kinsey Institute research - risk tolerance alignment matters.
+    Significant mismatch in SIS-C creates friction around comfort zones.
+
+    Args:
+        sisc_a: Player A's SIS-C score (0-1)
+        sisc_b: Player B's SIS-C score (0-1)
+
+    Returns:
+        Modifier value: 0.02 (both mid), -0.02 (mismatch > 0.4), 0.0 (other)
+    """
+    MID_LOW = 0.35
+    MID_HIGH = 0.65
+    MISMATCH_THRESHOLD = 0.4
+
+    delta = abs(sisc_a - sisc_b)
+    both_mid = (MID_LOW <= sisc_a <= MID_HIGH) and (MID_LOW <= sisc_b <= MID_HIGH)
+
+    if delta > MISMATCH_THRESHOLD:
+        # Significant mismatch - potential friction on risk tolerance
+        return -0.02
+
+    elif both_mid:
+        # Both flexible/adaptable - positive signal
+        return 0.02
+
+    else:
+        # Both high or both low - aligned, neutral
+        return 0.0
+
+
 def calculate_power_complement(power_a: Dict[str, Any], power_b: Dict[str, Any]) -> float:
     """
     Calculate power dynamic complement (0-1).
