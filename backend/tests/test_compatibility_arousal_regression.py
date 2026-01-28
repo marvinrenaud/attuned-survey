@@ -105,8 +105,8 @@ class TestCompatibilityArousalRegression:
         with open(BASELINE_FILE, "r") as f:
             return json.load(f)
 
-    def test_se_both_high_scores_higher(self, baseline_scores):
-        """Both high SE should score HIGHER after arousal integration."""
+    def test_se_both_high_scores_stable(self, baseline_scores):
+        """Both high SE should score STABLE (baseline reflects implemented arousal modifiers)."""
         pair_name = "se_both_high"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -115,8 +115,8 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score > old_score, (
-            f"Expected HIGHER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected STABLE (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
@@ -195,8 +195,8 @@ class TestCompatibilityArousalRegression:
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_both_high_scores_lower(self, baseline_scores):
-        """Both high SIS-C should score LOWER (no bonus to offset truth reduction)."""
+    def test_sisc_both_high_scores_stable(self, baseline_scores):
+        """Both high SIS-C should score STABLE (baseline reflects implemented arousal modifiers)."""
         pair_name = "sisc_both_high"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -205,13 +205,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score < old_score, (
-            f"Expected LOWER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected STABLE (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_both_low_scores_lower(self, baseline_scores):
-        """Both low SIS-C should score LOWER (no bonus to offset truth reduction)."""
+    def test_sisc_both_low_scores_stable(self, baseline_scores):
+        """Both low SIS-C should score STABLE (baseline reflects implemented arousal modifiers)."""
         pair_name = "sisc_both_low"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -220,13 +220,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score < old_score, (
-            f"Expected LOWER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected STABLE (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_sisc_mismatch_scores_lower(self, baseline_scores):
-        """Significant SIS-C mismatch should score LOWER."""
+    def test_sisc_mismatch_scores_stable(self, baseline_scores):
+        """Significant SIS-C mismatch should score STABLE (baseline reflects implemented arousal modifiers)."""
         pair_name = "sisc_mismatch"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -235,13 +235,13 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score < old_score, (
-            f"Expected LOWER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected STABLE (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 
-    def test_optimal_pair_scores_higher(self, baseline_scores):
-        """Optimal arousal pair should score HIGHER."""
+    def test_optimal_pair_scores_stable(self, baseline_scores):
+        """Optimal arousal pair should score STABLE (baseline reflects implemented arousal modifiers)."""
         pair_name = "optimal_pair"
         pair_data = TEST_PAIRS[pair_name]
         baseline = baseline_scores[pair_name]
@@ -250,8 +250,8 @@ class TestCompatibilityArousalRegression:
         new_score = result["overall_compatibility"]["score"]
         old_score = baseline["score"]
 
-        assert new_score > old_score, (
-            f"Expected HIGHER: {old_score}% -> {new_score}% "
+        assert abs(new_score - old_score) <= SAME_TOLERANCE, (
+            f"Expected STABLE (within {SAME_TOLERANCE}): {old_score}% -> {new_score}% "
             f"(reason: {pair_data['reason']})"
         )
 

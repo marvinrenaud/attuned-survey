@@ -1062,6 +1062,40 @@ Response: {
 
 ## Version History
 
+### v0.7 (Jan 28, 2026) - Agreement-Based Jaccard
+**Changes**:
+- Agreement-based Jaccard: mutual disinterest (both saying "no") now counts as agreement
+- Same-pole domain penalty implemented: domain similarity × 0.5 for Top+Top and Bottom+Bottom
+- Versatile power complement: Versatile/Versatile returns 0.75 (was 0.50, same as conflicts)
+- Updated asymmetric directional Jaccard to count mutual disinterest in primary/secondary axes
+
+**Impact**:
+- Perfect Match (Top+Bottom): 89% → 96% ✅
+- Vanilla Couple (Switch+Switch): 84% → 91% ✅
+- Top+Top Conflict: 57% → 45% ✅
+- Conservative Match (Versatile+Versatile): 72% → 86% ✅
+
+**Known Issue**:
+- Bottom+Bottom scores 46% vs Top+Top's 45% due to same-pole Jaccard asymmetry
+- Algorithm penalizes "both want to give" but not "both want to receive"
+- Severity: Minor (1% difference, both indicate conflict)
+
+**Test Coverage**:
+- `tests/test_compatibility_agreement_jaccard.py` - 11 tests for new behaviors
+- `tests/fixtures/diverse_test_profiles.py` - 6 diverse test pairs
+- `tests/fixtures/diverse_pair_baseline_results.json` - Documented baselines
+
+### v0.6 (Jan 2026) - Arousal Integration
+**Changes**:
+- Added SE (Sexual Excitation) modifier: +3% for both high, +1.5% for high+mid, +0.5% for high+low
+- Added SIS-C (Inhibition-Consequence) modifier: +2% for both mid, -2% for mismatch >0.4
+- Reduced truth weight from 20% to 15% to accommodate arousal modifiers
+- Updated compatibility version to 0.6
+
+**Impact**:
+- Arousal alignment now affects compatibility scores
+- Both-high-SE pairs get up to +5% bonus (SE + SIS-C mid)
+
 ### v0.5 (Oct 15, 2025) - Same-Pole Fix
 **Changes**:
 - Added `calculateSamePoleJaccard()`
@@ -1101,6 +1135,7 @@ Response: {
 
 ### Current System
 - **Identical profiles score higher than expected** (50% vs 38%) - By design, truly identical users will have some compatibility
+- **Same-pole Jaccard asymmetry**: Bottom+Bottom pairs score ~1% higher than Top+Top due to algorithm only penalizing "both want to give" scenarios, not "both want to receive"
 - **Backend dependency**: Frontend requires backend for data
 - **No offline mode**: Requires internet connection
 - **Single baseline**: Can only compare to one profile at a time

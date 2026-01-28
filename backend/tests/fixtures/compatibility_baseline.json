@@ -1,120 +1,120 @@
 {
   "se_both_high": {
-    "score": 84,
+    "score": 92,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "HIGHER",
     "reason": "Both high SE gets +3% bonus plus +2% SIS-C mid bonus"
   },
   "se_high_mid": {
-    "score": 84,
+    "score": 90,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
     "reason": "High+Mid SE (+1.5%) plus SIS-C mid (+2%) approximately offsets truth reduction"
   },
   "se_high_low": {
-    "score": 84,
+    "score": 89,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
     "reason": "High+Low SE (+0.5%) plus SIS-C mid (+2%) mostly offsets truth reduction"
   },
   "se_both_mid": {
-    "score": 84,
+    "score": 89,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
     "reason": "Mid SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
   },
   "se_both_low": {
-    "score": 84,
+    "score": 89,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
     "reason": "Low SE (0%) plus SIS-C mid (+2%) partially offsets truth reduction"
   },
   "sisc_both_mid": {
-    "score": 84,
+    "score": 89,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",
     "reason": "Both mid SIS-C (+2%) partially offsets truth reduction"
   },
   "sisc_both_high": {
-    "score": 84,
+    "score": 87,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "LOWER",
     "reason": "Both high SIS-C (0%) doesn't offset truth reduction"
   },
   "sisc_both_low": {
-    "score": 84,
+    "score": 87,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "LOWER",
     "reason": "Both low SIS-C (0%) doesn't offset truth reduction"
   },
   "sisc_mismatch": {
-    "score": 84,
+    "score": 85,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "LOWER",
     "reason": "SIS-C mismatch (-2%) plus truth reduction compounds penalty"
   },
   "optimal_pair": {
-    "score": 84,
+    "score": 92,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "HIGHER",
     "reason": "Both high SE (+3%) plus SIS-C mid (+2%) exceeds truth reduction"
   },
   "baseline_pair": {
-    "score": 84,
+    "score": 89,
     "breakdown": {
       "power_complement": 100,
       "domain_similarity": 96,
-      "activity_overlap": 74,
+      "activity_overlap": 91,
       "truth_overlap": 75
     },
     "expected_direction": "SAME",

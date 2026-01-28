@@ -1,12 +1,20 @@
 """
 Compatibility calculator - Python port of frontend/src/lib/matching/compatibilityMapper.js
 
-This implements the v0.4/v0.5 compatibility algorithm with:
-- Power complement calculation
-- Domain similarity
-- Activity overlap with asymmetric matching
-- Truth topic overlap
+This implements the v0.7 compatibility algorithm with:
+- Power complement calculation (including Versatile handling)
+- Domain similarity (with same-pole 0.5 penalty)
+- Activity overlap with asymmetric matching (agreement-based Jaccard)
+- Truth topic overlap (with same-pole 0.5 penalty)
 - Boundary conflict detection
+- SE/SIS-C arousal modifiers
+
+v0.7 Changes (Jan 2026):
+- Agreement-based Jaccard: mutual disinterest counts as agreement
+- Same-pole domain penalty: 0.5 multiplier for Top+Top and Bottom+Bottom
+- Versatile power complement: 0.75 for Versatile/Versatile pairs
+
+See docs/TECHNICAL_NOTES.md for full algorithm documentation.
 """
 import math
 from typing import Dict, List, Any, Optional, Tuple
@@ -88,29 +96,39 @@ def calculate_sisc_modifier(sisc_a: float, sisc_b: float) -> float:
 def calculate_power_complement(power_a: Dict[str, Any], power_b: Dict[str, Any]) -> float:
     """
     Calculate power dynamic complement (0-1).
-    
+
     Top/Bottom pairs score higher, same-pole pairs can still work.
+    Versatile pairs are flexible and can adapt to each other.
     """
     orientation_a = power_a.get('orientation', 'Switch')
     orientation_b = power_b.get('orientation', 'Switch')
     intensity_a = power_a.get('intensity', 0.5)
     intensity_b = power_b.get('intensity', 0.5)
-    
+
     # Perfect complement: Top + Bottom
     if (orientation_a == 'Top' and orientation_b == 'Bottom') or \
        (orientation_a == 'Bottom' and orientation_b == 'Top'):
         # Higher intensity difference = better complement
         intensity_alignment = 1.0 - abs(intensity_a - intensity_b) * 0.3
         return min(1.0, intensity_alignment)
-    
+
     # Both Switch: Good compatibility
     if orientation_a == 'Switch' and orientation_b == 'Switch':
         return 0.85
-    
+
+    # Both Versatile/Undefined: flexible, can adapt to each other
+    versatile_values = ('Versatile', 'Versatile/Undefined')
+    if orientation_a in versatile_values and orientation_b in versatile_values:
+        return 0.75
+
     # One Switch: Moderate compatibility
     if orientation_a == 'Switch' or orientation_b == 'Switch':
         return 0.75
-    
+
+    # One Versatile with defined orientation: somewhat adaptable
+    if orientation_a in versatile_values or orientation_b in versatile_values:
+        return 0.60
+
     # Same pole (both Top or both Bottom): Lower but not zero
     return 0.50
 
@@ -123,51 +141,62 @@ def calculate_domain_similarity(
 ) -> float:
     """
     Calculate domain similarity (0-1).
-    
+
     For complementary power dynamics (Top/Bottom), divergence in exploration/verbal is beneficial.
+    For same-pole pairs (Top/Top or Bottom/Bottom), apply 0.5 penalty per TECHNICAL_NOTES.md.
     """
     orientation_a = power_a.get('orientation', 'Switch')
     orientation_b = power_b.get('orientation', 'Switch')
-    
+
     is_complementary = (orientation_a == 'Top' and orientation_b == 'Bottom') or \
                       (orientation_a == 'Bottom' and orientation_b == 'Top')
-    
+
+    is_same_pole = (orientation_a == 'Top' and orientation_b == 'Top') or \
+                   (orientation_a == 'Bottom' and orientation_b == 'Bottom')
+
     # Calculate distances (0-1)
     # Normalize scores to 0-1 if they are 0-100
     def norm(s): return s / 100.0 if s > 1.0 else s
-    
+
     sensation_dist = 1.0 - abs(norm(domains_a.get('sensation', 0)) - norm(domains_b.get('sensation', 0)))
     connection_dist = 1.0 - abs(norm(domains_a.get('connection', 0)) - norm(domains_b.get('connection', 0)))
     power_dist = 1.0 - abs(norm(domains_a.get('power', 0)) - norm(domains_b.get('power', 0)))
-    
+
     if is_complementary:
         # For complementary pairs, use minimum threshold approach for exploration/verbal
         exp_a = domains_a.get('exploration', 0)
         exp_b = domains_b.get('exploration', 0)
         verb_a = domains_a.get('verbal', 0)
         verb_b = domains_b.get('verbal', 0)
-        
+
         # Ensure 0-100 scale for threshold check
         if exp_a <= 1.0: exp_a *= 100
         if exp_b <= 1.0: exp_b *= 100
         if verb_a <= 1.0: verb_a *= 100
         if verb_b <= 1.0: verb_b *= 100
-        
+
         min_exploration = min(exp_a, exp_b)
         min_verbal = min(verb_a, verb_b)
-        
+
         # If minimum is 50+, score is 1.0 (no penalty)
         # If minimum is below 50, scale proportionally
         exploration_score = 1.0 if min_exploration >= 50 else min_exploration / 50.0
         verbal_score = 1.0 if min_verbal >= 50 else min_verbal / 50.0
-        
+
         return (sensation_dist + connection_dist + power_dist + exploration_score + verbal_score) / 5.0
     else:
         # For Switch/Switch or same-pole pairs, use standard distance
         exploration_dist = 1.0 - abs(norm(domains_a.get('exploration', 0)) - norm(domains_b.get('exploration', 0)))
         verbal_dist = 1.0 - abs(norm(domains_a.get('verbal', 0)) - norm(domains_b.get('verbal', 0)))
-        
-        return (sensation_dist + connection_dist + power_dist + exploration_dist + verbal_dist) / 5.0
+
+        base_similarity = (sensation_dist + connection_dist + power_dist + exploration_dist + verbal_dist) / 5.0
+
+        # Apply same-pole penalty per TECHNICAL_NOTES.md lines 470-477
+        # "avgSimilarity × 0.5 // Half credit"
+        if is_same_pole:
+            return base_similarity * 0.5
+
+        return base_similarity
 
 
 def calculate_asymmetric_directional_jaccard(
@@ -210,23 +239,29 @@ def calculate_asymmetric_directional_jaccard(
             processed_keys.add(key)
             receive_key = key.replace('_give', '_receive')
             processed_keys.add(receive_key)
-            
+
             bottom_receive_val = bottom_activities.get(receive_key, 0)
             top_receive_val = top_activities.get(receive_key, 0)
-            
-            # PRIMARY: Top gives → Bottom receives
-            if top_val >= 0.5 or bottom_receive_val >= 0.5:
-                primary_potential += 1
-                if top_val >= 0.5 and bottom_receive_val >= 0.5:
-                    primary_matches += 1
-            
-            # SECONDARY: Bottom gives → Top receives
-            if bottom_val >= 0.5 or top_receive_val >= 0.5:
-                secondary_potential += 1
-                if bottom_val >= 0.5 and top_receive_val >= 0.5:
-                    secondary_matches += 1
-                elif bottom_val >= 0.5 and top_receive_val < 0.5:
-                    secondary_matches += 0.5  # Partial credit
+
+            # PRIMARY: Top gives → Bottom receives (agreement-based)
+            primary_potential += 1
+            if top_val >= 0.5 and bottom_receive_val >= 0.5:
+                # Both interested in this direction = match
+                primary_matches += 1
+            elif top_val < 0.5 and bottom_receive_val < 0.5:
+                # Both NOT interested in this direction = mutual disinterest = agreement
+                primary_matches += 1
+
+            # SECONDARY: Bottom gives → Top receives (agreement-based)
+            secondary_potential += 1
+            if bottom_val >= 0.5 and top_receive_val >= 0.5:
+                # Both interested in this direction = match
+                secondary_matches += 1
+            elif bottom_val < 0.5 and top_receive_val < 0.5:
+                # Both NOT interested in this direction = mutual disinterest = agreement
+                secondary_matches += 1
+            elif bottom_val >= 0.5 and top_receive_val < 0.5:
+                secondary_matches += 0.5  # Partial credit (one wants, other doesn't)
         
         # Handle _self/_watching pairs (Display & Performance)
         elif key.endswith('_self'):
@@ -301,22 +336,21 @@ def calculate_asymmetric_directional_jaccard(
                 elif top_self_val >= 0.5 and bottom_val < 0.5:
                     secondary_matches += 0.5
         
-        # Non-directional activities
+        # Non-directional activities - use agreement-based scoring
         elif not key.endswith('_receive') and not key.endswith('_watching'):
             processed_keys.add(key)
-            
-            if top_val >= 0.5 and bottom_val >= 0.5:
+            non_directional_potential += 1
+            # Both interested OR both not interested = agreement
+            if (top_val >= 0.5 and bottom_val >= 0.5) or (top_val < 0.5 and bottom_val < 0.5):
                 non_directional_matches += 1
-            if top_val >= 0.5 or bottom_val >= 0.5:
-                non_directional_potential += 1
-    
+
     # Weight primary axis more heavily (80%) than secondary (20%)
     total_matches = (primary_matches * 0.8) + (secondary_matches * 0.2) + non_directional_matches
     total_potential = (primary_potential * 0.8) + (secondary_potential * 0.2) + non_directional_potential
-    
+
     if total_potential == 0:
-        return 0
-    
+        return 0.5  # Default for no data
+
     return total_matches / total_potential
 
 
@@ -414,17 +448,25 @@ def calculate_activity_overlap(
         elif is_same_pole and has_directional:
             score = calculate_same_pole_jaccard(cat_a, cat_b)
         else:
-            # Standard Jaccard
+            # Agreement-based Jaccard: both yes OR both no = agreement
+            # This fixes the bug where mutual disinterest (both saying "no")
+            # was treated as 0% instead of agreement
             keys = set(list(cat_a.keys()) + list(cat_b.keys()))
-            mutual = 0
-            potential = 0
+            agreement = 0
+            total = 0
             for k in keys:
                 va = cat_a.get(k, 0)
                 vb = cat_b.get(k, 0)
-                if va >= 0.5 and vb >= 0.5: mutual += 1
-                if va >= 0.5 or vb >= 0.5: potential += 1
-            
-            score = mutual / potential if potential > 0 else 0.5
+                total += 1
+                # Both interested = agreement
+                if va >= 0.5 and vb >= 0.5:
+                    agreement += 1
+                # Both NOT interested = also agreement (mutual disinterest)
+                elif va < 0.5 and vb < 0.5:
+                    agreement += 1
+                # Mismatch (one interested, one not) = no agreement added
+
+            score = agreement / total if total > 0 else 0.5
             
         scores.append(score)
     
@@ -727,7 +769,7 @@ def calculate_compatibility(
     ))
     
     return {
-        'compatibility_version': '0.6',  # Version bump for arousal integration
+        'compatibility_version': '0.7',  # Agreement-based Jaccard, same-pole domain penalty, Versatile power complement
         'overall_compatibility': {
             'score': overall_percentage,
             'interpretation': interpret_compatibility(overall_percentage)
