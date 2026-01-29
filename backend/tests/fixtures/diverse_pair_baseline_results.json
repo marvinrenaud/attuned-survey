@@ -1,0 +1,231 @@
+{
+  "_metadata": {
+    "created": "2026-01-28",
+    "updated": "2026-01-28",
+    "algorithm_version": "0.7",
+    "purpose": "Document current algorithm behavior with diverse test pairs",
+    "changes_from_v0.6": [
+      "Agreement-based Jaccard: mutual disinterest now counts as agreement",
+      "Same-pole domain penalty: 0.5 multiplier now implemented",
+      "Versatile power complement: returns 0.75 instead of 0.50"
+    ]
+  },
+
+  "pair_1_perfect_match": {
+    "description": "Strong Top + Strong Bottom, identical high preferences",
+    "expected_range": [95, 100],
+    "actual_score": 96,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 100,
+      "activity_overlap": 100,
+      "truth_overlap": 84,
+      "se_modifier": 3,
+      "sisc_modifier": 0
+    }
+  },
+
+  "pair_2_vanilla_couple": {
+    "description": "Switch + Switch, selective moderate preferences",
+    "expected_range": [90, 95],
+    "actual_score": 91,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 85,
+      "domain_similarity": 100,
+      "activity_overlap": 100,
+      "truth_overlap": 74,
+      "se_modifier": 0,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_3_kink_complementary": {
+    "description": "Experienced Dom + Devoted Sub, high intensity kink",
+    "expected_range": [88, 95],
+    "actual_score": 95,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 98,
+      "activity_overlap": 99,
+      "truth_overlap": 84,
+      "se_modifier": 2,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_4_enthusiast_curious": {
+    "description": "Enthusiast (high activity) + Curious Explorer (exploring)",
+    "expected_range": [60, 70],
+    "actual_score": 63,
+    "status": "PASS",
+    "status_note": "Lower than initial expectation - truth overlap (64%) drives score down",
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 86,
+      "activity_overlap": 88,
+      "truth_overlap": 64,
+      "se_modifier": 2,
+      "sisc_modifier": 0
+    }
+  },
+
+  "pair_5_partial_mismatch": {
+    "description": "Sensation Seeker + Power Player, different primary domains",
+    "expected_range": [55, 65],
+    "actual_score": 59,
+    "status": "PASS",
+    "status_note": "Low activity overlap (35%) penalizes heavily despite other good metrics",
+    "breakdown": {
+      "power_complement": 85,
+      "domain_similarity": 71,
+      "activity_overlap": 35,
+      "truth_overlap": 74,
+      "se_modifier": 2,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_6a_top_top_conflict": {
+    "description": "Strong Top + Strong Top, same preferences",
+    "expected_range": [35, 45],
+    "actual_score": 45,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 50,
+      "domain_similarity": 49,
+      "activity_overlap": 40,
+      "truth_overlap": 41,
+      "se_modifier": 3,
+      "sisc_modifier": 0
+    }
+  },
+
+  "pair_6b_bottom_bottom_conflict": {
+    "description": "Strong Bottom + Strong Bottom, same preferences",
+    "expected_range": [35, 45],
+    "actual_score": 46,
+    "status": "KNOWN_ISSUE",
+    "status_note": "1% over expected due to same-pole Jaccard asymmetry - algorithm only penalizes 'both want to give' not 'both want to receive'",
+    "breakdown": {
+      "power_complement": 50,
+      "domain_similarity": 47,
+      "activity_overlap": 46,
+      "truth_overlap": 41,
+      "se_modifier": 0,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_7_conservative_match": {
+    "description": "Versatile + Versatile, low-intensity preferences",
+    "expected_range": [85, 95],
+    "actual_score": 86,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 75,
+      "domain_similarity": 100,
+      "activity_overlap": 100,
+      "truth_overlap": 51,
+      "se_modifier": 0,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_8_arousal_mismatch": {
+    "description": "Eager (high SE, low inhibition) + Anxious (high SIS-C, cautious)",
+    "expected_range": [90, 96],
+    "actual_score": 94,
+    "status": "PASS",
+    "status_note": "High score despite arousal mismatch - arousal modifiers only ±3% max, core compatibility is strong",
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 100,
+      "activity_overlap": 100,
+      "truth_overlap": 86,
+      "se_modifier": 2,
+      "sisc_modifier": 0
+    }
+  },
+
+  "pair_9_boundary_conflict": {
+    "description": "Impact Enthusiast + Soft Touch, opposing impact preferences",
+    "expected_range": [55, 65],
+    "actual_score": 58,
+    "status": "PASS",
+    "status_note": "Moderate score - activity overlap (77%) remains decent despite impact preference conflicts",
+    "breakdown": {
+      "power_complement": 100,
+      "domain_similarity": 73,
+      "activity_overlap": 77,
+      "truth_overlap": 70,
+      "se_modifier": 2,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_10_curious_vanilla": {
+    "description": "Switch + Switch, lots of maybes (0.5)",
+    "expected_range": [85, 90],
+    "actual_score": 89,
+    "status": "PASS",
+    "breakdown": {
+      "power_complement": 85,
+      "domain_similarity": 100,
+      "activity_overlap": 100,
+      "truth_overlap": 60,
+      "se_modifier": 0,
+      "sisc_modifier": 2
+    }
+  },
+
+  "pair_11_growth_journey": {
+    "description": "Experienced Guide (versatile, high) + Total Newbie (exploring, maybes)",
+    "expected_range": [70, 80],
+    "actual_score": 76,
+    "status": "PASS",
+    "status_note": "Guide's flexibility matches newbie's openness well",
+    "breakdown": {
+      "power_complement": 75,
+      "domain_similarity": 80,
+      "activity_overlap": 88,
+      "truth_overlap": 52,
+      "se_modifier": 2,
+      "sisc_modifier": 0
+    }
+  },
+
+  "_summary": {
+    "pairs_tested": 12,
+    "pairs_passing": 11,
+    "known_issues": 1,
+    "algorithm_improvements_v0.7": {
+      "agreement_based_jaccard": {
+        "description": "Mutual disinterest (both saying 'no') now counts as agreement instead of 0%",
+        "impact": "Perfect Match improved from 89% to 96%",
+        "files_modified": ["src/compatibility/calculator.py"]
+      },
+      "same_pole_domain_penalty": {
+        "description": "Same-pole pairs (Top+Top, Bottom+Bottom) now have domain similarity multiplied by 0.5",
+        "impact": "Top+Top conflict reduced from 57% to 45%",
+        "documentation": "TECHNICAL_NOTES.md lines 470-477"
+      },
+      "versatile_power_complement": {
+        "description": "Versatile/Versatile pairs now return 0.75 instead of 0.50 (same as same-pole)",
+        "impact": "Conservative Match improved from 72% to 86%"
+      }
+    },
+    "known_asymmetry": {
+      "description": "Same-pole Jaccard only penalizes 'both want to give' scenarios, not 'both want to receive'",
+      "impact": "Bottom+Bottom scores 46% vs Top+Top's 45%",
+      "severity": "Minor - 1% difference, both still indicate conflict"
+    },
+    "insights_from_new_pairs": {
+      "arousal_modifiers": "Limited impact (±3% max) - core activity/domain compatibility dominates",
+      "boundary_conflicts": "Activity overlap can remain moderate (77%) even with opposing preferences in specific areas",
+      "experience_gap": "Experienced/newbie pairs can score well (76%) when experienced partner is flexible"
+    }
+  }
+}
