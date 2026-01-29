@@ -465,7 +465,12 @@ def get_recommendations(current_user_id, session_id):
     
     except Exception as e:
         logger.error(f"Failed to get recommendations: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': 'Failed to get recommendations',
+            'session_id': session_id,
+            'session': None,
+            'activities': []
+        }), 500
 
 
 

@@ -453,7 +453,10 @@ def get_connections(current_user_id):
         
     except Exception as e:
         logger.error(f"Get connections failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve connections'}), 500
+        return jsonify({
+            'error': 'Failed to retrieve connections',
+            'connections': []
+        }), 500
 
 
 
@@ -478,8 +481,11 @@ def get_remembered_partners(current_user_id):
         }), 200
         
     except Exception as e:
-        logger.error(f"Failed to define partner models: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve partners'}), 500
+        logger.error(f"Failed to retrieve partners: {str(e)}")
+        return jsonify({
+            'error': 'Failed to retrieve partners',
+            'partners': []
+        }), 500
 
 
 @partners_bp.route('/remembered/<partner_user_id>', methods=['DELETE'])
