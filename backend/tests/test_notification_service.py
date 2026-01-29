@@ -169,7 +169,7 @@ class TestNotificationService:
                 notification = Notification.query.get(result['notification_id'])
                 assert "Bob" in notification.title
                 assert notification.notification_type == "invitation_accepted"
-                assert notification.data['initialPageName'] == "tapToPlay"
+                assert notification.data['initialPageName'] == "TapToPlay"
                 assert notification.data['type'] == "invitation_accepted"
 
     def test_invalid_token_removed(self, app, test_user_with_token):

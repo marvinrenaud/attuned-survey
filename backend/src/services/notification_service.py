@@ -260,7 +260,7 @@ class NotificationService:
             body="Tap to see your partner",
             notification_type="invitation_accepted",
             data={
-                "initialPageName": "tapToPlay",
+                "initialPageName": "TapToPlay",
                 "type": "invitation_accepted",
                 "partner_user_id": str(acceptor_user_id)
             },
