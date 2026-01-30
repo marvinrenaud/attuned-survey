@@ -126,3 +126,40 @@ class User(db.Model):
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+
+
+# SQLAlchemy event listener for syncing remembered_partners
+from sqlalchemy import event
+from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import get_history
+
+
+@event.listens_for(User, 'after_update')
+def sync_remembered_partners_on_user_update(mapper, connection, target):
+    """
+    Sync remembered_partners when user's email or display_name changes.
+    This provides application-level sync that works in SQLite tests.
+    PostgreSQL also has triggers for this (migration 030).
+    """
+    from .partner import RememberedPartner
+
+    # Get the session
+    session = Session.object_session(target)
+    if not session:
+        return
+
+    # Check what changed using SQLAlchemy's history
+    name_history = get_history(target, 'display_name')
+    email_history = get_history(target, 'email')
+
+    # Update partner_name if display_name changed
+    if name_history.has_changes() and target.display_name:
+        session.query(RememberedPartner).filter(
+            RememberedPartner.partner_user_id == target.id
+        ).update({RememberedPartner.partner_name: target.display_name})
+
+    # Update partner_email if email changed
+    if email_history.has_changes() and target.email:
+        session.query(RememberedPartner).filter(
+            RememberedPartner.partner_user_id == target.id
+        ).update({RememberedPartner.partner_email: target.email})
