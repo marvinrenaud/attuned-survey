@@ -70,29 +70,45 @@ def create_connection_request(current_user_id):
         # We need to check both directions if we know the recipient_id
         # If we only know email, we check connections to that email
         
-        existing_query = PartnerConnection.query.filter(
-            or_(
-                # Case 1: I sent request to their email
-                (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
-                # Case 2: They sent request to me (if we know their ID) - harder with just email lookup
-                # But we can try to look up active connections where I am recipient and they are requester
-                (PartnerConnection.recipient_user_id == requester_uuid) & (PartnerConnection.recipient_email == requester.email)  # Approximation
-            )
-        )
-        
-        # If we found the recipient user account, we can be more precise
+        # Check for existing active connections
+        # We need to check both directions:
+        # 1. I (requester) already sent to them (by email or user_id)
+        # 2. They already sent to me (need to find them first)
+
+        # Build query conditions
+        conditions = [
+            # Case 1: I sent request to their email
+            (PartnerConnection.requester_user_id == requester_uuid) &
+            (PartnerConnection.recipient_email == recipient_email)
+        ]
+
+        # If recipient exists as a user, add more precise checks
         if recipient_id:
-            # Match directly with UUIDs
-            existing_query = PartnerConnection.query.filter(
-                or_(
-                    # Forward: Me -> Them
-                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_user_id == recipient_id),
-                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
-                    
-                    # Backward: Them -> Me
-                    (PartnerConnection.requester_user_id == recipient_id) & (PartnerConnection.recipient_user_id == requester_uuid)
-                )
+            conditions.extend([
+                # Case 2: I sent request to their user_id
+                (PartnerConnection.requester_user_id == requester_uuid) &
+                (PartnerConnection.recipient_user_id == recipient_id),
+                # Case 3: They sent request to me
+                (PartnerConnection.requester_user_id == recipient_id) &
+                (PartnerConnection.recipient_user_id == requester_uuid)
+            ])
+        else:
+            # Recipient doesn't exist yet - check if any user with that email sent us a request
+            # This handles the case where someone invited us before we had an account
+            # We look for connections where:
+            # - The requester's email matches the recipient_email we're trying to invite
+            # - AND we are the recipient
+            # This requires joining with users table or a subquery
+            # Note: User is already imported at module level
+
+            # Find if there's a user with the target email who sent us a request
+            subquery = db.session.query(User.id).filter(User.email == recipient_email).scalar_subquery()
+            conditions.append(
+                (PartnerConnection.requester_user_id == subquery) &
+                (PartnerConnection.recipient_user_id == requester_uuid)
             )
+
+        existing_query = PartnerConnection.query.filter(or_(*conditions))
 
         existing_connections = existing_query.filter(
             PartnerConnection.status.in_(['pending', 'accepted'])
