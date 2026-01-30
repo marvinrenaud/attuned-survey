@@ -31,17 +31,24 @@ def mock_db_session(app):
     with patch('backend.src.routes.survey.SurveySubmission') as mock_model:
         yield mock_model
 
+TEST_USER_ID = "12345678-1234-5678-1234-567812345678"  # Valid UUID format
+
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def get_auth_header():
-    token = jwt.encode({"sub": "test-user", "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+    token = jwt.encode({"sub": TEST_USER_ID, "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
     return {'Authorization': f'Bearer {token}'}
 
 def test_compatibility_endpoint(client, mock_db_session):
     """Test the GET /api/survey/compatibility/<source_id>/<target_id> endpoint with mocks."""
-    
-    # Mock source submission
+    import uuid
+
+    # The authenticated user must own at least one submission
+    test_user_uuid = uuid.UUID(TEST_USER_ID) if len(TEST_USER_ID) == 36 else None
+
+    # Mock source submission - owned by test user
     source_sub = MagicMock()
     source_sub.submission_id = "sub_a"
+    source_sub.user_id = test_user_uuid  # Must match authenticated user for authorization
     source_sub.payload_json = {
         "derived": {
             "profile_version": "0.4",
@@ -52,10 +59,11 @@ def test_compatibility_endpoint(client, mock_db_session):
             "boundaries": {}
         }
     }
-    
-    # Mock target submission
+
+    # Mock target submission - different user
     target_sub = MagicMock()
     target_sub.submission_id = "sub_b"
+    target_sub.user_id = uuid.uuid4()  # Different user
     target_sub.payload_json = {
         "derived": {
             "profile_version": "0.4",

@@ -2,11 +2,13 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from flask import Flask
+from datetime import datetime, timedelta
 from backend.src.routes.profile_ui import bp as profile_ui_bp
 from backend.src.routes.profile_sharing import profile_sharing_bp
 from backend.src.extensions import db
 from backend.src.models.user import User
 from backend.src.models.profile import Profile
+from backend.src.models.partner import PartnerConnection
 import uuid
 import os
 
@@ -92,8 +94,22 @@ def test_partner_profile_access(client, mock_auth_u2, app):
     # User 2 requests User 1.
     # Route: /api/profile-sharing/partner-profile/<partner_id>
     # Token matches requester (U2).
-    
-    # Needs valid partner (U1).
+
+    # SECURITY FIX: Partner connection is now required
+    # Create accepted partner connection between User 2 and User 1
+    with app.app_context():
+        connection = PartnerConnection(
+            requester_user_id=uuid.UUID(app.u2_id),
+            recipient_user_id=uuid.UUID(app.u1_id),
+            recipient_email="u1@e.com",
+            status='accepted',
+            connection_token=str(uuid.uuid4()),
+            expires_at=datetime.utcnow() + timedelta(days=1)
+        )
+        db.session.add(connection)
+        db.session.commit()
+
+    # Now User 2 can access User 1's profile
     res = client.get(f'/api/profile-sharing/partner-profile/{app.u1_id}', headers={'Authorization': 'Bearer token'})
     assert res.status_code == 200
     assert res.json['display_name'] == "User 1"
