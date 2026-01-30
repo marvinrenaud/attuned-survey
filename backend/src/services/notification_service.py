@@ -69,33 +69,12 @@ class NotificationService:
             Dict with success status and results
         """
         logger.info(f"📤 Attempting to send {notification_type} notification to user {recipient_user_id}")
-        
-        if not is_firebase_initialized():
-            logger.warning("Firebase not initialized. Skipping push notification.")
-            return {"success": False, "reason": "firebase_not_initialized"}
 
-        # Step 1: Get the user's FCM token(s) from database
-        # Convert string to UUID for proper database lookup
-        try:
-            recipient_uuid = uuid.UUID(str(recipient_user_id))
-            tokens = PushNotificationToken.query.filter_by(
-                user_id=recipient_uuid
-            ).all()
-            
-            if not tokens:
-                logger.info(f"No FCM tokens found for user {recipient_user_id}")
-                return {"success": False, "reason": "no_tokens"}
-            
-            logger.info(f"Found {len(tokens)} FCM token(s) for user {recipient_user_id}")
-        except ValueError as e:
-            logger.error(f"Invalid UUID format for recipient: {recipient_user_id} - {e}")
-            return {"success": False, "reason": "invalid_user_id", "error": str(e)}
-        except Exception as e:
-            logger.error(f"Error fetching FCM tokens: {e}")
-            return {"success": False, "reason": "database_error", "error": str(e)}
-
-        # Step 2: Record the notification in database (for history)
+        # Step 1: Record the notification in database (for history and in-app display)
+        # We create the record BEFORE checking for tokens so notifications appear
+        # in the in-app notification center even if push delivery fails.
         notification_record = None
+        notification_id = None
         try:
             notification_record = Notification(
                 recipient_user_id=recipient_user_id,
@@ -105,18 +84,44 @@ class NotificationService:
                 body=body,
                 data=data or {},
                 created_at=datetime.utcnow()
+                # sent_at remains NULL until push is successfully delivered
             )
             db.session.add(notification_record)
             db.session.commit()
             notification_id = notification_record.id
-            
-            # Calculate unread count AFTER inserting (includes this notification)
-            unread_count = NotificationService.get_unread_count(recipient_user_id)
-            logger.info(f"User {recipient_user_id} has {unread_count} unread notifications")
+            logger.info(f"Created notification record {notification_id} for user {recipient_user_id}")
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error creating notification record: {e}")
             return {"success": False, "reason": "database_error", "error": str(e)}
+
+        # Calculate unread count AFTER inserting (includes this notification)
+        unread_count = NotificationService.get_unread_count(recipient_user_id)
+        logger.info(f"User {recipient_user_id} has {unread_count} unread notifications")
+
+        if not is_firebase_initialized():
+            logger.warning("Firebase not initialized. Notification recorded but push skipped.")
+            return {"success": False, "reason": "firebase_not_initialized", "notification_id": notification_id}
+
+        # Step 2: Get the user's FCM token(s) from database
+        # Convert string to UUID for proper database lookup
+        try:
+            recipient_uuid = uuid.UUID(str(recipient_user_id))
+            tokens = PushNotificationToken.query.filter_by(
+                user_id=recipient_uuid
+            ).all()
+
+            if not tokens:
+                logger.info(f"No FCM tokens found for user {recipient_user_id}. Notification {notification_id} recorded but push not sent.")
+                return {"success": False, "reason": "no_tokens", "notification_id": notification_id}
+
+            logger.info(f"Found {len(tokens)} FCM token(s) for user {recipient_user_id}")
+        except ValueError as e:
+            logger.error(f"Invalid UUID format for recipient: {recipient_user_id} - {e}")
+            return {"success": False, "reason": "invalid_user_id", "error": str(e), "notification_id": notification_id}
+        except Exception as e:
+            logger.error(f"Error fetching FCM tokens: {e}")
+            return {"success": False, "reason": "database_error", "error": str(e), "notification_id": notification_id}
 
         # Step 3: Send to each device via FCM
         # Ensure data values are strings (FCM requirement)
@@ -260,7 +265,7 @@ class NotificationService:
             body="Tap to see your partner",
             notification_type="invitation_accepted",
             data={
-                "initialPageName": "tapToPlay",
+                "initialPageName": "TapToPlay",
                 "type": "invitation_accepted",
                 "partner_user_id": str(acceptor_user_id)
             },

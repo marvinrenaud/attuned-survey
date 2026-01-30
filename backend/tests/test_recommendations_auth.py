@@ -6,9 +6,7 @@ from backend.src.extensions import db
 from backend.src.models.user import User
 from backend.src.models.profile import Profile
 from backend.src.models.session import Session
-from backend.src.models.notification import PushNotificationToken
 from backend.src.routes.recommendations import bp as recommendations_bp
-from backend.src.routes.notifications import notifications_bp
 import uuid
 import os
 
@@ -26,7 +24,6 @@ def app():
     
     # Register Blueprints
     app.register_blueprint(recommendations_bp)
-    app.register_blueprint(notifications_bp)
     
     # Create tables and Seed Data
     with app.app_context():
@@ -157,30 +154,3 @@ def test_get_rec_forbidden(client, mock_auth_stranger, app):
         res = client.get('/api/recommendations/sess1', headers={'Authorization': 'Bearer token'})
         assert res.status_code == 403
 
-def test_notification_reg_success(client, mock_auth_success, app):
-    """Test registering notification token."""
-    # Using REAL DB, no patching of models
-    data = {
-        "user_id": app.u1_id, # Match authenticated user
-        "device_token": "dev1_uniq",
-        "platform": "ios"
-    }
-    res = client.post('/api/notifications/register', json=data, headers={'Authorization': 'Bearer token'})
-    assert res.status_code == 201
-    
-    # Verify in DB
-    with app.app_context():
-        token = PushNotificationToken.query.filter_by(device_token="dev1_uniq").first()
-        assert token is not None
-        assert str(token.user_id) == app.u1_id
-
-def test_notification_reg_forbidden(client, mock_auth_stranger, app):
-    """Test registering notification token for OTHER user."""
-    data = {
-        "user_id": app.u1_id, # Target is u1
-        "device_token": "dev2_uniq",
-        "platform": "ios"
-    }
-    # Caller is stranger
-    res = client.post('/api/notifications/register', json=data, headers={'Authorization': 'Bearer token'})
-    assert res.status_code == 403

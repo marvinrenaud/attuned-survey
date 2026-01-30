@@ -5,6 +5,7 @@ Tests Phase 7 requirements from the plan.
 import pytest
 import uuid
 from datetime import datetime
+from unittest.mock import patch
 
 
 class TestDemographicsFieldDatabase:
@@ -18,13 +19,17 @@ class TestDemographicsFieldDatabase:
     def test_field_defaults_to_false(self, db_session):
         """Test field defaults to FALSE for new users."""
         from backend.src.models.user import User
-        
+
         user = User(
             id=uuid.uuid4(),
             email='default-test@example.com',
             display_name='Default Test'
         )
-        
+        db_session.add(user)
+        db_session.commit()
+
+        # After commit, DB default should be applied
+        db_session.refresh(user)
         assert user.profile_completed == False
     
     def test_field_can_be_set_to_true(self, db_session):
@@ -50,48 +55,70 @@ class TestDemographicsFieldDatabase:
 class TestCompleteDemographicsEndpoint:
     """Test POST /api/auth/user/:id/complete-demographics endpoint."""
     
-    def test_endpoint_with_valid_data(self, client):
+    def test_endpoint_with_valid_data(self, client, db_session):
         """Test complete-demographics with valid data returns 200."""
-        # Create user first
+        from backend.src.models.user import User
+
+        # Create user directly in database
         user_id = uuid.uuid4()
-        response = client.post('/api/auth/register', json={
-            'id': user_id,
-            'email': 'test-demo@example.com',
-            'display_name': 'Test User'
-        })
-        
-        # Complete demographics
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Updated Name',
-            'anatomy_self': ['vagina', 'breasts'],
-            'anatomy_preference': ['penis', 'vagina']
-        })
-        
+        user = User(
+            id=user_id,
+            email='test-demo@example.com',
+            display_name='Test User'
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        # Mock authentication and complete demographics
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(user_id)}
+            response = client.post('/api/auth/complete-demographics',
+                headers={'Authorization': 'Bearer test-token'},
+                json={
+                    'name': 'Updated Name',
+                    'anatomy_self': ['vagina', 'breasts'],
+                    'anatomy_preference': ['penis', 'vagina']
+                })
+
         assert response.status_code == 200
         data = response.get_json()
         assert data['success'] == True
         assert data['profile_completed'] == True
         assert data['can_play'] == True
     
-    def test_endpoint_missing_fields_returns_400(self, client):
-        """Test complete-demographics with missing fields returns 400."""
+    def test_endpoint_missing_fields_returns_400(self, client, db_session):
+        """Test complete-demographics with missing required field (name) returns 400."""
+        from backend.src.models.user import User
+
+        # Create user directly in database
         user_id = uuid.uuid4()
-        
-        # Try without anatomy_self
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Test',
-            'anatomy_preference': ['penis']
-        })
-        
+        user = User(
+            id=user_id,
+            email='missing-fields-test@example.com',
+            display_name='Test User'
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        # Mock authentication and try without name field
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(user_id)}
+            response = client.post('/api/auth/complete-demographics',
+                headers={'Authorization': 'Bearer test-token'},
+                json={
+                    'anatomy_self': ['penis'],
+                    'anatomy_preference': ['vagina']
+                })
+
         assert response.status_code == 400
         data = response.get_json()
         assert 'error' in data
-        assert 'anatomy_self' in data['error']
+        assert 'name' in data['error']
     
     def test_endpoint_updates_display_name(self, client, db_session):
         """Test complete-demographics updates display_name."""
         from backend.src.models.user import User
-        
+
         user_id = uuid.uuid4()
         user = User(
             id=user_id,
@@ -100,22 +127,27 @@ class TestCompleteDemographicsEndpoint:
         )
         db_session.add(user)
         db_session.commit()
-        
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'New Name',
-            'anatomy_self': ['penis'],
-            'anatomy_preference': ['vagina']
-        })
-        
+
+        # Mock authentication and complete demographics
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(user_id)}
+            response = client.post('/api/auth/complete-demographics',
+                headers={'Authorization': 'Bearer test-token'},
+                json={
+                    'name': 'New Name',
+                    'anatomy_self': ['penis'],
+                    'anatomy_preference': ['vagina']
+                })
+
         assert response.status_code == 200
-        
+
         updated_user = User.query.filter_by(id=user_id).first()
         assert updated_user.display_name == 'New Name'
     
     def test_endpoint_updates_demographics_jsonb(self, client, db_session):
         """Test complete-demographics updates demographics JSONB."""
         from backend.src.models.user import User
-        
+
         user_id = uuid.uuid4()
         user = User(
             id=user_id,
@@ -123,17 +155,22 @@ class TestCompleteDemographicsEndpoint:
         )
         db_session.add(user)
         db_session.commit()
-        
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Test',
-            'anatomy_self': ['vagina'],
-            'anatomy_preference': ['penis', 'vagina'],
-            'gender': 'woman',
-            'sexual_orientation': 'bisexual'
-        })
-        
+
+        # Mock authentication and complete demographics
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(user_id)}
+            response = client.post('/api/auth/complete-demographics',
+                headers={'Authorization': 'Bearer test-token'},
+                json={
+                    'name': 'Test',
+                    'anatomy_self': ['vagina'],
+                    'anatomy_preference': ['penis', 'vagina'],
+                    'gender': 'woman',
+                    'sexual_orientation': 'bisexual'
+                })
+
         assert response.status_code == 200
-        
+
         updated_user = User.query.filter_by(id=user_id).first()
         assert 'anatomy_self' in updated_user.demographics
         assert 'anatomy_preference' in updated_user.demographics
@@ -142,7 +179,7 @@ class TestCompleteDemographicsEndpoint:
     def test_endpoint_sets_flag_to_true(self, client, db_session):
         """Test complete-demographics sets profile_completed=TRUE."""
         from backend.src.models.user import User
-        
+
         user_id = uuid.uuid4()
         user = User(
             id=user_id,
@@ -151,15 +188,20 @@ class TestCompleteDemographicsEndpoint:
         )
         db_session.add(user)
         db_session.commit()
-        
-        response = client.post(f'/api/auth/user/{user_id}/complete-demographics', json={
-            'name': 'Test',
-            'anatomy_self': ['penis'],
-            'anatomy_preference': ['vagina']
-        })
-        
+
+        # Mock authentication and complete demographics
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(user_id)}
+            response = client.post('/api/auth/complete-demographics',
+                headers={'Authorization': 'Bearer test-token'},
+                json={
+                    'name': 'Test',
+                    'anatomy_self': ['penis'],
+                    'anatomy_preference': ['vagina']
+                })
+
         assert response.status_code == 200
-        
+
         updated_user = User.query.filter_by(id=user_id).first()
         assert updated_user.profile_completed == True
     

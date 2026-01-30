@@ -5,8 +5,12 @@ from flask import Flask
 import uuid
 import sys
 import os
+import jwt
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+# Set test environment variables before importing the app
+os.environ.setdefault('SUPABASE_JWT_SECRET', 'test-secret-key')
 
 from src.routes.compatibility import compatibility_bp, _compare_interests
 # Note: We will import _compare_interests after implementing it, for now we mock or test logic units if possible.
@@ -67,6 +71,14 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
     @patch('src.routes.compatibility.Compatibility')
     @patch('src.routes.compatibility.PartnerConnection')
     def test_ui_structure_and_order(self, mock_conn, mock_compat, mock_profile, mock_user):
+        # Create a valid JWT token for authentication
+        token = jwt.encode(
+            {"sub": str(self.u_id), "aud": "authenticated"},
+            "test-secret-key",
+            algorithm="HS256"
+        )
+        auth_header = {'Authorization': f'Bearer {token}'}
+
         # Mock Connection
         mock_conn.query.filter.return_value.filter_by.return_value.first.return_value = StubModel(status='accepted')
         
@@ -126,7 +138,7 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
         mock_compat.query.filter_by.return_value.first.return_value = mock_compat_rec
         
         # Call Endpoint
-        response = self.client.get(f'/api/compatibility/{self.u_id}/{self.p_id}/ui')
+        response = self.client.get(f'/api/compatibility/{self.u_id}/{self.p_id}/ui', headers=auth_header)
         
         # Debug fail
         if response.status_code != 200:

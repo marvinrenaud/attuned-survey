@@ -69,7 +69,7 @@ class TestNotificationService:
     """Test cases for NotificationService."""
 
     def test_send_notification_no_firebase(self, app, test_user_with_token):
-        """Test that notification fails gracefully when Firebase is not initialized."""
+        """Test that notification record is created but push skipped when Firebase not initialized."""
         with app.app_context():
             with patch('src.services.notification_service.is_firebase_initialized', return_value=False):
                 result = NotificationService.send_push_notification(
@@ -78,12 +78,19 @@ class TestNotificationService:
                     body="Test Body",
                     notification_type="test"
                 )
-                
+
                 assert result['success'] is False
                 assert result['reason'] == 'firebase_not_initialized'
+                # Notification record should still be created for in-app display
+                assert 'notification_id' in result
+
+                notification = Notification.query.get(result['notification_id'])
+                assert notification is not None
+                assert notification.title == "Test Title"
+                assert notification.sent_at is None  # Push not sent
 
     def test_send_notification_no_tokens(self, app, test_user):
-        """Test that notification fails gracefully when user has no FCM tokens."""
+        """Test that notification record is created but push skipped when no FCM tokens."""
         with app.app_context():
             with patch('src.services.notification_service.is_firebase_initialized', return_value=True):
                 result = NotificationService.send_push_notification(
@@ -92,9 +99,16 @@ class TestNotificationService:
                     body="Test Body",
                     notification_type="test"
                 )
-                
+
                 assert result['success'] is False
                 assert result['reason'] == 'no_tokens'
+                # Notification record should still be created for in-app display
+                assert 'notification_id' in result
+
+                notification = Notification.query.get(result['notification_id'])
+                assert notification is not None
+                assert notification.title == "Test Title"
+                assert notification.sent_at is None  # Push not sent
 
     def test_send_notification_creates_record(self, app, test_user_with_token, sender_user):
         """Test that notification creates a record in the database."""
@@ -169,7 +183,7 @@ class TestNotificationService:
                 notification = Notification.query.get(result['notification_id'])
                 assert "Bob" in notification.title
                 assert notification.notification_type == "invitation_accepted"
-                assert notification.data['initialPageName'] == "tapToPlay"
+                assert notification.data['initialPageName'] == "TapToPlay"
                 assert notification.data['type'] == "invitation_accepted"
 
     def test_invalid_token_removed(self, app, test_user_with_token):

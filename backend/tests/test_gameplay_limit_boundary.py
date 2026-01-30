@@ -1,53 +1,79 @@
 import pytest
 import uuid
-from backend.src.models.user import User
-from backend.src.models.session import Session
+import os
+import jwt
+from unittest.mock import patch
+from src.models.user import User
+from src.models.session import Session
+from src.models.activity import Activity
+from src.models.survey import SurveySubmission  # Import before Profile to resolve relationship
+from src.models.profile import Profile
 
+@patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_limit_boundary_leak(client, db_session, app):
     """
-    Test that starting a game at count 24 allows exactly 1 card (the 25th),
-    and subsequent cards are BLOCKED immediately.
-    Current suspected behavior: Buffer allows 26, 27.
+    Test boundary behavior at limit edge: starting at count 9 (1 remaining)
+    should allow the first turn, then subsequent cards from /next should be
+    LIMIT_REACHED barriers once the limit is hit.
+
+    This validates there's no "leak" where extra cards slip through.
+    Uses lifetime_activity_count with limit of 10.
     """
-    # 1. Setup User at 24 (1 left)
+    # 1. Setup User at 9 (1 left before limit of 10)
     user_id = uuid.uuid4()
     user = User(
-        id=user_id, 
-        email="leaktest@test.com", 
-        daily_activity_count=24,
+        id=user_id,
+        email="leaktest@test.com",
+        lifetime_activity_count=9,
         subscription_tier='free'
     )
     db_session.add(user)
+
+    # Add activity for queue generation
+    act = Activity(activity_id=1, type="truth", rating="G", intensity=1, script={'steps':[]})
+    db_session.add(act)
     db_session.commit()
-    
-    # 2. Start Game
-    # Should consume the 25th credit.
+
+    # Create JWT token for authentication
+    token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+
+    # 2. Start Game - at count 9, limit not yet reached
     resp = client.post('/api/game/start', json={
         "player_ids": [str(user_id)]
-    })
-    
+    }, headers={'Authorization': f'Bearer {token}'})
+
     data = resp.get_json()
     if resp.status_code != 200:
         print(f"ERROR RESPONSE: {data}")
     assert resp.status_code == 200
-    
-    import json
-    print(f"DEBUG DATA: {json.dumps(data, indent=2)}")
-    assert data['limit_status']['limit_reached'] is True # 25 >= 25
-    
+
+    session_id = data['session_id']
+
+    # Verify user count incremented to 10 after starting game
+    db_session.refresh(user)
+    assert user.lifetime_activity_count == 10
+
+    # limit_status should reflect POST-increment state (fresh, not stale)
+    # After increment: used=10, limit=10, so limit_reached=True
+    assert data['limit_status']['limit_reached'] is True
+    assert data['limit_status']['used'] == 10
+    assert data['limit_status']['remaining'] == 0
+
     queue = data['queue']
-    # If bug exists, these are Real cards [R, R, R] generated before increment
-    print("Start Queue Types:", [item['card']['type'] for item in queue])
-    
-    # We WANT: [R, B, B] ?
-    # If I just paid for the 25th card (Limit=25), I should get ONE real card.
-    # The REST of the buffer should be barriers.
-    
-    # 3. Validation
-    # The first card is the one we "paid" for. It should be Real.
+    # First card is real (the one just paid for)
     assert queue[0]['card']['type'] != 'LIMIT_REACHED'
-    
-    # The SECOND card would constitute the 26th card (freebie).
-    # It SHOULD be a barrier.
-    # If this fails, the bug is confirmed.
+    # Remaining cards should be LIMIT_REACHED barriers (scrubbed since at limit)
     assert queue[1]['card']['type'] == 'LIMIT_REACHED'
+    assert queue[2]['card']['type'] == 'LIMIT_REACHED'
+
+    # 3. Call /next - now at limit (10), new cards should be LIMIT_REACHED
+    resp_next = client.post(f'/api/game/{session_id}/next', json={},
+                            headers={'Authorization': f'Bearer {token}'})
+    assert resp_next.status_code == 200
+    next_data = resp_next.get_json()
+
+    # The newly added card at the end of the queue should be LIMIT_REACHED
+    next_queue = next_data['queue']
+    new_card = next_queue[-1]
+    assert new_card['card']['type'] == 'LIMIT_REACHED', \
+        f"Expected LIMIT_REACHED at queue end, got {new_card['card']['type']}"

@@ -273,17 +273,19 @@ def score_activity_for_players(
     activity: Dict[str, Any],
     player_a_profile: Dict[str, Any],
     player_b_profile: Dict[str, Any],
-    weights: Optional[Dict[str, float]] = None
+    weights: Optional[Dict[str, float]] = None,
+    session_context: Optional[Dict[str, Any]] = None
 ) -> Dict[str, float]:
     """
     Calculate overall personalization score for an activity-player pair.
-    
+
     Args:
         activity: Activity dict with power_role, preference_keys, domains
         player_a_profile: Complete profile for player A
         player_b_profile: Complete profile for player B
         weights: Optional custom weights (default: mutual=0.5, power=0.3, domain=0.2)
-    
+        session_context: Optional dict with 'seq' and 'target' for pacing
+
     Returns:
         Dict with component scores and overall score
     """
@@ -293,7 +295,7 @@ def score_activity_for_players(
             'power_alignment': 0.3,
             'domain_fit': 0.2
         }
-    
+
     # Extract player data
     player_a_activities = player_a_profile.get('activities', {})
     player_b_activities = player_b_profile.get('activities', {})
@@ -301,50 +303,196 @@ def score_activity_for_players(
     player_b_power = player_b_profile.get('power_dynamic', {})
     player_a_domains = player_a_profile.get('domain_scores', {})
     player_b_domains = player_b_profile.get('domain_scores', {})
-    
+
+    # Extract arousal data
+    arousal_a = player_a_profile.get('arousal_propensity', {})
+    arousal_b = player_b_profile.get('arousal_propensity', {})
+    se_a = arousal_a.get('sexual_excitation', 0.5)
+    se_b = arousal_b.get('sexual_excitation', 0.5)
+    sisp_a = arousal_a.get('inhibition_performance', 0.5)
+    sisp_b = arousal_b.get('inhibition_performance', 0.5)
+
     # Extract activity data
     activity_pref_keys = activity.get('preference_keys', [])
     activity_power_role = activity.get('power_role', 'neutral')
     activity_domains = activity.get('domains', [])
-    
+    activity_intensity = activity.get('intensity', activity.get('intensity_level', 2))
+    is_performance = activity.get('is_performance', activity.get('performance_pressure', 'low') in ['high', 'moderate'])
+
+    # Map intensity_level string to numeric if needed
+    if isinstance(activity_intensity, str):
+        intensity_map = {'gentle': 1, 'moderate': 2, 'intense': 3}
+        activity_intensity = intensity_map.get(activity_intensity, 2)
+
     # Calculate component scores
     mutual_interest = score_mutual_interest(
         activity_pref_keys,
         player_a_activities,
         player_b_activities
     )
-    
+
     power_alignment = score_power_alignment(
         activity_power_role,
         player_a_power.get('orientation', 'Switch'),
         player_b_power.get('orientation', 'Switch')
     )
-    
+
     domain_fit = score_domain_fit(
         activity_domains,
         player_a_domains,
         player_b_domains
     )
-    
+
+    # Calculate arousal modifiers
+    se_pacing_modifier = 0.0
+    sisp_modifier = 0.0
+
+    if session_context:
+        seq = session_context.get('seq', 1)
+        target = session_context.get('target', 25)
+        se_pacing_modifier = calculate_se_pacing_modifier(
+            activity_intensity, se_a, se_b, seq, target
+        )
+
+    sisp_modifier = calculate_sisp_modifier(is_performance, sisp_a, sisp_b)
+
     # Calculate weighted overall score
-    overall_score = (
+    base_score = (
         weights['mutual_interest'] * mutual_interest +
         weights['power_alignment'] * power_alignment +
         weights['domain_fit'] * domain_fit
     )
-    
+
+    # Apply arousal modifiers
+    overall_score = base_score + se_pacing_modifier + sisp_modifier
+    overall_score = max(0.0, min(1.0, overall_score))  # Clamp to 0-1
+
     return {
         'mutual_interest_score': round(mutual_interest, 3),
         'power_alignment_score': round(power_alignment, 3),
         'domain_fit_score': round(domain_fit, 3),
+        'se_pacing_modifier': round(se_pacing_modifier, 3),
+        'sisp_modifier': round(sisp_modifier, 3),
         'overall_score': round(overall_score, 3),
         'components': {
             'mutual_interest': mutual_interest,
             'power_alignment': power_alignment,
-            'domain_fit': domain_fit
+            'domain_fit': domain_fit,
+            'se_pacing': se_pacing_modifier,
+            'sisp': sisp_modifier,
         },
         'weights': weights
     }
+
+
+def calculate_se_pacing_modifier(
+    activity_intensity: int,
+    se_a: float,
+    se_b: float,
+    seq: int,
+    target: int = 25
+) -> float:
+    """
+    Calculate SE-based pacing modifier for activity scoring.
+
+    High SE pairs can handle faster intensity progression.
+    Low SE pairs benefit from slower buildup.
+
+    The session is divided into phases:
+    - Early (0-20%): expected intensity ~1.5
+    - Build (20-60%): expected intensity ~2.5
+    - Peak (60-88%): expected intensity ~3.5
+    - Afterglow (88-100%): expected intensity ~2.5
+
+    High SE pairs get +0.5 to expected intensity (can handle more earlier).
+    Low SE pairs get -0.5 to expected intensity (need slower buildup).
+
+    Args:
+        activity_intensity: Activity intensity level (1-5)
+        se_a: Player A's SE score (0-1)
+        se_b: Player B's SE score (0-1)
+        seq: Current sequence number in session
+        target: Total target activities
+
+    Returns:
+        Modifier to add to activity score (-0.05 to 0.05)
+    """
+    avg_se = (se_a + se_b) / 2
+    progress = seq / target  # 0.0 to 1.0
+
+    # Expected intensity at this point in session
+    # Early (0-20%): intensity 1-2
+    # Mid (20-60%): intensity 2-3
+    # Peak (60-88%): intensity 3-4
+    # Afterglow (88-100%): intensity 2-3
+    if progress <= 0.2:
+        expected_intensity = 1.5
+    elif progress <= 0.6:
+        expected_intensity = 2.5
+    elif progress <= 0.88:
+        expected_intensity = 3.5
+    else:
+        expected_intensity = 2.5
+
+    # High SE pairs can handle higher intensity earlier
+    if avg_se >= 0.65:
+        se_intensity_bonus = 0.5  # Allow 0.5 higher intensity
+    elif avg_se < 0.35:
+        se_intensity_bonus = -0.5  # Prefer 0.5 lower intensity
+    else:
+        se_intensity_bonus = 0.0
+
+    adjusted_expected = expected_intensity + se_intensity_bonus
+
+    # Calculate how well this activity fits the adjusted expectation
+    intensity_diff = abs(activity_intensity - adjusted_expected)
+
+    # Convert to modifier (-0.05 to 0.05)
+    # Perfect match = +0.05, far off = -0.05
+    if intensity_diff <= 0.5:
+        return 0.05
+    elif intensity_diff <= 1.0:
+        return 0.02
+    elif intensity_diff <= 1.5:
+        return 0.0
+    else:
+        return -0.05
+
+
+def calculate_sisp_modifier(
+    is_performance_activity: bool,
+    sisp_a: float,
+    sisp_b: float
+) -> float:
+    """
+    Calculate SIS-P modifier for performance-pressure activities.
+
+    High SIS-P individuals experience arousal drop under performance pressure.
+    Activities that put someone "on the spot" should be deprioritized.
+
+    Args:
+        is_performance_activity: Whether activity has performance pressure
+        sisp_a: Player A's SIS-P score (0-1)
+        sisp_b: Player B's SIS-P score (0-1)
+
+    Returns:
+        Modifier: 0 for non-performance, -0.15 to 0 for performance based on SIS-P
+    """
+    if not is_performance_activity:
+        return 0.0
+
+    # Use max SIS-P (most performance-anxious person)
+    max_sisp = max(sisp_a, sisp_b)
+
+    if max_sisp >= 0.65:
+        # High performance anxiety - significant penalty
+        return -0.15
+    elif max_sisp >= 0.50:
+        # Moderate - small penalty
+        return -0.05
+    else:
+        # Low - no penalty
+        return 0.0
 
 
 def filter_by_power_dynamics(

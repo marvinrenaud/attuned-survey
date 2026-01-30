@@ -18,6 +18,11 @@ from datetime import datetime
 def test_start_game_unauthorized(client):
     response = client.post('/api/game/start', json={})
     assert response.status_code == 401
+    data = response.json
+    assert 'error' in data or 'message' in data
+    # Check for auth-related words in error message
+    error_msg = (data.get('error') or data.get('message', '')).lower()
+    assert 'token' in error_msg or 'auth' in error_msg or 'unauthorized' in error_msg
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_start_game_success(client, app, db_session):
@@ -51,6 +56,11 @@ def test_start_game_success(client, app, db_session):
 def test_next_turn_unauthorized(client):
     response = client.post('/api/game/SESSION_ID/next', json={})
     assert response.status_code == 401
+    data = response.json
+    assert 'error' in data or 'message' in data
+    # Check for auth-related words in error message
+    error_msg = (data.get('error') or data.get('message', '')).lower()
+    assert 'token' in error_msg or 'auth' in error_msg or 'unauthorized' in error_msg
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_next_turn_forbidden(client, app, db_session):
@@ -72,11 +82,13 @@ def test_next_turn_forbidden(client, app, db_session):
     db_session.add(sess)
     db_session.commit()
         
-    response = client.post(f'/api/game/{session_id}/next', 
+    response = client.post(f'/api/game/{session_id}/next',
                            json={},
                            headers={'Authorization': f'Bearer {token2}'})
-    
+
     assert response.status_code == 403
+    data = response.json
+    assert 'error' in data or 'message' in data
 
 @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
 def test_next_turn_success(client, app, db_session):

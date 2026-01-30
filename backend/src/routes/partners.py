@@ -70,29 +70,45 @@ def create_connection_request(current_user_id):
         # We need to check both directions if we know the recipient_id
         # If we only know email, we check connections to that email
         
-        existing_query = PartnerConnection.query.filter(
-            or_(
-                # Case 1: I sent request to their email
-                (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
-                # Case 2: They sent request to me (if we know their ID) - harder with just email lookup
-                # But we can try to look up active connections where I am recipient and they are requester
-                (PartnerConnection.recipient_user_id == requester_uuid) & (PartnerConnection.recipient_email == requester.email)  # Approximation
-            )
-        )
-        
-        # If we found the recipient user account, we can be more precise
+        # Check for existing active connections
+        # We need to check both directions:
+        # 1. I (requester) already sent to them (by email or user_id)
+        # 2. They already sent to me (need to find them first)
+
+        # Build query conditions
+        conditions = [
+            # Case 1: I sent request to their email
+            (PartnerConnection.requester_user_id == requester_uuid) &
+            (PartnerConnection.recipient_email == recipient_email)
+        ]
+
+        # If recipient exists as a user, add more precise checks
         if recipient_id:
-            # Match directly with UUIDs
-            existing_query = PartnerConnection.query.filter(
-                or_(
-                    # Forward: Me -> Them
-                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_user_id == recipient_id),
-                    (PartnerConnection.requester_user_id == requester_uuid) & (PartnerConnection.recipient_email == recipient_email),
-                    
-                    # Backward: Them -> Me
-                    (PartnerConnection.requester_user_id == recipient_id) & (PartnerConnection.recipient_user_id == requester_uuid)
-                )
+            conditions.extend([
+                # Case 2: I sent request to their user_id
+                (PartnerConnection.requester_user_id == requester_uuid) &
+                (PartnerConnection.recipient_user_id == recipient_id),
+                # Case 3: They sent request to me
+                (PartnerConnection.requester_user_id == recipient_id) &
+                (PartnerConnection.recipient_user_id == requester_uuid)
+            ])
+        else:
+            # Recipient doesn't exist yet - check if any user with that email sent us a request
+            # This handles the case where someone invited us before we had an account
+            # We look for connections where:
+            # - The requester's email matches the recipient_email we're trying to invite
+            # - AND we are the recipient
+            # This requires joining with users table or a subquery
+            # Note: User is already imported at module level
+
+            # Find if there's a user with the target email who sent us a request
+            subquery = db.session.query(User.id).filter(User.email == recipient_email).scalar_subquery()
+            conditions.append(
+                (PartnerConnection.requester_user_id == subquery) &
+                (PartnerConnection.recipient_user_id == requester_uuid)
             )
+
+        existing_query = PartnerConnection.query.filter(or_(*conditions))
 
         existing_connections = existing_query.filter(
             PartnerConnection.status.in_(['pending', 'accepted'])
@@ -191,10 +207,14 @@ def accept_connection(current_user_id, connection_id):
              return jsonify({'error': 'Invalid connection_id format'}), 400
 
         connection = PartnerConnection.query.filter_by(id=connection_id_int).first()
-        
+
         if not connection:
             return jsonify({'error': 'Connection not found'}), 404
-            
+
+        # CRITICAL: Verify caller is the intended recipient (IDOR protection)
+        if connection.recipient_user_id and str(connection.recipient_user_id) != str(current_user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
         # Fallback to DB if recipient_id not provided
         if not recipient_id:
             if connection.recipient_user_id:
@@ -449,7 +469,10 @@ def get_connections(current_user_id):
         
     except Exception as e:
         logger.error(f"Get connections failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve connections'}), 500
+        return jsonify({
+            'error': 'Failed to retrieve connections',
+            'connections': []
+        }), 500
 
 
 
@@ -474,8 +497,11 @@ def get_remembered_partners(current_user_id):
         }), 200
         
     except Exception as e:
-        logger.error(f"Failed to define partner models: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve partners'}), 500
+        logger.error(f"Failed to retrieve partners: {str(e)}")
+        return jsonify({
+            'error': 'Failed to retrieve partners',
+            'partners': []
+        }), 500
 
 
 @partners_bp.route('/remembered/<partner_user_id>', methods=['DELETE'])
