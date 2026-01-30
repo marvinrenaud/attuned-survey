@@ -416,12 +416,12 @@ def create_recommendations(current_user_id):
     
     except ValueError as e:
         logger.error(f"Invalid request: {str(e)}", extra={"request_id": request_id})
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': 'Invalid request'}), 400
     
     except Exception as e:
         logger.error(f"Recommendation generation failed: {str(e)}", extra={"request_id": request_id})
         db.session.rollback()
-        return jsonify({'error': f'Internal error: {str(e)}'}), 500
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @bp.route("/recommendations/<session_id>", methods=["GET"])

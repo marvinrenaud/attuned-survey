@@ -6,15 +6,20 @@ from ..models.profile import Profile
 from ..models.user import User
 from ..scoring.profile import calculate_profile
 from ..db.repository import sync_user_anatomy_to_profile
+from ..middleware.auth import internal_webhook_required
 
 process_submission_bp = Blueprint('process_submission', __name__, url_prefix='/api/survey/submissions')
 
+
 @process_submission_bp.route('/<submission_id>/process', methods=['POST'])
+@internal_webhook_required
 def process_submission(submission_id):
     """
     Process a raw survey submission to generate a profile.
     This endpoint is intended to be called by a database trigger/webhook
     when a new submission is inserted (e.g., from the mobile app).
+
+    Security: Requires X-Internal-Secret header (INTERNAL_WEBHOOK_SECRET env var).
     """
     try:
         current_app.logger.info(f"Processing submission: {submission_id}")
@@ -116,4 +121,4 @@ def process_submission(submission_id):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error processing submission {submission_id}: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Processing failed'}), 500

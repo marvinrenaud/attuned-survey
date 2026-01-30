@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request, current_app
 from ..extensions import db
 from ..models.user import User
 from ..models.profile import Profile
-from ..middleware.auth import token_required
+from ..middleware.auth import token_required, has_partner_relationship
 import logging
 import uuid
 
@@ -88,25 +88,31 @@ def get_partner_profile(current_user_id, partner_id):
     """
     Get partner's profile based on their sharing settings (FR-69, FR-70, FR-71).
     Returns filtered profile data according to partner's preferences.
+
+    Security: Requires an accepted partner connection or remembered partner relationship.
     """
     try:
         try:
             requester_uuid = uuid.UUID(current_user_id)
             partner_uuid = uuid.UUID(partner_id)
         except ValueError:
-            return jsonify({'error': 'Invalid User ID formatted'}), 400
+            return jsonify({'error': 'Invalid User ID format'}), 400
+
+        # SECURITY: Verify partner relationship exists before allowing profile access
+        if not has_partner_relationship(requester_uuid, partner_uuid):
+            return jsonify({'error': 'Not connected to this partner'}), 403
 
         # Get partner's user and profile
         partner = User.query.filter_by(id=partner_uuid).first()
-        
+
         if not partner:
             return jsonify({'error': 'Partner not found'}), 404
-        
+
         partner_profile = Profile.query.filter_by(user_id=partner_uuid).first()
-        
+
         if not partner_profile:
             return jsonify({'error': 'Partner profile not found'}), 404
-        
+
         # Get sharing setting
         sharing_setting = partner.profile_sharing_setting
         

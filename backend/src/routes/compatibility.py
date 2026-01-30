@@ -161,7 +161,7 @@ def get_compatibility(current_user_id, user_id, partner_id):
         import traceback
         traceback.print_exc()
         logger.error(f"Get compatibility failed: {str(e)}")
-        return jsonify({'error': 'Failed to retrieve compatibility (v5)', 'details': str(e)}), 500
+        return jsonify({'error': 'Failed to retrieve compatibility'}), 500
 
 
 @compatibility_bp.route('/<user_id>/<partner_id>/ui', methods=['GET'])
@@ -337,7 +337,7 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         import traceback
         traceback.print_exc()
         logger.error(f"Get compatibility UI failed: {str(e)}")
-        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 def _transform_profile_for_ui(profile, user, sharing_setting):

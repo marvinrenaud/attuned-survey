@@ -14,7 +14,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import text
 from ..middleware.auth import token_required, optional_token
 
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models.session import Session
 from ..models.user import User
 from ..models.activity import Activity
@@ -726,6 +726,7 @@ def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None, an
 
 @gameplay_bp.route("/start", methods=["POST"])
 @token_required
+@limiter.limit("30 per hour")
 def start_game(current_user_id):
     """
     Start a new game session.
@@ -875,10 +876,11 @@ def start_game(current_user_id):
 
     except Exception as e:
         logger.error("start_game_failed", error=str(e), error_type=type(e).__name__)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
 @token_required
+@limiter.limit("300 per hour")
 def next_turn(current_user_id, session_id):
     """
     Advance to next turn.
@@ -1001,4 +1003,4 @@ def next_turn(current_user_id, session_id):
         logger.error("next_turn_failed", session_id=session_id, error=str(e))
         # If DB error, rollback?
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500

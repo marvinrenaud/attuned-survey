@@ -81,13 +81,13 @@ def optional_token(f):
     def decorated(*args, **kwargs):
         current_user_id = None
         token = None
-        
+
         if 'Authorization' in request.headers:
             auth_header = request.headers['Authorization']
             parts = auth_header.split()
             if len(parts) == 2 and parts[0].lower() == 'bearer':
                 token = parts[1]
-        
+
         if token:
             try:
                 payload = jwt.decode(
@@ -100,7 +100,127 @@ def optional_token(f):
             except Exception:
                 # Ignore validation errors for optional auth
                 pass
-        
+
         return f(current_user_id, *args, **kwargs)
-    
+
     return decorated
+
+
+# =============================================================================
+# Security Helper Functions
+# =============================================================================
+
+def is_admin_user(user_id: str) -> bool:
+    """
+    Check if a user is an admin based on ADMIN_USER_IDS environment variable.
+
+    Args:
+        user_id: The user's UUID as a string
+
+    Returns:
+        True if user_id is in the comma-separated ADMIN_USER_IDS list
+    """
+    admin_ids = os.environ.get('ADMIN_USER_IDS', '').split(',')
+    return str(user_id) in [aid.strip() for aid in admin_ids if aid.strip()]
+
+
+def verify_internal_webhook_secret() -> bool:
+    """
+    Verify the internal webhook secret from the X-Internal-Secret header.
+    Used for endpoints called by database triggers.
+
+    Returns:
+        True if valid secret provided, False otherwise
+    """
+    secret = os.environ.get('INTERNAL_WEBHOOK_SECRET')
+    if not secret:
+        logger.warning("INTERNAL_WEBHOOK_SECRET not configured")
+        return False
+
+    provided_secret = request.headers.get('X-Internal-Secret', '')
+    return provided_secret == secret
+
+
+def internal_webhook_required(f):
+    """
+    Decorator for endpoints called by database triggers.
+    Requires X-Internal-Secret header to match INTERNAL_WEBHOOK_SECRET env var.
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not verify_internal_webhook_secret():
+            return jsonify({'error': 'Unauthorized'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
+
+def require_admin(f):
+    """
+    Decorator that requires the user to be an admin.
+    Must be used AFTER @token_required decorator.
+
+    Usage:
+        @bp.route('/admin-only')
+        @token_required
+        @require_admin
+        def admin_endpoint(current_user_id):
+            ...
+    """
+    @wraps(f)
+    def decorated(current_user_id, *args, **kwargs):
+        if not is_admin_user(current_user_id):
+            logger.warning(f"Non-admin user {current_user_id} attempted admin action")
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
+
+def has_partner_relationship(user_a_id, user_b_id) -> bool:
+    """
+    Check if two users have an accepted partner relationship.
+    Checks both PartnerConnection (accepted) and RememberedPartner tables.
+
+    Args:
+        user_a_id: First user's UUID (string or UUID object)
+        user_b_id: Second user's UUID (string or UUID object)
+
+    Returns:
+        True if users have an accepted connection or remembered partner relationship
+    """
+    import uuid
+    from sqlalchemy import or_
+    from ..models.partner import PartnerConnection, RememberedPartner
+
+    # Convert to UUID objects if strings
+    try:
+        a_uuid = uuid.UUID(str(user_a_id))
+        b_uuid = uuid.UUID(str(user_b_id))
+    except ValueError:
+        return False
+
+    # Check for accepted PartnerConnection (either direction)
+    connection = PartnerConnection.query.filter(
+        or_(
+            (PartnerConnection.requester_user_id == a_uuid) &
+            (PartnerConnection.recipient_user_id == b_uuid) &
+            (PartnerConnection.status == 'accepted'),
+            (PartnerConnection.requester_user_id == b_uuid) &
+            (PartnerConnection.recipient_user_id == a_uuid) &
+            (PartnerConnection.status == 'accepted')
+        )
+    ).first()
+
+    if connection:
+        return True
+
+    # Check RememberedPartner (either direction)
+    remembered = RememberedPartner.query.filter(
+        or_(
+            (RememberedPartner.user_id == a_uuid) &
+            (RememberedPartner.partner_user_id == b_uuid),
+            (RememberedPartner.user_id == b_uuid) &
+            (RememberedPartner.partner_user_id == a_uuid)
+        )
+    ).first()
+
+    return remembered is not None
