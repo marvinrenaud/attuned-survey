@@ -220,12 +220,13 @@ class TestPromoValidation:
             assert data['error'] == 'Maximum redemptions reached'
 
     def test_validate_already_used_by_user(self, client, app_context, test_user, valid_promo_code, db_session):
-        """Returns valid=false if user already redeemed this code"""
-        # Create existing redemption
+        """Returns valid=false if user already redeemed this code for a DISCOUNTED product"""
+        # Create existing redemption for DISCOUNTED product
+        # Note: Only blocks if user actually got the discount (product has 'discounted' in name)
         redemption = PromoRedemption(
             promo_code_id=valid_promo_code.id,
             user_id=test_user.id,
-            subscription_product='attuned_monthly',
+            subscription_product='attuned_monthly_discounted',  # Must be discounted to block
             discounted_price=3.99,
             redeemed_at=datetime.now(timezone.utc),
         )

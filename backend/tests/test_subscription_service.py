@@ -175,13 +175,14 @@ class TestInitialPurchaseHandler:
         assert user_with_billing_issue.billing_issue_detected_at is None
 
     def test_handle_initial_purchase_with_pending_promo(self, app_context, db_session, free_user, valid_promo_code):
-        """Pending promo code creates redemption record."""
+        """Pending promo code creates redemption record when purchasing DISCOUNTED product."""
         from src.services.subscription_service import SubscriptionService
 
         free_user.pending_promo_code = valid_promo_code.code
         db_session.commit()
 
-        event = make_event('INITIAL_PURCHASE', price=3.99)
+        # Must purchase a discounted product for redemption to be recorded
+        event = make_event('INITIAL_PURCHASE', product_id='attuned_monthly_discounted', price=3.99)
         SubscriptionService.process_webhook_event(free_user, event)
 
         assert free_user.promo_code_used == valid_promo_code.code

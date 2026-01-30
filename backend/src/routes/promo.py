@@ -52,17 +52,22 @@ def validate_promo_code(current_user_id):
                 'error': error
             }), 200
 
-        # Check if user already redeemed this code (service layer check)
+        # Check if user already redeemed this code for a DISCOUNTED product
+        # Users who validated but bought full-price can re-use the code
         existing = PromoRedemption.query.filter_by(
             user_id=current_user_id,
             promo_code_id=promo.id
         ).first()
 
         if existing:
-            return jsonify({
-                'valid': False,
-                'error': 'Code already used'
-            }), 200
+            # Only block if they actually got the discount (bought a discounted product)
+            product = existing.subscription_product or ''
+            if 'discounted' in product.lower():
+                return jsonify({
+                    'valid': False,
+                    'error': 'Code already used'
+                }), 200
+            # Otherwise, allow re-validation (they paid full price last time)
 
         # Get user and associate pending promo code
         user = db.session.get(User, current_user_id)

@@ -174,8 +174,24 @@ class SubscriptionService:
         """
         If user has pending promo code, record the redemption.
         Called during INITIAL_PURCHASE processing.
+
+        IMPORTANT: Only records redemption if the purchased product is discounted.
+        If user bought a non-discounted product, clears pending_promo_code without
+        creating a redemption, allowing them to use the code on a future purchase.
         """
         if not user.pending_promo_code:
+            return
+
+        product_id = event.get('product_id', '')
+
+        # Only record redemption if user actually purchased a discounted product
+        # Discounted products have '_discounted' in their ID (e.g., 'attuned_monthly_web_discounted')
+        if 'discounted' not in product_id.lower():
+            logger.info(
+                f"User {user.id} had pending promo code {user.pending_promo_code} "
+                f"but purchased non-discounted product {product_id}, clearing pending code"
+            )
+            user.pending_promo_code = None
             return
 
         # Get the session from the user's object state to maintain context
