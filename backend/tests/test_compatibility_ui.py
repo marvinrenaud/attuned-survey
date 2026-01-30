@@ -321,6 +321,170 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
         self.assertEqual(spanking['status'], 'conflict')
         self.assertFalse(spanking['compatible'], "Conflict should never be compatible")
 
+class TestCompatibilityUIPowerOrientationLabels(unittest.TestCase):
+    """Test that power orientation labels are properly transformed to display names."""
+
+    def setUp(self):
+        self.app = Flask(__name__)
+        self.app.register_blueprint(compatibility_bp)
+        self.client = self.app.test_client()
+        self.u_id = uuid.uuid4()
+        self.p_id = uuid.uuid4()
+
+    @patch('src.routes.compatibility.User')
+    @patch('src.routes.compatibility.Profile')
+    @patch('src.routes.compatibility.Compatibility')
+    @patch('src.routes.compatibility.PartnerConnection')
+    def test_power_overlap_uses_display_labels(self, mock_conn, mock_compat, mock_profile, mock_user):
+        """Test that power_overlap.user_label and partner_label use display names."""
+        token = jwt.encode(
+            {"sub": str(self.u_id), "aud": "authenticated"},
+            "test-secret-key",
+            algorithm="HS256"
+        )
+        auth_header = {'Authorization': f'Bearer {token}'}
+
+        # Mock Connection
+        mock_conn.query.filter.return_value.filter_by.return_value.first.return_value = StubModel(status='accepted')
+
+        # Mock Users
+        u_user = StubModel(id=self.u_id, display_name="User", profile_sharing_setting="all_responses")
+        p_user = StubModel(id=self.p_id, display_name="Partner", profile_sharing_setting="all_responses")
+        mock_user.query.get.side_effect = lambda id: u_user if id == self.u_id else (p_user if id == self.p_id else None)
+
+        # Mock Profiles - User is Top, Partner is Bottom
+        u_profile = StubModel(
+            id=1,
+            user_id=self.u_id,
+            submission_id="sub1",
+            arousal_propensity={},
+            power_dynamic={'top_score': 80, 'bottom_score': 20, 'orientation': 'Top', 'interpretation': 'Dom'},
+            domain_scores={},
+            activities={},
+            boundaries={},
+            created_at='2023-01-01'
+        )
+        p_profile = StubModel(
+            id=2,
+            user_id=self.p_id,
+            submission_id="sub2",
+            arousal_propensity={},
+            power_dynamic={'top_score': 20, 'bottom_score': 80, 'orientation': 'Bottom', 'interpretation': 'Sub'},
+            domain_scores={},
+            activities={},
+            boundaries={},
+            created_at='2023-01-01'
+        )
+
+        mock_query_u = MagicMock()
+        mock_query_u.order_by.return_value.first.return_value = u_profile
+
+        mock_query_p = MagicMock()
+        mock_query_p.order_by.return_value.first.return_value = p_profile
+
+        mock_profile.query.filter_by.side_effect = lambda user_id: mock_query_u if user_id == self.u_id else mock_query_p
+
+        # Mock Compatibility
+        mock_compat_rec = StubModel(
+            overall_percentage=85,
+            interpretation="Great",
+            created_at=MagicMock(isoformat=lambda: "2023-01-01"),
+            breakdown={'power_complement': 90, 'domain_similarity': 80, 'activity_overlap': 70, 'truth_overlap': 60},
+            mutual_activities=[],
+            mutual_truth_topics=[],
+            blocked_activities=[],
+            boundary_conflicts=[]
+        )
+        mock_compat.query.filter_by.return_value.first.return_value = mock_compat_rec
+
+        # Call Endpoint
+        response = self.client.get(f'/api/compatibility/{self.u_id}/{self.p_id}/ui', headers=auth_header)
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+
+        # Verify power_overlap uses display labels
+        power_overlap = data['comparison_data']['power_overlap']
+        self.assertEqual(power_overlap['user_label'], 'Leans Dom', "Top should display as 'Leans Dom'")
+        self.assertEqual(power_overlap['partner_label'], 'Leans Sub', "Bottom should display as 'Leans Sub'")
+
+    @patch('src.routes.compatibility.User')
+    @patch('src.routes.compatibility.Profile')
+    @patch('src.routes.compatibility.Compatibility')
+    @patch('src.routes.compatibility.PartnerConnection')
+    def test_partner_profile_power_uses_display_label(self, mock_conn, mock_compat, mock_profile, mock_user):
+        """Test that partner_profile.power.label uses display name."""
+        token = jwt.encode(
+            {"sub": str(self.u_id), "aud": "authenticated"},
+            "test-secret-key",
+            algorithm="HS256"
+        )
+        auth_header = {'Authorization': f'Bearer {token}'}
+
+        # Mock Connection
+        mock_conn.query.filter.return_value.filter_by.return_value.first.return_value = StubModel(status='accepted')
+
+        # Mock Users
+        u_user = StubModel(id=self.u_id, display_name="User", profile_sharing_setting="all_responses")
+        p_user = StubModel(id=self.p_id, display_name="Partner", profile_sharing_setting="all_responses")
+        mock_user.query.get.side_effect = lambda id: u_user if id == self.u_id else (p_user if id == self.p_id else None)
+
+        # Mock Profiles - Partner is Bottom
+        u_profile = StubModel(
+            id=1,
+            user_id=self.u_id,
+            submission_id="sub1",
+            arousal_propensity={},
+            power_dynamic={'orientation': 'Switch'},
+            domain_scores={},
+            activities={},
+            boundaries={},
+            created_at='2023-01-01'
+        )
+        p_profile = StubModel(
+            id=2,
+            user_id=self.p_id,
+            submission_id="sub2",
+            arousal_propensity={},
+            power_dynamic={'top_score': 20, 'bottom_score': 80, 'orientation': 'Bottom', 'interpretation': 'Sub'},
+            domain_scores={},
+            activities={},
+            boundaries={},
+            created_at='2023-01-01'
+        )
+
+        mock_query_u = MagicMock()
+        mock_query_u.order_by.return_value.first.return_value = u_profile
+
+        mock_query_p = MagicMock()
+        mock_query_p.order_by.return_value.first.return_value = p_profile
+
+        mock_profile.query.filter_by.side_effect = lambda user_id: mock_query_u if user_id == self.u_id else mock_query_p
+
+        # Mock Compatibility
+        mock_compat_rec = StubModel(
+            overall_percentage=85,
+            interpretation="Great",
+            created_at=MagicMock(isoformat=lambda: "2023-01-01"),
+            breakdown={},
+            mutual_activities=[],
+            mutual_truth_topics=[],
+            blocked_activities=[],
+            boundary_conflicts=[]
+        )
+        mock_compat.query.filter_by.return_value.first.return_value = mock_compat_rec
+
+        # Call Endpoint
+        response = self.client.get(f'/api/compatibility/{self.u_id}/{self.p_id}/ui', headers=auth_header)
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+
+        # Verify partner_profile.general.power.label uses display name
+        partner_power = data['partner_profile']['general']['power']
+        self.assertEqual(partner_power['label'], 'Leans Sub', "Bottom should display as 'Leans Sub' in partner profile")
+
+
 if __name__ == '__main__':
     unittest.main()
 
