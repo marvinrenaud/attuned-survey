@@ -57,7 +57,18 @@ def get_compatibility(current_user_id, user_id, partner_id):
         auth_uid_str = str(current_user_id)
         if auth_uid_str != str(u_uuid) and auth_uid_str != str(p_uuid):
              return jsonify({'error': 'Unauthorized access to compatibility data'}), 403
-             
+
+        # Determine which UUID is "me" (authenticated user) vs "partner"
+        # This fixes a bug where URL params could be in either order
+        if auth_uid_str == str(u_uuid):
+            # Auth user is in first position - normal case
+            my_uuid = u_uuid
+            partner_uuid = p_uuid
+        else:
+            # Auth user is in second position - swap assignments
+            my_uuid = p_uuid
+            partner_uuid = u_uuid
+
         # 1. Verify connection exists (active or accepted)
         # Use sanitized strings to prevent "invalid input syntax" DB errors
         connection = PartnerConnection.query.filter(
@@ -66,29 +77,29 @@ def get_compatibility(current_user_id, user_id, partner_id):
                 (PartnerConnection.requester_user_id == p_str) & (PartnerConnection.recipient_user_id == u_str)
             )
         ).filter_by(status='accepted').first()
-        
+
         if not connection:
             return jsonify({'error': 'No active connection found'}), 403
-            
+
         # 2. Get Partner's settings
-        partner = User.query.filter_by(id=p_uuid).first()
-        if not partner:
+        partner_user = User.query.filter_by(id=partner_uuid).first()
+        if not partner_user:
             return jsonify({'error': 'Partner not found'}), 404
-            
-        sharing_setting = partner.profile_sharing_setting
-        
+
+        sharing_setting = partner_user.profile_sharing_setting
+
         # 3. Fetch Compatibility Record
         # Determine order (lower ID first)
-        req_profile = Profile.query.filter_by(user_id=u_uuid).order_by(Profile.created_at.desc()).first()
-        partner_profile = Profile.query.filter_by(user_id=p_uuid).order_by(Profile.created_at.desc()).first()
-        
-        if not req_profile or not partner_profile:
+        my_profile = Profile.query.filter_by(user_id=my_uuid).order_by(Profile.created_at.desc()).first()
+        partner_profile = Profile.query.filter_by(user_id=partner_uuid).order_by(Profile.created_at.desc()).first()
+
+        if not my_profile or not partner_profile:
              return jsonify({'error': 'Profiles not found'}), 404
-             
-        if req_profile.id < partner_profile.id:
-            p1, p2 = req_profile.id, partner_profile.id
+
+        if my_profile.id < partner_profile.id:
+            p1, p2 = my_profile.id, partner_profile.id
         else:
-            p1, p2 = partner_profile.id, req_profile.id
+            p1, p2 = partner_profile.id, my_profile.id
             
         compat_record = Compatibility.query.filter_by(player_a_id=p1, player_b_id=p2).first()
         
@@ -201,44 +212,55 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         if auth_uid_str != str(u_uuid) and auth_uid_str != str(p_uuid):
              return jsonify({'error': 'Unauthorized access to compatibility data'}), 403
 
+        # Determine which UUID is "me" (authenticated user) vs "partner"
+        # This fixes a bug where URL params could be in either order
+        if auth_uid_str == str(u_uuid):
+            # Auth user is in first position - normal case
+            my_uuid = u_uuid
+            partner_uuid = p_uuid
+        else:
+            # Auth user is in second position - swap assignments
+            my_uuid = p_uuid
+            partner_uuid = u_uuid
+
         # 1. Fetch Users
-        user_u = User.query.get(u_uuid)
-        user_p = User.query.get(p_uuid)
-        
-        if not user_u or not user_p:
+        user_me = User.query.get(my_uuid)
+        user_partner = User.query.get(partner_uuid)
+
+        if not user_me or not user_partner:
              return jsonify({'error': 'Users not found'}), 404
 
         # 2. Fetch Latest Profiles
-        p_u_profile = Profile.query.filter_by(user_id=u_uuid).order_by(Profile.created_at.desc()).first()
-        p_p_profile = Profile.query.filter_by(user_id=p_uuid).order_by(Profile.created_at.desc()).first()
-        
-        if not p_u_profile or not p_p_profile:
+        my_profile = Profile.query.filter_by(user_id=my_uuid).order_by(Profile.created_at.desc()).first()
+        partner_profile = Profile.query.filter_by(user_id=partner_uuid).order_by(Profile.created_at.desc()).first()
+
+        if not my_profile or not partner_profile:
              return jsonify({'error': 'Profiles not found'}), 404
 
         # 3. Fetch Compatibility Record
-        if p_u_profile.id < p_p_profile.id:
-            p1, p2 = p_u_profile.id, p_p_profile.id
+        if my_profile.id < partner_profile.id:
+            p1, p2 = my_profile.id, partner_profile.id
         else:
-            p1, p2 = p_p_profile.id, p_u_profile.id
-            
+            p1, p2 = partner_profile.id, my_profile.id
+
         compat_record = Compatibility.query.filter_by(player_a_id=p1, player_b_id=p2).first()
-        
+
         if not compat_record:
             return jsonify({'error': 'Compatibility not calculated yet'}), 404
 
         # 4. Prepare Data
         # Flatten derived data from profiles
         # Note: We duplicate some logic from profile_ui to ensure stability without refactoring
-        
+
         # Helper to get safe int/float
         def safe_val(val, default=0):
             return val if val is not None else default
 
         # --- A. Partner Profile (Mirrored UI Schema) ---
         # Only show if allowed, but structure must exist (empty if restricted)
-        sharing_setting = user_p.profile_sharing_setting
-        
-        partner_ui_profile = _transform_profile_for_ui(p_p_profile, user_p, sharing_setting)
+        sharing_setting = user_partner.profile_sharing_setting
+
+        partner_ui_profile = _transform_profile_for_ui(partner_profile, user_partner, sharing_setting)
         
         # --- B. Comparison Data ---
         
@@ -246,8 +268,8 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         # Strict order: Sensation, Connection, Power, Exploration, Verbal
         # Map internal keys to this order
         domain_keys_ordered = ['sensation', 'connection', 'power', 'exploration', 'verbal']
-        u_domains = p_u_profile.domain_scores or {}
-        p_domains = p_p_profile.domain_scores or {}
+        u_domains = my_profile.domain_scores or {}
+        p_domains = partner_profile.domain_scores or {}
         
         comparison_domains = []
         for key in domain_keys_ordered:
@@ -281,8 +303,8 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         
         # Power Overlap
         # Re-calculate simple labels
-        u_power = p_u_profile.power_dynamic or {}
-        p_power = p_p_profile.power_dynamic or {}
+        u_power = my_profile.power_dynamic or {}
+        p_power = partner_profile.power_dynamic or {}
         
         power_overlap = {
             "user_label": u_power.get('orientation', 'Switch'),
@@ -291,8 +313,8 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         }
 
         # Flattened Arousal Comparison
-        u_arousal = p_u_profile.arousal_propensity or {}
-        p_arousal = p_p_profile.arousal_propensity or {}
+        u_arousal = my_profile.arousal_propensity or {}
+        p_arousal = partner_profile.arousal_propensity or {}
         
         arousal_comparison = {
             "user_sexual_excitation": safe_val(u_arousal.get('sexual_excitation', 0)),
@@ -307,10 +329,10 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         interests_comp = []
         if sharing_setting != 'demographics_only':
             interests_comp = _compare_interests(
-                p_u_profile.activities or {},
-                p_u_profile.boundaries or {},
-                p_p_profile.activities or {},
-                p_p_profile.boundaries or {},
+                my_profile.activities or {},
+                my_profile.boundaries or {},
+                partner_profile.activities or {},
+                partner_profile.boundaries or {},
                 sharing_setting == 'overlapping_only'
             )
 

@@ -321,6 +321,130 @@ class TestCompatibilityUIIntegration(unittest.TestCase):
         self.assertEqual(spanking['status'], 'conflict')
         self.assertFalse(spanking['compatible'], "Conflict should never be compatible")
 
+    @patch('src.routes.compatibility.User')
+    @patch('src.routes.compatibility.Profile')
+    @patch('src.routes.compatibility.Compatibility')
+    @patch('src.routes.compatibility.PartnerConnection')
+    def test_partner_profile_power_data_regression(self, mock_conn, mock_compat, mock_profile, mock_user):
+        """
+        Regression test for bug where partner_profile.general.power showed the
+        authenticated user's data instead of the partner's data when the URL
+        params were in "reverse" order (auth user in second position).
+
+        Bug: /api/compatibility/{partnerId}/{authUserId}/ui returned auth user's
+        power percentages in partner_profile.general.power instead of partner's.
+        """
+        # User A (auth user): top=30, bottom=70 -> 30% dominant
+        # User B (partner): top=0, bottom=100 -> 0% dominant, 100% submissive
+        user_a_id = uuid.uuid4()  # This will be authenticated user
+        user_b_id = uuid.uuid4()  # This will be partner
+
+        # Create JWT where auth user is User A
+        token = jwt.encode(
+            {"sub": str(user_a_id), "aud": "authenticated"},
+            "test-secret-key",
+            algorithm="HS256"
+        )
+        auth_header = {'Authorization': f'Bearer {token}'}
+
+        # Mock Connection (accepts both directions)
+        mock_conn.query.filter.return_value.filter_by.return_value.first.return_value = StubModel(status='accepted')
+
+        # Mock Users - User B is the "partner" we want to see
+        user_a = StubModel(id=user_a_id, display_name="UserA", profile_sharing_setting="all_responses")
+        user_b = StubModel(id=user_b_id, display_name="UserB", profile_sharing_setting="all_responses")
+        mock_user.query.get.side_effect = lambda id: user_a if id == user_a_id else (user_b if id == user_b_id else None)
+
+        # Mock Profiles with distinct power data
+        # User A: 30% dominant, 70% submissive
+        profile_a = StubModel(
+            id=1,
+            user_id=user_a_id,
+            submission_id="sub_a",
+            arousal_propensity={'sexual_excitation': 0.5, 'inhibition_performance': 0.2, 'inhibition_consequence': 0.1},
+            power_dynamic={'top_score': 30, 'bottom_score': 70, 'orientation': 'Bottom', 'interpretation': 'Leans Sub'},
+            domain_scores={'sensation': 10, 'connection': 20, 'power': 30, 'exploration': 40, 'verbal': 50},
+            activities={},
+            boundaries={'hard_limits': []},
+            created_at='2023-01-01'
+        )
+        # User B: 0% dominant, 100% submissive
+        profile_b = StubModel(
+            id=2,
+            user_id=user_b_id,
+            submission_id="sub_b",
+            arousal_propensity={'sexual_excitation': 0.6, 'inhibition_performance': 0.3, 'inhibition_consequence': 0.4},
+            power_dynamic={'top_score': 0, 'bottom_score': 100, 'orientation': 'Bottom', 'interpretation': 'Full Sub'},
+            domain_scores={'sensation': 15, 'connection': 25, 'power': 35, 'exploration': 45, 'verbal': 55},
+            activities={},
+            boundaries={'hard_limits': []},
+            created_at='2023-01-01'
+        )
+
+        # Setup profile query mock
+        mock_query_a = MagicMock()
+        mock_query_a.order_by.return_value.first.return_value = profile_a
+
+        mock_query_b = MagicMock()
+        mock_query_b.order_by.return_value.first.return_value = profile_b
+
+        def profile_filter_by(**kwargs):
+            user_id = kwargs.get('user_id')
+            if user_id == user_a_id:
+                return mock_query_a
+            elif user_id == user_b_id:
+                return mock_query_b
+            return MagicMock()
+
+        mock_profile.query.filter_by.side_effect = profile_filter_by
+
+        # Mock Compatibility
+        mock_compat_rec = StubModel(
+            overall_percentage=85,
+            interpretation="Great",
+            created_at=MagicMock(isoformat=lambda: "2023-01-01"),
+            breakdown={'power_complement': 90, 'domain_similarity': 80, 'activity_overlap': 70, 'truth_overlap': 60},
+            mutual_activities=[],
+            mutual_truth_topics=[],
+            blocked_activities=[],
+            boundary_conflicts=[]
+        )
+        mock_compat.query.filter_by.return_value.first.return_value = mock_compat_rec
+
+        # TEST THE BUG: Call with User B first, User A second (auth user in second position!)
+        # Before fix: partner_profile would incorrectly contain User A's data (30/70)
+        # After fix: partner_profile should contain User B's data (0/100)
+        response = self.client.get(f'/api/compatibility/{user_b_id}/{user_a_id}/ui', headers=auth_header)
+
+        if response.status_code != 200:
+            print(f"Response status: {response.status_code}")
+            print(f"Response data: {response.json}")
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+
+        # Verify partner_profile contains User B's power data (the first URL param)
+        # NOT User A's data (the authenticated user)
+        partner_power = data['partner_profile']['general']['power']
+
+        # User B has top_score=0, bottom_score=100
+        # So: top_percentage = 0/(0+100)*100 = 0
+        #     bottom_percentage = 100 - 0 = 100
+        self.assertEqual(
+            partner_power['top_percentage'], 0,
+            f"Expected partner top_percentage=0 (User B), got {partner_power['top_percentage']} - "
+            "BUG: returning auth user's data instead of partner's"
+        )
+        self.assertEqual(
+            partner_power['bottom_percentage'], 100,
+            f"Expected partner bottom_percentage=100 (User B), got {partner_power['bottom_percentage']} - "
+            "BUG: returning auth user's data instead of partner's"
+        )
+
+        # Also verify the label is correct (User B's orientation)
+        self.assertEqual(partner_power['label'], 'Bottom', "Partner label should be User B's orientation")
+
+
 if __name__ == '__main__':
     unittest.main()
 
