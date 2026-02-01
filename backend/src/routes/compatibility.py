@@ -12,7 +12,8 @@ from .partners import PartnerConnection
 from ..scoring.display_names import (
     DOMAIN_DISPLAY_NAMES,
     ACTIVITY_SECTION_DISPLAY_NAMES,
-    ACTIVITY_DISPLAY_NAMES
+    ACTIVITY_DISPLAY_NAMES,
+    POWER_ORIENTATION_DISPLAY_NAMES
 )
 from ..middleware.auth import token_required
 import logging
@@ -284,9 +285,11 @@ def get_compatibility_ui(current_user_id, user_id, partner_id):
         u_power = p_u_profile.power_dynamic or {}
         p_power = p_p_profile.power_dynamic or {}
         
+        u_orientation = u_power.get('orientation', 'Switch')
+        p_orientation = p_power.get('orientation', 'Switch')
         power_overlap = {
-            "user_label": u_power.get('orientation', 'Switch'),
-            "partner_label": p_power.get('orientation', 'Switch') if sharing_setting != 'demographics_only' else "Hidden",
+            "user_label": POWER_ORIENTATION_DISPLAY_NAMES.get(u_orientation, u_orientation),
+            "partner_label": POWER_ORIENTATION_DISPLAY_NAMES.get(p_orientation, p_orientation) if sharing_setting != 'demographics_only' else "Hidden",
             "complement_score": safe_val(breakdown.get('power', 0))
         }
 
@@ -373,8 +376,9 @@ def _transform_profile_for_ui(profile, user, sharing_setting):
             top_pct = int((top/total)*100)
         else:
             top_pct = 50
+        orientation = power.get('orientation', 'Switch')
         power_ui = {
-            "label": power.get('orientation', 'Switch'),
+            "label": POWER_ORIENTATION_DISPLAY_NAMES.get(orientation, orientation),
             "top_percentage": top_pct,
             "bottom_percentage": 100 - top_pct,
             "confidence": power.get('interpretation', '')

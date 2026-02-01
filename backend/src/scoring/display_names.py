@@ -11,6 +11,13 @@ DOMAIN_DISPLAY_NAMES = {
     "verbal": "Verbal"
 }
 
+POWER_ORIENTATION_DISPLAY_NAMES = {
+    "Top": "Leans Dom",
+    "Bottom": "Leans Sub",
+    "Switch": "Switch",
+    "Versatile/Undefined": "Versatile/Undefined"
+}
+
 ACTIVITY_SECTION_DISPLAY_NAMES = {
     "physical_touch": "Physical Touch",
     "oral": "Oral Activities",

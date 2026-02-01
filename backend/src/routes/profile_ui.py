@@ -7,7 +7,8 @@ from ..scoring.profile import calculate_profile
 from ..scoring.display_names import (
     DOMAIN_DISPLAY_NAMES,
     ACTIVITY_SECTION_DISPLAY_NAMES,
-    ACTIVITY_DISPLAY_NAMES
+    ACTIVITY_DISPLAY_NAMES,
+    POWER_ORIENTATION_DISPLAY_NAMES
 )
 from ..middleware.auth import token_required
 import logging
@@ -74,8 +75,9 @@ def get_profile_ui(current_user_id):
             top_pct = 50
             bottom_pct = 50
 
+        orientation = power.get('orientation', 'Switch')
         power_ui = {
-            "label": power.get('orientation', 'Switch'),
+            "label": POWER_ORIENTATION_DISPLAY_NAMES.get(orientation, orientation),
             "top_percentage": top_pct,
             "bottom_percentage": bottom_pct,
             "confidence": power.get('interpretation', '')
