@@ -95,9 +95,9 @@ def test_partner_profile_access(client, mock_auth_u2, app):
     # Route: /api/profile-sharing/partner-profile/<partner_id>
     # Token matches requester (U2).
 
-    # SECURITY FIX: Partner connection is now required
-    # Create accepted partner connection between User 2 and User 1
+    # SECURITY: Must have partner relationship to access profile
     with app.app_context():
+        # Create accepted partner connection between U2 and U1
         connection = PartnerConnection(
             requester_user_id=uuid.UUID(app.u2_id),
             recipient_user_id=uuid.UUID(app.u1_id),
@@ -109,7 +109,7 @@ def test_partner_profile_access(client, mock_auth_u2, app):
         db.session.add(connection)
         db.session.commit()
 
-    # Now User 2 can access User 1's profile
+    # Now with relationship established, access should succeed
     res = client.get(f'/api/profile-sharing/partner-profile/{app.u1_id}', headers={'Authorization': 'Bearer token'})
     assert res.status_code == 200
     assert res.json['display_name'] == "User 1"

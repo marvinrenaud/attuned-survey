@@ -3,7 +3,7 @@ import uuid
 from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models.survey import SurveySubmission, SurveyProgress
 from ..models.profile import Profile
 from ..models.user import User
@@ -15,8 +15,10 @@ logger = logging.getLogger(__name__)
 
 survey_submit_bp = Blueprint('survey_submit', __name__, url_prefix='/api/survey')
 
+
 @survey_submit_bp.route('/submit', methods=['POST'])
 @token_required
+@limiter.limit("10 per hour")
 def submit_survey(current_user_id):
     """
     Handle atomic survey submission.
@@ -176,4 +178,4 @@ def submit_survey(current_user_id):
     except Exception as e:
         # db.session.rollback() handled by begin_nested or request teardown
         logger.exception(f"Error in survey submit: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Submission failed'}), 500

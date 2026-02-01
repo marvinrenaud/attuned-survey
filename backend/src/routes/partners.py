@@ -7,8 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
 import uuid
 
-from ..extensions import db
-from ..middleware.auth import token_required
+from ..extensions import db, limiter
 from ..middleware.auth import token_required
 from ..models.user import User
 from ..services.email_service import send_partner_request, send_partner_accepted
@@ -29,6 +28,7 @@ partners_bp = Blueprint('partners', __name__, url_prefix='/api/partners')
 
 @partners_bp.route('/connect', methods=['POST'])
 @token_required
+@limiter.limit("10 per hour")
 def create_connection_request(current_user_id):
     """
     Create a partner connection request (FR-55).

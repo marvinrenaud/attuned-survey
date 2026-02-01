@@ -1,11 +1,12 @@
 # backend/src/routes/survey.py
 from datetime import datetime
 import math
+import uuid
 from typing import Optional
 
 from flask import Blueprint, jsonify, request
 import logging
-from ..middleware.auth import token_required
+from ..middleware.auth import token_required, is_admin_user, require_admin, has_partner_relationship
 
 logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
@@ -63,18 +64,29 @@ def get_baseline_record(create: bool = False) -> Optional[SurveyBaseline]:
 @bp.route("/submissions", methods=["GET"])
 @token_required
 def get_submissions(current_user_id):
-    """Get all submissions for the authenticated user only."""
+    """
+    Get survey submissions.
+
+    Security: Returns only the authenticated user's submissions.
+    Admins can pass ?all=true to get all submissions.
+    """
     try:
-        import uuid
         user_uuid = uuid.UUID(current_user_id)
 
-        # Filter to only return the authenticated user's submissions
-        submissions = (
-            SurveySubmission.query
-            .filter_by(user_id=user_uuid)
-            .order_by(SurveySubmission.created_at.asc())
-            .all()
-        )
+        # Admin can request all submissions with ?all=true
+        if request.args.get('all') == 'true' and is_admin_user(current_user_id):
+            submissions = (
+                SurveySubmission.query.order_by(SurveySubmission.created_at.asc()).all()
+            )
+        else:
+            # Regular users only see their own submissions
+            submissions = (
+                SurveySubmission.query
+                .filter_by(user_id=user_uuid)
+                .order_by(SurveySubmission.created_at.asc())
+                .all()
+            )
+
         baseline_row = get_baseline_record()
         baseline_id = baseline_row.submission_id if baseline_row else None
         return jsonify(
@@ -93,14 +105,13 @@ def get_submissions(current_user_id):
 @token_required
 def create_submission(current_user_id):
     """
-    Create a new survey submission for the authenticated user.
+    Create a new survey submission.
 
-    Security: Requires authentication. User ID is taken from the JWT token,
-    not from the request body, to prevent spoofing.
+    Security: Requires authentication. User ID is taken from JWT token,
+    not from request body, to prevent spoofing.
     """
     try:
-        import uuid
-        # Force user_id to be the authenticated user (prevents spoofing)
+        # Use authenticated user ID (prevents spoofing)
         user_id_val = uuid.UUID(current_user_id)
 
         data = request.get_json(silent=True) or {}
@@ -123,7 +134,6 @@ def create_submission(current_user_id):
             submission_id = str(int(datetime.utcnow().timestamp() * 1000))
             sanitized_submission["id"] = submission_id
 
-        # respondent_id is ignored - we use the authenticated user_id from JWT
         name = sanitized_submission.get("name")
         sex = sanitized_submission.get("sex")
         sexual_orientation = sanitized_submission.get("sexualOrientation") or sanitized_submission.get(
@@ -139,8 +149,6 @@ def create_submission(current_user_id):
 
         # Calculate profile server-side
         answers = sanitized_submission.get("answers", {})
-        # Ensure anatomy answers are present in answers dict if they are separate
-        # (Frontend currently sends them merged, but let's be safe)
 
         derived_profile = calculate_profile(submission_id, answers)
         sanitized_submission["derived"] = derived_profile
@@ -155,32 +163,22 @@ def create_submission(current_user_id):
             survey_version=version,
             payload_json=sanitized_submission,
         )
-        # Note: SurveySubmission model might not have a separate 'derived' column defined in SQLAlchemy model
-        # but it likely has payload_json.
-        # Let's check the model definition if possible, but for now assuming payload_json is the main store.
-        # If 'derived' is a column, we should set it. If not, it's in payload_json.
-        # The user request said "Make the backend the source of truth... Supports auditability and persistence".
-        # Storing it in payload_json is good.
-        # Wait, I see `derived=derived_profile` in my proposed code. I need to check if `derived` column exists.
-        # I'll assume it doesn't for now and rely on payload_json, BUT I will check the model file first to be sure.
-        # Actually, I should check the model file.
-        
+
         db.session.add(submission)
         db.session.flush()
 
         response_payload = serialize_submission(submission)
         if version is not None:
             response_payload["version"] = version
-        
+
         # Ensure derived is in response
         response_payload["derived"] = derived_profile
-        
+
         submission.payload_json = response_payload
 
         db.session.commit()
-        
+
         # Check and update onboarding status
-        # Logic duplicated from auth.py to avoid circular imports
         if submission.user_id:
             user = User.query.get(submission.user_id)
             if user and user.profile_completed and not user.onboarding_completed:
@@ -207,10 +205,9 @@ def get_submission(current_user_id, submission_id):
     """
     Get a specific submission by ID.
 
-    Security: Only the submission owner can access it.
+    Security: Only the submission owner can access it (or admin).
     """
     try:
-        import uuid
         user_uuid = uuid.UUID(current_user_id)
 
         submission = SurveySubmission.query.filter_by(
@@ -220,9 +217,10 @@ def get_submission(current_user_id, submission_id):
         if submission is None:
             return jsonify({"error": "Submission not found"}), 404
 
-        # Ownership check: user can only access their own submissions
+        # Ownership check: user can only access their own submissions (unless admin)
         if submission.user_id and submission.user_id != user_uuid:
-            return jsonify({"error": "Forbidden"}), 403
+            if not is_admin_user(current_user_id):
+                return jsonify({"error": "Forbidden"}), 403
 
         return jsonify(serialize_submission(submission))
     except Exception as exc:  # pragma: no cover - defensive logging path
@@ -294,7 +292,6 @@ def get_compatibility(current_user_id, source_id, target_id):
     Security: User must own at least one of the submissions to compute compatibility.
     """
     try:
-        import uuid
         user_uuid = uuid.UUID(current_user_id)
 
         source = SurveySubmission.query.filter_by(submission_id=source_id).first()
@@ -303,17 +300,14 @@ def get_compatibility(current_user_id, source_id, target_id):
         if not source or not target:
             return jsonify({"error": "Submission not found"}), 404
 
-        # Authorization check: user must own at least one of the submissions
+        # Authorization: user must own at least one submission (unless admin)
         owns_source = source.user_id == user_uuid
         owns_target = target.user_id == user_uuid
 
-        if not owns_source and not owns_target:
+        if not owns_source and not owns_target and not is_admin_user(current_user_id):
             return jsonify({"error": "Forbidden"}), 403
 
         # Ensure we have derived profiles
-        # In v0.5, derived profiles are stored in payload_json['derived'] or calculated on fly
-        # The create_submission route puts it in payload_json['derived']
-
         source_profile = source.payload_json.get('derived')
         target_profile = target.payload_json.get('derived')
 
@@ -338,22 +332,16 @@ def get_compatibility(current_user_id, source_id, target_id):
 
 @bp.route("/export", methods=["GET"])
 @token_required
+@require_admin
 def export_data(current_user_id):
     """
-    Export the authenticated user's survey data.
+    Export all survey data.
 
-    Security: Only exports the authenticated user's own submissions.
+    Security: Admin-only endpoint.
     """
     try:
-        import uuid
-        user_uuid = uuid.UUID(current_user_id)
-
-        # Filter to only export the authenticated user's submissions
         submissions = (
-            SurveySubmission.query
-            .filter_by(user_id=user_uuid)
-            .order_by(SurveySubmission.created_at.asc())
-            .all()
+            SurveySubmission.query.order_by(SurveySubmission.created_at.asc()).all()
         )
         baseline_row = get_baseline_record()
         export_payload = {

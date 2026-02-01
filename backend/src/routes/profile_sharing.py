@@ -1,50 +1,16 @@
 """Profile sharing and visibility routes."""
 from flask import Blueprint, jsonify, request, current_app
-from sqlalchemy import or_
 
 from ..extensions import db
 from ..models.user import User
 from ..models.profile import Profile
-from ..models.partner import PartnerConnection, RememberedPartner
-from ..middleware.auth import token_required
+from ..middleware.auth import token_required, has_partner_relationship
 import logging
 import uuid
 
 logger = logging.getLogger(__name__)
 
 profile_sharing_bp = Blueprint('profile_sharing', __name__, url_prefix='/api/profile-sharing')
-
-
-def has_partner_relationship(requester_uuid, partner_uuid):
-    """
-    Check if requester has a partner relationship with the target user.
-
-    Returns True if:
-    - There's an accepted PartnerConnection between them
-    - The partner is in the requester's remembered partners list
-    """
-    # Check for accepted connection (either direction)
-    has_connection = PartnerConnection.query.filter(
-        or_(
-            (PartnerConnection.requester_user_id == requester_uuid) &
-            (PartnerConnection.recipient_user_id == partner_uuid) &
-            (PartnerConnection.status == 'accepted'),
-            (PartnerConnection.requester_user_id == partner_uuid) &
-            (PartnerConnection.recipient_user_id == requester_uuid) &
-            (PartnerConnection.status == 'accepted')
-        )
-    ).first()
-
-    if has_connection:
-        return True
-
-    # Check if partner is in remembered partners list
-    has_remembered = RememberedPartner.query.filter_by(
-        user_id=requester_uuid,
-        partner_user_id=partner_uuid
-    ).first()
-
-    return has_remembered is not None
 
 
 @profile_sharing_bp.route('/settings', methods=['GET'])
@@ -132,7 +98,7 @@ def get_partner_profile(current_user_id, partner_id):
         except ValueError:
             return jsonify({'error': 'Invalid User ID format'}), 400
 
-        # CRITICAL: Verify partner relationship exists before allowing profile access
+        # SECURITY: Verify partner relationship exists before allowing profile access
         if not has_partner_relationship(requester_uuid, partner_uuid):
             return jsonify({'error': 'Not connected to this partner'}), 403
 
@@ -149,7 +115,7 @@ def get_partner_profile(current_user_id, partner_id):
 
         # Get sharing setting
         sharing_setting = partner.profile_sharing_setting
-
+        
         # Base response with demographics
         response = {
             'user_id': str(partner_id),
@@ -157,42 +123,42 @@ def get_partner_profile(current_user_id, partner_id):
             'demographics': partner.demographics,
             'sharing_setting': sharing_setting
         }
-
+        
         # FR-71: Demographics only
         if sharing_setting == 'demographics_only':
             return jsonify(response), 200
-
+        
         # FR-69: All responses
         if sharing_setting == 'all_responses':
             response['profile'] = partner_profile.to_dict()
             return jsonify(response), 200
-
+        
         # FR-70: Overlapping only
         if sharing_setting == 'overlapping_only':
             requester_profile = Profile.query.filter_by(user_id=requester_uuid).first()
-
+            
             if not requester_profile:
                 # Can't determine overlap without requester profile
                 response['profile'] = None
                 return jsonify(response), 200
-
+            
             # Filter to overlapping activities
             # (Both parties answered 3+ on Likert scale or 0.5+ on normalized)
             overlapping_activities = {}
-
+            
             for key, value in partner_profile.activities.items():
                 if key in requester_profile.activities:
                     if float(value) >= 0.5 and float(requester_profile.activities[key]) >= 0.5:
                         overlapping_activities[key] = value
-
+            
             response['profile'] = {
                 'activities': overlapping_activities,
                 'overlapping_count': len(overlapping_activities)
             }
             return jsonify(response), 200
-
+        
         return jsonify(response), 200
-
+        
     except Exception as e:
         logger.error(f"Get partner profile failed: {str(e)}")
         return jsonify({'error': 'Failed to get partner profile'}), 500

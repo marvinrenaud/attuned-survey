@@ -1,5 +1,4 @@
-import os
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, current_app
 from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..models.survey import SurveySubmission
@@ -7,52 +6,21 @@ from ..models.profile import Profile
 from ..models.user import User
 from ..scoring.profile import calculate_profile
 from ..db.repository import sync_user_anatomy_to_profile
+from ..middleware.auth import internal_webhook_required
 
 process_submission_bp = Blueprint('process_submission', __name__, url_prefix='/api/survey/submissions')
 
 
-def verify_internal_webhook_auth():
-    """
-    Verify internal webhook authorization.
-
-    Returns:
-        True if valid internal webhook secret provided
-        False if invalid secret provided
-        None if no secret configured (fallback to user auth)
-    """
-    secret = os.environ.get('INTERNAL_WEBHOOK_SECRET')
-    if not secret:
-        return None  # No secret configured
-
-    auth_header = request.headers.get('Authorization', '')
-    if not auth_header.startswith('Bearer '):
-        return False
-
-    token = auth_header[7:]
-    return token == secret
-
-
 @process_submission_bp.route('/<submission_id>/process', methods=['POST'])
+@internal_webhook_required
 def process_submission(submission_id):
     """
     Process a raw survey submission to generate a profile.
     This endpoint is intended to be called by a database trigger/webhook
     when a new submission is inserted (e.g., from the mobile app).
 
-    Security: Requires INTERNAL_WEBHOOK_SECRET authorization.
+    Security: Requires X-Internal-Secret header (INTERNAL_WEBHOOK_SECRET env var).
     """
-    # Check internal webhook auth first
-    auth_result = verify_internal_webhook_auth()
-
-    if auth_result is False:
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    if auth_result is None:
-        # No internal secret configured - this endpoint should not be publicly accessible
-        current_app.logger.warning(
-            f"process_submission called without INTERNAL_WEBHOOK_SECRET configured for {submission_id}"
-        )
-        return jsonify({'error': 'Unauthorized - endpoint not configured'}), 401
     try:
         current_app.logger.info(f"Processing submission: {submission_id}")
 
