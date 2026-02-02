@@ -269,6 +269,52 @@ def score_domain_fit(
     return sum(scores) / len(scores) if scores else 0.5
 
 
+def score_truth_topic_fit(
+    activity_type: str,
+    activity_truth_topics: Optional[List[str]],
+    player_a_truth_topics: Dict[str, float],
+    player_b_truth_topics: Dict[str, float]
+) -> Optional[float]:
+    """
+    Score how well activity's truth topics match player preferences.
+
+    Returns None to BYPASS scoring (for dares or untagged truth activities).
+    When scoring applies, uses minimum of both players' preferences.
+
+    Note: Hard filtering (blocking activities where either player said NO)
+    is done in repository.py. This function only handles soft ranking
+    for activities that passed the hard filter.
+
+    Args:
+        activity_type: "truth" or "dare"
+        activity_truth_topics: List of topic keys from activity.truth_topics
+        player_a_truth_topics: Player A's topic preferences {topic: 0.0-1.0}
+        player_b_truth_topics: Player B's topic preferences {topic: 0.0-1.0}
+
+    Returns:
+        None - if dare activity or no truth_topics (bypass, don't include in weighted avg)
+        float 0-1 - score based on min of both players' preferences (YES=1.0 > MAYBE=0.5)
+    """
+    # Bypass for dares - truth topic scoring doesn't apply
+    if activity_type != 'truth':
+        return None
+
+    # Bypass for untagged truth activities - no penalty, normal scoring
+    if not activity_truth_topics:
+        return None
+
+    # Score using minimum (most restrictive player sets the ceiling)
+    # At this point, hard filtering has already removed activities where
+    # either player said NO (0.0), so we're only ranking YES vs MAYBE
+    scores = []
+    for topic in activity_truth_topics:
+        score_a = player_a_truth_topics.get(topic, 0.5)  # Default neutral
+        score_b = player_b_truth_topics.get(topic, 0.5)
+        scores.append(min(score_a, score_b))
+
+    return sum(scores) / len(scores) if scores else 0.5
+
+
 def score_activity_for_players(
     activity: Dict[str, Any],
     player_a_profile: Dict[str, Any],
@@ -312,10 +358,16 @@ def score_activity_for_players(
     sisp_a = arousal_a.get('inhibition_performance', 0.5)
     sisp_b = arousal_b.get('inhibition_performance', 0.5)
 
+    # Extract truth topics data
+    player_a_truth_topics = player_a_profile.get('truth_topics', {})
+    player_b_truth_topics = player_b_profile.get('truth_topics', {})
+
     # Extract activity data
+    activity_type = activity.get('type', 'dare')
     activity_pref_keys = activity.get('preference_keys', [])
     activity_power_role = activity.get('power_role', 'neutral')
     activity_domains = activity.get('domains', [])
+    activity_truth_topics = activity.get('truth_topics', [])
     activity_intensity = activity.get('intensity', activity.get('intensity_level', 2))
     is_performance = activity.get('is_performance', activity.get('performance_pressure', 'low') in ['high', 'moderate'])
 
@@ -343,6 +395,14 @@ def score_activity_for_players(
         player_b_domains
     )
 
+    # Calculate truth topic fit (returns None to bypass for dares/untagged)
+    truth_topic_fit = score_truth_topic_fit(
+        activity_type,
+        activity_truth_topics,
+        player_a_truth_topics,
+        player_b_truth_topics
+    )
+
     # Calculate arousal modifiers
     se_pacing_modifier = 0.0
     sisp_modifier = 0.0
@@ -357,11 +417,30 @@ def score_activity_for_players(
     sisp_modifier = calculate_sisp_modifier(is_performance, sisp_a, sisp_b)
 
     # Calculate weighted overall score
-    base_score = (
-        weights['mutual_interest'] * mutual_interest +
-        weights['power_alignment'] * power_alignment +
-        weights['domain_fit'] * domain_fit
-    )
+    # If truth_topic_fit is not None, include it with adjusted weights
+    if truth_topic_fit is not None:
+        # Adjust weights to include truth topic fit (15% of total)
+        adjusted_weights = {
+            'mutual_interest': weights['mutual_interest'] * 0.85,  # 50% → 42.5%
+            'power_alignment': weights['power_alignment'] * 0.85,  # 30% → 25.5%
+            'domain_fit': weights['domain_fit'] * 0.85,            # 20% → 17%
+            'truth_topic_fit': 0.15                                 # 15% for truth topics
+        }
+        base_score = (
+            adjusted_weights['mutual_interest'] * mutual_interest +
+            adjusted_weights['power_alignment'] * power_alignment +
+            adjusted_weights['domain_fit'] * domain_fit +
+            adjusted_weights['truth_topic_fit'] * truth_topic_fit
+        )
+        used_weights = adjusted_weights
+    else:
+        # No truth topic scoring - use original weights
+        base_score = (
+            weights['mutual_interest'] * mutual_interest +
+            weights['power_alignment'] * power_alignment +
+            weights['domain_fit'] * domain_fit
+        )
+        used_weights = weights
 
     # Apply arousal modifiers
     overall_score = base_score + se_pacing_modifier + sisp_modifier
@@ -371,6 +450,7 @@ def score_activity_for_players(
         'mutual_interest_score': round(mutual_interest, 3),
         'power_alignment_score': round(power_alignment, 3),
         'domain_fit_score': round(domain_fit, 3),
+        'truth_topic_fit_score': round(truth_topic_fit, 3) if truth_topic_fit is not None else None,
         'se_pacing_modifier': round(se_pacing_modifier, 3),
         'sisp_modifier': round(sisp_modifier, 3),
         'overall_score': round(overall_score, 3),
@@ -378,10 +458,11 @@ def score_activity_for_players(
             'mutual_interest': mutual_interest,
             'power_alignment': power_alignment,
             'domain_fit': domain_fit,
+            'truth_topic_fit': truth_topic_fit,
             'se_pacing': se_pacing_modifier,
             'sisp': sisp_modifier,
         },
-        'weights': weights
+        'weights': used_weights
     }
 
 

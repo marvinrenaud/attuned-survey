@@ -34,9 +34,30 @@ Source spreadsheet: `Consolidated_ToD_Activities (20).xlsx`
     "requires_anatomy": [""],             # or ["penis"], ["vagina"], etc.
     "tags": ["sensation", "power"],       # Domain tags
     "give_receive": "give",               # "give", "receive", "mutual", null
+    "truth_topics": [],                   # Sensitive topic tags (truth only)
     "created_at": "2025-01-01T00:00:00Z"
 }
 ```
+
+### Truth Topics (truth activities only)
+
+Truth activities can be tagged with 0-3 sensitive topic categories from survey questions B29-B36:
+
+```python
+ALLOWED_TRUTH_TOPICS = [
+    'past_experiences',    # Sexual history, "Have you ever..."
+    'fantasies',           # Fantasy description, "What's your fantasy..."
+    'turn_ons',            # What arouses, "What turns you on?"
+    'turn_offs',           # What doesn't work, "What turns you off?"
+    'insecurities',        # Vulnerabilities
+    'boundaries',          # Limits and consent
+    'future_fantasies',    # Future desires
+    'feeling_desired',     # Being wanted
+]
+```
+
+- **Empty array:** Activity bypasses truth topic filtering (normal scoring)
+- **Tagged:** Filtered/ranked based on user survey responses (NO=block, MAYBE=lower rank, YES=higher rank)
 
 ## Activity Key Taxonomy
 
@@ -132,8 +153,12 @@ CREATE TABLE activities (
     rating VARCHAR,
     requires_anatomy JSONB,
     tags JSONB,
+    truth_topics JSONB DEFAULT '[]'::jsonb,  -- Migration 029
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- GIN index for truth_topics array queries
+CREATE INDEX idx_activities_truth_topics ON activities USING GIN (truth_topics);
 ```
 
 ## Common Tasks
@@ -153,3 +178,23 @@ CREATE TABLE activities (
 1. Export current distribution: `SELECT intensity_level, COUNT(*) FROM activities GROUP BY 1`
 2. Adjust levels to ensure good distribution across 1-5
 3. Re-import
+
+### Batch Tag Truth Topics
+Use AI-powered tagging to classify truth activities:
+```bash
+cd backend
+
+# Preview tagging (no database changes)
+python scripts/tag_truth_topics.py --dry-run
+
+# Apply tags to database
+python scripts/tag_truth_topics.py --apply
+
+# Re-tag all activities (overwrite existing)
+python scripts/tag_truth_topics.py --apply --retag
+
+# Limit processing (for testing)
+python scripts/tag_truth_topics.py --apply --limit 10
+```
+
+The script uses `src/llm/activity_analyzer.py` to classify each truth activity into 0-3 topic categories.

@@ -13,6 +13,18 @@ ALLOWED_BOUNDARIES = [
 # Allowed body parts
 ALLOWED_BODYPARTS = ['penis', 'vagina', 'breasts']
 
+# Allowed truth topics (maps to survey questions B29-B36)
+ALLOWED_TRUTH_TOPICS = [
+    'past_experiences',   # B29: Past sexual or romantic experiences
+    'fantasies',          # B30: Current fantasies or desires
+    'turn_ons',           # B31: Turn-ons and attractions
+    'turn_offs',          # B32: Turn-offs and dislikes
+    'insecurities',       # B33: Insecurities or vulnerabilities about intimacy
+    'boundaries',         # B34: Boundaries and limits
+    'future_fantasies',   # B35: Fantasies about the future with partner
+    'feeling_desired'     # B36: What makes me feel most desired or wanted
+]
+
 
 class Activity(db.Model):
     """Activity template in the bank."""
@@ -45,7 +57,11 @@ class Activity(db.Model):
     domains = db.Column(db.JSON, nullable=True)  # [sensual, playful, power, connection, exploration]
     intensity_modifiers = db.Column(db.JSON, nullable=True)  # [gentle, intense, edgy, taboo, etc.]
     requires_consent_negotiation = db.Column(db.Boolean, default=False, nullable=True)
-    
+
+    # Truth topic categories for filtering sensitive truth activities
+    # Empty array = no specific sensitive topics (bypasses truth topic filtering)
+    truth_topics = db.Column(db.JSON, nullable=True)  # ["fantasies", "insecurities", etc.]
+
     # New: Audience scope, boundaries, anatomy requirements, and versioning
     audience_scope = db.Column(
         ENUM('couples', 'groups', 'all', name='audience_scope_enum', create_type=False),
@@ -90,7 +106,15 @@ class Activity(db.Model):
             return False
         return (all(bp in ALLOWED_BODYPARTS for bp in active) and
                 all(bp in ALLOWED_BODYPARTS for bp in partner))
-    
+
+    def validate_truth_topics(self) -> bool:
+        """Validate truth_topics contains only allowed keys."""
+        if self.truth_topics is None:
+            return True  # None is valid (will be treated as empty)
+        if not isinstance(self.truth_topics, list):
+            return False
+        return all(t in ALLOWED_TRUTH_TOPICS for t in self.truth_topics)
+
     def to_dict(self):
         """Convert activity to dictionary format."""
         return {
@@ -108,6 +132,7 @@ class Activity(db.Model):
             'domains': self.domains or [],
             'intensity_modifiers': self.intensity_modifiers or [],
             'requires_consent_negotiation': self.requires_consent_negotiation,
+            'truth_topics': self.truth_topics or [],
             'audience_scope': self.audience_scope,
             'hard_boundaries': self.hard_boundaries or [],
             'required_bodyparts': self.required_bodyparts or {"active": [], "partner": []},

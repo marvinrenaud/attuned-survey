@@ -53,6 +53,19 @@ PREFERENCE_KEYS = [
 # Canonical domain tags
 DOMAINS = ['sensual', 'playful', 'power', 'connection', 'exploration', 'edge']
 
+# Truth topic categories (maps to survey questions B29-B36)
+# Used to filter truth activities based on user comfort levels
+TRUTH_TOPICS = [
+    'past_experiences',   # B29: Past sexual or romantic experiences
+    'fantasies',          # B30: Current fantasies or desires
+    'turn_ons',           # B31: Turn-ons and attractions
+    'turn_offs',          # B32: Turn-offs and dislikes
+    'insecurities',       # B33: Insecurities or vulnerabilities about intimacy
+    'boundaries',         # B34: Boundaries and limits
+    'future_fantasies',   # B35: Fantasies about the future with partner
+    'feeling_desired'     # B36: What makes me feel most desired or wanted
+]
+
 
 def build_analyzer_prompt(description: str, activity_type: str, intimacy_level: str) -> str:
     """Build prompt for activity analysis."""
@@ -211,13 +224,67 @@ EXTRACT THESE FIELDS:
 
 5. **requires_consent_negotiation**: true if involves edge play, pain, degradation, or explicit prior discussion needed
 
+6. **truth_topics**: (ONLY for truth-type activities) 0-3 sensitive topic categories
+
+   Options: past_experiences, fantasies, turn_ons, turn_offs, insecurities, boundaries, future_fantasies, feeling_desired
+
+   STRICT GUIDELINES - Only tag when the question EXPLICITLY asks about these topics:
+
+   - past_experiences: Questions about HISTORY - "Have you ever...", "Tell me about a time...",
+     "What was your first...", "Who was your...", "How many people have you...", sharing past encounters
+
+   - fantasies: Questions asking to DESCRIBE OR IMAGINE scenarios - "What's your fantasy...",
+     "Imagine if...", "If you could...", "Describe your wildest...", "Confess a fantasy..."
+     NOTE: Just because content is sexual does NOT make it a fantasy question.
+
+   - turn_ons: ONLY when EXPLICITLY asking what arouses/excites - "What turns you on?",
+     "What excites you?", "What makes you aroused?", "Name your turn-ons"
+     DO NOT tag turn_ons just because the activity involves sexual content.
+     DO NOT tag turn_ons for fantasy questions or past experience questions.
+
+   - turn_offs: ONLY when EXPLICITLY asking about dislikes/turn-offs - "What turns you off?",
+     "What doesn't work for you?", "Name your turn-offs", "What kills the mood?"
+     DO NOT confuse with boundaries (hard limits) or general preferences.
+
+   - insecurities: Vulnerability, shame, fears, self-doubt - "What are you insecure about...",
+     "What scares you...", "What makes you feel vulnerable...", "Confess something shameful..."
+
+   - boundaries: Hard limits, absolute nos - "What's off-limits...", "What would you never do...",
+     "What are your hard limits..."
+
+   - future_fantasies: Future desires with partner - "Bucket list...", "Something you want to try...",
+     "With this partner, I want to..."
+
+   - feeling_desired: Feeling wanted/attractive - "Do you feel wanted...", "What makes you feel sexy...",
+     "When do you feel most attractive..."
+
+   CRITICAL - DO NOT OVER-TAG:
+   - Sexual content alone does NOT mean turn_ons - a fantasy question is just "fantasies"
+   - Past experience questions are NOT turn_ons - "gutsiest move with a crush" is past_experiences only
+   - Preference questions may be [] - "Would you rather X or Y" is often not a sensitive topic
+   - Factual questions may be [] - "How many partners?" is past_experiences, NOT turn_ons
+
+   Examples:
+   - "Confess your darkest fantasy" → ["fantasies"] (NOT turn_ons!)
+   - "What's your biggest turn-on?" → ["turn_ons"]
+   - "Name three things that turn you off" → ["turn_offs"]
+   - "Have you ever sent a nude?" → ["past_experiences"] (NOT turn_ons!)
+   - "How many people have you slept with?" → ["past_experiences"]
+   - "If you could use your partner as a sex slave..." → ["fantasies"] (NOT turn_ons - it's a fantasy prompt)
+   - "What's on your sexual bucket list?" → ["future_fantasies"]
+   - "What makes you feel most desired?" → ["feeling_desired"]
+   - "Would you rather give or receive oral?" → [] (preference question, not sensitive)
+   - "What's your favorite position?" → [] (general preference)
+   - "Describe your last masturbation session" → [] (factual about self, not vulnerable sharing)
+
 RESPOND WITH VALID JSON ONLY:
 {{
   "power_role": "top|bottom|neutral",
   "preference_keys": ["key1", "key2"],
   "domains": ["domain1", "domain2"],
   "intensity_modifiers": ["modifier1"],
-  "requires_consent_negotiation": true|false
+  "requires_consent_negotiation": true|false,
+  "truth_topics": ["topic1"]
 }}
 
 CRITICAL REMINDERS:
@@ -280,6 +347,18 @@ def analyze_activity(
             if field not in result:
                 logger.warning(f"Missing field {field} in analysis for row {row_id}")
                 result[field] = [] if field != 'power_role' else 'neutral'
+
+        # Ensure truth_topics is present (default to empty list)
+        if 'truth_topics' not in result:
+            result['truth_topics'] = []
+
+        # Validate truth_topics contains only allowed values
+        if result['truth_topics']:
+            valid_topics = [t for t in result['truth_topics'] if t in TRUTH_TOPICS]
+            if len(valid_topics) != len(result['truth_topics']):
+                invalid = set(result['truth_topics']) - set(valid_topics)
+                logger.warning(f"Invalid truth_topics {invalid} for row {row_id}, filtering out")
+            result['truth_topics'] = valid_topics
         
         # Validate power_role is valid
         valid_roles = ['top', 'bottom', 'neutral']
@@ -356,7 +435,8 @@ def batch_analyze_activities(
                     'preference_keys': [],
                     'domains': [],
                     'intensity_modifiers': [],
-                    'requires_consent_negotiation': False
+                    'requires_consent_negotiation': False,
+                    'truth_topics': []
                 }
         
         # Rate limiting delay between batches
@@ -409,11 +489,29 @@ def get_fallback_tags(description: str, activity_type: str) -> Dict[str, Any]:
         if any(kw in desc_lower for kw in keywords):
             preference_keys.append(key)
     
+    # Detect truth topics for truth activities
+    truth_topics = []
+    if activity_type == 'truth':
+        truth_topic_keywords = {
+            'past_experiences': ['have you ever', 'first time', 'tell me about a time'],
+            'fantasies': ['fantasy', 'fantasize', 'imagine', 'dream of', 'wildest'],
+            'turn_ons': ['turn on', 'turns you on', 'excites you', 'what makes you want'],
+            'turn_offs': ['turn off', 'turns you off', "doesn't work", 'dealbreaker'],
+            'insecurities': ['insecure', 'afraid', 'scared', 'vulnerable', 'self-conscious'],
+            'boundaries': ['off-limits', 'never do', 'limit', 'boundary', 'hard no'],
+            'future_fantasies': ['bucket list', 'want to try', 'someday', 'with this partner'],
+            'feeling_desired': ['feel wanted', 'feel sexy', 'feel desired', 'attractive']
+        }
+        for topic, keywords in truth_topic_keywords.items():
+            if any(kw in desc_lower for kw in keywords):
+                truth_topics.append(topic)
+
     return {
         'power_role': power_role,
         'preference_keys': preference_keys[:3],  # Top 3
         'domains': ['connection'] if activity_type == 'truth' else ['sensual'],
         'intensity_modifiers': [],
-        'requires_consent_negotiation': 'pain' in desc_lower or 'degrad' in desc_lower
+        'requires_consent_negotiation': 'pain' in desc_lower or 'degrad' in desc_lower,
+        'truth_topics': truth_topics[:3]  # Top 3
     }
 
