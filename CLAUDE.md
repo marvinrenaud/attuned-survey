@@ -1,42 +1,132 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## MANDATORY PRE-ACTION PROTOCOL (BEFORE EVERY RESPONSE)
 
-## Mandatory Skill Usage (ALWAYS DO THIS FIRST)
+**You MUST complete these steps before writing ANY code, running ANY command, or making ANY git operation. No exceptions. Not for "quick fixes." Not for production emergencies. Not for "simple" tasks.**
 
-Before starting ANY task, you MUST:
+### Step 1: Load Skills
 
-1. **Check available skills** - Review the skills below and identify which apply to your task
-2. **Invoke applicable skills** - Use the `Skill` tool to load relevant skills BEFORE writing any code
-3. **Announce skills being used** - State which skills you're applying at the start of each task
-4. **Chain skills when needed** - Multi-domain tasks require multiple skills (e.g., database + security + testing)
+Review the task against the skills table below and invoke ALL applicable skills using the `Skill` tool.
 
-### Available Project Skills
+| Skill | When to Use | Priority |
+|-------|-------------|----------|
+| `attuned-testing` | ANY code change, bug fix, new feature | ALWAYS |
+| `attuned-git-workflow` | ANY git operation | ALWAYS |
+| `attuned-architecture` | System design, new features, refactoring | Usually |
+| `attuned-supabase-security` | Database, RLS, migrations | Usually |
+| `attuned-payments` | Subscriptions, RevenueCat, Stripe, promo codes | Domain |
+| `attuned-survey` | Survey questions, scoring algorithms, profile calculation | Domain |
+| `attuned-activity-bank` | Activity data, import scripts, activity validation | Domain |
+| `attuned-ai-activities` | LLM prompts, activity generation, Groq integration | Domain |
 
-| Skill | When to Use |
-|-------|-------------|
-| `attuned-architecture` | System design, adding features, refactoring, technical decisions |
-| `attuned-supabase-security` | RLS policies, migrations, database security, SECURITY DEFINER functions |
-| `attuned-testing` | Writing tests, debugging failures, running test suites, pytest patterns |
-| `attuned-git-workflow` | Branching, commits, PRs, version control workflow |
-| `attuned-payments` | Subscriptions, RevenueCat, Stripe, promo codes, activity limits |
-| `attuned-survey` | Survey questions, scoring algorithms, profile calculation |
-| `attuned-activity-bank` | Activity data, import scripts, activity validation, taxonomy |
-| `attuned-ai-activities` | LLM prompts, activity generation, Groq integration |
-
-### Skill Chaining Examples
-
-- **New API endpoint**: `attuned-architecture` → `attuned-supabase-security` → `attuned-testing`
-- **Database migration**: `attuned-supabase-security` → `attuned-git-workflow`
-- **Subscription feature**: `attuned-payments` → `attuned-testing` → `attuned-architecture`
-- **Bug fix**: `attuned-testing` (write failing test first) → domain-specific skill
-
-### Non-Negotiable
-
+**Rules:**
 - Do NOT skip skill checks because a task "seems simple"
 - Do NOT rely on memory of skill contents - always invoke fresh
 - Do NOT proceed with implementation until skills are loaded
 - If unsure which skill applies, invoke `attuned-architecture` for guidance
+
+### Step 2: Check Agents
+
+Review the agents table below. If an agent matches your task, delegate to it or document why you're proceeding without one.
+
+| Agent | Trigger Conditions | Description |
+|-------|-------------------|-------------|
+| `git-guardian` | ANY git operation - branching, committing, merging, PRs | Enforce git workflow standards, review commits |
+| `qa-tester` | ANY code change - bug fix, new feature, refactoring | Run tests, verify coverage, enforce TDD |
+| `auth-guardian` | New endpoints, security review, RLS policies | Audit auth decorators, ownership verification |
+| `db-migrator` | Schema changes, new tables, migrations | Database migrations, Supabase admin |
+| `gameplay-engineer` | Changes to gameplay.py, session management | Game sessions, turn management, JIT queue |
+| `llm-integrator` | LLM prompts, Groq API, activity generation | Prompt engineering, structured output |
+| `notification-manager` | Push notifications, email, in-app alerts | Firebase, Resend, badge counts |
+| `onboarding-architect` | Survey flow, partner invitations, couple linking | User onboarding end-to-end |
+| `activity-manager` | Activity bank, import scripts, enrichment | Activity data management |
+| `survey-analyst` | Scoring algorithms, compatibility calculation | SES/SIS model, domain scores |
+| `payment-implementer` | Subscriptions, webhooks, promo codes | RevenueCat, Stripe integration |
+
+**Decision Rule:** If a task involves git operations, invoke `git-guardian`. If a task involves code changes, invoke `qa-tester`. If both, invoke both. Only skip agents if the task is purely informational (reading code, answering questions).
+
+### Step 3: Verify Git State
+
+```bash
+git status
+git branch
+```
+
+- Confirm you are on a feature branch (NOT `develop` or `main`)
+- If on develop/main, create a branch FIRST: `git checkout -b <type>/<description>`
+- Check for unstaged files that your work may depend on
+
+### Step 4: Announce Your Plan
+
+Before touching any code, state:
+1. Skills loaded
+2. Agent decision (using one, or why not)
+3. Current branch
+4. What you're about to do
+5. How you'll verify it works
+
+**If you skip any step, STOP and restart the protocol.**
+
+---
+
+## ANTI-PATTERNS (NEVER DO THESE)
+
+These are real failures from past sessions. Each one caused production issues or wasted time.
+
+| Anti-Pattern | What Happened | Rule |
+|---|---|---|
+| Skip skill loading | Jumped into debugging without loading attuned-testing or attuned-architecture | ALWAYS load skills first |
+| Commit to develop directly | Pushed 4 commits directly to develop including debug code | ALWAYS use feature branches |
+| Push debug code to production | Added `debug_message: str(e)` to error response, pushed to prod | NEVER expose internal errors |
+| Commit partial features | Committed gameplay.py but not repository.py it depended on | ALWAYS commit complete dependency chains |
+| Ad-hoc reproduction scripts | Wrote throwaway inline Python instead of proper test cases | ALWAYS write a failing test first |
+| Ignore agents | Did manual git work instead of using git-guardian agent | ALWAYS check if an agent should handle the task |
+| Skip verification | Said "tests pass" without running from clean state | ALWAYS run `git stash && pytest && git stash pop` for cross-file changes |
+| Rush under pressure | Production 500 -> skipped all process -> created more problems | Emergencies ESPECIALLY require process |
+
+---
+
+## GIT WORKFLOW (ZERO TOLERANCE)
+
+### Branch Rules
+
+- **NEVER commit to `develop` or `main` directly**
+- **ALWAYS create a feature branch first**
+- Branch naming: `<type>/<description>` (e.g., `fix/start-endpoint-500`, `feat/truth-topics`)
+- Valid prefixes: `feature/`, `fix/`, `hotfix/`, `refactor/`, `test/`
+- Rebase before merge: `git rebase origin/develop`
+
+### Commit Rules
+
+- **ALWAYS run `git status` before `git add`**
+- **ALWAYS verify unstaged files don't contain dependencies of staged files**
+- **NEVER commit debug code** (no `debug_message`, no `print()` statements, no `console.log`)
+- **NEVER push without running tests from committed state**
+- Conventional commits required: `feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`
+
+### The Stash Test (Required for Cross-File Changes)
+
+Before committing changes that span multiple files:
+```bash
+git stash
+pytest tests/ -v
+git stash pop
+```
+
+If tests fail after stash, you have uncommitted dependencies. Fix before committing.
+
+### Pre-Merge Checklist
+
+- [ ] All tests pass locally
+- [ ] Branch is rebased on latest develop
+- [ ] Commits follow conventional format
+- [ ] No debug code or console.logs
+- [ ] Auth tests exist for new endpoints
+- [ ] Coverage maintained or improved
+- [ ] CI pipeline passes (GitHub Actions)
+- [ ] No uncommitted dependencies
+
+---
 
 ## Project Overview
 
@@ -160,11 +250,13 @@ Optional:
 ## Development Rules (MANDATORY)
 
 ### Test-Driven Development
+
 - Write tests BEFORE implementation code
 - Never skip this step, even for "small" changes
 - Bug fixes require a failing test first
 
 ### Testing Requirements (Non-Negotiable)
+
 Every endpoint MUST have:
 1. 401 test (request without auth token)
 2. 403 test (request with wrong user's token)
@@ -172,19 +264,15 @@ Every endpoint MUST have:
 4. Error case tests (invalid input, not found, etc.)
 
 ### Pre-Completion Verification
+
 Before saying "done" or "complete" on ANY task:
 ```bash
 pytest backend/tests/ -v  # Must pass
 ```
 If tests fail, the task is NOT complete.
 
-### Git Workflow
-- Branch from develop: `git checkout -b feature/your-feature`
-- Use conventional commits: `feat:`, `fix:`, `test:`, `refactor:`
-- Rebase before merge: `git rebase origin/develop`
-- See `.claude/skills/attuned-git-workflow/SKILL.md` for details
-
 ### Code Review Checklist
+
 - [ ] Tests exist and pass
 - [ ] Auth tests for endpoints (401/403)
 - [ ] Ownership verification in place
@@ -240,6 +328,7 @@ Hooks catch:
 - No direct pushes
 
 ### Invoking QA
+
 For any material code change, invoke the qa-tester agent or run:
 ```bash
 cd backend && pytest tests/ -v --cov=src --cov-report=term-missing
