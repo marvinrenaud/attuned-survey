@@ -13,7 +13,8 @@ from ..scoring.display_names import (
     DOMAIN_DISPLAY_NAMES,
     ACTIVITY_SECTION_DISPLAY_NAMES,
     ACTIVITY_DISPLAY_NAMES,
-    POWER_ORIENTATION_DISPLAY_NAMES
+    POWER_ORIENTATION_DISPLAY_NAMES,
+    BOUNDARY_DISPLAY_NAMES
 )
 from ..middleware.auth import token_required
 import logging
@@ -401,7 +402,12 @@ def _transform_profile_for_ui(profile, user, sharing_setting):
         # they appear in "conflict" check anyway.
         if sharing_setting == 'all_responses':
             bounds = profile.boundaries or {}
-            boundaries_ui = bounds.get('hard_limits', [])
+            hard_limits = bounds.get('hard_limits', [])
+            # Convert internal keys to display names
+            boundaries_ui = [
+                BOUNDARY_DISPLAY_NAMES.get(limit, limit.replace('_', ' ').title())
+                for limit in hard_limits
+            ]
 
         # 5. Interests
         # For Partner Profile UI, we only show what is allowed.

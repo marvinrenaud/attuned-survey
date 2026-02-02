@@ -93,3 +93,18 @@ ACTIVITY_DISPLAY_NAMES = {
     "revealing_clothing_self": "Revealing Clothing (Self)",
     "revealing_clothing_watching": "Watching Revealing Clothing"
 }
+
+BOUNDARY_DISPLAY_NAMES = {
+    "breath_play": "Breath Play",
+    "impact_play": "Impact Play",
+    "anal": "Anal Play",
+    "restraints": "Restraints/Bondage",
+    "roleplay": "Roleplay",
+    "multi_partner": "Multi-Partner",
+    "watersports": "Watersports",
+    "blood_play": "Blood Play",
+    "edge_play": "Edge Play",
+    "humiliation": "Humiliation",
+    "public_play": "Public Play",
+    "age_play": "Age Play",
+}

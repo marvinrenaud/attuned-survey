@@ -8,7 +8,8 @@ from ..scoring.display_names import (
     DOMAIN_DISPLAY_NAMES,
     ACTIVITY_SECTION_DISPLAY_NAMES,
     ACTIVITY_DISPLAY_NAMES,
-    POWER_ORIENTATION_DISPLAY_NAMES
+    POWER_ORIENTATION_DISPLAY_NAMES,
+    BOUNDARY_DISPLAY_NAMES
 )
 from ..middleware.auth import token_required
 import logging
@@ -104,7 +105,11 @@ def get_profile_ui(current_user_id):
         if not hard_limits:
             boundaries_ui = ["No hard limits listed"]
         else:
-            boundaries_ui = hard_limits
+            # Convert internal keys to display names
+            boundaries_ui = [
+                BOUNDARY_DISPLAY_NAMES.get(limit, limit.replace('_', ' ').title())
+                for limit in hard_limits
+            ]
 
         # --- Interests (Activities) ---
         activities = derived.get('activities', {})
