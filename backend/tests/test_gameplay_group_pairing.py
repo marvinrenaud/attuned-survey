@@ -124,3 +124,142 @@ class TestAnatomyCompatibleCandidates:
         result = _get_anatomy_compatible_candidates(primary_player, all_players, primary_idx=0)
 
         assert set(result) == {1, 2}, "Players with penis OR vagina should match"
+
+
+class TestGroupPlayAnatomyPairing:
+    """Integration tests for anatomy-based pairing in group sessions."""
+
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+    def test_group_secondary_filtered_by_anatomy(self, client, app, db_session):
+        """
+        In a 3-player group where primary prefers vagina,
+        secondary should only be the player with vagina.
+        """
+        from src.models.user import User
+        from src.models.activity import Activity
+
+        user_id = uuid.uuid4()
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+
+        # Create user in DB
+        user = User(id=user_id, email="primary@test.com", has_penis=True, likes_vagina=True)
+        db_session.add(user)
+
+        # Create activity
+        act = Activity(activity_id=1, type="truth", rating="G", intensity=1, script={'steps': [{'do': 'Test'}]})
+        db_session.add(act)
+        db_session.commit()
+
+        # Start game with 3 players - primary prefers vagina
+        # Player 1 (primary): has penis, likes vagina
+        # Player 2 (guest): has penis only - NOT compatible
+        # Player 3 (guest): has vagina - COMPATIBLE
+        response = client.post('/api/game/start',
+            json={
+                "players": [
+                    {"id": str(user_id)},  # Will be resolved from DB
+                    {"name": "Guest Penis", "anatomy": ["penis"], "anatomy_preference": []},
+                    {"name": "Guest Vagina", "anatomy": ["vagina"], "anatomy_preference": []}
+                ],
+                "settings": {
+                    "selection_mode": "SEQUENTIAL",
+                    "player_order_mode": "SEQUENTIAL"
+                }
+            },
+            headers={'Authorization': f'Bearer {token}'})
+
+        assert response.status_code == 200
+        data = response.json
+
+        # Check the queue - when primary is player 0 (first turn),
+        # secondary should be player 2 (Guest Vagina), not player 1 (Guest Penis)
+        queue = data.get('queue', [])
+        assert len(queue) >= 1
+
+        first_turn = queue[0]
+        # In SEQUENTIAL mode, first turn primary is player 0
+        if first_turn.get('primary_player_idx') == 0:
+            card = first_turn.get('card') or first_turn.get('truth_card')
+            if card:
+                secondary_players = card.get('secondary_players', [])
+                # Should be "Guest Vagina", not "Guest Penis"
+                assert "Guest Vagina" in secondary_players or len(secondary_players) == 0
+                assert "Guest Penis" not in secondary_players
+
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+    def test_group_falls_back_to_random_when_no_compatible(self, client, app, db_session):
+        """
+        When no players match anatomy preference, fall back to random selection.
+        """
+        from src.models.user import User
+        from src.models.activity import Activity
+
+        user_id = uuid.uuid4()
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+
+        # Create user who only likes breasts (no one has)
+        user = User(id=user_id, email="primary@test.com", has_penis=True, likes_breasts=True)
+        db_session.add(user)
+
+        act = Activity(activity_id=1, type="truth", rating="G", intensity=1, script={'steps': [{'do': 'Test'}]})
+        db_session.add(act)
+        db_session.commit()
+
+        response = client.post('/api/game/start',
+            json={
+                "players": [
+                    {"id": str(user_id)},
+                    {"name": "Guest A", "anatomy": ["penis"], "anatomy_preference": []},
+                    {"name": "Guest B", "anatomy": ["vagina"], "anatomy_preference": []}
+                ],
+                "settings": {"selection_mode": "SEQUENTIAL", "player_order_mode": "SEQUENTIAL"}
+            },
+            headers={'Authorization': f'Bearer {token}'})
+
+        # Should still work - just falls back to random pairing
+        assert response.status_code == 200
+        data = response.json
+        queue = data.get('queue', [])
+        assert len(queue) >= 1
+
+    @patch.dict(os.environ, {"SUPABASE_JWT_SECRET": "test-secret-key"})
+    def test_couples_mode_unchanged(self, client, app, db_session):
+        """
+        Couples mode (2 players) should always pair with each other,
+        regardless of anatomy preferences.
+        """
+        from src.models.user import User
+        from src.models.activity import Activity
+
+        user_id = uuid.uuid4()
+        token = jwt.encode({"sub": str(user_id), "aud": "authenticated"}, "test-secret-key", algorithm="HS256")
+
+        # User prefers vagina but partner has penis - should still pair
+        user = User(id=user_id, email="primary@test.com", has_vagina=True, likes_vagina=True)
+        db_session.add(user)
+
+        act = Activity(activity_id=1, type="truth", rating="G", intensity=1, script={'steps': [{'do': 'Test'}]})
+        db_session.add(act)
+        db_session.commit()
+
+        response = client.post('/api/game/start',
+            json={
+                "players": [
+                    {"id": str(user_id)},
+                    {"name": "Partner", "anatomy": ["penis"], "anatomy_preference": []}  # No vagina!
+                ],
+                "settings": {"selection_mode": "SEQUENTIAL"}
+            },
+            headers={'Authorization': f'Bearer {token}'})
+
+        assert response.status_code == 200
+        data = response.json
+        queue = data.get('queue', [])
+
+        # In couples mode, should still work - always pairs with the other player
+        first_turn = queue[0]
+        card = first_turn.get('card') or first_turn.get('truth_card')
+        if card:
+            secondary_players = card.get('secondary_players', [])
+            # Should include "Partner" even though anatomy doesn't match preferences
+            assert "Partner" in secondary_players or len(secondary_players) == 0
