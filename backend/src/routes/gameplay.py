@@ -1034,8 +1034,11 @@ def start_game(current_user_id):
         }), 200
 
     except Exception as e:
-        logger.error("start_game_failed", error=str(e), error_type=type(e).__name__)
-        return jsonify({"error": "Internal server error"}), 500
+        import traceback
+        tb = traceback.format_exc()
+        logger.error("start_game_failed", error=str(e), error_type=type(e).__name__, traceback=tb)
+        db.session.rollback()
+        return jsonify({"error": "Internal server error", "debug_message": str(e)}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
 @token_required
