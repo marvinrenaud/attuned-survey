@@ -190,6 +190,54 @@ If tests fail, the task is NOT complete.
 - [ ] Ownership verification in place
 - [ ] No hardcoded values (use app_config)
 - [ ] Conventional commit messages
+- [ ] **CI pipeline passes** (GitHub Actions)
+
+## CI/CD Pipeline (MANDATORY FOR ALL RELEASES)
+
+**No code may be merged to `develop` or `main` without passing the CI pipeline.**
+
+### Pipeline Overview
+
+The GitHub Actions workflow (`.github/workflows/test.yml`) runs on every push and PR:
+
+| Job | What It Checks | Blocks Merge? |
+|-----|----------------|---------------|
+| `test` | pytest with 60% coverage minimum | **Yes** |
+| `lint` | Ruff linting, MyPy type checking | **Yes** (lint) |
+| `security` | Vulnerability scan, secret detection | Advisory |
+| `dependency-integrity` | All imports resolve correctly | **Yes** |
+
+### Pre-Commit Hooks
+
+Install hooks to catch issues before pushing:
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files  # Test all files
+```
+
+Hooks catch:
+- Linting/formatting issues (Ruff)
+- Syntax errors (compile check)
+- **Uncommitted dependency issues** (staged files importing from unstaged)
+- Secrets/credentials (GitLeaks)
+
+### The Uncommitted Dependency Problem
+
+**What happened:** Code was committed that called a function with parameters that only existed in uncommitted files. Tests passed locally (working directory had all files) but production crashed (committed code was incomplete).
+
+**Prevention:**
+1. Pre-commit hook warns when staged files depend on unstaged changes
+2. CI builds from clean checkout, not working directory
+3. Always run `git status` before committing cross-file changes
+4. When in doubt: `git stash && pytest && git stash pop`
+
+### Branch Protection
+
+`main` and `develop` require:
+- All CI checks pass
+- PR review (recommended)
+- No direct pushes
 
 ### Invoking QA
 For any material code change, invoke the qa-tester agent or run:

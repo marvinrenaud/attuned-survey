@@ -1,0 +1,98 @@
+# Pre-commit hooks for Attuned
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Ruff: Fast Python linter + formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi]
+      - id: ruff-format
+        types_or: [python, pyi]
+
+  # General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: detect-private-key
+      - id: debug-statements
+      - id: check-merge-conflict
+
+  # Detect secrets/credentials
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+
+  # Local hooks for project-specific checks
+  - repo: local
+    hooks:
+      # Verify all Python files compile (catches syntax errors + missing imports)
+      - id: python-compile-check
+        name: Verify Python files compile
+        entry: python -m py_compile
+        language: system
+        types: [python]
+
+      # Check for uncommitted dependency files
+      - id: check-uncommitted-deps
+        name: Check for uncommitted dependencies
+        entry: bash -c '
+          # Get list of staged Python files
+          STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep "\.py$" || true)
+          if [ -z "$STAGED" ]; then
+            exit 0
+          fi
+
+          # Get list of modified but unstaged Python files
+          UNSTAGED=$(git diff --name-only | grep "\.py$" || true)
+          if [ -z "$UNSTAGED" ]; then
+            exit 0
+          fi
+
+          # Check if staged files import from unstaged files
+          for staged in $STAGED; do
+            for unstaged in $UNSTAGED; do
+              # Extract module name from file path
+              module=$(echo "$unstaged" | sed "s/\.py$//" | sed "s/\//./g" | sed "s/^backend\.src\.//" | sed "s/^src\.//" )
+              if grep -q "from.*$module\|import.*$module" "$staged" 2>/dev/null; then
+                echo "WARNING: Staged file $staged may depend on unstaged file $unstaged"
+                echo "Consider staging $unstaged or verifying the import still works"
+              fi
+            done
+          done
+        '
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      # Run pytest on changed test files
+      - id: pytest-changed
+        name: Run tests for changed files
+        entry: bash -c '
+          cd backend
+          CHANGED_TESTS=$(git diff --cached --name-only | grep "^backend/tests/.*\.py$" | sed "s/^backend\///" || true)
+          if [ -n "$CHANGED_TESTS" ]; then
+            echo "Running tests for changed files: $CHANGED_TESTS"
+            python -m pytest $CHANGED_TESTS -v --tb=short || exit 1
+          fi
+        '
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+# Python version
+default_language_version:
+  python: python3.11
+
+# Don't fail on first error - show all issues
+fail_fast: false

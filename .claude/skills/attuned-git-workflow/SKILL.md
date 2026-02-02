@@ -145,3 +145,53 @@ git revert -m 1 <merge-commit-hash>
 - [ ] No debug code or console.logs
 - [ ] Auth tests exist for new endpoints
 - [ ] Coverage maintained or improved
+- [ ] **CI pipeline passes** (GitHub Actions)
+- [ ] **No uncommitted dependencies** (see below)
+
+## CI/CD Pipeline (MANDATORY)
+
+All code merged to `develop` or `main` MUST pass the GitHub Actions pipeline.
+
+### Pipeline Jobs
+
+| Job | Purpose | Blocks Merge? |
+|-----|---------|---------------|
+| `test` | Run pytest with coverage | Yes |
+| `lint` | Ruff linting + MyPy type check | Yes (lint), No (types) |
+| `security` | Vulnerability + secret scanning | No (advisory) |
+| `dependency-integrity` | Verify imports resolve | Yes |
+
+### Pre-Commit Hooks
+
+Install pre-commit hooks to catch issues before push:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Hooks include:
+- **Ruff**: Linting + formatting
+- **Compile check**: Verify Python files have valid syntax
+- **Uncommitted deps check**: Warn if staged files depend on unstaged changes
+- **Secret detection**: Block commits with credentials
+
+### Uncommitted Dependency Check
+
+**The bug we're preventing:** Committing `file_a.py` that calls `function_x()` from `file_b.py`, but `file_b.py` has uncommitted changes that define `function_x()`.
+
+Before committing, always run:
+```bash
+git status  # Check for unstaged changes in files you import from
+```
+
+If you see modified files that your staged changes depend on, either:
+1. Stage them together: `git add file_a.py file_b.py`
+2. Stash and test: `git stash && pytest && git stash pop`
+
+### Branch Protection Rules
+
+`main` and `develop` branches require:
+- ✅ All CI checks pass
+- ✅ At least 1 approval (recommended)
+- ✅ No direct pushes (PRs only)
