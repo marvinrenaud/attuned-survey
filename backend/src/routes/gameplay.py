@@ -362,8 +362,17 @@ def _enforce_activity_limit(
     from ..services.config_service import get_config_int
 
     # Check if first card is a limit card (no charge needed)
+    # In RANDOM mode: check card['type']
+    # In MANUAL mode: check truth_card['type'] (card is None)
     head_card = queue[0] if queue else {}
-    is_limit_card = head_card.get('card', {}).get('type') == 'LIMIT_REACHED'
+    card_obj = head_card.get('card')
+    truth_card_obj = head_card.get('truth_card')
+
+    is_limit_card = False
+    if card_obj and card_obj.get('type') == 'LIMIT_REACHED':
+        is_limit_card = True
+    elif truth_card_obj and truth_card_obj.get('type') == 'LIMIT_REACHED':
+        is_limit_card = True
 
     # Charge credit if requested and card is real
     if charge_credit and not is_limit_card:
@@ -391,10 +400,100 @@ def _enforce_activity_limit(
     return limit_status, queue
 
 
+def _generate_single_card(
+    activity_type: str,
+    rating: str,
+    intensity_min: int,
+    intensity_max: int,
+    primary_player: Dict[str, Any],
+    secondary_player: Dict[str, Any],
+    primary_profile_dict: Optional[Dict],
+    partner_profile_dict: Optional[Dict],
+    session_mode: str,
+    player_boundaries: List[str],
+    player_anatomy: Dict[str, List[str]],
+    p1_truth_topics: Dict,
+    p2_truth_topics: Dict,
+    exclude_ids: set,
+    session: Session
+) -> Optional[Dict[str, Any]]:
+    """
+    Generate a single card of the specified type.
+
+    Returns:
+        Card dict with card_id, type, display_text, etc. or None if no activity found.
+    """
+    candidate = None
+
+    # If we have both profiles, use personalization
+    if primary_profile_dict and partner_profile_dict:
+        candidate = find_best_activity_candidate(
+            rating=rating,
+            intensity_min=intensity_min,
+            intensity_max=intensity_max,
+            activity_type=activity_type.lower(),
+            player_a_profile=primary_profile_dict,
+            player_b_profile=partner_profile_dict,
+            session_mode=session_mode,
+            player_boundaries=player_boundaries,
+            player_anatomy=player_anatomy,
+            player_a_truth_topics=p1_truth_topics,
+            player_b_truth_topics=p2_truth_topics,
+            excluded_ids=exclude_ids,
+            top_n=75,
+            randomize=True
+        )
+
+    # Fallback to random activity
+    if not candidate:
+        scope_filter = ['couples', 'all'] if session_mode == 'couples' else ['groups', 'all']
+
+        candidate = Activity.query.filter(
+            Activity.type == activity_type.lower(),
+            Activity.rating == rating,
+            Activity.intensity >= intensity_min,
+            Activity.intensity <= intensity_max,
+            Activity.is_active == True,
+            Activity.approved == True,
+            Activity.audience_scope.in_(scope_filter),
+            ~Activity.activity_id.in_(exclude_ids) if exclude_ids else True
+        ).order_by(db.func.random()).first()
+
+    if not candidate:
+        return None
+
+    # Text Resolution
+    try:
+        script = candidate.script
+        if not script or 'steps' not in script or not script['steps']:
+            raise ValueError("Activity script is missing or empty")
+        activity_text = script['steps'][0].get('do', "Perform the activity.")
+    except Exception as e:
+        logger.error("activity_text_extraction_failed", error=str(e), activity_id=str(candidate.activity_id) if candidate else None)
+        activity_text = "Perform a mystery activity with your partner."
+
+    resolved_text = resolve_activity_text(
+        activity_text,
+        primary_player.get("name", "Player"),
+        secondary_player.get("name", "Partner")
+    )
+
+    return {
+        "card_id": str(candidate.activity_id),
+        "type": activity_type.upper(),
+        "primary_player": primary_player.get("name", "Player"),
+        "secondary_players": [secondary_player.get("name", "Partner")],
+        "display_text": resolved_text,
+        "intensity_rating": candidate.intensity
+    }
+
+
 def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: Optional[str] = None) -> Dict[str, Any]:
     """
     Generate data for a single turn without committing to DB.
-    Used for batch generation.
+
+    In MANUAL mode: generates both truth_card and dare_card, sets card to null.
+    In RANDOM mode: generates single card (existing behavior).
     """
     settings = session.game_settings or {}
     players = session.players or []
@@ -446,206 +545,257 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
     primary_player = players[primary_idx]
     secondary_player = players[secondary_idx]
     
-    # Activity Selection
-    activity_type = selected_type if selected_type else random.choice(["truth", "dare"])
-    if activity_type.lower() == "dare" and not settings.get("include_dare", True):
-        activity_type = "truth"
-        
+    # Check selection mode
+    is_manual_mode = settings.get("selection_mode", "RANDOM").upper() == "MANUAL"
+    include_dare = settings.get("include_dare", True)
+
     # Intensity
     intimacy_level = settings.get("intimacy_level", 3)
     rating = 'R'
     if intimacy_level <= 2: rating = 'G'
     elif intimacy_level >= 5: rating = 'X'
-    
-    intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
-    
 
-    
+    intensity_min, intensity_max = get_intensity_window(effective_step, 25, rating)
+
     # --- Personalization Logic ---
-    
-    # Fetch profiles
+
     # Fetch profiles
     primary_profile_dict = _get_player_profile(primary_player)
     partner_profile_dict = _get_player_profile(secondary_player)
-    
+
     # Virtual Profile Support for Primary
     if not primary_profile_dict and primary_player.get('anatomy'):
         primary_profile_dict = _create_virtual_profile(primary_player)
 
     # Virtual Profile Support for Partner (Explicit Guest)
-    # If partner has explicit anatomy but no profile, make virtual
     if not partner_profile_dict and secondary_player.get('anatomy'):
          partner_profile_dict = _create_virtual_profile(secondary_player)
 
     # Complimentary Partner Logic (if Primary exists but Partner is totally anon/missing)
     if primary_profile_dict and not partner_profile_dict:
         partner_profile_dict = _create_complimentary_profile(primary_profile_dict)
-        
-    candidate = None
-    
-    # If we have both profiles (real or virtual), use personalization
-    if primary_profile_dict and partner_profile_dict:
-        # Build limits
-        exclude_ids = set()
-        for item in queue:
-            cid = item.get('card_id')
-            # Handle potential non-int IDs if needed (though card_id is string usually)
-            if cid and cid != 'fallback' and not cid.startswith('limit-'):
-                try: exclude_ids.add(int(cid))
-                except (ValueError, TypeError): pass
-        
-        # --- REPETITION PREVENTION ---
-        # 1. Session Exclusion (Strict): Exclude ANY activity played in this session by ANYONE
-        try:
-             from ..models.activity_history import UserActivityHistory
-             
-             session_history = db.session.query(UserActivityHistory.activity_id)\
-                 .filter(UserActivityHistory.session_id == session.session_id)\
+
+    # Build exclusion set
+    exclude_ids = set()
+    for item in queue:
+        cid = item.get('card_id')
+        if cid and cid != 'fallback' and not str(cid).startswith('limit-'):
+            try: exclude_ids.add(int(cid))
+            except (ValueError, TypeError): pass
+        # Also exclude cards from truth_card and dare_card in MANUAL mode
+        for card_field in ['truth_card', 'dare_card']:
+            card_obj = item.get(card_field)
+            if card_obj:
+                cid = card_obj.get('card_id')
+                if cid and cid != 'fallback' and not str(cid).startswith('limit-'):
+                    try: exclude_ids.add(int(cid))
+                    except (ValueError, TypeError): pass
+
+    # --- REPETITION PREVENTION ---
+    # 1. Session Exclusion (Strict): Exclude ANY activity played in this session by ANYONE
+    try:
+         from ..models.activity_history import UserActivityHistory
+
+         session_history = db.session.query(UserActivityHistory.activity_id)\
+             .filter(UserActivityHistory.session_id == session.session_id)\
+             .filter(UserActivityHistory.activity_id.isnot(None))\
+             .all()
+
+         for (hid,) in session_history:
+             exclude_ids.add(hid)
+    except Exception as e:
+        logger.error("session_history_fetch_failed", error=str(e))
+
+    # 2. Player History Exclusion (Long-term)
+    try:
+         primary_uid = primary_player.get('id')
+         if primary_uid:
+             recent_history = db.session.query(UserActivityHistory.activity_id)\
+                 .filter(UserActivityHistory.primary_player_id == str(primary_uid))\
                  .filter(UserActivityHistory.activity_id.isnot(None))\
+                 .order_by(UserActivityHistory.presented_at.desc())\
+                 .limit(100)\
                  .all()
-             
-             for (hid,) in session_history:
+
+             for (hid,) in recent_history:
                  exclude_ids.add(hid)
-        except Exception as e:
-            logger.error("session_history_fetch_failed", error=str(e))
+    except Exception as e:
+        logger.error("player_history_fetch_failed", error=str(e))
 
-        # 2. Player History Exclusion (Long-term): Look back at history for the ACTIVE primary player
-        # We want to avoid activities YOU (as primary) have just done (even in other sessions).
-        try:
-             primary_uid = primary_player.get('id')
-             if primary_uid:
-                 # Fetch last 100 activities where this user was primary
-                 # Use efficient index on (primary_player_id, presented_at)
-                 recent_history = db.session.query(UserActivityHistory.activity_id)\
-                     .filter(UserActivityHistory.primary_player_id == str(primary_uid))\
-                     .filter(UserActivityHistory.activity_id.isnot(None))\
-                     .order_by(UserActivityHistory.presented_at.desc())\
-                     .limit(100)\
-                     .all()
-                 
-                 for (hid,) in recent_history:
-                     exclude_ids.add(hid)
-        except Exception as e:
-            logger.error("player_history_fetch_failed", error=str(e))
+    # Build common context for card generation
+    session_mode = 'groups' if len(players) > 2 else 'couples'
+    player_boundaries = []
+    player_anatomy = {'active_anatomy': [], 'partner_anatomy': []}
+    p1_truth_topics = {}
+    p2_truth_topics = {}
 
-                
-        # Build boundary list (union of hard limits)
+    if primary_profile_dict and partner_profile_dict:
         p1_bounds = primary_profile_dict.get('boundaries', {}).get('hard_limits', [])
         p2_bounds = partner_profile_dict.get('boundaries', {}).get('hard_limits', [])
         player_boundaries = list(set(p1_bounds + p2_bounds))
-        
-        # Build anatomy dict
-        # anatomy structure: {anatomy_self: [], ...}
+
         p1_anatomy = primary_profile_dict.get('anatomy', {}).get('anatomy_self', [])
         p2_anatomy = partner_profile_dict.get('anatomy', {}).get('anatomy_self', [])
         player_anatomy = {
             'active_anatomy': p1_anatomy,
             'partner_anatomy': p2_anatomy
         }
-        
-        # Determine Session Mode
-        session_mode = 'groups' if len(players) > 2 else 'couples'
-        
-        candidate = find_best_activity_candidate(
+
+        p1_truth_topics = primary_profile_dict.get('truth_topics', {})
+        p2_truth_topics = partner_profile_dict.get('truth_topics', {})
+
+    # Progress object (common to all cards)
+    progress = {
+        "current_step": target_step,
+        "total_steps": 25,
+        "intensity_phase": get_phase_name(effective_step, 25).capitalize()
+    }
+
+    # --- MANUAL MODE: Generate paired cards ---
+    if is_manual_mode:
+        # Generate TRUTH card
+        truth_card = _generate_single_card(
+            activity_type="truth",
             rating=rating,
             intensity_min=intensity_min,
             intensity_max=intensity_max,
-            activity_type=activity_type.lower(),
-            player_a_profile=primary_profile_dict,
-            player_b_profile=partner_profile_dict,
+            primary_player=primary_player,
+            secondary_player=secondary_player,
+            primary_profile_dict=primary_profile_dict,
+            partner_profile_dict=partner_profile_dict,
             session_mode=session_mode,
             player_boundaries=player_boundaries,
             player_anatomy=player_anatomy,
-            excluded_ids=exclude_ids,
-            top_n=75, # Heavy JIT: Fetch 75*2=150 candidates
-            randomize=True # Random sample
+            p1_truth_topics=p1_truth_topics,
+            p2_truth_topics=p2_truth_topics,
+            exclude_ids=exclude_ids,
+            session=session
         )
 
-    # Fallback to Random Activity
-    # Fallback to Random Activity
-    if not candidate:
-        # Re-determine mode for fallback scope (redundant check but safe)
-        session_mode = 'groups' if len(players) > 2 else 'couples'
-        scope_filter = ['couples', 'all'] if session_mode == 'couples' else ['groups', 'all']
-        
-        candidate = Activity.query.filter(
-            Activity.type == activity_type.lower(),
-            Activity.rating == rating,
-            Activity.intensity >= intensity_min,
-            Activity.intensity <= intensity_max,
-            Activity.is_active == True,
-            Activity.approved == True,
-            Activity.audience_scope.in_(scope_filter)
-        ).order_by(db.func.random()).first()
-    
-    if candidate:
-        logger.info("activity_selected", 
-            activity_id=str(candidate.activity_id),
-            type=candidate.type,
-            intensity=candidate.intensity,
-            step=target_step
+        # Generate DARE card (if dares enabled)
+        dare_card = None
+        if include_dare:
+            # Expand exclusions to avoid using same activity as truth
+            dare_exclude = exclude_ids.copy()
+            if truth_card:
+                try: dare_exclude.add(int(truth_card["card_id"]))
+                except (ValueError, TypeError): pass
+
+            dare_card = _generate_single_card(
+                activity_type="dare",
+                rating=rating,
+                intensity_min=intensity_min,
+                intensity_max=intensity_max,
+                primary_player=primary_player,
+                secondary_player=secondary_player,
+                primary_profile_dict=primary_profile_dict,
+                partner_profile_dict=partner_profile_dict,
+                session_mode=session_mode,
+                player_boundaries=player_boundaries,
+                player_anatomy=player_anatomy,
+                p1_truth_topics=p1_truth_topics,
+                p2_truth_topics=p2_truth_topics,
+                exclude_ids=dare_exclude,
+                session=session
+            )
+
+        # Fallback if no truth card found
+        if not truth_card:
+            truth_card = {
+                "card_id": "fallback",
+                "type": "TRUTH",
+                "primary_player": primary_player.get("name", "Player"),
+                "secondary_players": [secondary_player.get("name", "Partner")],
+                "display_text": "Tell your partner something you love about them.",
+                "intensity_rating": 1
+            }
+
+        logger.info("manual_mode_cards_generated",
+            step=target_step,
+            truth_card_id=truth_card.get("card_id") if truth_card else None,
+            dare_card_id=dare_card.get("card_id") if dare_card else None
         )
-    
-    if not candidate:
-        candidate = Activity(
-            script={"steps": [{"actor": "A", "do": "Tell your partner something you love about them."}]},
-            type="truth",
-            intensity=1
-        )
-        # Mock ID for fallback if needed, or handle in response
-        
-    # Text Resolution
-    try:
-        script = candidate.script
-        if not script or 'steps' not in script or not script['steps']:
-            raise ValueError("Activity script is missing or empty")
-        activity_text = script['steps'][0].get('do', "Perform the activity.")
-    except Exception as e:
-        logger.error("activity_text_extraction_failed", error=str(e), activity_id=str(candidate.activity_id) if candidate else None)
-        activity_text = "Perform a mystery activity with your partner."
-        
-    resolved_text = resolve_activity_text(
-        activity_text,
-        primary_player["name"],
-        secondary_player["name"]
+
+        return {
+            "status": "SHOW_CARD",
+            "primary_player_idx": primary_idx,
+            "step": target_step,
+            "card_id": None,
+            "card": None,
+            "truth_card": truth_card,
+            "dare_card": dare_card,
+            "progress": progress
+        }
+
+    # --- RANDOM MODE: Generate single card (existing behavior) ---
+    activity_type = selected_type if selected_type else random.choice(["truth", "dare"])
+    if activity_type.lower() == "dare" and not include_dare:
+        activity_type = "truth"
+
+    card = _generate_single_card(
+        activity_type=activity_type,
+        rating=rating,
+        intensity_min=intensity_min,
+        intensity_max=intensity_max,
+        primary_player=primary_player,
+        secondary_player=secondary_player,
+        primary_profile_dict=primary_profile_dict,
+        partner_profile_dict=partner_profile_dict,
+        session_mode=session_mode,
+        player_boundaries=player_boundaries,
+        player_anatomy=player_anatomy,
+        p1_truth_topics=p1_truth_topics,
+        p2_truth_topics=p2_truth_topics,
+        exclude_ids=exclude_ids,
+        session=session
     )
-    
-    # Return Turn Object (not full response)
+
+    # Fallback for random mode
+    if not card:
+        card = {
+            "card_id": "fallback",
+            "type": activity_type.upper(),
+            "primary_player": primary_player.get("name", "Player"),
+            "secondary_players": [secondary_player.get("name", "Partner")],
+            "display_text": "Tell your partner something you love about them.",
+            "intensity_rating": 1
+        }
+
+    logger.info("activity_selected",
+        activity_id=card.get("card_id"),
+        type=card.get("type"),
+        step=target_step
+    )
+
     return {
         "status": "SHOW_CARD",
         "primary_player_idx": primary_idx,
         "step": target_step,
-        "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
-        "card": {
-            "card_id": str(candidate.activity_id) if hasattr(candidate, 'activity_id') else "fallback",
-            "type": activity_type.upper(),
-            "primary_player": primary_player["name"],
-            "secondary_players": [secondary_player["name"]],
-            "display_text": resolved_text,
-            "intensity_rating": candidate.intensity
-        },
-        "progress": {
-            "current_step": target_step,
-            "total_steps": 25,
-            "intensity_phase": get_phase_name(effective_step, 25).capitalize()
-        }
+        "card_id": card.get("card_id"),
+        "card": card,
+        "truth_card": None,
+        "dare_card": None,
+        "progress": progress
     }
 
 def _generate_limit_card() -> Dict[str, Any]:
     """Generate a barrier card for when activity limit is reached."""
+    limit_card_data = {
+        "card_id": f"limit-barrier-{uuid.uuid4()}",
+        "type": "LIMIT_REACHED",
+        "primary_player": "System",
+        "secondary_players": [],
+        "display_text": "Activity limit reached. Tap to unlock unlimited turns.",
+        "intensity_rating": 1
+    }
     return {
         "status": "SHOW_CARD",
         "primary_player_idx": -1,
-        "step": 999, # Dummy step
-        "card_id": f"limit-barrier-{uuid.uuid4()}",
-        "card": {
-            "card_id": f"limit-barrier-{uuid.uuid4()}",
-            "type": "LIMIT_REACHED",
-            "primary_player": "System",
-            "secondary_players": [],
-            "display_text": "Activity limit reached. Tap to unlock unlimited turns.",
-            "intensity_rating": 1
-        },
+        "step": 999,
+        "card_id": limit_card_data["card_id"],
+        "card": limit_card_data,
+        "truth_card": limit_card_data,  # Same limit card for both in MANUAL mode
+        "dare_card": limit_card_data,
         "progress": {
             "current_step": 999,
             "total_steps": 25,
@@ -657,24 +807,32 @@ def _scrub_queue_for_limit(queue: List[Dict[str, Any]], keep_first: bool = True)
     """
     Replace future cards in the queue with limit barriers if they are real.
     Used when the limit is reached but the buffer still contains real cards.
-    
+
     Args:
         queue: The turn queue
         keep_first: If True, preserves the first card (assumed to be the one just paid for).
     """
     start_idx = 1 if keep_first else 0
-    
+
     for i in range(start_idx, len(queue)):
         item = queue[i]
-        # If it's not already a limit card, replace it
-        if item.get('card', {}).get('type') != 'LIMIT_REACHED':
+        # Check if it's already a limit card
+        # In RANDOM mode: check item['card']['type']
+        # In MANUAL mode: check item['truth_card']['type'] (card is None)
+        card_obj = item.get('card')
+        truth_card_obj = item.get('truth_card')
+
+        is_limit_card = False
+        if card_obj and card_obj.get('type') == 'LIMIT_REACHED':
+            is_limit_card = True
+        elif truth_card_obj and truth_card_obj.get('type') == 'LIMIT_REACHED':
+            is_limit_card = True
+
+        if not is_limit_card:
             # Generate replacement
             barrier = _generate_limit_card()
-            # Preserve some flow data? No, barrier resets step usually.
-            # But we might want to keep the sequence consistent?
-            # _generate_limit_card uses step 999. That's fine.
             queue[i] = barrier
-            
+
     return queue
 
 def _fill_queue(session: Session, target_size: int = 3, owner_id: str = None, anonymous_session_id: str = None) -> List[Dict[str, Any]]:
@@ -869,9 +1027,10 @@ def start_game(current_user_id):
         # Response
         return jsonify({
             "session_id": session.session_id,
+            "selection_mode": settings.get("selection_mode", "RANDOM").upper(),
             "limit_status": limit_status,
-            "queue": queue, # Return full queue
-            "current_turn": queue[0] if queue else {} # Legacy support / convenience
+            "queue": queue,
+            "current_turn": queue[0] if queue else {}
         }), 200
 
     except Exception as e:
@@ -885,116 +1044,156 @@ def next_turn(current_user_id, session_id):
     """
     Advance to next turn.
     Consumes the played card, increments credit, replenishes queue.
+
+    In MANUAL mode:
+    - Requires selected_type in request body ("TRUTH" or "DARE")
+    - Tracks only the selected card (truth_card or dare_card)
+    - Charges 1 credit for the selected card
     """
     try:
         session = Session.query.get(session_id)
         if not session:
             return jsonify({"error": "Session not found"}), 404
-        
+
         # Ensure session is active
         if session.status != 'active':
             return jsonify({"error": "Session is not active"}), 400
-            
+
         # Validate Participation
-        # session.players is JSON list of dicts [{'id':...}, ...]
         players = session.players or []
         is_participant = False
-        
-        # Check against Auth User
+
         if current_user_id:
             for p in players:
                  if str(p.get('id')) == str(current_user_id):
                      is_participant = True
                      break
-        
+
         # Check against Anonymous ID (if no auth match)
-        data = request.get_json() or {} # Handle empty body safety
+        data = request.get_json() or {}
         anonymous_session_id = data.get("anonymous_session_id")
-         
+        selected_type = data.get("selected_type")  # NEW: Read selection for MANUAL mode
+
         if not is_participant and anonymous_session_id:
              for p in players:
                  if str(p.get('id')) == str(anonymous_session_id):
                      is_participant = True
                      break
-        
+
         if not is_participant:
              return jsonify({'error': 'Unauthorized', 'message': 'Not a participant'}), 403
-            
-        
+
+        # Get session settings
+        settings = session.game_settings or {}
+        is_manual_mode = settings.get("selection_mode", "RANDOM").upper() == "MANUAL"
+
         state = session.current_turn_state or {}
         queue = state.get("queue", [])
-        
+
         # Determine owner
         owner_id = str(current_user_id) if current_user_id else None
-        
-        # If guest, use anonymous session id
+
         if not owner_id and not anonymous_session_id:
             return jsonify({'error': 'Unauthorized', 'message': 'Identity required for billing'}), 401
 
         # 1. Consume the current card (Head of queue)
         if queue:
-            last_card = queue.pop(0)
+            consumed_item = queue.pop(0)
             state["queue"] = queue
             session.current_turn_state = state
             flag_modified(session, "current_turn_state")
-            
-            # LOGGING: Record history for ALL users (Auth & Anon) to prevent repetition
-            if last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
+
+            # Determine which card was played based on mode
+            if is_manual_mode:
+                # MANUAL MODE: Validate and extract selected card
+                if not selected_type:
+                    return jsonify({
+                        'error': 'Bad Request',
+                        'message': 'selected_type required in MANUAL mode'
+                    }), 400
+
+                selected_type = selected_type.upper()
+
+                if selected_type == "TRUTH":
+                    card_data = consumed_item.get("truth_card")
+                elif selected_type == "DARE":
+                    card_data = consumed_item.get("dare_card")
+                else:
+                    return jsonify({
+                        'error': 'Bad Request',
+                        'message': 'selected_type must be TRUTH or DARE'
+                    }), 400
+
+                if card_data is None:
+                    return jsonify({
+                        'error': 'Bad Request',
+                        'message': f'{selected_type} not available for this turn'
+                    }), 400
+
+                logger.info("manual_mode_card_consumed",
+                    session_id=session_id,
+                    selected_type=selected_type,
+                    card_id=card_data.get('card_id')
+                )
+            else:
+                # RANDOM MODE: Use existing card field
+                card_data = consumed_item.get('card', {})
+
+            # LOGGING: Record history for the played card
+            if card_data and card_data.get('type') != 'LIMIT_REACHED':
                  from ..models.activity_history import UserActivityHistory
-                 
-                 card_data = last_card.get('card', {})
+
                  cid_str = card_data.get('card_id')
-                 activity_id = int(cid_str) if cid_str and cid_str.isdigit() else None
-                 
-                 # Determine Primary Player ID for this specific turn
-                 turn_primary_idx = last_card.get('primary_player_idx')
+                 activity_id = int(cid_str) if cid_str and str(cid_str).isdigit() else None
+
+                 turn_primary_idx = consumed_item.get('primary_player_idx')
                  turn_primary_id = None
                  if turn_primary_idx is not None and 0 <= turn_primary_idx < len(players):
                      turn_primary_id = str(players[turn_primary_idx].get('id'))
-                 
+
                  history = UserActivityHistory(
-                     user_id=owner_id, # Owner (payer)
-                     anonymous_session_id=anonymous_session_id, # Track anon session too
+                     user_id=owner_id,
+                     anonymous_session_id=anonymous_session_id,
                      session_id=session.session_id,
                      activity_id=activity_id,
                      activity_type=card_data.get('type', 'TRUTH').lower(),
-                     primary_player_id=turn_primary_id, # Track who did it
+                     primary_player_id=turn_primary_id,
                      was_skipped=False,
                      presented_at=datetime.utcnow()
                  )
                  db.session.add(history)
-                 
+
             # Charge 1 Credit for the played card IF it wasn't a barrier card
-            if owner_id and last_card and last_card.get('card', {}).get('type') != 'LIMIT_REACHED':
+            if owner_id and card_data and card_data.get('type') != 'LIMIT_REACHED':
                 _increment_activity_count(owner_id)
-        
+
         # 2. Replenish Queue (Add 1 to end)
         queue = _fill_queue(session, target_size=3, owner_id=owner_id, anonymous_session_id=anonymous_session_id)
 
-        # Enforce activity limit: get fresh status, scrub if needed
-        # charge_credit=False because we already charged above for the consumed card
+        # Enforce activity limit
         limit_status, queue = _enforce_activity_limit(
             queue=queue,
             user_id=owner_id,
             anonymous_session_id=anonymous_session_id,
-            charge_credit=False  # Already charged for consumed card
+            charge_credit=False
         )
 
-        # Update session state with scrubbed queue
+        # Update session state
         state["queue"] = queue
         session.current_turn_state = state
         flag_modified(session, "current_turn_state")
-        
+
         db.session.commit()
-        
+
         # 3. Response
         response = {
             "session_id": session.session_id,
+            "selection_mode": settings.get("selection_mode", "RANDOM").upper(),
             "limit_status": limit_status,
             "queue": queue,
             "current_turn": queue[0] if queue else {}
         }
-        
+
         return jsonify(response)
         
     except Exception as e:

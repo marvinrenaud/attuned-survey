@@ -231,9 +231,56 @@ Guest players allow you to specify anatomy and preferences directly.
   "settings": {
     "intimacy_level": 3,
     "player_order_mode": "SEQUENTIAL",
-    "selection_mode": "RANDOM",
+    "selection_mode": "RANDOM",  // or "MANUAL" - see Selection Modes below
     "include_dare": true
   }
+}
+```
+
+#### Selection Modes
+
+| Mode | Behavior |
+| :--- | :--- |
+| `RANDOM` | Backend picks TRUTH or DARE randomly. Each queue item has a single `card` object. |
+| `MANUAL` | Backend generates **paired cards** (one TRUTH + one DARE) for each turn. Frontend picks which to display. |
+
+**MANUAL Mode Response Structure:**
+When `selection_mode` is `MANUAL`, each queue item contains:
+- `truth_card`: The TRUTH option for this turn
+- `dare_card`: The DARE option for this turn (or `null` if `include_dare: false`)
+- `card`: Always `null` in MANUAL mode
+- `turn_number`: Groups paired cards together
+
+```json
+{
+  "selection_mode": "MANUAL",
+  "current_turn_number": 1,
+  "queue": [
+    {
+      "status": "SHOW_CARD",
+      "step": 1,
+      "turn_number": 1,
+      "card": null,
+      "truth_card": {
+        "card_id": "123",
+        "type": "TRUTH",
+        "primary_player": "Alice",
+        "secondary_players": ["Bob"],
+        "display_text": "What's your biggest fantasy?",
+        "intensity_rating": 2
+      },
+      "dare_card": {
+        "card_id": "456",
+        "type": "DARE",
+        "primary_player": "Alice",
+        "secondary_players": ["Bob"],
+        "display_text": "Give your partner a massage.",
+        "intensity_rating": 2
+      },
+      "progress": { ... }
+    },
+    ...
+  ]
 }
 ```
 
@@ -253,9 +300,12 @@ When the limit is reached, the card object will look like this:
 }
 ```
 The frontend should display a subscription prompt for this card type.
+
+**RANDOM Mode Response (Default):**
 ```json
 {
   "session_id": "uuid",
+  "selection_mode": "RANDOM",
   "limit_status": {
     "limit_reached": false,
     "remaining": 24,
@@ -274,6 +324,8 @@ The frontend should display a subscription prompt for this card type.
         "display_text": "Tell Bob a secret.",
         "intensity_rating": 1
       },
+      "truth_card": null,
+      "dare_card": null,
       "progress": { ... }
     },
     { ... },
@@ -282,6 +334,8 @@ The frontend should display a subscription prompt for this card type.
   "current_turn": { ... } // Legacy support (Head of queue)
 }
 ```
+
+See **Selection Modes** above for MANUAL mode response structure.
 
 ### 2. Next Turn
 `POST /api/game/<session_id>/next`
@@ -294,17 +348,41 @@ Advance to the next turn. Consumes the current card (head of queue) and generate
 ```json
 {
   "action": "NEXT",
-  "selected_type": "TRUTH" // Optional
+  "selected_type": "TRUTH"  // REQUIRED in MANUAL mode, ignored in RANDOM mode
 }
 ```
+
+| Parameter | Required | Description |
+| :--- | :--- | :--- |
+| `action` | Yes | Must be `"NEXT"` |
+| `selected_type` | **MANUAL mode only** | `"TRUTH"` or `"DARE"` - indicates which card the user selected |
+
+**MANUAL Mode Behavior:**
+- `selected_type` is **required** - returns `400` if missing
+- Only the selected card is logged to activity history
+- The unselected card is discarded (available for future sessions)
+- Returns `400` if user selects `DARE` but `include_dare: false`
+
+**RANDOM Mode Behavior:**
+- `selected_type` is ignored (card type was already determined)
+
+#### Error Response (MANUAL mode, missing selected_type)
+```json
+{
+  "error": "selected_type required when selection_mode is MANUAL"
+}
+```
+Status: `400 Bad Request`
 
 #### Response
 ```json
 {
   "session_id": "uuid",
+  "selection_mode": "MANUAL",  // Echoed back for convenience
+  "current_turn_number": 2,    // Current turn number (MANUAL mode)
   "limit_status": { ... },
-  "queue": [ ... ], // Updated queue of 3 items
-  "current_turn": { ... } // The new head of the queue
+  "queue": [ ... ],            // Updated queue of 3 items
+  "current_turn": { ... }      // The new head of the queue (legacy)
 }
 ```
 
