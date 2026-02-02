@@ -1038,7 +1038,7 @@ def start_game(current_user_id):
         tb = traceback.format_exc()
         logger.error("start_game_failed", error=str(e), error_type=type(e).__name__, traceback=tb)
         db.session.rollback()
-        return jsonify({"error": "Internal server error", "debug_message": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 @gameplay_bp.route("/<session_id>/next", methods=["POST"])
 @token_required
