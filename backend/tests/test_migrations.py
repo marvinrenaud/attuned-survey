@@ -80,6 +80,7 @@ class TestMigrationFiles:
                 'CREATE FUNCTION' in content_upper,
                 'CREATE OR REPLACE' in content_upper,
                 'INSERT INTO' in content_upper,
+                'UPDATE ' in content_upper,  # Data fix migrations
             ])
             assert has_valid_sql, \
                 f"Migration doesn't contain recognized SQL DDL: {migration.name}"
@@ -96,6 +97,7 @@ class TestMigrationFiles:
                 'DROP' in content.upper(),
                 'ALTER' in content.upper(),
                 'DELETE' in content.upper(),
+                'UPDATE ' in content.upper(),  # Data fix rollbacks
             ])
             assert has_rollback_sql, f"Rollback doesn't contain recognized rollback SQL: {rollback.name}"
     

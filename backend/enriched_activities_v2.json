@@ -6253,7 +6253,7 @@
     "description": "Give a hot, body-rolling lap dance to whoever the group picks, for 15 seconds.",
     "intimacy_level": "L4",
     "intimacy_rating": "R",
-    "audience_tag": "audienceall",
+    "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
       "dancing_self",
@@ -6707,7 +6707,7 @@
     "description": "While blindfolded, explore a volunteer's body with your hands and guess who it is.",
     "intimacy_level": "L3",
     "intimacy_rating": "G",
-    "audience_tag": "audienceall",
+    "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
       "touch_give",
@@ -8471,7 +8471,7 @@
     "description": "Give a hot, grinding lap dance to someone chosen by the group, for 15 seconds.",
     "intimacy_level": "L2",
     "intimacy_rating": "G",
-    "audience_tag": "audienceall",
+    "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
       "dancing_self",
@@ -8494,7 +8494,7 @@
     "description": "Give the group your absolute naughtiest, most mischievous look.",
     "intimacy_level": "L1",
     "intimacy_rating": "G",
-    "audience_tag": "audienceall",
+    "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
       "exhibitionism",
@@ -8837,7 +8837,7 @@
     "description": "Strike a deeply suggestive pose and hold it for 10 seconds while the group counts down.",
     "intimacy_level": "L2",
     "intimacy_rating": "G",
-    "audience_tag": "audienceall",
+    "audience_tag": "audiencegrouponly",
     "power_role": "neutral",
     "preference_keys": [
       "posing_self",
