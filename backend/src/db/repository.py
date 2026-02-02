@@ -244,17 +244,55 @@ def meets_anatomy_requirements(activity: Activity, player_anatomy: Dict[str, Lis
 def has_boundary_conflict(activity_boundaries: List[str], player_boundaries: List[str]) -> bool:
     """
     Check if activity hits any player hard boundary.
-    
+
     Args:
         activity_boundaries: List of boundary keys from activity.hard_boundaries
         player_boundaries: Combined list of player hard boundaries
-    
+
     Returns:
         True if there's a conflict, False otherwise
     """
     if not activity_boundaries or not player_boundaries:
         return False
     return any(b in player_boundaries for b in activity_boundaries)
+
+
+def has_truth_topic_conflict(
+    activity_truth_topics: Optional[List[str]],
+    player_a_truth_topics: Optional[Dict[str, float]],
+    player_b_truth_topics: Optional[Dict[str, float]]
+) -> bool:
+    """
+    Check if activity touches a truth topic that either player said NO to.
+
+    This is a HARD FILTER: if either player has score 0.0 for any of the
+    activity's truth topics, the activity should not be shown.
+
+    Args:
+        activity_truth_topics: List of topic keys from activity.truth_topics
+        player_a_truth_topics: Player A's topic preferences {topic: 0.0-1.0}
+        player_b_truth_topics: Player B's topic preferences {topic: 0.0-1.0}
+
+    Returns:
+        True if there's a conflict (activity should be filtered), False otherwise
+    """
+    # No topics = bypass filter (no conflict)
+    if not activity_truth_topics:
+        return False
+
+    # Default to empty dicts if not provided
+    player_a_topics = player_a_truth_topics or {}
+    player_b_topics = player_b_truth_topics or {}
+
+    for topic in activity_truth_topics:
+        # Check if either player said NO (0.0) to this topic
+        # Default to 0.5 (neutral) if topic not in player's preferences
+        if player_a_topics.get(topic, 0.5) == 0.0:
+            return True
+        if player_b_topics.get(topic, 0.5) == 0.0:
+            return True
+
+    return False
 
 
 def find_activity_candidates(
@@ -265,6 +303,8 @@ def find_activity_candidates(
     session_mode: str = 'couples',
     player_boundaries: Optional[List[str]] = None,
     player_anatomy: Optional[Dict[str, List[str]]] = None,
+    player_a_truth_topics: Optional[Dict[str, float]] = None,
+    player_b_truth_topics: Optional[Dict[str, float]] = None,
     hard_limits: Optional[List[str]] = None,  # LEGACY, deprecated
     tags: Optional[List[str]] = None,
     randomize: bool = False,
@@ -272,7 +312,7 @@ def find_activity_candidates(
 ) -> List[Activity]:
     """
     Find activity candidates matching criteria with pre-filters for anatomy, boundaries, and audience.
-    
+
     Args:
         rating: Content rating (G/R/X)
         intensity_min: Minimum intensity
@@ -281,11 +321,13 @@ def find_activity_candidates(
         session_mode: Session mode ('couples' or 'groups')
         player_boundaries: List of combined player hard boundaries
         player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' lists
+        player_a_truth_topics: Player A's truth topic preferences {topic: 0.0-1.0}
+        player_b_truth_topics: Player B's truth topic preferences {topic: 0.0-1.0}
         hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         tags: Optional tag filters
         randomize: Whether to sort results randomly
         limit: Maximum results to return
-    
+
     Returns:
         List of matching Activity instances
     """
@@ -342,7 +384,23 @@ def find_activity_candidates(
                     continue
             filtered.append(activity)
         candidates = filtered
-    
+
+    # Post-filter: truth topics (for truth activities only)
+    # If either player said NO (0.0) to a topic, filter out activities with that topic
+    if player_a_truth_topics or player_b_truth_topics:
+        filtered = []
+        for activity in candidates:
+            # Only apply to truth activities with truth_topics tags
+            if activity.type == 'truth' and activity.truth_topics:
+                if has_truth_topic_conflict(
+                    activity.truth_topics,
+                    player_a_truth_topics,
+                    player_b_truth_topics
+                ):
+                    continue
+            filtered.append(activity)
+        candidates = filtered
+
     # Return up to limit
     candidates = candidates[:limit]
     
@@ -373,6 +431,8 @@ def find_best_activity_candidate(
     session_mode: str = 'couples',
     player_boundaries: Optional[List[str]] = None,
     player_anatomy: Optional[Dict[str, List[str]]] = None,
+    player_a_truth_topics: Optional[Dict[str, float]] = None,
+    player_b_truth_topics: Optional[Dict[str, float]] = None,
     hard_limits: Optional[List[str]] = None,  # LEGACY
     excluded_ids: Optional[set] = None,
     top_n: int = 20,
@@ -380,7 +440,7 @@ def find_best_activity_candidate(
 ) -> Optional[Activity]:
     """
     Find best-matching activity using preference-based scoring with anatomy and boundary filters.
-    
+
     Args:
         rating: Content rating (G/R/X)
         intensity_min: Minimum intensity
@@ -391,11 +451,13 @@ def find_best_activity_candidate(
         session_mode: Session mode ('couples' or 'groups')
         player_boundaries: Combined list of player hard boundaries
         player_anatomy: Dict with 'active_anatomy' and 'partner_anatomy' lists
+        player_a_truth_topics: Player A's truth topic preferences {topic: 0.0-1.0}
+        player_b_truth_topics: Player B's truth topic preferences {topic: 0.0-1.0}
         hard_limits: LEGACY - List of hard limit keys to exclude (deprecated)
         excluded_ids: Set of activity IDs already used (for deduplication)
         top_n: Consider top N candidates for scoring
         randomize: Whether to fetch candidates randomly (default True)
-    
+
     Returns:
         Best-matching Activity or None
     """
@@ -413,6 +475,8 @@ def find_best_activity_candidate(
         session_mode=session_mode,
         player_boundaries=player_boundaries,
         player_anatomy=player_anatomy,
+        player_a_truth_topics=player_a_truth_topics,
+        player_b_truth_topics=player_b_truth_topics,
         hard_limits=hard_limits,
         randomize=randomize,
         limit=top_n * 2  # Get more to account for exclusions
