@@ -1,8 +1,10 @@
 # Technical Implementation Notes (v0.4/v0.6)
 
-**Last Updated**: November 12, 2025  
-**Survey Version**: v0.4  
-**Compatibility Version**: v0.6
+**Last Updated**: February 2, 2026
+**Survey Version**: v0.4
+**Compatibility Version**: v0.7
+**Activity Selection Version**: v0.7
+**Gameplay Session Version**: v0.8
 
 ---
 
@@ -570,6 +572,262 @@ calculatePowerComplement(powerA, powerB) {
 
 ---
 
+## Activity Selection Engine (v0.7)
+
+The recommender engine selects activities for gameplay sessions based on player profiles, compatibility, and preferences.
+
+**Files**:
+- `backend/src/recommender/scoring.py` - Activity scoring
+- `backend/src/recommender/picker.py` - Activity selection
+- `backend/src/db/repository.py` - Query helpers and filters
+
+### Selection Flow
+
+```
+Session Request
+      ↓
+Filter: Anatomy, Rating, Audience Scope
+      ↓
+Filter: Hard Limits (boundaries)
+      ↓
+Filter: Truth Topics (v0.7) ← NEW
+      ↓
+Score: Mutual Interest, Power Alignment, Domain Fit, Truth Topic Fit
+      ↓
+Rank & Select Top Candidates
+      ↓
+Return Activity (Bank-first, AI fallback)
+```
+
+### Truth Topic Filtering (v0.7)
+
+Truth activities can be tagged with sensitive topic categories. The system filters and ranks these based on user survey responses (questions B29-B36).
+
+**Allowed Truth Topics**:
+```python
+TRUTH_TOPICS = [
+    'past_experiences',    # Sexual history, "Have you ever..."
+    'fantasies',           # Fantasy description, "What's your fantasy..."
+    'turn_ons',            # What arouses, "What turns you on?"
+    'turn_offs',           # What doesn't work, "What turns you off?"
+    'insecurities',        # Vulnerabilities
+    'boundaries',          # Limits and consent
+    'future_fantasies',    # Future desires
+    'feeling_desired',     # Being wanted
+]
+```
+
+**User Responses (from survey)**:
+- **NO (0.0)** → Hard filter - never show activities with that topic
+- **MAYBE (0.5)** → Show but rank lower than YES
+- **YES (1.0)** → Prioritize these activities
+
+**Hard Filter Logic** (`has_truth_topic_conflict()`):
+```python
+def has_truth_topic_conflict(activity_topics, player_a_topics, player_b_topics):
+    """Return True if ANY activity topic has score 0.0 for EITHER player."""
+    if not activity_topics:
+        return False  # Bypass: untagged activities pass
+
+    for topic in activity_topics:
+        if player_a_topics.get(topic, 0.5) == 0.0:
+            return True
+        if player_b_topics.get(topic, 0.5) == 0.0:
+            return True
+    return False
+```
+
+**Soft Ranking Logic** (`score_truth_topic_fit()`):
+```python
+def score_truth_topic_fit(activity_type, activity_topics, player_a_topics, player_b_topics):
+    """Score for truth topic alignment. Returns None to bypass scoring."""
+    # Bypass for dares
+    if activity_type != 'truth':
+        return None
+
+    # Bypass for untagged truth activities
+    if not activity_topics:
+        return None
+
+    # Score using minimum (most restrictive player)
+    scores = []
+    for topic in activity_topics:
+        score_a = player_a_topics.get(topic, 0.5)
+        score_b = player_b_topics.get(topic, 0.5)
+        scores.append(min(score_a, score_b))
+
+    return sum(scores) / len(scores)
+```
+
+**Bypass Rules**:
+- **Dare activities**: Always bypass truth topic filtering (normal scoring)
+- **Untagged truth activities**: Bypass filtering (no penalty for missing tags)
+- **Couple handling**: Block if EITHER player says NO, use minimum for ranking
+
+### Scoring Components
+
+**Weighted Average**:
+```python
+weights = {
+    'mutual_interest': 0.50,    # Matches player preferences
+    'power_alignment': 0.30,    # Fits power dynamics
+    'domain_fit': 0.20,         # Aligns with domains
+}
+
+# When truth_topic_fit has a value (truth activity with tags):
+# - Include in weighted average with ~15% weight
+# - Redistribute from other components proportionally
+```
+
+### Database Schema (Migration 029)
+
+```sql
+ALTER TABLE activities ADD COLUMN truth_topics JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE activities ADD CONSTRAINT chk_truth_topics_array
+    CHECK (jsonb_typeof(truth_topics) = 'array');
+CREATE INDEX idx_activities_truth_topics ON activities USING GIN (truth_topics);
+```
+
+### Batch Tagging
+
+AI-powered tagging via `scripts/tag_truth_topics.py`:
+```bash
+python scripts/tag_truth_topics.py --dry-run     # Preview
+python scripts/tag_truth_topics.py --apply       # Apply to database
+python scripts/tag_truth_topics.py --apply --retag  # Re-tag all
+```
+
+---
+
+## Gameplay Session Management (v0.8)
+
+The gameplay engine manages turn-based sessions where players take turns performing activities with each other.
+
+**Files**:
+- `backend/src/routes/gameplay.py` - Session management, turn generation
+- `backend/src/game/text_resolver.py` - Activity text personalization
+
+### Session Modes
+
+| Mode | Player Count | Description |
+|------|-------------|-------------|
+| **Couples** | 2 players | Partners always paired together |
+| **Groups** | 3+ players | Dynamic pairing with anatomy filtering |
+
+### Player Data Structure
+
+Each player in a session has:
+```python
+{
+    "id": "uuid-string",           # User ID or generated guest ID
+    "name": "Display Name",
+    "anatomy": ["penis", "vagina", "breasts"],     # What they HAVE
+    "anatomy_preference": ["penis", "vagina"]       # What they're ATTRACTED TO
+}
+```
+
+### Turn Generation Flow
+
+```
+Session Start / Next Turn Request
+        ↓
+Select Primary Player (SEQUENTIAL or RANDOM)
+        ↓
+Select Secondary Player
+    ├── Couples (2 players): Always the other player
+    └── Groups (3+ players): Filter by anatomy preference
+        ↓
+Generate Activity Card(s)
+        ↓
+Return Turn Data
+```
+
+### Anatomy-Based Player Pairing (v0.8)
+
+**Problem**: In group play, a user might be paired with someone whose body doesn't match what they're attracted to.
+
+**Solution**: Filter secondary player candidates based on the primary player's anatomy preferences.
+
+**Implementation** (`_get_anatomy_compatible_candidates()`):
+```python
+def _get_anatomy_compatible_candidates(primary_player, all_players, primary_idx):
+    """
+    Filter player indices to those whose anatomy matches primary's preferences.
+
+    Logic:
+    - Get primary's anatomy_preference (what they're attracted to)
+    - Find all players whose anatomy contains at least one matching part
+    - Use OR logic: likes penis OR vagina = anyone with either matches
+    """
+    primary_prefs = primary_player.get('anatomy_preference', [])
+
+    # No preferences = everyone is compatible
+    if not primary_prefs:
+        return [i for i in range(len(all_players)) if i != primary_idx]
+
+    compatible = []
+    for i, player in enumerate(all_players):
+        if i == primary_idx:
+            continue
+        player_anatomy = player.get('anatomy', [])
+        # OR logic: any matching anatomy part = compatible
+        if any(part in player_anatomy for part in primary_prefs):
+            compatible.append(i)
+
+    return compatible
+```
+
+**Behavior by Mode**:
+
+| Mode | Anatomy Filtering | Rationale |
+|------|-------------------|-----------|
+| Couples (2 players) | **None** | They chose to play together; no alternative partner |
+| Groups (3+ players) | **Yes** | Ensures users only paired with anatomically compatible partners |
+| Fallback | **Random** | If no compatible players exist, falls back to random selection |
+
+**Examples**:
+
+*4-Player Group:*
+- Player A: has penis, likes vaginas
+- Player B: has penis, likes penises
+- Player C: has vagina, likes penises
+- Player D: has vagina and breasts, likes vaginas
+
+When Player A is primary (likes vaginas):
+- Compatible: C and D (both have vagina)
+- Secondary will be C or D (never B)
+
+When Player B is primary (likes penises):
+- Compatible: A only (has penis)
+- Secondary will always be A
+
+*Couples Mode (2 players):*
+- Even if Player 1 likes vaginas and Player 2 only has a penis
+- They still get paired (no filtering in couples mode)
+- Activity filtering still applies to ensure appropriate activities
+
+**Fallback Behavior**:
+- Empty `anatomy_preference` = all players compatible (no preference set)
+- No compatible players found = random selection from remaining players
+- Ensures gameplay never blocks due to filtering
+
+### Anatomy vs Activity Filtering
+
+Two separate filtering systems work together:
+
+| Filter | When Applied | What It Filters |
+|--------|-------------|-----------------|
+| **Player Pairing** (v0.8) | Secondary player selection | Who gets paired with whom |
+| **Activity Requirements** | Activity selection | Which activities are shown |
+
+**Activity anatomy filtering** (`meets_anatomy_requirements()`):
+- Checks if the selected pair has required body parts for an activity
+- Example: Activity requires "penis" for partner → only shown if partner has penis
+
+**Combined effect**: Users are paired with compatible partners AND shown appropriate activities for that pairing.
+
+---
+
 ## Key Algorithms Deep Dive
 
 ### Asymmetric Directional Jaccard
@@ -1062,18 +1320,60 @@ Response: {
 
 ## Version History
 
-### v0.7 (Jan 28, 2026) - Agreement-Based Jaccard
-**Changes**:
+### v0.8 (Feb 2, 2026) - Group Play Anatomy-Based Player Pairing
+
+**Gameplay Changes**:
+- Added anatomy-based filtering for secondary player selection in group play (3+ players)
+- Primary player's `anatomy_preference` is checked against each candidate's `anatomy`
+- Uses OR logic: if primary likes penis OR vagina, anyone with either matches
+- Falls back to random selection if no compatible players found
+- Couples mode (2 players) unchanged - always pairs the two players together
+
+**New Functions**:
+- `_get_anatomy_compatible_candidates()` - Filters player indices by anatomy compatibility
+
+**Impact**:
+- Group play now respects user anatomy preferences when pairing players
+- Example: User who only likes penises will only be paired with penis-having players
+- Prevents awkward pairings in diverse groups
+
+**Test Coverage**:
+- `tests/test_gameplay_group_pairing.py` - 9 tests covering unit and integration scenarios
+- Unit tests: Helper function logic (6 tests)
+- Integration tests: Full gameplay flow (3 tests)
+
+**Files Changed**:
+- `backend/src/routes/gameplay.py` - Added helper function, modified `_generate_turn_data()`
+- `backend/tests/test_gameplay_group_pairing.py` - New test file
+
+---
+
+### v0.7 (Jan 28-29, 2026) - Agreement-Based Jaccard + Truth Topic Filtering
+
+**Compatibility Changes (Jan 28)**:
 - Agreement-based Jaccard: mutual disinterest (both saying "no") now counts as agreement
 - Same-pole domain penalty implemented: domain similarity × 0.5 for Top+Top and Bottom+Bottom
 - Versatile power complement: Versatile/Versatile returns 0.75 (was 0.50, same as conflicts)
 - Updated asymmetric directional Jaccard to count mutual disinterest in primary/secondary axes
 
-**Impact**:
+**Activity Selection Changes (Jan 29)**:
+- Added `truth_topics` JSONB column to activities table (Migration 029)
+- Hard filter: Block truth activities if either player said NO (0.0) to any tagged topic
+- Soft ranking: YES (1.0) topics rank higher than MAYBE (0.5)
+- Bypass: Dare activities and untagged truth activities bypass filtering entirely
+- AI batch tagging: 359 truth activities tagged with 0-3 topics each
+- New functions: `has_truth_topic_conflict()`, `score_truth_topic_fit()`
+
+**Compatibility Impact**:
 - Perfect Match (Top+Bottom): 89% → 96% ✅
 - Vanilla Couple (Switch+Switch): 84% → 91% ✅
 - Top+Top Conflict: 57% → 45% ✅
 - Conservative Match (Versatile+Versatile): 72% → 86% ✅
+
+**Activity Selection Impact**:
+- Users with NO responses to truth topics will never see activities with those tags
+- Activities with YES topics prioritized over MAYBE topics
+- Non-sensitive truth activities (untagged) remain accessible to all users
 
 **Known Issue**:
 - Bottom+Bottom scores 46% vs Top+Top's 45% due to same-pole Jaccard asymmetry
@@ -1084,6 +1384,8 @@ Response: {
 - `tests/test_compatibility_agreement_jaccard.py` - 11 tests for new behaviors
 - `tests/fixtures/diverse_test_profiles.py` - 6 diverse test pairs
 - `tests/fixtures/diverse_pair_baseline_results.json` - Documented baselines
+- `tests/test_truth_topic_filtering.py` - Hard filter and soft ranking tests
+- `scripts/tag_truth_topics.py` - Batch tagging with AI analysis
 
 ### v0.6 (Jan 2026) - Arousal Integration
 **Changes**:
@@ -1142,7 +1444,6 @@ Response: {
 
 ### Future Enhancements
 - Multi-baseline comparison
-- Activity recommendations
 - Profile evolution tracking
 - Offline support with sync
 - Real-time updates (WebSocket)
@@ -1228,4 +1529,4 @@ pnpm run build
 
 **For questions or clarifications, see EXECUTIVE_SUMMARY.md or contact the development team.**
 
-*Last updated: October 15, 2025*
+*Last updated: January 29, 2026*

@@ -243,6 +243,42 @@ def _get_next_player_indices(current_idx: int, num_players: int, mode: str) -> t
     
     return primary, secondary
 
+def _get_anatomy_compatible_candidates(
+    primary_player: Dict[str, Any],
+    all_players: List[Dict[str, Any]],
+    primary_idx: int
+) -> List[int]:
+    """
+    Filter player indices to those whose anatomy matches primary's preferences.
+
+    Used in group play (3+ players) to ensure the primary player is paired
+    with someone whose body parts match what they're attracted to.
+
+    Args:
+        primary_player: The active player dict with 'anatomy_preference' list
+        all_players: List of all player dicts in the session
+        primary_idx: Index of primary player (to exclude from results)
+
+    Returns:
+        List of compatible player indices (may be empty if no matches)
+    """
+    primary_prefs = primary_player.get('anatomy_preference', [])
+
+    # If no preferences specified, all non-primary players are compatible
+    if not primary_prefs:
+        return [i for i in range(len(all_players)) if i != primary_idx]
+
+    compatible = []
+    for i, player in enumerate(all_players):
+        if i == primary_idx:
+            continue
+        player_anatomy = player.get('anatomy', [])
+        # Check if partner has ANY anatomy that primary likes (OR logic)
+        if any(part in player_anatomy for part in primary_prefs):
+            compatible.append(i)
+
+    return compatible
+
 def _get_anonymous_usage(anon_id: str) -> int:
     """Count activities presented to anonymous session in last 24h."""
     from datetime import datetime, timedelta
@@ -539,10 +575,25 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
     else:
         # RANDOM
         primary_idx = random.randint(0, num_players - 1)
-        
-    secondary_idx = (primary_idx + 1) % num_players
-    
+
     primary_player = players[primary_idx]
+
+    # Secondary player selection
+    if num_players <= 2:
+        # Couples mode: always the other player (no filtering)
+        secondary_idx = (primary_idx + 1) % num_players
+    else:
+        # Group mode: filter by anatomy preference
+        compatible_indices = _get_anatomy_compatible_candidates(
+            primary_player, players, primary_idx
+        )
+        if compatible_indices:
+            secondary_idx = random.choice(compatible_indices)
+        else:
+            # Fallback: random selection if no compatible players
+            candidates = [i for i in range(num_players) if i != primary_idx]
+            secondary_idx = random.choice(candidates)
+
     secondary_player = players[secondary_idx]
     
     # Check selection mode
