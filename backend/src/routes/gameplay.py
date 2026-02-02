@@ -575,10 +575,25 @@ def _generate_turn_data(session: Session, step_offset: int = 0, selected_type: O
     else:
         # RANDOM
         primary_idx = random.randint(0, num_players - 1)
-        
-    secondary_idx = (primary_idx + 1) % num_players
-    
+
     primary_player = players[primary_idx]
+
+    # Secondary player selection
+    if num_players <= 2:
+        # Couples mode: always the other player (no filtering)
+        secondary_idx = (primary_idx + 1) % num_players
+    else:
+        # Group mode: filter by anatomy preference
+        compatible_indices = _get_anatomy_compatible_candidates(
+            primary_player, players, primary_idx
+        )
+        if compatible_indices:
+            secondary_idx = random.choice(compatible_indices)
+        else:
+            # Fallback: random selection if no compatible players
+            candidates = [i for i in range(num_players) if i != primary_idx]
+            secondary_idx = random.choice(candidates)
+
     secondary_player = players[secondary_idx]
     
     # Check selection mode

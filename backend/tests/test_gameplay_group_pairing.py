@@ -248,7 +248,7 @@ class TestGroupPlayAnatomyPairing:
                     {"id": str(user_id)},
                     {"name": "Partner", "anatomy": ["penis"], "anatomy_preference": []}  # No vagina!
                 ],
-                "settings": {"selection_mode": "SEQUENTIAL"}
+                "settings": {"player_order_mode": "SEQUENTIAL"}
             },
             headers={'Authorization': f'Bearer {token}'})
 
