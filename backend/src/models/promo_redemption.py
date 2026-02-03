@@ -1,5 +1,5 @@
 """PromoRedemption model - tracks when users redeem promo codes."""
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 from .guid import GUID
 
@@ -14,7 +14,7 @@ class PromoRedemption(db.Model):
     subscription_product = db.Column(db.String(255))  # e.g., 'attuned_monthly'
     original_price = db.Column(db.Numeric(10, 2))  # May be NULL if unknown
     discounted_price = db.Column(db.Numeric(10, 2))  # Actual amount paid
-    redeemed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    redeemed_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     user = db.relationship('User', backref='promo_redemptions')

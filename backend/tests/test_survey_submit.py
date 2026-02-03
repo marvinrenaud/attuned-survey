@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 import jwt # Import jwt to allow patching specifically if needed, but we patch string path
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.src.models.user import User
 from backend.src.models.survey import SurveyProgress, SurveySubmission
 from backend.src.models.profile import Profile
@@ -109,7 +109,7 @@ def test_submit_survey_idempotency(mock_jwt_decode, client, db_session, auth_hea
         user_id=user_id,
         survey_version='0.4',
         status='completed',
-        completed_at=datetime.utcnow(),
+        completed_at=datetime.now(timezone.utc),
         answers={}
     )
     db_session.add(progress)

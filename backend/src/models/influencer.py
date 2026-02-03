@@ -1,5 +1,5 @@
 """Influencer model - marketing partners with promo codes."""
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 
 
@@ -13,8 +13,8 @@ class Influencer(db.Model):
     platform = db.Column(db.String(50))  # 'tiktok', 'instagram', 'podcast', 'youtube'
     status = db.Column(db.String(20), default='active')  # 'active', 'paused', 'inactive'
     notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     promo_codes = db.relationship('PromoCode', backref='influencer', lazy='dynamic')

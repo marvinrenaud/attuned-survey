@@ -1,5 +1,5 @@
 """Compatibility model - stores calculated compatibility results between players."""
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 
 
@@ -54,7 +54,7 @@ class Compatibility(db.Model):
     
     # Metadata
     calculation_version = db.Column(db.String(16), default="0.4", nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     
     # Relationships
     player_a = db.relationship('Profile', foreign_keys=[player_a_id], backref='compatibility_as_a')

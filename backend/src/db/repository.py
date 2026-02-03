@@ -1,7 +1,7 @@
 """Data repository for accessing profiles, sessions, activities, and compatibility."""
 import logging
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..extensions import db
 from ..models.profile import Profile
@@ -202,7 +202,7 @@ def complete_session(session_id: str) -> None:
     session = get_session(session_id)
     if session:
         session.status = 'completed'
-        session.completed_at = datetime.utcnow()
+        session.completed_at = datetime.now(timezone.utc)
         db.session.commit()
         logger.info(f"Session completed: {session_id}")
 
@@ -661,7 +661,7 @@ def save_compatibility_result(
         existing.mutual_truth_topics = mutual_truth_topics
         existing.blocked_activities = blocked_activities
         existing.boundary_conflicts = boundary_conflicts
-        existing.created_at = datetime.utcnow()  # Update timestamp
+        existing.created_at = datetime.now(timezone.utc)  # Update timestamp
         
         compatibility = existing
     else:

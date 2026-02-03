@@ -17,7 +17,7 @@ class PromoCode(db.Model):
     expires_at = db.Column(db.DateTime)
     max_redemptions = db.Column(db.Integer)
     redemption_count = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     redemptions = db.relationship('PromoRedemption', backref='promo_code', lazy='dynamic')

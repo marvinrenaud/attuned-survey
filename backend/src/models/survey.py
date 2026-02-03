@@ -18,7 +18,7 @@ class SurveySubmission(db.Model):
     survey_version = db.Column(db.String(16), nullable=True)
     survey_progress_id = db.Column(db.Integer, db.ForeignKey('survey_progress.id', ondelete='SET NULL'), nullable=True)
     payload_json = db.Column(db.JSON, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationship to User
     user = db.relationship("User", backref=db.backref("submission", uselist=False))
@@ -30,7 +30,7 @@ class SurveyBaseline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.String(128), nullable=True)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
 
@@ -49,9 +49,9 @@ class SurveyQuestion(db.Model):
     maps = db.Column(db.JSON, nullable=True)  # Metadata: {"factor":"SE"}, {"category":"physical_touch",...}
     display_order = db.Column(db.Integer, nullable=True)  # Order within chapter
     is_active = db.Column(db.Boolean, nullable=False, default=True)  # Can disable questions
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     __table_args__ = (

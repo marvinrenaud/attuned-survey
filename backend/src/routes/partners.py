@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 
 from ..extensions import db, limiter
@@ -131,7 +131,7 @@ def create_connection_request(current_user_id):
             recipient_user_id=recipient_id,
             status='pending',
             connection_token=connection_token,
-            expires_at=datetime.utcnow() + timedelta(days=1)  # FR-56: 1 day expiry
+            expires_at=datetime.now(timezone.utc) + timedelta(days=1)  # FR-56: 1 day expiry
         )
         
         db.session.add(connection)
@@ -232,10 +232,10 @@ def accept_connection(current_user_id, connection_id):
         # Check if expired
         # Ensure safe comparison between naive and aware datetimes
         expires_at = connection.expires_at
-        if expires_at.tzinfo:
-            expires_at = expires_at.replace(tzinfo=None)
-            
-        if expires_at < datetime.utcnow():
+        if expires_at is not None and expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if expires_at < datetime.now(timezone.utc):
             connection.status = 'expired'
             db.session.commit()
             return jsonify({'error': 'Connection request expired'}), 410
@@ -259,7 +259,7 @@ def accept_connection(current_user_id, connection_id):
                 partner_user_id=recipient_uuid,
                 partner_name=connection.recipient_display_name or connection.recipient_email,
                 partner_email=connection.recipient_email,
-                last_played_at=datetime.utcnow()
+                last_played_at=datetime.now(timezone.utc)
             )
             db.session.add(rp1)
         
@@ -274,7 +274,7 @@ def accept_connection(current_user_id, connection_id):
                 partner_user_id=requester_uuid,
                 partner_name=connection.requester_display_name or "Partner",
                 partner_email=requester.email if requester else "Unknown",
-                last_played_at=datetime.utcnow()
+                last_played_at=datetime.now(timezone.utc)
             )
             db.session.add(rp2)
             
@@ -322,7 +322,7 @@ def accept_connection(current_user_id, connection_id):
                 compat_record.blocked_activities = result['blocked_activities']
                 compat_record.boundary_conflicts = result['boundary_conflicts']
                 compat_record.calculation_version = result['compatibility_version']
-                compat_record.created_at = datetime.utcnow()
+                compat_record.created_at = datetime.now(timezone.utc)
                 
                 db.session.add(compat_record)
                 db.session.commit()

@@ -21,7 +21,7 @@ import uuid
 import jwt
 import os
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from backend.src.models.user import User
 from backend.src.models.partner import PartnerConnection
@@ -60,7 +60,7 @@ def create_connection(db_session, requester, recipient_email, recipient_user=Non
         recipient_user_id=recipient_user.id if recipient_user else None,
         status=status,
         connection_token=str(uuid.uuid4()),
-        expires_at=datetime.utcnow() + timedelta(days=1)
+        expires_at=datetime.now(timezone.utc) + timedelta(days=1)
     )
     db_session.add(connection)
     db_session.commit()

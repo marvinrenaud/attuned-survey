@@ -11,7 +11,7 @@ compatibility after the weekly limit feature was added.
 import os
 import pytest
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 from src.models.user import User
@@ -42,10 +42,10 @@ def free_user(db_session, test_user_data):
         demographics=test_user_data['demographics'],
         subscription_tier='free',
         daily_activity_count=0,
-        daily_activity_reset_at=datetime.utcnow(),
+        daily_activity_reset_at=datetime.now(timezone.utc),
         lifetime_activity_count=0,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add(user)
     db_session.commit()
@@ -63,8 +63,8 @@ def premium_user(db_session):
         demographics={},
         subscription_tier='premium',
         lifetime_activity_count=100,  # Even with high count, no limit for premium
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add(user)
     db_session.commit()

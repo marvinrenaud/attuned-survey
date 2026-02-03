@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 from .guid import GUID
 
@@ -21,7 +21,7 @@ class UserActivityHistory(db.Model):
         nullable=True
     )
     feedback_executed = db.Column(db.Boolean, nullable=True)
-    presented_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    presented_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     theme_tags = db.Column(db.JSON, default=list)
 
     def to_dict(self):

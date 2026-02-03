@@ -1,5 +1,5 @@
 """SQLAlchemy model for the notifications table."""
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 from .guid import GUID
 
@@ -24,7 +24,7 @@ class Notification(db.Model):
     body = db.Column(db.String, nullable=False)
     data = db.Column(db.JSON, default=dict)
     sent_at = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     is_read = db.Column(db.Boolean, default=False, nullable=False)
     read_at = db.Column(db.DateTime, nullable=True)
 

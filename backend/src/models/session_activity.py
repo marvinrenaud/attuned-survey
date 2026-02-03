@@ -1,5 +1,5 @@
 """SessionActivity model - stores generated activities for game sessions."""
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
 
 
@@ -49,7 +49,7 @@ class SessionActivity(db.Model):
     checks = db.Column(db.JSON, nullable=True)
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     
     # Relationships
     session = db.relationship('Session', backref=db.backref('activities', lazy=True, order_by='SessionActivity.seq'))
