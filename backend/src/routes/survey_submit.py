@@ -128,7 +128,7 @@ def submit_survey(current_user_id):
                 existing_profile.anatomy = anatomy
                 existing_profile.activity_tags = profile_data.get('activity_tags', {})
                 # Updated_at is handled by SQLAlchemy event or manually if needed, 
-                # but default onupdate=datetime.utcnow should trigger.
+                # but default onupdate should trigger.
                 profile = existing_profile
             else:
                 # INSERT new profile
