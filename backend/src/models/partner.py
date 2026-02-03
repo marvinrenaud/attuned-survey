@@ -1,7 +1,7 @@
 from ..extensions import db
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from .guid import GUID
 
 class PartnerConnection(db.Model):
@@ -16,8 +16,8 @@ class PartnerConnection(db.Model):
     status = Column(SQLEnum('pending', 'accepted', 'declined', 'expired', 'disconnected', name='connection_status_enum'), nullable=False, default='pending')
     connection_token = Column(Text, unique=True, nullable=False)
     expires_at = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     def to_dict(self):
         return {
@@ -41,8 +41,8 @@ class RememberedPartner(db.Model):
     partner_user_id = Column(GUID(), nullable=False)
     partner_name = Column(Text, nullable=False)
     partner_email = Column(Text, nullable=False)
-    last_played_at = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    last_played_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     def to_dict(self):
         return {

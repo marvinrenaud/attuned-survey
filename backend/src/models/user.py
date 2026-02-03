@@ -1,5 +1,5 @@
 """User model - authenticated user accounts linked to Supabase Auth."""
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from ..extensions import db
 from .guid import GUID
@@ -40,7 +40,7 @@ class User(db.Model):
     )
     subscription_expires_at = db.Column(db.DateTime)
     daily_activity_count = db.Column(db.Integer, nullable=False, default=0)  # Legacy - kept for backward compat
-    daily_activity_reset_at = db.Column(db.DateTime, default=datetime.utcnow)  # Legacy - kept for backward compat
+    daily_activity_reset_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))  # Legacy - kept for backward compat
 
     # Subscription - RevenueCat Integration (Migration 027)
     subscription_platform = db.Column(db.String(50))  # 'stripe' | 'apple' | 'google'
@@ -69,8 +69,8 @@ class User(db.Model):
     oauth_metadata = db.Column(JSONB)
     
     # Timestamps
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'<User {self.email}>'

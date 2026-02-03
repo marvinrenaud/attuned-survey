@@ -1,5 +1,5 @@
 from ..extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 from .guid import GUID
 
 class PushNotificationToken(db.Model):
@@ -12,8 +12,8 @@ class PushNotificationToken(db.Model):
         db.Enum('ios', 'android', name='platform_enum', create_type=False),
         nullable=False
     )
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     def to_dict(self):
         return {
