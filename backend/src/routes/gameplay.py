@@ -279,68 +279,15 @@ def _get_anatomy_compatible_candidates(
 
     return compatible
 
-def _get_anonymous_usage(anon_id: str) -> int:
-    """Count activities presented to anonymous session in last 24h."""
-    from datetime import datetime, timedelta
-    
-    cutoff = datetime.utcnow() - timedelta(hours=24)
-    
-    sql = text("""
-        SELECT COUNT(*) FROM user_activity_history 
-        WHERE anonymous_session_id = :anon_id 
-        AND presented_at > :cutoff
-    """)
-    result = db.session.execute(sql, {"anon_id": anon_id, "cutoff": cutoff}).scalar()
-    return result or 0
+def _get_anonymous_usage(anon_id: str, mode: str = 'weekly') -> int:
+    """Count activities presented to anonymous session based on limit mode."""
+    from ..services.activity_limit_service import get_anonymous_usage
+    return get_anonymous_usage(anon_id, mode)
 
 def _check_activity_limit(user_id: Optional[str] = None, anonymous_session_id: Optional[str] = None) -> dict:
-    """Check if user (auth or anon) has reached lifetime activity limit."""
-    from ..services.config_service import get_config_int
-
-    limit = get_config_int('free_tier_activity_limit', 10)
-
-    # 1. Authenticated User
-    if user_id:
-        # Ensure ID is UUID
-        if isinstance(user_id, str):
-            try:
-                user_id = uuid.UUID(user_id)
-            except ValueError:
-                return {"error": "Invalid User ID"}
-
-        user = User.query.get(user_id)
-        if not user:
-            return {"error": "User not found"}
-
-        if user.subscription_tier == 'premium':
-            return {
-                "limit_reached": False,
-                "remaining": -1,
-                "is_capped": False
-            }
-
-        used = user.lifetime_activity_count or 0
-
-        return {
-            "limit_reached": used >= limit,
-            "remaining": max(0, limit - used),
-            "is_capped": True,
-            "used": used,
-            "limit": limit
-        }
-
-    # 2. Anonymous User
-    if anonymous_session_id:
-        used_count = _get_anonymous_usage(anonymous_session_id)
-        return {
-            "limit_reached": used_count >= limit,
-            "remaining": max(0, limit - used_count),
-            "is_capped": True,
-            "used": used_count,
-            "limit": limit
-        }
-
-    return {"error": "No identity provided"}
+    """Check if user (auth or anon) has reached activity limit based on current mode."""
+    from ..services.activity_limit_service import check_activity_limit
+    return check_activity_limit(user_id, anonymous_session_id)
 
 
 # Alias for backwards compatibility
@@ -349,16 +296,16 @@ def _check_daily_limit(user_id: Optional[str] = None, anonymous_session_id: Opti
     return _check_activity_limit(user_id, anonymous_session_id)
 
 def _increment_activity_count(user_id: str):
-    """Increment lifetime activity count for free users."""
+    """Increment activity count for free users based on current limit mode."""
+    from ..services.activity_limit_service import increment_activity_count as svc_increment, get_limit_mode
     if isinstance(user_id, str):
         try:
             user_id = uuid.UUID(user_id)
         except ValueError:
             return
-
     user = User.query.get(user_id)
     if user and user.subscription_tier != 'premium':
-        user.lifetime_activity_count = (user.lifetime_activity_count or 0) + 1
+        svc_increment(user, get_limit_mode())
         db.session.commit()
 
 
