@@ -48,6 +48,8 @@ class User(db.Model):
     revenuecat_app_user_id = db.Column(db.String(255))  # RevenueCat's user ID
     stripe_customer_id = db.Column(db.String(255))  # From RevenueCat if available
     lifetime_activity_count = db.Column(db.Integer, default=0)  # Replaces daily model
+    weekly_activity_count = db.Column(db.Integer, default=0)      # Weekly counter (Migration 034)
+    weekly_activity_reset_at = db.Column(db.DateTime)              # When weekly counter last reset (Migration 034)
     pending_promo_code = db.Column(db.String(50))  # Cleared after webhook processes
     promo_code_used = db.Column(db.String(50))  # Final converted promo code
     subscription_cancelled_at = db.Column(db.DateTime)  # When user cancelled (still has access until expiry)
@@ -117,6 +119,8 @@ class User(db.Model):
             'daily_activity_reset_at': self.daily_activity_reset_at.isoformat() if self.daily_activity_reset_at else None,
             'subscription_platform': self.subscription_platform,
             'lifetime_activity_count': self.lifetime_activity_count,
+            'weekly_activity_count': self.weekly_activity_count or 0,
+            'weekly_activity_reset_at': self.weekly_activity_reset_at.isoformat() if self.weekly_activity_reset_at else None,
             'promo_code_used': self.promo_code_used,
             'profile_sharing_setting': self.profile_sharing_setting,
             'notification_preferences': self.notification_preferences or {},
