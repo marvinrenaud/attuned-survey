@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from ..extensions import db, limiter
@@ -61,7 +61,7 @@ def register_user():
             subscription_tier='free',
             notification_preferences=data.get('notification_preferences', {}),
             onboarding_completed=False,
-            last_login_at=datetime.utcnow()
+            last_login_at=datetime.now(timezone.utc)
         )
         
         db.session.add(user)
@@ -109,7 +109,7 @@ def update_login(current_user_id):
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
-        user.last_login_at = datetime.utcnow()
+        user.last_login_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return jsonify({

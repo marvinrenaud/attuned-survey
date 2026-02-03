@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
@@ -94,7 +94,7 @@ def submit_survey(current_user_id):
                 survey_progress_id=progress.id,
                 payload_json=answers,
                 # Add metadata if available
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             db.session.add(submission)
             db.session.flush() # Flush to ensure we can reference it if needed, though we generated ID manually
@@ -149,7 +149,7 @@ def submit_survey(current_user_id):
 
             # D. Update Progress
             progress.status = 'completed'
-            progress.completed_at = datetime.utcnow()
+            progress.completed_at = datetime.now(timezone.utc)
             # Ensure answers are updated to the final set
             progress.answers = answers 
             progress.completion_percentage = 100

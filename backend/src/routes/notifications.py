@@ -95,18 +95,18 @@ def mark_all_read(current_user_id):
     }
     """
     from ..models.notification_history import Notification
-    from datetime import datetime
-    
+    from datetime import datetime, timezone
+
     try:
         user_uuid = uuid.UUID(str(current_user_id))
-        
+
         # Update all unread notifications for this user
         result = Notification.query.filter_by(
             recipient_user_id=user_uuid,
             is_read=False
         ).update({
             'is_read': True,
-            'read_at': datetime.utcnow()
+            'read_at': datetime.now(timezone.utc)
         })
         
         db.session.commit()
@@ -136,23 +136,23 @@ def mark_read(current_user_id, notification_id):
     }
     """
     from ..models.notification_history import Notification
-    from datetime import datetime
-    
+    from datetime import datetime, timezone
+
     try:
         user_uuid = uuid.UUID(str(current_user_id))
-        
+
         # Find the notification (must belong to current user)
         notification = Notification.query.filter_by(
             id=notification_id,
             recipient_user_id=user_uuid
         ).first()
-        
+
         if not notification:
             return jsonify({'error': 'Notification not found'}), 404
-        
+
         if not notification.is_read:
             notification.is_read = True
-            notification.read_at = datetime.utcnow()
+            notification.read_at = datetime.now(timezone.utc)
             db.session.commit()
             logger.info(f"Marked notification {notification_id} as read")
         

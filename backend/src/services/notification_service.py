@@ -2,7 +2,7 @@
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, List, Any
 from firebase_admin import messaging
 
@@ -83,7 +83,7 @@ class NotificationService:
                 title=title,
                 body=body,
                 data=data or {},
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
                 # sent_at remains NULL until push is successfully delivered
             )
             db.session.add(notification_record)
@@ -191,7 +191,7 @@ class NotificationService:
         successful_sends = [r for r in results if r.get("success")]
         if successful_sends and notification_record:
             try:
-                notification_record.sent_at = datetime.utcnow()
+                notification_record.sent_at = datetime.now(timezone.utc)
                 db.session.commit()
             except Exception as e:
                 logger.error(f"Error updating notification record: {e}")
