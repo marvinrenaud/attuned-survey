@@ -88,7 +88,7 @@ class TestWeeklyLimitMode:
         free_user_weekly.weekly_activity_count = 5
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -108,7 +108,7 @@ class TestWeeklyLimitMode:
         free_user_weekly.weekly_activity_count = 10
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -125,7 +125,7 @@ class TestWeeklyLimitMode:
         free_user_weekly.weekly_activity_reset_at = datetime.utcnow() - timedelta(days=8)
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -143,7 +143,7 @@ class TestWeeklyLimitMode:
         free_user_weekly.weekly_activity_reset_at = datetime.utcnow() - timedelta(days=5)
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -164,7 +164,7 @@ class TestDailyLimitMode:
         free_user_weekly.daily_activity_reset_at = datetime.utcnow() - timedelta(hours=25)
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -182,7 +182,7 @@ class TestDailyLimitMode:
         free_user_weekly.daily_activity_reset_at = datetime.utcnow() - timedelta(hours=12)
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -201,7 +201,7 @@ class TestLifetimeLimitMode:
         free_user_weekly.lifetime_activity_count = 10
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -223,7 +223,7 @@ class TestIncrementWithModes:
         free_user_weekly.weekly_activity_count = 3
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.post(
@@ -245,7 +245,7 @@ class TestIncrementWithModes:
         free_user_weekly.daily_activity_count = 2
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.post(
@@ -264,7 +264,7 @@ class TestIncrementWithModes:
         free_user_weekly.weekly_activity_count = 3
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.post(
@@ -292,7 +292,7 @@ class TestModeSwitching:
             mock_decode.return_value = {"sub": str(free_user_weekly.id)}
 
             # In lifetime mode, user is capped
-            with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
+            with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
                 resp = client.get(
                     f'/api/subscriptions/check-limit/{free_user_weekly.id}',
                     headers={'Authorization': 'Bearer valid-token'}
@@ -300,7 +300,7 @@ class TestModeSwitching:
                 assert resp.get_json()['limit_reached'] is True
 
             # Switch to weekly mode, user is NOT capped
-            with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+            with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
                 resp = client.get(
                     f'/api/subscriptions/check-limit/{free_user_weekly.id}',
                     headers={'Authorization': 'Bearer valid-token'}
@@ -315,7 +315,7 @@ class TestBackwardCompatibility:
 
     def test_check_limit_preserves_existing_fields(self, client, app_context, free_user_weekly, db_session):
         """All existing fields remain present with same types."""
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -338,7 +338,7 @@ class TestBackwardCompatibility:
 
     def test_status_preserves_existing_fields(self, client, app_context, free_user_weekly, db_session):
         """Status endpoint keeps all existing fields."""
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -354,7 +354,7 @@ class TestBackwardCompatibility:
 
     def test_increment_preserves_lifetime_activity_count_field(self, client, app_context, free_user_weekly, db_session):
         """Increment response still returns lifetime_activity_count."""
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.post(
@@ -371,7 +371,7 @@ class TestPremiumBypass:
 
     def test_premium_user_bypasses_weekly_mode(self, client, app_context, premium_user, db_session):
         """Premium user has no limit regardless of mode."""
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(premium_user.id)}
                 response = client.get(
@@ -384,7 +384,7 @@ class TestPremiumBypass:
 
     def test_premium_user_bypasses_daily_mode(self, client, app_context, premium_user, db_session):
         """Premium user has no limit in daily mode."""
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(premium_user.id)}
                 response = client.get(
@@ -402,7 +402,7 @@ class TestFeatureFlagIntegration:
         """When no free_tier_limit_mode exists, service defaults to 'weekly'."""
         # Don't mock get_config - let it use its real default
         # The config cache won't have this key, so default should kick in
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -417,7 +417,7 @@ class TestFeatureFlagIntegration:
         free_user_weekly.lifetime_activity_count = 10
         db_session.commit()
 
-        with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('invalid_mode')):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('invalid_mode')):
             with patch('src.middleware.auth.jwt.decode') as mock_decode:
                 mock_decode.return_value = {"sub": str(free_user_weekly.id)}
                 response = client.get(
@@ -439,7 +439,7 @@ class TestFeatureFlagIntegration:
             mock_decode.return_value = {"sub": str(free_user_weekly.id)}
 
             # Lifetime mode: capped at 10
-            with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
+            with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('lifetime')):
                 resp = client.get(
                     f'/api/subscriptions/check-limit/{free_user_weekly.id}',
                     headers={'Authorization': 'Bearer valid-token'}
@@ -448,7 +448,7 @@ class TestFeatureFlagIntegration:
                 assert resp.get_json()['limit_mode'] == 'lifetime'
 
             # Weekly mode: only 2 used
-            with patch('src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
+            with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
                 resp = client.get(
                     f'/api/subscriptions/check-limit/{free_user_weekly.id}',
                     headers={'Authorization': 'Bearer valid-token'}
