@@ -108,7 +108,7 @@ def get_anonymous_usage(anon_id: str, mode: str = 'weekly') -> int:
         """)
         result = db.session.execute(sql, {"anon_id": anon_id}).scalar()
     elif mode == 'daily':
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         sql = text("""
             SELECT COUNT(*) FROM user_activity_history
             WHERE anonymous_session_id = :anon_id
@@ -116,7 +116,7 @@ def get_anonymous_usage(anon_id: str, mode: str = 'weekly') -> int:
         """)
         result = db.session.execute(sql, {"anon_id": anon_id, "cutoff": cutoff}).scalar()
     else:  # 'weekly' (default)
-        cutoff = datetime.utcnow() - timedelta(days=7)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=7)
         sql = text("""
             SELECT COUNT(*) FROM user_activity_history
             WHERE anonymous_session_id = :anon_id

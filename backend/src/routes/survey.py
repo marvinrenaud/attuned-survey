@@ -1,5 +1,5 @@
 # backend/src/routes/survey.py
-from datetime import datetime
+from datetime import datetime, timezone
 import math
 import uuid
 from typing import Optional
@@ -131,7 +131,7 @@ def create_submission(current_user_id):
 
         submission_id = sanitized_submission.get("id")
         if not submission_id:
-            submission_id = str(int(datetime.utcnow().timestamp() * 1000))
+            submission_id = str(int(datetime.now(timezone.utc).timestamp() * 1000))
             sanitized_submission["id"] = submission_id
 
         name = sanitized_submission.get("name")
@@ -345,7 +345,7 @@ def export_data(current_user_id):
         )
         baseline_row = get_baseline_record()
         export_payload = {
-            "exportedAt": datetime.utcnow().isoformat(),
+            "exportedAt": datetime.now(timezone.utc).isoformat(),
             "baseline": baseline_row.submission_id if baseline_row else None,
             "submissions": [serialize_submission(s) for s in submissions],
         }

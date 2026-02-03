@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from .arousal import calculate_arousal_propensity
@@ -90,7 +90,7 @@ def calculate_profile(user_id: str, answers: Dict[str, Any]) -> Dict[str, Any]:
     profile = {
         "user_id": user_id,
         "profile_version": "0.4",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "arousal_propensity": arousal_propensity,
         "power_dynamic": power_dynamic,
         "domain_scores": domain_scores,

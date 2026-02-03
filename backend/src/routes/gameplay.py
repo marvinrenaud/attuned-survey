@@ -1160,7 +1160,7 @@ def next_turn(current_user_id, session_id):
                      activity_type=card_data.get('type', 'TRUTH').lower(),
                      primary_player_id=turn_primary_id,
                      was_skipped=False,
-                     presented_at=datetime.utcnow()
+                     presented_at=datetime.now(timezone.utc)
                  )
                  db.session.add(history)
 

@@ -1,6 +1,6 @@
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import or_
 
 from ..extensions import db
@@ -17,7 +17,7 @@ class CleanupService:
     def cleanup_pending_connections() -> int:
         """Expire 'pending' connections older than 24 hours (or expiration time)."""
         try:
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             count = PartnerConnection.query.filter(
                 PartnerConnection.status == 'pending',
                 PartnerConnection.expires_at < now
@@ -36,7 +36,7 @@ class CleanupService:
     def cleanup_stale_sessions() -> int:
         """Abandon 'active' sessions older than 7 days."""
         try:
-            cutoff = datetime.utcnow() - timedelta(days=7)
+            cutoff = datetime.now(timezone.utc) - timedelta(days=7)
             count = Session.query.filter(
                 Session.status == 'active',
                 Session.created_at < cutoff
@@ -55,7 +55,7 @@ class CleanupService:
     def cleanup_abandoned_surveys() -> int:
         """Mark 'in_progress' surveys older than 30 days as abandoned."""
         try:
-            cutoff = datetime.utcnow() - timedelta(days=30)
+            cutoff = datetime.now(timezone.utc) - timedelta(days=30)
             
             count = SurveyProgress.query.filter(
                 SurveyProgress.status == 'in_progress',
@@ -78,14 +78,14 @@ class CleanupService:
         Belt-and-suspenders backup for lazy app-level reset in activity_limit_service."""
         try:
             from ..models.user import User
-            cutoff = datetime.utcnow() - timedelta(days=7)
+            cutoff = datetime.now(timezone.utc) - timedelta(days=7)
             count = User.query.filter(
                 User.subscription_tier == 'free',
                 User.weekly_activity_reset_at < cutoff
             ).update(
                 {
                     User.weekly_activity_count: 0,
-                    User.weekly_activity_reset_at: datetime.utcnow()
+                    User.weekly_activity_reset_at: datetime.now(timezone.utc)
                 },
                 synchronize_session=False
             )
