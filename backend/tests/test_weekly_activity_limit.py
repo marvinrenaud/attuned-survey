@@ -462,7 +462,7 @@ class TestCleanupServiceWeeklyReset:
 
     def test_reset_expired_weekly_counters_resets_old(self, app_context, db_session):
         """Users with weekly_activity_reset_at > 7 days ago get reset to 0."""
-        from src.services.cleanup import CleanupService
+        from backend.src.services.cleanup import CleanupService
 
         user = User(
             id=uuid.uuid4(),
@@ -488,7 +488,7 @@ class TestCleanupServiceWeeklyReset:
 
     def test_reset_expired_weekly_counters_skips_recent(self, app_context, db_session):
         """Users with reset_at < 7 days ago are untouched."""
-        from src.services.cleanup import CleanupService
+        from backend.src.services.cleanup import CleanupService
 
         user = User(
             id=uuid.uuid4(),
@@ -513,7 +513,7 @@ class TestCleanupServiceWeeklyReset:
 
     def test_reset_expired_weekly_counters_skips_premium(self, app_context, db_session):
         """Premium users are never reset."""
-        from src.services.cleanup import CleanupService
+        from backend.src.services.cleanup import CleanupService
 
         user = User(
             id=uuid.uuid4(),
