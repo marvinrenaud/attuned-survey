@@ -43,8 +43,10 @@
 | likes_breasts | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | User likes breasts in partners |
 | subscription_tier | subscription_tier_enum | NOT NULL, DEFAULT 'free' | free, premium |
 | subscription_expires_at | TIMESTAMPTZ | NULL | Subscription expiry date |
-| daily_activity_count | INTEGER | NOT NULL, DEFAULT 0 | Activities used today (for free tier) |
-| daily_activity_reset_at | TIMESTAMPTZ | DEFAULT NOW() | Last daily counter reset |
+| daily_activity_count | INTEGER | NOT NULL, DEFAULT 0 | Activities used today (legacy daily mode) |
+| daily_activity_reset_at | TIMESTAMPTZ | DEFAULT NOW() | Last daily counter reset (legacy) |
+| weekly_activity_count | INTEGER | NOT NULL, DEFAULT 0 | Activities used this week (Migration 034) |
+| weekly_activity_reset_at | TIMESTAMPTZ | DEFAULT NOW() | Last weekly counter reset (Migration 034) |
 | profile_sharing_setting | profile_sharing_enum | NOT NULL, DEFAULT 'overlapping_only' | all_responses, overlapping_only, demographics_only |
 | notification_preferences | JSONB | NOT NULL, DEFAULT '{}' | Push notification settings |
 | profile_completed | BOOLEAN | NOT NULL, DEFAULT false, INDEXED | Has user provided name + anatomy? (gates game access) |
@@ -543,7 +545,14 @@ FROM users;
  | value | TEXT | NOT NULL | Config value |
  | description | TEXT | NULL | Human-readable description |
  | updated_at | TIMESTAMPTZ | DEFAULT NOW() | Last update timestamp |
- 
+
+**Known Keys:**
+
+| Key | Values | Default | Description |
+|-----|--------|---------|-------------|
+| `free_tier_activity_limit` | Any integer | `10` | Max free activities per period |
+| `free_tier_limit_mode` | `lifetime`, `weekly`, `daily` | `weekly` | Which counter/reset logic to use (Migration 034) |
+
  ---
 
 ## Legacy Tables
@@ -708,11 +717,14 @@ activities
 
 ### User & Activity Management
 ```sql
--- Check if user has reached daily limit
+-- Check if user has reached daily limit (legacy - now handled by activity_limit_service.py)
 SELECT check_daily_activity_limit(user_uuid, 25);
 
--- Reset all daily counters (cron job)
+-- Reset all daily counters (legacy DB function)
 SELECT reset_daily_activity_counts();
+
+-- Weekly counter reset is handled by CleanupService.reset_expired_weekly_counters()
+-- via the existing Render daily cron job (belt-and-suspenders with lazy app-level reset)
 
 -- Get activities to exclude for no-repeat
 SELECT * FROM get_excluded_activities_for_user(user_uuid, NULL);
@@ -837,15 +849,20 @@ LIMIT 100;
 
 ### Check User's Subscription Status
 ```sql
-SELECT 
+-- Note: The active counter depends on free_tier_limit_mode (weekly by default).
+-- For weekly mode, check weekly_activity_count; for lifetime, check lifetime_activity_count.
+SELECT
     u.email,
     u.subscription_tier,
     u.subscription_expires_at,
-    u.daily_activity_count,
-    25 - u.daily_activity_count AS activities_remaining,
-    CASE 
+    u.lifetime_activity_count,
+    u.weekly_activity_count,
+    u.weekly_activity_reset_at,
+    (SELECT value FROM app_config WHERE key = 'free_tier_limit_mode') AS limit_mode,
+    (SELECT COALESCE(value::int, 10) FROM app_config WHERE key = 'free_tier_activity_limit') AS activity_limit,
+    CASE
         WHEN u.subscription_tier = 'premium' THEN 'Unlimited'
-        WHEN u.daily_activity_count >= 25 THEN 'Limit Reached'
+        WHEN u.weekly_activity_count >= 10 THEN 'Limit Reached'
         ELSE 'Active'
     END AS status
 FROM users u
