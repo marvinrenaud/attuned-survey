@@ -10,7 +10,7 @@ from src.extensions import db
 import jwt
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 @pytest.fixture
 def app():
@@ -69,7 +69,7 @@ def test_submit_survey_success_new_profile(client, app, mock_calculate_profile):
             user_id=user_id,
             survey_version='0.4',
             status='in_progress',
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         db.session.add(progress)
         db.session.commit()
@@ -113,7 +113,7 @@ def test_submit_survey_upsert_retake(client, app, mock_calculate_profile):
             user_id=user_id,
             survey_version='0.4',
             status='completed',
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         db.session.add(progress)
         db.session.flush()

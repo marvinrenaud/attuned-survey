@@ -16,7 +16,7 @@ Covers:
 import os
 import pytest
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 
 from src.models.user import User
@@ -41,11 +41,11 @@ def free_user_weekly(db_session, test_user_data):
         subscription_tier='free',
         lifetime_activity_count=0,
         weekly_activity_count=0,
-        weekly_activity_reset_at=datetime.utcnow(),
+        weekly_activity_reset_at=datetime.now(timezone.utc),
         daily_activity_count=0,
-        daily_activity_reset_at=datetime.utcnow(),
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        daily_activity_reset_at=datetime.now(timezone.utc),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add(user)
     db_session.commit()
@@ -63,8 +63,8 @@ def premium_user(db_session):
         demographics={},
         subscription_tier='premium',
         lifetime_activity_count=999,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
     db_session.add(user)
     db_session.commit()
@@ -122,7 +122,7 @@ class TestWeeklyLimitMode:
     def test_weekly_auto_reset_after_7_days(self, client, app_context, free_user_weekly, db_session):
         """Counter resets to 0 if 7+ days have passed."""
         free_user_weekly.weekly_activity_count = 10
-        free_user_weekly.weekly_activity_reset_at = datetime.utcnow() - timedelta(days=8)
+        free_user_weekly.weekly_activity_reset_at = datetime.now(timezone.utc) - timedelta(days=8)
         db_session.commit()
 
         with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
@@ -140,7 +140,7 @@ class TestWeeklyLimitMode:
     def test_weekly_no_reset_before_7_days(self, client, app_context, free_user_weekly, db_session):
         """Counter does NOT reset if < 7 days have passed."""
         free_user_weekly.weekly_activity_count = 8
-        free_user_weekly.weekly_activity_reset_at = datetime.utcnow() - timedelta(days=5)
+        free_user_weekly.weekly_activity_reset_at = datetime.now(timezone.utc) - timedelta(days=5)
         db_session.commit()
 
         with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
@@ -161,7 +161,7 @@ class TestDailyLimitMode:
     def test_daily_auto_reset_after_24h(self, client, app_context, free_user_weekly, db_session):
         """Counter resets after 24 hours in daily mode."""
         free_user_weekly.daily_activity_count = 10
-        free_user_weekly.daily_activity_reset_at = datetime.utcnow() - timedelta(hours=25)
+        free_user_weekly.daily_activity_reset_at = datetime.now(timezone.utc) - timedelta(hours=25)
         db_session.commit()
 
         with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
@@ -179,7 +179,7 @@ class TestDailyLimitMode:
     def test_daily_no_reset_before_24h(self, client, app_context, free_user_weekly, db_session):
         """Counter does NOT reset if < 24 hours have passed."""
         free_user_weekly.daily_activity_count = 8
-        free_user_weekly.daily_activity_reset_at = datetime.utcnow() - timedelta(hours=12)
+        free_user_weekly.daily_activity_reset_at = datetime.now(timezone.utc) - timedelta(hours=12)
         db_session.commit()
 
         with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('daily')):
@@ -472,10 +472,10 @@ class TestCleanupServiceWeeklyReset:
             demographics={},
             subscription_tier='free',
             weekly_activity_count=8,
-            weekly_activity_reset_at=datetime.utcnow() - timedelta(days=8),
+            weekly_activity_reset_at=datetime.now(timezone.utc) - timedelta(days=8),
             lifetime_activity_count=20,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
         db_session.add(user)
         db_session.commit()
@@ -498,10 +498,10 @@ class TestCleanupServiceWeeklyReset:
             demographics={},
             subscription_tier='free',
             weekly_activity_count=5,
-            weekly_activity_reset_at=datetime.utcnow() - timedelta(days=3),
+            weekly_activity_reset_at=datetime.now(timezone.utc) - timedelta(days=3),
             lifetime_activity_count=10,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
         db_session.add(user)
         db_session.commit()
@@ -523,10 +523,10 @@ class TestCleanupServiceWeeklyReset:
             demographics={},
             subscription_tier='premium',
             weekly_activity_count=50,
-            weekly_activity_reset_at=datetime.utcnow() - timedelta(days=30),
+            weekly_activity_reset_at=datetime.now(timezone.utc) - timedelta(days=30),
             lifetime_activity_count=200,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
         db_session.add(user)
         db_session.commit()

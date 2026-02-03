@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.src.models.user import User
 from backend.src.models.survey import SurveySubmission, SurveyProgress
 from backend.src.models.profile import Profile
@@ -24,7 +24,7 @@ def user_with_progress(client, db_session):
         status='in_progress',
         answers={},
         completion_percentage=0,
-        started_at=datetime.utcnow()
+        started_at=datetime.now(timezone.utc)
     )
     db_session.add(progress)
     db_session.commit()

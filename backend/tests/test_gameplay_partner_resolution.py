@@ -57,8 +57,8 @@ def create_connection(requester_id, recipient_id, status='accepted'):
     )
     # Fix: expires_at cannot be None usually, but let's see model definition.
     # Model says nullable=False.
-    from datetime import datetime, timedelta
-    conn.expires_at = datetime.utcnow() + timedelta(days=1)
+    from datetime import datetime, timedelta, timezone
+    conn.expires_at = datetime.now(timezone.utc) + timedelta(days=1)
     
     db.session.add(conn)
     db.session.commit()

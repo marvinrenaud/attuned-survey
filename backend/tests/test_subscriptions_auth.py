@@ -2,7 +2,7 @@
 import os
 import pytest
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 from src.models.user import User
 
@@ -19,7 +19,6 @@ def app_context(app):
     with app.app_context():
         yield
 
-from datetime import datetime
 
 @pytest.fixture
 def mock_user(db_session, test_user_data):
@@ -32,9 +31,9 @@ def mock_user(db_session, test_user_data):
         demographics=test_user_data['demographics'],
         subscription_tier='free',
         lifetime_activity_count=0,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
-        last_login_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+        last_login_at=datetime.now(timezone.utc),
         subscription_expires_at=None
     )
     db_session.add(user)

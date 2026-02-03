@@ -12,7 +12,7 @@ from src.extensions import db
 import jwt
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 @pytest.fixture
@@ -87,7 +87,7 @@ def test_compat_success(client, app):
                 status='accepted', 
                 recipient_email="u2@e.com",
                 connection_token="token123",
-                expires_at=datetime.utcnow()
+                expires_at=datetime.now(timezone.utc)
             )
             db.session.add(conn)
             db.session.commit()

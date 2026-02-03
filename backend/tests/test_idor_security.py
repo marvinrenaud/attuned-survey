@@ -12,7 +12,7 @@ import jwt
 import uuid
 import os
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from backend.src.models.user import User
 from backend.src.models.partner import PartnerConnection, RememberedPartner
@@ -45,7 +45,7 @@ def two_users(db_session):
         display_name="User A",
         subscription_tier='free',
         daily_activity_count=5,
-        daily_activity_reset_at=datetime.utcnow()
+        daily_activity_reset_at=datetime.now(timezone.utc)
     )
     user_b = User(
         id=user_b_id,
@@ -53,7 +53,7 @@ def two_users(db_session):
         display_name="User B",
         subscription_tier='premium',
         daily_activity_count=10,
-        daily_activity_reset_at=datetime.utcnow()
+        daily_activity_reset_at=datetime.now(timezone.utc)
     )
 
     db_session.add_all([user_a, user_b])
@@ -232,7 +232,7 @@ class TestPartnersIDOR:
             recipient_email="user_b@test.com",
             status='pending',
             connection_token=str(uuid.uuid4()),
-            expires_at=datetime.utcnow() + timedelta(days=1)
+            expires_at=datetime.now(timezone.utc) + timedelta(days=1)
         )
         db_session.add(connection)
         db_session.commit()
@@ -276,7 +276,7 @@ class TestPartnersIDOR:
             recipient_email="user_b@test.com",
             status='pending',
             connection_token=str(uuid.uuid4()),
-            expires_at=datetime.utcnow() + timedelta(days=1)
+            expires_at=datetime.now(timezone.utc) + timedelta(days=1)
         )
         db_session.add(connection)
         db_session.commit()

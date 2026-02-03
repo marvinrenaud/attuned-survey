@@ -2,7 +2,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from flask import Flask
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from backend.src.routes.profile_ui import bp as profile_ui_bp
 from backend.src.routes.profile_sharing import profile_sharing_bp
 from backend.src.extensions import db
@@ -104,7 +104,7 @@ def test_partner_profile_access(client, mock_auth_u2, app):
             recipient_email="u1@e.com",
             status='accepted',
             connection_token=str(uuid.uuid4()),
-            expires_at=datetime.utcnow() + timedelta(days=1)
+            expires_at=datetime.now(timezone.utc) + timedelta(days=1)
         )
         db.session.add(connection)
         db.session.commit()
