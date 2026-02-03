@@ -140,7 +140,7 @@ def check_activity_limit(
         - is_capped (bool)
         - used (int)
         - limit (int)
-        - limit_mode (str): 'lifetime', 'weekly', or 'daily'
+        - limit_mode (str): 'LIFETIME', 'WEEKLY', or 'DAILY'
         - resets_at (str, ISO format): only present for weekly/daily modes
     """
     limit = get_limit_value()
@@ -163,7 +163,7 @@ def check_activity_limit(
                 "limit_reached": False,
                 "remaining": -1,
                 "is_capped": False,
-                "limit_mode": mode,
+                "limit_mode": mode.upper(),
             }
 
         used, resets_at = get_active_count_and_reset(user, mode)
@@ -174,7 +174,7 @@ def check_activity_limit(
             "is_capped": True,
             "used": used,
             "limit": limit,
-            "limit_mode": mode,
+            "limit_mode": mode.upper(),
         }
         if resets_at is not None:
             result["resets_at"] = resets_at.isoformat()
@@ -189,7 +189,7 @@ def check_activity_limit(
             "is_capped": True,
             "used": used_count,
             "limit": limit,
-            "limit_mode": mode,
+            "limit_mode": mode.upper(),
         }
 
     return {"error": "No identity provided"}
