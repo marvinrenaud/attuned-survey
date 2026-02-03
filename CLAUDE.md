@@ -14,6 +14,7 @@ Review the task against the skills table below and invoke ALL applicable skills 
 | `attuned-git-workflow` | ANY git operation | ALWAYS |
 | `attuned-architecture` | System design, new features, refactoring | Usually |
 | `attuned-supabase-security` | Database, RLS, migrations | Usually |
+| `attuned-migrations` | Running migrations, rollbacks, schema changes | Usually |
 | `attuned-payments` | Subscriptions, RevenueCat, Stripe, promo codes | Domain |
 | `attuned-survey` | Survey questions, scoring algorithms, profile calculation | Domain |
 | `attuned-activity-bank` | Activity data, import scripts, activity validation | Domain |
