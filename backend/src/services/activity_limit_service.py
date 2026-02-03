@@ -10,7 +10,7 @@ The mode is controlled by the `free_tier_limit_mode` key in app_config:
 Lazy auto-reset: counters are reset on read if the window has expired.
 Belt-and-suspenders: CleanupService also bulk-resets expired counters daily.
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 import uuid
 import logging
@@ -45,13 +45,16 @@ def get_active_count_and_reset(user: User, mode: str) -> Tuple[int, Optional[dat
         (count, resets_at) where resets_at is None for lifetime mode.
         resets_at is the datetime when the counter will next reset.
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if mode == 'lifetime':
         return (user.lifetime_activity_count or 0, None)
 
     elif mode == 'weekly':
         reset_at = user.weekly_activity_reset_at
+        # Ensure timezone-aware comparison (PostgreSQL returns aware, SQLite returns naive)
+        if reset_at is not None and reset_at.tzinfo is None:
+            reset_at = reset_at.replace(tzinfo=timezone.utc)
         if reset_at is None or (now - reset_at).total_seconds() >= 7 * 24 * 3600:
             user.weekly_activity_count = 0
             user.weekly_activity_reset_at = now
@@ -62,6 +65,8 @@ def get_active_count_and_reset(user: User, mode: str) -> Tuple[int, Optional[dat
 
     elif mode == 'daily':
         reset_at = user.daily_activity_reset_at
+        if reset_at is not None and reset_at.tzinfo is None:
+            reset_at = reset_at.replace(tzinfo=timezone.utc)
         if reset_at is None or (now - reset_at).total_seconds() >= 24 * 3600:
             user.daily_activity_count = 0
             user.daily_activity_reset_at = now
