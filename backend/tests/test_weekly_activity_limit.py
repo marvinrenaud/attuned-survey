@@ -100,7 +100,7 @@ class TestWeeklyLimitMode:
                 assert data['activities_used'] == 5
                 assert data['remaining'] == 5
                 assert data['limit_reached'] is False
-                assert data['limit_mode'] == 'weekly'
+                assert data['limit_mode'] == 'WEEKLY'
                 assert 'resets_at' in data
 
     def test_weekly_at_limit(self, client, app_context, free_user_weekly, db_session):
@@ -174,7 +174,7 @@ class TestDailyLimitMode:
                 data = response.get_json()
                 assert data['limit_reached'] is False
                 assert data['activities_used'] == 0
-                assert data['limit_mode'] == 'daily'
+                assert data['limit_mode'] == 'DAILY'
 
     def test_daily_no_reset_before_24h(self, client, app_context, free_user_weekly, db_session):
         """Counter does NOT reset if < 24 hours have passed."""
@@ -210,7 +210,7 @@ class TestLifetimeLimitMode:
                 )
                 data = response.get_json()
                 assert data['limit_reached'] is True
-                assert data['limit_mode'] == 'lifetime'
+                assert data['limit_mode'] == 'LIFETIME'
                 assert 'resets_at' not in data
 
 
@@ -410,7 +410,7 @@ class TestFeatureFlagIntegration:
                     headers={'Authorization': 'Bearer valid-token'}
                 )
                 data = response.get_json()
-                assert data['limit_mode'] == 'weekly'
+                assert data['limit_mode'] == 'WEEKLY'
 
     def test_invalid_mode_falls_back_to_lifetime(self, client, app_context, free_user_weekly, db_session):
         """Unknown mode value falls back to lifetime (safe default)."""
@@ -445,7 +445,7 @@ class TestFeatureFlagIntegration:
                     headers={'Authorization': 'Bearer valid-token'}
                 )
                 assert resp.get_json()['limit_reached'] is True
-                assert resp.get_json()['limit_mode'] == 'lifetime'
+                assert resp.get_json()['limit_mode'] == 'LIFETIME'
 
             # Weekly mode: only 2 used
             with patch('backend.src.services.activity_limit_service.get_config', side_effect=_mock_config('weekly')):
@@ -454,7 +454,7 @@ class TestFeatureFlagIntegration:
                     headers={'Authorization': 'Bearer valid-token'}
                 )
                 assert resp.get_json()['limit_reached'] is False
-                assert resp.get_json()['limit_mode'] == 'weekly'
+                assert resp.get_json()['limit_mode'] == 'WEEKLY'
 
 
 class TestCleanupServiceWeeklyReset:

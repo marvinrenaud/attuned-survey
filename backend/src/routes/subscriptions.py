@@ -90,7 +90,7 @@ def check_activity_limit(current_user_id, user_id):
                 'has_limit': False,
                 'limit_reached': False,
                 'remaining': -1,
-                'limit_mode': mode,
+                'limit_mode': mode.upper(),
             }), 200
 
         # Get configurable limit and mode-aware count
@@ -105,7 +105,7 @@ def check_activity_limit(current_user_id, user_id):
             'activities_used': used,
             'limit': limit,
             'remaining': max(0, limit - used),
-            'limit_mode': mode,
+            'limit_mode': mode.upper(),
         }
         if resets_at is not None:
             response['resets_at'] = resets_at.isoformat()
@@ -149,7 +149,7 @@ def increment_activity_count(current_user_id, user_id):
         return jsonify({
             'success': True,
             'lifetime_activity_count': user.lifetime_activity_count or 0,
-            'limit_mode': mode,
+            'limit_mode': mode.upper(),
         }), 200
 
     except Exception as e:
@@ -208,7 +208,7 @@ def get_subscription_status(current_user_id, user_id):
             'activities_remaining': max(0, limit - used) if not is_premium else None,
             'has_billing_issue': user.billing_issue_detected_at is not None,
             'promo_code_used': user.promo_code_used,
-            'limit_mode': mode,
+            'limit_mode': mode.upper(),
         }
         if resets_at is not None:
             response['resets_at'] = resets_at.isoformat()
