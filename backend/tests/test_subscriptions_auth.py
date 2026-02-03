@@ -6,6 +6,13 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 from src.models.user import User
 
+
+def _lifetime_config(key, default=None):
+    """Mock get_config to always return 'lifetime' for limit mode."""
+    if key == 'free_tier_limit_mode':
+        return 'lifetime'
+    return default
+
 @pytest.fixture
 def app_context(app):
     """Ensure app context is pushed"""
@@ -91,18 +98,19 @@ def test_check_lifetime_limit_enforced(client, app_context, mock_auth_user, db_s
     db_session.add(mock_auth_user)
     db_session.commit()
 
-    with patch('src.middleware.auth.jwt.decode') as mock_decode:
-        mock_decode.return_value = {"sub": str(mock_auth_user.id)}
+    with patch('backend.src.services.activity_limit_service.get_config', side_effect=_lifetime_config):
+        with patch('src.middleware.auth.jwt.decode') as mock_decode:
+            mock_decode.return_value = {"sub": str(mock_auth_user.id)}
 
-        response = client.get(
-            f'/api/subscriptions/check-limit/{mock_auth_user.id}',
-            headers={'Authorization': 'Bearer valid-token'}
-        )
+            response = client.get(
+                f'/api/subscriptions/check-limit/{mock_auth_user.id}',
+                headers={'Authorization': 'Bearer valid-token'}
+            )
 
-        assert response.status_code == 200
-        data = response.get_json()
-        assert data['limit_reached'] is True
-        assert data['remaining'] == 0
+            assert response.status_code == 200
+            data = response.get_json()
+            assert data['limit_reached'] is True
+            assert data['remaining'] == 0
 
 def test_check_lifetime_limit_premium_unlimited(client, app_context, mock_auth_user, db_session):
     """Test that premium users ignore limits"""

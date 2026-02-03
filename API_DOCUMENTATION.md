@@ -440,8 +440,8 @@ Submits survey answers, calculates the profile, updates the user's onboarding st
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/validate/<user_id>` | Get subscription status and tier for a user. |
-| `GET` | `/check-limit/<user_id>` | Check if user has reached daily activity limit. |
-| `POST` | `/increment-activity/<user_id>` | Increment daily activity counter (internal use). |
+| `GET` | `/check-limit/<user_id>` | Check if user has reached activity limit (configurable, default 10/week). |
+| `POST` | `/increment-activity/<user_id>` | Increment activity counter (internal use). |
 | `POST` | `/webhook/app-store` | Apple App Store subscription webhook. |
 | `POST` | `/webhook/play-store` | Google Play Store subscription webhook. |
 
@@ -472,19 +472,21 @@ Returns the user's subscription status and related billing information.
 | `daily_activity_count` | integer | Activities consumed today |
 | `daily_activity_reset_at` | string | When the daily counter was last reset |
 
-### Check Daily Limit
+### Check Activity Limit
 `GET /api/subscriptions/check-limit/<user_id>`
 
-Check if a free-tier user has reached their daily activity limit (25 activities).
+Check if a free-tier user has reached their activity limit. The limit mode is configurable via the `free_tier_limit_mode` app_config key (default: `weekly`, options: `lifetime`, `weekly`, `daily`). Default limit is 10 activities per period.
 
 **Response (Free User):**
 ```json
 {
   "has_limit": true,
   "limit_reached": false,
-  "count": 5,
-  "limit": 25,
-  "remaining": 20
+  "activities_used": 5,
+  "limit": 10,
+  "remaining": 5,
+  "limit_mode": "weekly",
+  "resets_at": "2026-02-10T12:00:00"
 }
 ```
 
@@ -493,14 +495,25 @@ Check if a free-tier user has reached their daily activity limit (25 activities)
 {
   "has_limit": false,
   "limit_reached": false,
-  "remaining": -1
+  "remaining": -1,
+  "limit_mode": "weekly"
 }
 ```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `has_limit` | boolean | `true` for free tier, `false` for premium |
+| `limit_reached` | boolean | Whether the user has hit the activity cap |
+| `activities_used` | integer | Activities consumed in current period |
+| `limit` | integer | Maximum activities per period |
+| `remaining` | integer | Activities left (`-1` for premium = unlimited) |
+| `limit_mode` | string | Current mode: `lifetime`, `weekly`, or `daily` |
+| `resets_at` | string \| null | ISO timestamp when counter resets (null for lifetime mode) |
 
 ### Increment Activity Count
 `POST /api/subscriptions/increment-activity/<user_id>`
 
-Increments the daily activity counter for free-tier users. Premium users are not affected.
+Increments the activity counter for free-tier users based on the current limit mode. Always increments `lifetime_activity_count` as a permanent ledger. Premium users are not affected.
 
 **Note:** This is typically called internally by the gameplay endpoints. Frontend should not need to call this directly.
 
@@ -508,7 +521,8 @@ Increments the daily activity counter for free-tier users. Premium users are not
 ```json
 {
   "success": true,
-  "count": 6
+  "lifetime_activity_count": 6,
+  "limit_mode": "weekly"
 }
 ```
 

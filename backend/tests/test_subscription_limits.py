@@ -4,6 +4,9 @@ Tests for lifetime activity limits (replacing daily limits).
 TDD: These tests are written BEFORE implementation.
 The existing endpoints need to be updated to use lifetime_activity_count
 instead of daily_activity_count.
+
+NOTE: These tests pin the limit mode to 'lifetime' to preserve backward
+compatibility after the weekly limit feature was added.
 """
 import os
 import pytest
@@ -12,6 +15,13 @@ from datetime import datetime
 from unittest.mock import patch
 
 from src.models.user import User
+
+
+def _lifetime_config(key, default=None):
+    """Mock get_config to always return 'lifetime' for limit mode."""
+    if key == 'free_tier_limit_mode':
+        return 'lifetime'
+    return default
 
 
 @pytest.fixture
@@ -63,6 +73,11 @@ def premium_user(db_session):
 
 class TestLifetimeActivityLimits:
     """Tests for lifetime activity limit enforcement."""
+
+    @pytest.fixture(autouse=True)
+    def pin_lifetime_mode(self):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_lifetime_config):
+            yield
 
     def test_check_limit_free_user_under_limit(self, client, app_context, free_user, db_session):
         """Free user with 5/10 activities shows remaining=5"""
@@ -164,6 +179,11 @@ class TestLifetimeActivityLimits:
 
 class TestSubscriptionStatus:
     """Tests for enhanced subscription status endpoint."""
+
+    @pytest.fixture(autouse=True)
+    def pin_lifetime_mode(self):
+        with patch('backend.src.services.activity_limit_service.get_config', side_effect=_lifetime_config):
+            yield
 
     def test_status_free_user(self, client, app_context, free_user, db_session):
         """Status returns correct lifetime limit info for free user"""

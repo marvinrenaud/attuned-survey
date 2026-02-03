@@ -5,6 +5,12 @@ from ..extensions import db
 from ..models.user import User
 from ..middleware.auth import token_required
 from ..services.config_service import get_config_int
+from ..services.activity_limit_service import (
+    get_active_count_and_reset,
+    get_limit_mode,
+    get_limit_value,
+    increment_activity_count as svc_increment,
+)
 import logging
 import uuid
 
@@ -58,8 +64,8 @@ def validate_subscription(current_user_id, user_id):
 @token_required
 def check_activity_limit(current_user_id, user_id):
     """
-    Check if user has reached lifetime activity limit.
-    Free tier users have a configurable lifetime limit.
+    Check if user has reached activity limit based on current mode.
+    Free tier users have a configurable limit per period.
     """
     try:
         # Authorization
@@ -76,26 +82,34 @@ def check_activity_limit(current_user_id, user_id):
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
+        mode = get_limit_mode()
+
         # Premium users have no limit
         if user.subscription_tier == 'premium':
             return jsonify({
                 'has_limit': False,
                 'limit_reached': False,
-                'remaining': -1
+                'remaining': -1,
+                'limit_mode': mode,
             }), 200
 
-        # Get configurable limit from app_config
-        limit = get_config_int('free_tier_activity_limit', 10)
-        used = user.lifetime_activity_count or 0
+        # Get configurable limit and mode-aware count
+        limit = get_limit_value()
+        used, resets_at = get_active_count_and_reset(user, mode)
+        db.session.commit()  # persist any lazy reset
         limit_reached = used >= limit
 
-        return jsonify({
+        response = {
             'has_limit': True,
             'limit_reached': limit_reached,
             'activities_used': used,
             'limit': limit,
-            'remaining': max(0, limit - used)
-        }), 200
+            'remaining': max(0, limit - used),
+            'limit_mode': mode,
+        }
+        if resets_at is not None:
+            response['resets_at'] = resets_at.isoformat()
+        return jsonify(response), 200
 
     except Exception as e:
         logger.error(f"Check limit failed: {str(e)}")
@@ -106,7 +120,7 @@ def check_activity_limit(current_user_id, user_id):
 @token_required
 def increment_activity_count(current_user_id, user_id):
     """
-    Increment lifetime activity count for user.
+    Increment activity count for user based on current limit mode.
     Called after each activity is presented.
     Only increments for free tier users.
     """
@@ -125,14 +139,17 @@ def increment_activity_count(current_user_id, user_id):
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
+        mode = get_limit_mode()
+
         # Only increment for free tier
         if user.subscription_tier == 'free':
-            user.lifetime_activity_count = (user.lifetime_activity_count or 0) + 1
+            svc_increment(user, mode)
             db.session.commit()
 
         return jsonify({
             'success': True,
-            'lifetime_activity_count': user.lifetime_activity_count or 0
+            'lifetime_activity_count': user.lifetime_activity_count or 0,
+            'limit_mode': mode,
         }), 200
 
     except Exception as e:
@@ -162,14 +179,23 @@ def get_subscription_status(current_user_id, user_id):
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
-        limit = get_config_int('free_tier_activity_limit', 10)
+        limit = get_limit_value()
+        mode = get_limit_mode()
         is_premium = (
             user.subscription_tier == 'premium' and
             (user.subscription_expires_at is None or
              user.subscription_expires_at > datetime.now(timezone.utc))
         )
 
-        return jsonify({
+        # Get mode-aware count for free users
+        if not is_premium:
+            used, resets_at = get_active_count_and_reset(user, mode)
+            db.session.commit()  # persist any lazy reset
+        else:
+            used = user.lifetime_activity_count or 0
+            resets_at = None
+
+        response = {
             'user_id': str(user_id),
             'subscription_tier': user.subscription_tier,
             'is_premium': is_premium,
@@ -177,12 +203,16 @@ def get_subscription_status(current_user_id, user_id):
             'is_cancelled': user.subscription_cancelled_at is not None and is_premium,
             'platform': user.subscription_platform,
             'product_id': user.subscription_product_id,
-            'activities_used': user.lifetime_activity_count or 0,
+            'activities_used': used,
             'activities_limit': limit if not is_premium else None,
-            'activities_remaining': max(0, limit - (user.lifetime_activity_count or 0)) if not is_premium else None,
+            'activities_remaining': max(0, limit - used) if not is_premium else None,
             'has_billing_issue': user.billing_issue_detected_at is not None,
-            'promo_code_used': user.promo_code_used
-        }), 200
+            'promo_code_used': user.promo_code_used,
+            'limit_mode': mode,
+        }
+        if resets_at is not None:
+            response['resets_at'] = resets_at.isoformat()
+        return jsonify(response), 200
 
     except Exception as e:
         logger.error(f"Get status failed: {str(e)}")

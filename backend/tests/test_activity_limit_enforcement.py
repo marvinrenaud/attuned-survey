@@ -21,6 +21,20 @@ from src.models.survey import SurveySubmission  # Import before Profile to resol
 from src.models.profile import Profile
 
 
+def _lifetime_config(key, default=None):
+    """Mock get_config to always return 'lifetime' for limit mode."""
+    if key == 'free_tier_limit_mode':
+        return 'lifetime'
+    return default
+
+
+@pytest.fixture(autouse=True)
+def pin_lifetime_mode():
+    """Pin activity limit mode to 'lifetime' for backward-compatible tests."""
+    with patch('backend.src.services.activity_limit_service.get_config', side_effect=_lifetime_config):
+        yield
+
+
 @pytest.fixture
 def test_activity(db_session):
     """Create a test activity for queue generation."""

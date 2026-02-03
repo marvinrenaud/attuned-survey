@@ -46,8 +46,8 @@ The existing `SubscriptionStatusStruct` needs to be updated to match the new API
 | `is_cancelled` | `Boolean` | No | Yes | **NEW** - Whether subscription is cancelled |
 | `platform` | `String` | No | Yes | **NEW** - "stripe", "apple", or "google" |
 | `product_id` | `String` | No | Yes | **NEW** - RevenueCat product identifier |
-| `activities_used` | `Integer` | No | Yes | **NEW** - Replaces daily_activity_count |
-| `activities_limit` | `Integer` | No | Yes | **NEW** - Lifetime limit (10 for free) |
+| `activities_used` | `Integer` | No | Yes | **NEW** - Active period count (reflects current `free_tier_limit_mode`: lifetime, weekly, or daily) |
+| `activities_limit` | `Integer` | No | Yes | **NEW** - Limit per period (default 10 for free) |
 | `activities_remaining` | `Integer` | No | Yes | **NEW** - Remaining activities |
 | `has_billing_issue` | `Boolean` | No | Yes | **NEW** - Payment problem flag |
 | `promo_code_used` | `String` | No | Yes | **NEW** - Applied promo code |
