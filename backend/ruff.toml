@@ -1,0 +1,6 @@
+# Ruff configuration for Attuned backend
+# Rule UP017: Flag deprecated datetime.utcnow() and datetime.utcfromtimestamp()
+# See: https://docs.astral.sh/ruff/rules/datetime-timezone-utc/
+
+[lint]
+extend-select = ["UP017"]
