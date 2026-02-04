@@ -24,6 +24,8 @@ from ..game.text_resolver import resolve_activity_text
 from ..db.repository import find_best_activity_candidate
 from ..models.profile import Profile
 from ..models.partner import PartnerConnection
+from ..models.session_activity import SessionActivity
+from ..models.activity_history import UserActivityHistory
 
 logger = get_logger()
 
@@ -381,6 +383,122 @@ def _enforce_activity_limit(
         queue = _scrub_queue_for_limit(queue, keep_first=keep_first)
 
     return limit_status, queue
+
+
+def _record_activity_consumption(
+    session: Session,
+    card_data: Dict[str, Any],
+    consumed_item: Dict[str, Any],
+    owner_id: Optional[str],
+    anonymous_session_id: Optional[str],
+    primary_player_id: Optional[str],
+    players: List[Dict[str, Any]],
+    was_skipped: bool
+) -> None:
+    """
+    Dual-write activity consumption to both user_activity_history and session_activities.
+
+    - user_activity_history: thin record for no-repeat filtering and limit counting
+    - session_activities: rich record for session replay and analytics
+
+    Args:
+        session: The Session object
+        card_data: The card that was consumed (contains type, card_id, display_text, intensity_rating, etc.)
+        consumed_item: The full queue item that was consumed (contains step, progress, primary_player_idx)
+        owner_id: The authenticated user ID (or None for anonymous)
+        anonymous_session_id: The anonymous session ID (or None for authenticated)
+        primary_player_id: The ID of the player who performed the activity
+        players: The full list of players in the session
+        was_skipped: Whether the activity was skipped (action='SKIP')
+    """
+    # Extract activity_id from card_id (numeric = real activity, else None)
+    cid_str = card_data.get('card_id')
+    activity_id = int(cid_str) if cid_str and str(cid_str).isdigit() else None
+
+    # Determine source based on card_id
+    source = 'bank' if activity_id else 'fallback'
+
+    # Get activity type (lowercase for DB storage)
+    activity_type = card_data.get('type', 'TRUTH').lower()
+
+    # Get step number and progress info
+    step = consumed_item.get('step', 0)
+    progress = consumed_item.get('progress', {})
+    intensity_phase = progress.get('intensity_phase')
+
+    # Get display text and intensity
+    display_text = card_data.get('display_text', '')
+    intensity_rating = card_data.get('intensity_rating', 1)
+
+    # Get secondary players
+    secondary_players = card_data.get('secondary_players', [])
+
+    # 1. Write to UserActivityHistory (existing behavior)
+    history = UserActivityHistory(
+        user_id=owner_id,
+        anonymous_session_id=anonymous_session_id,
+        session_id=session.session_id,
+        activity_id=activity_id,
+        activity_type=activity_type,
+        primary_player_id=primary_player_id,
+        was_skipped=was_skipped,
+        presented_at=datetime.now(timezone.utc)
+    )
+    db.session.add(history)
+
+    # 2. Write to SessionActivity (new - for session replay)
+    # Use upsert pattern: check if exists, update or insert
+    existing = SessionActivity.query.filter_by(
+        session_id=session.session_id,
+        seq=step
+    ).first()
+
+    now = datetime.now(timezone.utc)
+
+    if existing:
+        # Update existing record
+        existing.activity_id = activity_id
+        existing.type = activity_type
+        existing.rating = session.rating
+        existing.intensity = intensity_rating
+        existing.script = {'display_text': display_text}
+        existing.source = source
+        existing.template_id = activity_id
+        existing.intensity_phase = intensity_phase
+        existing.primary_player_id = primary_player_id
+        existing.secondary_player_ids = secondary_players
+        existing.consumed_at = now
+        existing.was_skipped = was_skipped
+    else:
+        # Create new record
+        session_activity = SessionActivity(
+            session_id=session.session_id,
+            seq=step,
+            activity_id=activity_id,
+            type=activity_type,
+            rating=session.rating,
+            intensity=intensity_rating,
+            script={'display_text': display_text},
+            source=source,
+            template_id=activity_id,
+            intensity_phase=intensity_phase,
+            primary_player_id=primary_player_id,
+            secondary_player_ids=secondary_players,
+            consumed_at=now,
+            was_skipped=was_skipped
+        )
+        db.session.add(session_activity)
+
+    # 3. Update session counters
+    session.current_step = step
+    if activity_type == 'truth':
+        session.truth_so_far = (session.truth_so_far or 0) + 1
+    elif activity_type == 'dare':
+        session.dare_so_far = (session.dare_so_far or 0) + 1
+
+    # 4. Update skip count if skipped
+    if was_skipped:
+        session.skip_count = (session.skip_count or 0) + 1
 
 
 def _generate_single_card(
@@ -1074,6 +1192,8 @@ def next_turn(current_user_id, session_id):
         data = request.get_json() or {}
         anonymous_session_id = data.get("anonymous_session_id")
         selected_type = data.get("selected_type")  # NEW: Read selection for MANUAL mode
+        action = data.get("action", "NEXT").upper()  # SKIP or NEXT
+        was_skipped = (action == "SKIP")
 
         if not is_participant and anonymous_session_id:
              for p in players:
@@ -1140,29 +1260,23 @@ def next_turn(current_user_id, session_id):
                 # RANDOM MODE: Use existing card field
                 card_data = consumed_item.get('card', {})
 
-            # LOGGING: Record history for the played card
+            # LOGGING: Record history for the played card (dual-write to both tables)
             if card_data and card_data.get('type') != 'LIMIT_REACHED':
-                 from ..models.activity_history import UserActivityHistory
+                turn_primary_idx = consumed_item.get('primary_player_idx')
+                turn_primary_id = None
+                if turn_primary_idx is not None and 0 <= turn_primary_idx < len(players):
+                    turn_primary_id = str(players[turn_primary_idx].get('id'))
 
-                 cid_str = card_data.get('card_id')
-                 activity_id = int(cid_str) if cid_str and str(cid_str).isdigit() else None
-
-                 turn_primary_idx = consumed_item.get('primary_player_idx')
-                 turn_primary_id = None
-                 if turn_primary_idx is not None and 0 <= turn_primary_idx < len(players):
-                     turn_primary_id = str(players[turn_primary_idx].get('id'))
-
-                 history = UserActivityHistory(
-                     user_id=owner_id,
-                     anonymous_session_id=anonymous_session_id,
-                     session_id=session.session_id,
-                     activity_id=activity_id,
-                     activity_type=card_data.get('type', 'TRUTH').lower(),
-                     primary_player_id=turn_primary_id,
-                     was_skipped=False,
-                     presented_at=datetime.now(timezone.utc)
-                 )
-                 db.session.add(history)
+                _record_activity_consumption(
+                    session=session,
+                    card_data=card_data,
+                    consumed_item=consumed_item,
+                    owner_id=owner_id,
+                    anonymous_session_id=anonymous_session_id,
+                    primary_player_id=turn_primary_id,
+                    players=players,
+                    was_skipped=was_skipped
+                )
 
             # Charge 1 Credit for the played card IF it wasn't a barrier card
             if owner_id and card_data and card_data.get('type') != 'LIMIT_REACHED':
@@ -1202,5 +1316,65 @@ def next_turn(current_user_id, session_id):
         traceback.print_exc()
         logger.error("next_turn_failed", session_id=session_id, error=str(e))
         # If DB error, rollback?
+        db.session.rollback()
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@gameplay_bp.route("/<session_id>/end", methods=["POST"])
+@token_required
+@limiter.limit("100 per hour")
+def end_game(current_user_id, session_id):
+    """
+    End a game session.
+    Marks the session as completed and sets completed_at timestamp.
+
+    Only participants can end the session.
+    """
+    try:
+        session = Session.query.get(session_id)
+        if not session:
+            return jsonify({"error": "Session not found"}), 404
+
+        # Validate participation (same pattern as next_turn)
+        players = session.players or []
+        is_participant = False
+
+        if current_user_id:
+            for p in players:
+                if str(p.get('id')) == str(current_user_id):
+                    is_participant = True
+                    break
+
+        # Also check session owner
+        if str(session.session_owner_user_id) == str(current_user_id):
+            is_participant = True
+
+        if not is_participant:
+            return jsonify({'error': 'Forbidden', 'message': 'Not a participant'}), 403
+
+        # Mark session as completed
+        session.status = 'completed'
+        session.completed_at = datetime.now(timezone.utc)
+        db.session.commit()
+
+        logger.info("session_ended",
+            session_id=session_id,
+            user_id=str(current_user_id),
+            total_steps=session.current_step,
+            truths=session.truth_so_far,
+            dares=session.dare_so_far,
+            skips=session.skip_count
+        )
+
+        return jsonify({
+            "session_id": session.session_id,
+            "status": "completed",
+            "completed_at": session.completed_at.isoformat() if session.completed_at else None
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        logger.error("end_game_failed", session_id=session_id, error=str(e))
         db.session.rollback()
         return jsonify({"error": "Internal server error"}), 500
