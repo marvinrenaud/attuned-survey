@@ -24,9 +24,9 @@ class SessionActivity(db.Model):
     
     # Denormalized activity data (for historical accuracy even if source changes)
     type = db.Column(db.String(16), nullable=False)  # truth, dare
-    rating = db.Column(db.String(1), nullable=False)  # G, R, X
+    rating = db.Column(db.String(1), nullable=True)  # G, R, X (nullable for JIT)
     intensity = db.Column(db.Integer, nullable=False)  # 1-5
-    script = db.Column(db.JSON, nullable=False)  # Complete script
+    script = db.Column(db.JSON, nullable=True)  # Complete script (nullable for fallback cards)
     tags = db.Column(db.JSON, nullable=True)  # Activity tags
     
     # Actor roles for this specific session
@@ -34,7 +34,7 @@ class SessionActivity(db.Model):
     roles = db.Column(db.JSON, nullable=True)
     
     # Provenance tracking
-    source = db.Column(db.String(32), nullable=False)  # bank, ai_generated, user_submitted
+    source = db.Column(db.String(32), nullable=True, default='bank')  # bank, ai_generated, user_submitted, fallback
     template_id = db.Column(db.Integer, nullable=True)  # Original activity_id if from bank
     
     # Validation checks (from validator)
@@ -50,6 +50,13 @@ class SessionActivity(db.Model):
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    consumed_at = db.Column(db.DateTime, nullable=True)  # When card was shown/consumed
+
+    # JIT tracking fields
+    intensity_phase = db.Column(db.String(32), nullable=True)  # Warm-up, Build, Peak
+    primary_player_id = db.Column(db.String(128), nullable=True)  # Player ID who performed
+    secondary_player_ids = db.Column(db.JSON, nullable=True)  # List of secondary player IDs/names
+    was_skipped = db.Column(db.Boolean, default=False, nullable=False)  # True if activity was skipped
     
     # Relationships
     session = db.relationship('Session', backref=db.backref('activities', lazy=True, order_by='SessionActivity.seq'))
@@ -79,5 +86,10 @@ class SessionActivity(db.Model):
             'template_id': self.template_id,
             'checks': self.checks or {},
             'created_at': self.created_at.isoformat(),
+            'consumed_at': self.consumed_at.isoformat() if self.consumed_at else None,
+            'intensity_phase': self.intensity_phase,
+            'primary_player_id': self.primary_player_id,
+            'secondary_player_ids': self.secondary_player_ids or [],
+            'was_skipped': self.was_skipped,
         }
 
